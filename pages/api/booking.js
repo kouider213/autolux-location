@@ -12,7 +12,6 @@ export default async function handler(req, res) {
     startDate, endDate,
   } = req.body;
 
-  // ── Validation âge ──
   if (!clientAge || Number(clientAge) < 35) {
     return res.status(400).json({
       error: "Nous sommes désolés, nos assurances exigent un âge minimum de 35 ans.",
@@ -21,12 +20,10 @@ export default async function handler(req, res) {
 
   const admin = supabaseAdmin();
 
-  // ── Récupérer la voiture ──
   const { data: car, error: carErr } = await admin
     .from('cars').select('*').eq('id', carId).single();
   if (carErr || !car) return res.status(404).json({ error: 'Véhicule introuvable' });
 
-  // ── Vérifier disponibilité ──
   const { data: available } = await admin.rpc('check_car_availability', {
     p_car_id: carId,
     p_start: startDate,
@@ -39,7 +36,6 @@ export default async function handler(req, res) {
     });
   }
 
-  // ── Calculer prix selon rôle ──
   let finalPrice, profit;
   if (userRole === 'kouider') {
     finalPrice = car.resale_price;
@@ -49,7 +45,6 @@ export default async function handler(req, res) {
     profit = 0;
   }
 
-  // ── Créer la réservation ──
   const { data: booking, error: bookErr } = await admin
     .from('bookings')
     .insert([{
@@ -77,7 +72,6 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erreur lors de la création de la réservation' });
   }
 
-  // ── Notification SMS (Twilio) ──
   try {
     await sendSMSNotification(booking, car);
   } catch (e) {
@@ -87,17 +81,20 @@ export default async function handler(req, res) {
   return res.status(200).json({ success: true, booking });
 }
 
-// ── Helper SMS ──
 async function sendSMSNotification(booking, car) {
   const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER, PHONE_KOUIDER, PHONE_HOUARI } = process.env;
   if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) return;
 
   const msg = `🚗 Nouvelle résa AutoLux\nClient: ${booking.client_name}\nTél: ${booking.client_phone}\nVéhicule: ${car.name}\nDu ${booking.start_date} au ${booking.end_date}`;
-
   const phones = [PHONE_KOUIDER, PHONE_HOUARI].filter(Boolean);
-  const client = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
-  await Promise.all(phones.map(phone =>
-    client.messages.create({ body: msg, from: TWILIO_PHONE_NUMBER, to: phone })
-  ));
+  try {
+    const twilio = await import('twilio');
+    const client = twilio.default(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+    await Promise.all(phones.map(phone =>
+      client.messages.create({ body: msg, from: TWILIO_PHONE_NUMBER, to: phone })
+    ));
+  } catch (e) {
+    console.error('Twilio non disponible:', e.message);
+  }
 }
