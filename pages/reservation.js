@@ -117,9 +117,7 @@ export default function ReservationPage({ cars }) {
             <div className="flex items-center justify-center gap-2 mb-10">
               {[1, 2, 3].map((s) => (
                 <div key={s} className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-                    step >= s ? 'bg-gold-500 text-noir-950' : 'bg-white/10 text-white/30'
-                  }`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${step >= s ? 'bg-gold-500 text-noir-950' : 'bg-white/10 text-white/30'}`}>
                     {step > s ? '✓' : s}
                   </div>
                   {s < 3 && <div className={`w-12 h-px transition-all duration-300 ${step > s ? 'bg-gold-500' : 'bg-white/10'}`} />}
@@ -131,7 +129,6 @@ export default function ReservationPage({ cars }) {
               {step === 1 && (
                 <div className="space-y-5">
                   <h2 className="text-white font-semibold text-lg mb-6">Choisir un véhicule et les dates</h2>
-
                   <div>
                     <label className="label-dark">Véhicule *</label>
                     <select value={form.carId} onChange={update('carId')} className="input-dark">
@@ -146,9 +143,7 @@ export default function ReservationPage({ cars }) {
 
                   {selectedCar && (
                     <div className="bg-noir-800 rounded-xl p-4 flex items-center gap-4">
-                      <div className="w-16 h-16 bg-noir-700 rounded-lg flex items-center justify-center text-3xl">
-                        🚗
-                      </div>
+                      <div className="w-16 h-16 bg-noir-700 rounded-lg flex items-center justify-center text-3xl">🚗</div>
                       <div>
                         <p className="text-white font-semibold">{selectedCar.name}</p>
                         <p className="text-gold-500 font-bold">{selectedCar.resale_price} € / jour</p>
@@ -160,23 +155,11 @@ export default function ReservationPage({ cars }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="label-dark">Date de départ *</label>
-                      <input
-                        type="date"
-                        value={form.startDate}
-                        min={new Date().toISOString().split('T')[0]}
-                        onChange={update('startDate')}
-                        className="input-dark"
-                      />
+                      <input type="date" value={form.startDate} min={new Date().toISOString().split('T')[0]} onChange={update('startDate')} className="input-dark" />
                     </div>
                     <div>
                       <label className="label-dark">Date de retour *</label>
-                      <input
-                        type="date"
-                        value={form.endDate}
-                        min={form.startDate || new Date().toISOString().split('T')[0]}
-                        onChange={update('endDate')}
-                        className="input-dark"
-                      />
+                      <input type="date" value={form.endDate} min={form.startDate || new Date().toISOString().split('T')[0]} onChange={update('endDate')} className="input-dark" />
                     </div>
                   </div>
 
@@ -189,10 +172,7 @@ export default function ReservationPage({ cars }) {
                     </div>
                   )}
 
-                  <button
-                    onClick={() => { if (validateStep1()) setStep(2); }}
-                    className="btn-gold w-full py-3 mt-2"
-                  >
+                  <button onClick={() => { if (validateStep1()) setStep(2); }} className="btn-gold w-full py-3 mt-2">
                     Continuer →
                   </button>
                 </div>
@@ -262,11 +242,7 @@ export default function ReservationPage({ cars }) {
                     </div>
                   </div>
 
-                  <button
-                    onClick={handleSubmit}
-                    disabled={loading}
-                    className="btn-gold w-full py-3 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
+                  <button onClick={handleSubmit} disabled={loading} className="btn-gold w-full py-3 mt-2 disabled:opacity-50 disabled:cursor-not-allowed">
                     {loading ? 'Envoi en cours...' : 'Envoyer la demande'}
                   </button>
                 </div>
@@ -283,16 +259,11 @@ export default function ReservationPage({ cars }) {
 
                   <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-8 text-left">
                     <p className="text-amber-400 text-sm font-medium mb-1">⏳ En attente de confirmation</p>
-                    <p className="text-white/40 text-sm">Notre équipe va confirmer votre réservation dans les plus brefs délais. Vous serez contacté(e) par téléphone ou WhatsApp.</p>
+                    <p className="text-white/40 text-sm">Notre équipe va confirmer votre réservation dans les plus brefs délais. Vous serez contacté par téléphone ou WhatsApp.</p>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    
-                      href={whatsappUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
-                    >
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
                       <span>💬</span> Confirmer via WhatsApp
                     </a>
                     <Link href="/" className="btn-outline py-3">
