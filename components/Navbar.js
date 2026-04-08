@@ -16,6 +16,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
+    if (!supabase) return;
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null);
     });
