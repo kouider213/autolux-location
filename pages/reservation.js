@@ -284,4 +284,4 @@ export async function getServerSideProps() {
   if (!supabase) return { props: { cars: [] } };
   const { data: cars } = await supabase.from('cars').select('*').eq('available', true).order('resale_price');
   return { props: { cars: cars || [] } };
-}X
+}
