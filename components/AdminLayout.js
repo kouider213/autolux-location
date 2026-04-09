@@ -28,10 +28,10 @@ export default function AdminLayout({ children }) {
   };
 
   const navItems = [
-    { href: '/admin', label: 'Tableau de bord', icon: '📊' },
-    { href: '/admin/bookings', label: 'Réservations', icon: '📅' },
-    { href: '/admin/cars', label: 'Véhicules', icon: '🚗' },
-    { href: '/admin/reviews', label: 'Avis', icon: '⭐' },
+    { href: '/admin', label: 'Tableau de bord', icon: 'ð' },
+    { href: '/admin/bookings', label: 'RÃ©servations', icon: 'ð' },
+    { href: '/admin/cars', label: 'VÃ©hicules', icon: 'ð' },
+    { href: '/admin/reviews', label: 'Avis', icon: 'â­' },
   ];
 
   if (loading) {
@@ -54,10 +54,10 @@ export default function AdminLayout({ children }) {
         <div className="p-6 border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-gold-500 rounded-xl flex items-center justify-center">
-              <span className="text-noir-950 font-black text-sm">AL</span>
+              <span className="text-noir-950 font-black text-sm">FC</span>
             </div>
             <div>
-              <p className="text-white font-bold text-sm">AutoLux</p>
+              <p className="text-white font-bold text-sm">Fik Conciergerie</p>
               <p className="text-white/30 text-xs">Administration</p>
             </div>
           </div>
@@ -84,22 +84,22 @@ export default function AdminLayout({ children }) {
         </nav>
         <div className="p-4 border-t border-white/5 space-y-2">
           <Link href="/" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white/30 hover:text-white/60 transition-colors">
-            <span>🌐</span> Voir le site
+            <span>ð</span> Voir le site
           </Link>
           <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200">
-            <span>🚪</span> Déconnexion
+            <span>ðª</span> DÃ©connexion
           </button>
         </div>
       </aside>
       <div className="flex-1 flex flex-col min-w-0">
         <header className="bg-noir-900/80 backdrop-blur border-b border-white/5 px-6 py-4 flex items-center justify-between sticky top-0 z-20">
-          <button onClick={() => setSidebarOpen(true)} className="md:hidden text-white/50 hover:text-white">☰</button>
+          <button onClick={() => setSidebarOpen(true)} className="md:hidden text-white/50 hover:text-white">â°</button>
           <div className="hidden md:block">
             <span className="text-white/20 text-sm">{new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-white/40">
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            Connecté — {profile?.name}
+            ConnectÃ© â {profile?.name}
           </div>
         </header>
         <main className="flex-1 p-6 overflow-auto">
@@ -108,4 +108,4 @@ export default function AdminLayout({ children }) {
       </div>
     </div>
   );
-}
+          }
