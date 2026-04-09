@@ -1,13 +1,13 @@
 -- ============================================================
--- AUTOLUX LOCATION — SCRIPT SQL COMPLET
--- Exécuter dans Supabase > SQL Editor
+-- FIK CONCIERGERIE â SCRIPT SQL COMPLET
+-- ExÃ©cuter dans Supabase > SQL Editor
 -- ============================================================
 
 -- Extension UUID
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================================
--- TABLE: profiles (liée à auth.users de Supabase)
+-- TABLE: profiles (liÃ©e Ã  auth.users de Supabase)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 CREATE TABLE IF NOT EXISTS cars (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   name TEXT NOT NULL,
-  base_price NUMERIC(10,2) NOT NULL,      -- Prix Houari (propriétaire)
+  base_price NUMERIC(10,2) NOT NULL,      -- Prix Houari (propriÃ©taire)
   resale_price NUMERIC(10,2) NOT NULL,    -- Prix Kouider (revendeur)
   image_url TEXT,
   category TEXT DEFAULT 'standard',
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   end_date DATE NOT NULL,
   nb_days INTEGER GENERATED ALWAYS AS (end_date - start_date) STORED,
   
-  -- Tarification (snapshot au moment de la réservation)
+  -- Tarification (snapshot au moment de la rÃ©servation)
   base_price_snapshot NUMERIC(10,2) NOT NULL,
   resale_price_snapshot NUMERIC(10,2) NOT NULL,
   final_price NUMERIC(10,2) NOT NULL,
@@ -96,7 +96,7 @@ CREATE INDEX IF NOT EXISTS idx_bookings_dates ON bookings(start_date, end_date);
 CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
 
 -- ============================================================
--- FUNCTION: Vérifier disponibilité (anti-double réservation)
+-- FUNCTION: VÃ©rifier disponibilitÃ© (anti-double rÃ©servation)
 -- ============================================================
 CREATE OR REPLACE FUNCTION check_car_availability(
   p_car_id UUID,
@@ -147,8 +147,8 @@ CREATE POLICY "Cars modifiables par admins" ON cars FOR ALL USING (
   auth.uid() IN (SELECT id FROM profiles WHERE role IN ('houari', 'kouider'))
 );
 
--- Bookings: lecture selon rôle
-CREATE POLICY "Booking: lecture authentifiée" ON bookings FOR SELECT USING (
+-- Bookings: lecture selon rÃ´le
+CREATE POLICY "Booking: lecture authentifiÃ©e" ON bookings FOR SELECT USING (
   auth.uid() IS NOT NULL
 );
 CREATE POLICY "Booking: insertion publique" ON bookings FOR INSERT WITH CHECK (true);
@@ -156,8 +156,8 @@ CREATE POLICY "Booking: update par admins" ON bookings FOR UPDATE USING (
   auth.uid() IN (SELECT id FROM profiles WHERE role IN ('houari', 'kouider'))
 );
 
--- Reviews: lecture publique (approuvées)
-CREATE POLICY "Reviews approuvées lisibles" ON reviews FOR SELECT USING (approved = TRUE);
+-- Reviews: lecture publique (approuvÃ©es)
+CREATE POLICY "Reviews approuvÃ©es lisibles" ON reviews FOR SELECT USING (approved = TRUE);
 CREATE POLICY "Reviews: insertion publique" ON reviews FOR INSERT WITH CHECK (true);
 CREATE POLICY "Reviews: modif admin" ON reviews FOR UPDATE USING (
   auth.uid() IN (SELECT id FROM profiles WHERE role IN ('houari', 'kouider'))
@@ -169,7 +169,7 @@ CREATE POLICY "Profil: lecture par owner" ON profiles FOR SELECT USING (
 );
 
 -- ============================================================
--- DONNÉES INITIALES: VOITURES
+-- DONNÃES INITIALES: VOITURES
 -- ============================================================
 INSERT INTO cars (name, base_price, resale_price, seats, fuel, category) VALUES
   ('Jumpy 9 Places', 44, 55, 9, 'diesel', 'utilitaire'),
@@ -188,8 +188,8 @@ INSERT INTO cars (name, base_price, resale_price, seats, fuel, category) VALUES
   ('Berlingo', 44, 55, 7, 'diesel', 'utilitaire');
 
 -- ============================================================
--- NOTE: Créer les users Kouider et Houari via Supabase Auth
--- puis insérer dans profiles:
+-- NOTE: CrÃ©er les users Kouider et Houari via Supabase Auth
+-- puis insÃ©rer dans profiles:
 -- INSERT INTO profiles (id, name, role) VALUES ('UUID_AUTH', 'Kouider', 'kouider');
 -- INSERT INTO profiles (id, name, role) VALUES ('UUID_AUTH', 'Houari', 'houari');
 -- ============================================================
