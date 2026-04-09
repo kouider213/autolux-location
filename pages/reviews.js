@@ -34,7 +34,7 @@ export default function ReviewsPage({ reviews }) {
   return (
     <>
       <Head>
-        <title>Avis Clients — AutoLux Location</title>
+        <title>Avis Clients â Fik Conciergerie</title>
       </Head>
 
       <div className="grain min-h-screen bg-noir-950">
@@ -44,7 +44,7 @@ export default function ReviewsPage({ reviews }) {
           <div className="max-w-5xl mx-auto">
             {/* Header */}
             <div className="text-center mb-14">
-              <span className="text-gold-500 text-sm font-semibold tracking-widest uppercase">Témoignages</span>
+              <span className="text-gold-500 text-sm font-semibold tracking-widest uppercase">TÃ©moignages</span>
               <h1 className="font-display text-4xl md:text-5xl font-bold text-white mt-3">Avis de nos clients</h1>
 
               {reviews.length > 0 && (
@@ -53,7 +53,7 @@ export default function ReviewsPage({ reviews }) {
                   <div>
                     <div className="flex gap-1">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <span key={i} className={`text-xl ${i < Math.round(avgRating) ? 'text-gold-500' : 'text-white/20'}`}>★</span>
+                        <span key={i} className={`text-xl ${i < Math.round(avgRating) ? 'text-gold-500' : 'text-white/20'}`}>â</span>
                       ))}
                     </div>
                     <p className="text-white/40 text-sm">{reviews.length} avis</p>
@@ -65,7 +65,7 @@ export default function ReviewsPage({ reviews }) {
             {/* Avis */}
             {reviews.length === 0 ? (
               <div className="text-center py-16 text-white/30">
-                <p className="text-5xl mb-4">💬</p>
+                <p className="text-5xl mb-4">ð¬</p>
                 <p>Aucun avis pour l'instant. Soyez le premier !</p>
               </div>
             ) : (
@@ -74,7 +74,7 @@ export default function ReviewsPage({ reviews }) {
                   <div key={review.id} className="card-dark p-6">
                     <div className="flex gap-1 mb-3">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <span key={i} className={`${i < review.rating ? 'text-gold-500' : 'text-white/15'}`}>★</span>
+                        <span key={i} className={`${i < review.rating ? 'text-gold-500' : 'text-white/15'}`}>â</span>
                       ))}
                     </div>
                     <p className="text-white/60 italic text-sm leading-relaxed mb-4">"{review.comment}"</p>
@@ -96,9 +96,9 @@ export default function ReviewsPage({ reviews }) {
 
                 {submitted ? (
                   <div className="text-center py-8">
-                    <div className="text-5xl mb-4">🙏</div>
+                    <div className="text-5xl mb-4">ð</div>
                     <h3 className="text-white font-semibold mb-2">Merci pour votre avis !</h3>
-                    <p className="text-white/40 text-sm">Votre avis sera publié après validation.</p>
+                    <p className="text-white/40 text-sm">Votre avis sera publiÃ© aprÃ¨s validation.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -122,7 +122,7 @@ export default function ReviewsPage({ reviews }) {
                             onClick={() => setForm(f => ({ ...f, rating: star }))}
                             className={`text-2xl transition-transform hover:scale-110 ${star <= form.rating ? 'text-gold-500' : 'text-white/20'}`}
                           >
-                            ★
+                            â
                           </button>
                         ))}
                       </div>
@@ -134,7 +134,7 @@ export default function ReviewsPage({ reviews }) {
                         value={form.comment}
                         onChange={e => setForm(f => ({ ...f, comment: e.target.value }))}
                         rows={4}
-                        placeholder="Partagez votre expérience..."
+                        placeholder="Partagez votre expÃ©rience..."
                         className="input-dark resize-none"
                       />
                     </div>
