@@ -22,14 +22,14 @@ export default function LoginPage() {
       return;
     }
 
-    toast.success('Connexion réussie');
+    toast.success('Connexion rÃ©ussie');
     router.push('/admin');
   };
 
   return (
     <>
       <Head>
-        <title>Connexion Admin — AutoLux</title>
+        <title>Connexion Admin â Fik Conciergerie</title>
       </Head>
 
       <div className="grain min-h-screen bg-noir-950 flex items-center justify-center px-4">
@@ -42,7 +42,7 @@ export default function LoginPage() {
             <div className="w-14 h-14 bg-gold-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <span className="text-noir-950 font-black text-xl">AL</span>
             </div>
-            <h1 className="font-display text-3xl font-bold text-white">AutoLux</h1>
+            <h1 className="font-display text-3xl font-bold text-white">Fik Conciergerie</h1>
             <p className="text-white/30 text-sm mt-1">Espace administration</p>
           </div>
 
@@ -65,7 +65,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"
                 required
                 className="input-dark"
               />
@@ -81,7 +81,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-white/20 text-xs mt-6">
-            Accès réservé aux administrateurs AutoLux
+            AccÃ¨s rÃ©servÃ© aux administrateurs Fik Conciergerie
           </p>
         </div>
       </div>
