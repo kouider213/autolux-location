@@ -20,13 +20,13 @@ export default function AdminReviewsPage() {
 
   const handleApprove = async (id) => {
     const { error } = await supabase.from('reviews').update({ approved: true }).eq('id', id);
-    if (!error) { toast.success('Avis publié'); loadReviews(); }
+    if (!error) { toast.success('Avis publiÃ©'); loadReviews(); }
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Supprimer cet avis ?')) return;
     const { error } = await supabase.from('reviews').delete().eq('id', id);
-    if (!error) { toast.success('Avis supprimé'); loadReviews(); }
+    if (!error) { toast.success('Avis supprimÃ©'); loadReviews(); }
   };
 
   const filtered = reviews.filter(r => {
@@ -39,14 +39,14 @@ export default function AdminReviewsPage() {
 
   return (
     <>
-      <Head><title>Avis — AutoLux Admin</title></Head>
+      <Head><title>Avis â Fik Conciergerie Admin</title></Head>
       <AdminLayout>
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="font-display text-3xl font-bold text-white">Gestion des avis</h1>
               {pendingCount > 0 && (
-                <p className="text-amber-400 text-sm mt-1">⚠️ {pendingCount} avis en attente de modération</p>
+                <p className="text-amber-400 text-sm mt-1">â ï¸ {pendingCount} avis en attente de modÃ©ration</p>
               )}
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function AdminReviewsPage() {
           <div className="flex gap-2">
             {[
               { key: 'pending', label: `En attente (${pendingCount})` },
-              { key: 'approved', label: 'Publiés' },
+              { key: 'approved', label: 'PubliÃ©s' },
               { key: 'all', label: 'Tous' },
             ].map(f => (
               <button
@@ -78,8 +78,8 @@ export default function AdminReviewsPage() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="card-dark p-16 text-center text-white/30">
-              <p className="text-4xl mb-3">⭐</p>
-              <p>Aucun avis dans cette catégorie</p>
+              <p className="text-4xl mb-3">â­</p>
+              <p>Aucun avis dans cette catÃ©gorie</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -97,7 +97,7 @@ export default function AdminReviewsPage() {
                     </div>
                     <div className="flex gap-1">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <span key={i} className={`text-sm ${i < review.rating ? 'text-gold-500' : 'text-white/15'}`}>★</span>
+                        <span key={i} className={`text-sm ${i < review.rating ? 'text-gold-500' : 'text-white/15'}`}>â</span>
                       ))}
                     </div>
                   </div>
@@ -110,7 +110,7 @@ export default function AdminReviewsPage() {
                         ? 'bg-emerald-500/20 text-emerald-400'
                         : 'bg-amber-500/20 text-amber-400'
                     }`}>
-                      {review.approved ? '✓ Publié' : '⏳ En attente'}
+                      {review.approved ? 'â PubliÃ©' : 'â³ En attente'}
                     </span>
                     <div className="flex gap-2">
                       {!review.approved && (
@@ -118,14 +118,14 @@ export default function AdminReviewsPage() {
                           onClick={() => handleApprove(review.id)}
                           className="bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 text-xs px-3 py-1.5 rounded-lg transition-colors"
                         >
-                          ✓ Publier
+                          â Publier
                         </button>
                       )}
                       <button
                         onClick={() => handleDelete(review.id)}
                         className="bg-red-500/20 hover:bg-red-500/40 text-red-400 text-xs px-3 py-1.5 rounded-lg transition-colors"
                       >
-                        🗑 Supprimer
+                        ð Supprimer
                       </button>
                     </div>
                   </div>
