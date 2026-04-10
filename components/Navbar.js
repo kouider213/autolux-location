@@ -33,7 +33,7 @@ export default function Navbar() {
 
   const links = [
     { href: '/', label: 'Accueil' },
-    { href: '/cars', label: 'VÃ©hicules' },
+    { href: '/cars', label: 'Véhicules' },
     { href: '/conditions', label: 'Conditions' },
     { href: '/reviews', label: 'Avis' },
   ];
@@ -78,7 +78,7 @@ export default function Navbar() {
                 Dashboard
               </Link>
               <button onClick={handleLogout} className="text-sm text-white/50 hover:text-red-400 transition-colors">
-                DÃ©connexion
+                Déconnexion
               </button>
             </>
           ) : (
@@ -87,7 +87,7 @@ export default function Navbar() {
                 Connexion
               </Link>
               <Link href="/reservation" className="btn-gold text-sm py-2 px-5">
-                RÃ©server
+                Réserver
               </Link>
             </>
           )}
@@ -121,12 +121,12 @@ export default function Navbar() {
             {user ? (
               <>
                 <Link href="/admin" onClick={() => setMenuOpen(false)} className="block text-white/80 py-1">Dashboard</Link>
-                <button onClick={handleLogout} className="text-red-400 text-sm py-1">DÃ©connexion</button>
+                <button onClick={handleLogout} className="text-red-400 text-sm py-1">Déconnexion</button>
               </>
             ) : (
               <>
                 <Link href="/login" onClick={() => setMenuOpen(false)} className="block text-white/80 py-1">Connexion</Link>
-                <Link href="/reservation" onClick={() => setMenuOpen(false)} className="btn-gold text-sm mt-2 text-center block">RÃ©server</Link>
+                <Link href="/reservation" onClick={() => setMenuOpen(false)} className="btn-gold text-sm mt-2 text-center block">Réserver</Link>
               </>
             )}
           </div>
