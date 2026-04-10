@@ -49,7 +49,7 @@ export default function Navbar() {
             <span className="text-noir-950 font-black text-sm">FC</span>
           </div>
           <span className="font-display font-bold text-xl text-white">
-            Fik<span className="text-gold-500">Conciergerie</span>
+            Fik <span className="text-gold-500">Conciergerie</span>
           </span>
         </Link>
 
