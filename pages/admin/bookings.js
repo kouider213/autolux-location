@@ -47,9 +47,9 @@ export default function BookingsPage() {
       .eq('id', bookingId);
 
     if (error) {
-      toast.error('Erreur lors de la mise Ã  jour');
+      toast.error('Erreur lors de la mise à jour');
     } else {
-      toast.success(status === 'ACCEPTED' ? 'â RÃ©servation acceptÃ©e' : 'â RÃ©servation refusÃ©e');
+      toast.success(status === 'ACCEPTED' ? '✅ Réservation acceptée' : '❌ Réservation refusée');
       if (selected?.id === bookingId) setSelected(prev => ({ ...prev, status }));
       loadBookings();
     }
@@ -59,16 +59,16 @@ export default function BookingsPage() {
   const handlePDF = async (booking) => {
     try {
       await generateContract(booking, booking.cars);
-      toast.success('Contrat PDF tÃ©lÃ©chargÃ©');
+      toast.success('Contrat PDF téléchargé');
     } catch (e) {
-      toast.error('Erreur gÃ©nÃ©ration PDF');
+      toast.error('Erreur génération PDF');
     }
   };
 
   const handleWhatsApp = (booking) => {
     const car = booking.cars;
     const total = (Number(booking.final_price) * (booking.nb_days || 1)).toFixed(0);
-    const msg = `â *Confirmation de rÃ©servation*\n\nBonjour ${booking.client_name},\n\nVotre rÃ©servation a Ã©tÃ© *confirmÃ©e* !\n\nð *VÃ©hicule :* ${car?.name}\nð *Du :* ${booking.start_date}\nð *Au :* ${booking.end_date}\nâ± *DurÃ©e :* ${booking.nb_days} jour(s)\nð° *Total :* ${total} â¬\n\nMerci de votre confiance. Ã bientÃ´t !`;
+    const msg = `✅ *Confirmation de réservation*\n\nBonjour ${booking.client_name},\n\nVotre réservation a été *confirmée* !\n\n🚗 *Véhicule :* ${car?.name}\n📅 *Du :* ${booking.start_date}\n📅 *Au :* ${booking.end_date}\n⏱ *Durée :* ${booking.nb_days} jour(s)\n💰 *Total :* ${total} €\n\nMerci de votre confiance. À bientôt !`;
     const phone = booking.client_phone?.replace(/\D/g, '');
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
@@ -88,19 +88,19 @@ export default function BookingsPage() {
       ACCEPTED: 'badge-accepted',
       REJECTED: 'badge-rejected',
     };
-    const labels = { PENDING: 'En attente', ACCEPTED: 'AcceptÃ©e', REJECTED: 'RefusÃ©e' };
+    const labels = { PENDING: 'En attente', ACCEPTED: 'Acceptée', REJECTED: 'Refusée' };
     return <span className={map[status]}>{labels[status]}</span>;
   };
 
   return (
     <>
-      <Head><title>RÃ©servations â Fik Conciergerie Admin</title></Head>
+      <Head><title>Réservations — Fik Conciergerie Admin</title></Head>
       <AdminLayout>
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="font-display text-3xl font-bold text-white">RÃ©servations</h1>
-              <p className="text-white/30 text-sm mt-1">{bookings.length} rÃ©servation(s) au total</p>
+              <h1 className="font-display text-3xl font-bold text-white">Réservations</h1>
+              <p className="text-white/30 text-sm mt-1">{bookings.length} réservation(s) au total</p>
             </div>
           </div>
 
@@ -109,7 +109,7 @@ export default function BookingsPage() {
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Rechercher un client, vÃ©hicule..."
+              placeholder="Rechercher un client, véhicule..."
               className="input-dark max-w-xs"
             />
             <div className="flex gap-2">
@@ -123,7 +123,7 @@ export default function BookingsPage() {
                       : 'border-white/10 text-white/40 hover:border-gold-500/40'
                   }`}
                 >
-                  {f === 'Tous' ? 'Tous' : f === 'PENDING' ? 'En attente' : f === 'ACCEPTED' ? 'AcceptÃ©es' : 'RefusÃ©es'}
+                  {f === 'Tous' ? 'Tous' : f === 'PENDING' ? 'En attente' : f === 'ACCEPTED' ? 'Acceptées' : 'Refusées'}
                 </button>
               ))}
             </div>
@@ -135,8 +135,8 @@ export default function BookingsPage() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="card-dark p-16 text-center text-white/30">
-              <p className="text-4xl mb-3">ð­</p>
-              <p>Aucune rÃ©servation correspondante</p>
+              <p className="text-4xl mb-3">📭</p>
+              <p>Aucune réservation correspondante</p>
             </div>
           ) : (
             <div className="card-dark overflow-hidden">
@@ -145,7 +145,7 @@ export default function BookingsPage() {
                   <thead>
                     <tr className="border-b border-white/5 bg-noir-800/50">
                       <th className="text-left px-5 py-3.5 text-white/30 text-xs font-medium uppercase tracking-wider">Client</th>
-                      <th className="text-left px-5 py-3.5 text-white/30 text-xs font-medium uppercase tracking-wider hidden sm:table-cell">VÃ©hicule</th>
+                      <th className="text-left px-5 py-3.5 text-white/30 text-xs font-medium uppercase tracking-wider hidden sm:table-cell">Véhicule</th>
                       <th className="text-left px-5 py-3.5 text-white/30 text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Dates</th>
                       <th className="text-right px-5 py-3.5 text-white/30 text-xs font-medium uppercase tracking-wider">Total</th>
                       {profile?.role === 'kouider' && (
@@ -172,7 +172,7 @@ export default function BookingsPage() {
                             </div>
                           </td>
                           <td className="px-5 py-4 hidden sm:table-cell">
-                            <span className="text-white/60 text-sm">{b.cars?.name || 'â'}</span>
+                            <span className="text-white/60 text-sm">{b.cars?.name || '—'}</span>
                           </td>
                           <td className="px-5 py-4 hidden lg:table-cell">
                             <div className="text-white/40 text-xs">
@@ -181,11 +181,11 @@ export default function BookingsPage() {
                             </div>
                           </td>
                           <td className="px-5 py-4 text-right">
-                            <span className="text-gold-500 font-bold text-sm">{total} â¬</span>
+                            <span className="text-gold-500 font-bold text-sm">{total} €</span>
                           </td>
                           {profile?.role === 'kouider' && (
                             <td className="px-5 py-4 text-right hidden md:table-cell">
-                              <span className="text-emerald-400 text-sm">+{profit} â¬</span>
+                              <span className="text-emerald-400 text-sm">+{profit} €</span>
                             </td>
                           )}
                           <td className="px-5 py-4 text-center">
@@ -201,7 +201,7 @@ export default function BookingsPage() {
                                     className="bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 text-xs px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50"
                                     title="Accepter"
                                   >
-                                    â
+                                    ✓
                                   </button>
                                   <button
                                     onClick={() => updateStatus(b.id, 'REJECTED')}
@@ -209,7 +209,7 @@ export default function BookingsPage() {
                                     className="bg-red-500/20 hover:bg-red-500/40 text-red-400 text-xs px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50"
                                     title="Refuser"
                                   >
-                                    â
+                                    ✕
                                   </button>
                                 </>
                               )}
@@ -218,15 +218,15 @@ export default function BookingsPage() {
                                 className="bg-green-600/20 hover:bg-green-600/40 text-green-400 text-xs px-2.5 py-1.5 rounded-lg transition-colors"
                                 title="WhatsApp"
                               >
-                                ð¬
+                                💬
                               </button>
                               {b.status === 'ACCEPTED' && (
                                 <button
                                   onClick={() => handlePDF(b)}
                                   className="bg-blue-500/20 hover:bg-blue-500/40 text-blue-400 text-xs px-2.5 py-1.5 rounded-lg transition-colors"
-                                  title="TÃ©lÃ©charger PDF"
+                                  title="Télécharger PDF"
                                 >
-                                  ð
+                                  📄
                                 </button>
                               )}
                             </div>
@@ -248,8 +248,8 @@ export default function BookingsPage() {
               onClick={e => e.stopPropagation()}
             >
               <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                <h2 className="text-white font-semibold text-lg">DÃ©tail rÃ©servation</h2>
-                <button onClick={() => setSelected(null)} className="text-white/30 hover:text-white text-xl">Ã</button>
+                <h2 className="text-white font-semibold text-lg">Détail réservation</h2>
+                <button onClick={() => setSelected(null)} className="text-white/30 hover:text-white text-xl">×</button>
               </div>
 
               <div className="p-6 space-y-5">
@@ -263,10 +263,10 @@ export default function BookingsPage() {
                   <div className="space-y-2">
                     {[
                       ['Nom', selected.client_name],
-                      ['TÃ©lÃ©phone', selected.client_phone],
-                      ['Email', selected.client_email || 'â'],
-                      ['Ãge', `${selected.client_age} ans`],
-                      ['Passeport', selected.client_passport || 'â'],
+                      ['Téléphone', selected.client_phone],
+                      ['Email', selected.client_email || '—'],
+                      ['Âge', `${selected.client_age} ans`],
+                      ['Passeport', selected.client_passport || '—'],
                     ].map(([label, value]) => (
                       <div key={label} className="flex justify-between text-sm">
                         <span className="text-white/40">{label}</span>
@@ -277,13 +277,13 @@ export default function BookingsPage() {
                 </div>
 
                 <div>
-                  <p className="text-white/30 text-xs uppercase tracking-wider mb-3">RÃ©servation</p>
+                  <p className="text-white/30 text-xs uppercase tracking-wider mb-3">Réservation</p>
                   <div className="space-y-2">
                     {[
-                      ['VÃ©hicule', selected.cars?.name],
-                      ['DÃ©part', selected.start_date],
+                      ['Véhicule', selected.cars?.name],
+                      ['Départ', selected.start_date],
                       ['Retour', selected.end_date],
-                      ['DurÃ©e', `${selected.nb_days} jour(s)`],
+                      ['Durée', `${selected.nb_days} jour(s)`],
                     ].map(([label, value]) => (
                       <div key={label} className="flex justify-between text-sm">
                         <span className="text-white/40">{label}</span>
@@ -298,20 +298,20 @@ export default function BookingsPage() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-white/40">Prix / jour</span>
-                      <span className="text-white">{selected.final_price} â¬</span>
+                      <span className="text-white">{selected.final_price} €</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/40">DurÃ©e</span>
+                      <span className="text-white/40">Durée</span>
                       <span className="text-white">{selected.nb_days} j</span>
                     </div>
                     <div className="flex justify-between border-t border-white/10 pt-2 font-semibold">
                       <span className="text-white">Total</span>
-                      <span className="text-gold-500">{(selected.final_price * (selected.nb_days || 1)).toFixed(0)} â¬</span>
+                      <span className="text-gold-500">{(selected.final_price * (selected.nb_days || 1)).toFixed(0)} €</span>
                     </div>
                     {profile?.role === 'kouider' && (
                       <div className="flex justify-between border-t border-white/10 pt-2">
                         <span className="text-emerald-400/60">Profit</span>
-                        <span className="text-emerald-400 font-bold">+{(selected.profit * (selected.nb_days || 1)).toFixed(0)} â¬</span>
+                        <span className="text-emerald-400 font-bold">+{(selected.profit * (selected.nb_days || 1)).toFixed(0)} €</span>
                       </div>
                     )}
                   </div>
@@ -332,14 +332,14 @@ export default function BookingsPage() {
                         disabled={actionLoading}
                         className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors disabled:opacity-50"
                       >
-                        â Accepter
+                        ✓ Accepter
                       </button>
                       <button
                         onClick={() => updateStatus(selected.id, 'REJECTED')}
                         disabled={actionLoading}
                         className="bg-red-500/20 hover:bg-red-500/40 text-red-400 font-semibold py-2.5 rounded-xl text-sm transition-colors disabled:opacity-50"
                       >
-                        â Refuser
+                        ✕ Refuser
                       </button>
                     </div>
                   )}
@@ -347,14 +347,14 @@ export default function BookingsPage() {
                     onClick={() => handleWhatsApp(selected)}
                     className="w-full bg-green-600 hover:bg-green-500 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
                   >
-                    ð¬ Contacter via WhatsApp
+                    💬 Contacter via WhatsApp
                   </button>
                   {selected.status === 'ACCEPTED' && (
                     <button
                       onClick={() => handlePDF(selected)}
                       className="w-full bg-blue-500/20 hover:bg-blue-500/40 text-blue-400 font-semibold py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
                     >
-                      ð TÃ©lÃ©charger le contrat PDF
+                      📄 Télécharger le contrat PDF
                     </button>
                   )}
                 </div>
