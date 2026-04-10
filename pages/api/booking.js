@@ -2,7 +2,7 @@ import { supabaseAdmin } from '../../lib/supabase';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'MÃ©thode non autorisÃ©e' });
+    return res.status(405).json({ error: 'Méthode non autorisée' });
   }
 
   const {
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   if (!clientAge || Number(clientAge) < 35) {
     return res.status(400).json({
-      error: "Nous sommes dÃ©solÃ©s, nos assurances exigent un Ã¢ge minimum de 35 ans.",
+      error: "Nous sommes désolés, nos assurances exigent un âge minimum de 35 ans.",
     });
   }
 
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
   const { data: car, error: carErr } = await admin
     .from('cars').select('*').eq('id', carId).single();
-  if (carErr || !car) return res.status(404).json({ error: 'VÃ©hicule introuvable' });
+  if (carErr || !car) return res.status(404).json({ error: 'Véhicule introuvable' });
 
   const { data: available } = await admin.rpc('check_car_availability', {
     p_car_id: carId,
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 
   if (!available) {
     return res.status(409).json({
-      error: "Ce vÃ©hicule est dÃ©jÃ  rÃ©servÃ© sur ces dates.",
+      error: "Ce véhicule est déjà réservé sur ces dates.",
     });
   }
 
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
 
   if (bookErr) {
     console.error('Booking error:', bookErr);
-    return res.status(500).json({ error: 'Erreur lors de la crÃ©ation de la rÃ©servation' });
+    return res.status(500).json({ error: 'Erreur lors de la création de la réservation' });
   }
 
   try {
@@ -85,7 +85,7 @@ async function sendSMSNotification(booking, car) {
   const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER, PHONE_KOUIDER, PHONE_HOUARI } = process.env;
   if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) return;
 
-  const msg = `ð Nouvelle rÃ©sa Fik Conciergerie\nClient: ${booking.client_name}\nTÃ©l: ${booking.client_phone}\nVÃ©hicule: ${car.name}\nDu ${booking.start_date} au ${booking.end_date}`;
+  const msg = `🚗 Nouvelle résa Fik Conciergerie\nClient: ${booking.client_name}\nTél: ${booking.client_phone}\nVéhicule: ${car.name}\nDu ${booking.start_date} au ${booking.end_date}`;
   const phones = [PHONE_KOUIDER, PHONE_HOUARI].filter(Boolean);
 
   try {
