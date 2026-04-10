@@ -22,14 +22,14 @@ export default function LoginPage() {
       return;
     }
 
-    toast.success('Connexion rÃ©ussie');
+    toast.success('Connexion réussie');
     router.push('/admin');
   };
 
   return (
     <>
       <Head>
-        <title>Connexion Admin â Fik Conciergerie</title>
+        <title>Connexion Admin — Fik Conciergerie</title>
       </Head>
 
       <div className="grain min-h-screen bg-noir-950 flex items-center justify-center px-4">
@@ -65,7 +65,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"
+                placeholder="••••••••"
                 required
                 className="input-dark"
               />
@@ -81,7 +81,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-white/20 text-xs mt-6">
-            AccÃ¨s rÃ©servÃ© aux administrateurs Fik Conciergerie
+            Accès réservé aux administrateurs Fik Conciergerie
           </p>
         </div>
       </div>
