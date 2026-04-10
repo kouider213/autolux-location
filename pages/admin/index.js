@@ -48,20 +48,20 @@ export default function AdminDashboard() {
       const totalProfit = accepted.reduce((sum, b) => sum + (Number(b.profit) * (b.nb_days || 1)), 0);
       computedStats = {
         cards: [
-          { label: 'Chiffre d\'affaires', value: `${totalRevenue.toFixed(0)} â¬`, icon: 'ð°', color: 'gold' },
-          { label: 'Profit net', value: `${totalProfit.toFixed(0)} â¬`, icon: 'ð', color: 'emerald' },
-          { label: 'RÃ©servations totales', value: bookings.length, icon: 'ð', color: 'blue' },
-          { label: 'En attente', value: pending.length, icon: 'â³', color: 'amber' },
+          { label: 'Chiffre d\'affaires', value: `${totalRevenue.toFixed(0)} €`, icon: '💰', color: 'gold' },
+          { label: 'Profit net', value: `${totalProfit.toFixed(0)} €`, icon: '📈', color: 'emerald' },
+          { label: 'Réservations totales', value: bookings.length, icon: '📅', color: 'blue' },
+          { label: 'En attente', value: pending.length, icon: '⏳', color: 'amber' },
         ],
       };
     } else {
       const totalRevenue = accepted.reduce((sum, b) => sum + (Number(b.base_price_snapshot) * (b.nb_days || 1)), 0);
       computedStats = {
         cards: [
-          { label: 'Revenu propriÃ©taire', value: `${totalRevenue.toFixed(0)} â¬`, icon: 'ð°', color: 'gold' },
-          { label: 'RÃ©servations acceptÃ©es', value: accepted.length, icon: 'â', color: 'emerald' },
-          { label: 'En attente', value: pending.length, icon: 'â³', color: 'amber' },
-          { label: 'RefusÃ©es', value: rejected.length, icon: 'â', color: 'red' },
+          { label: 'Revenu propriétaire', value: `${totalRevenue.toFixed(0)} €`, icon: '💰', color: 'gold' },
+          { label: 'Réservations acceptées', value: accepted.length, icon: '✅', color: 'emerald' },
+          { label: 'En attente', value: pending.length, icon: '⏳', color: 'amber' },
+          { label: 'Refusées', value: rejected.length, icon: '❌', color: 'red' },
         ],
       };
     }
@@ -81,13 +81,13 @@ export default function AdminDashboard() {
 
   const statusBadge = (status) => ({
     PENDING: <span className="badge-pending">En attente</span>,
-    ACCEPTED: <span className="badge-accepted">AcceptÃ©e</span>,
-    REJECTED: <span className="badge-rejected">RefusÃ©e</span>,
+    ACCEPTED: <span className="badge-accepted">Acceptée</span>,
+    REJECTED: <span className="badge-rejected">Refusée</span>,
   }[status] || status);
 
   return (
     <>
-      <Head><title>Dashboard â Fik Conciergerie Admin</title></Head>
+      <Head><title>Dashboard — Fik Conciergerie Admin</title></Head>
       <AdminLayout>
         {loading ? (
           <div className="flex items-center justify-center h-64">
@@ -97,10 +97,10 @@ export default function AdminDashboard() {
           <div className="space-y-8">
             <div>
               <h1 className="font-display text-3xl font-bold text-white">
-                Bonjour, {profile?.name} ð
+                Bonjour, {profile?.name} 👋
               </h1>
               <p className="text-white/30 mt-1 text-sm">
-                Vue d'ensemble de votre activitÃ©
+                Vue d'ensemble de votre activité
               </p>
             </div>
 
@@ -116,17 +116,17 @@ export default function AdminDashboard() {
 
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-white font-semibold text-lg">RÃ©servations rÃ©centes</h2>
+                <h2 className="text-white font-semibold text-lg">Réservations récentes</h2>
                 <a href="/admin/bookings" className="text-gold-500 text-sm hover:underline">
-                  Voir tout â
+                  Voir tout →
                 </a>
               </div>
 
               <div className="card-dark overflow-hidden">
                 {recentBookings.length === 0 ? (
                   <div className="p-12 text-center text-white/30">
-                    <p className="text-3xl mb-3">ð­</p>
-                    <p>Aucune rÃ©servation pour l'instant</p>
+                    <p className="text-3xl mb-3">📭</p>
+                    <p>Aucune réservation pour l'instant</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
                       <thead>
                         <tr className="border-b border-white/5">
                           <th className="text-left px-5 py-3 text-white/30 text-xs font-medium uppercase tracking-wider">Client</th>
-                          <th className="text-left px-5 py-3 text-white/30 text-xs font-medium uppercase tracking-wider hidden md:table-cell">VÃ©hicule</th>
+                          <th className="text-left px-5 py-3 text-white/30 text-xs font-medium uppercase tracking-wider hidden md:table-cell">Véhicule</th>
                           <th className="text-left px-5 py-3 text-white/30 text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Dates</th>
                           <th className="text-right px-5 py-3 text-white/30 text-xs font-medium uppercase tracking-wider">Prix</th>
                           <th className="text-right px-5 py-3 text-white/30 text-xs font-medium uppercase tracking-wider">Statut</th>
@@ -150,14 +150,14 @@ export default function AdminDashboard() {
                               </div>
                             </td>
                             <td className="px-5 py-4 hidden md:table-cell">
-                              <span className="text-white/60 text-sm">{b.cars?.name || 'â'}</span>
+                              <span className="text-white/60 text-sm">{b.cars?.name || '—'}</span>
                             </td>
                             <td className="px-5 py-4 hidden lg:table-cell">
-                              <span className="text-white/40 text-xs">{b.start_date} â {b.end_date}</span>
+                              <span className="text-white/40 text-xs">{b.start_date} → {b.end_date}</span>
                             </td>
                             <td className="px-5 py-4 text-right">
                               <span className="text-gold-500 font-semibold text-sm">
-                                {(Number(b.final_price) * (b.nb_days || 1)).toFixed(0)} â¬
+                                {(Number(b.final_price) * (b.nb_days || 1)).toFixed(0)} €
                               </span>
                             </td>
                             <td className="px-5 py-4 text-right">
