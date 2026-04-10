@@ -46,10 +46,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="w-8 h-8 bg-gold-500 rounded-lg flex items-center justify-center">
-            <span className="text-noir-950 font-black text-sm">AL</span>
+            <span className="text-noir-950 font-black text-sm">FC</span>
           </div>
           <span className="font-display font-bold text-xl text-white">
-            Auto<span className="text-gold-500">Lux</span>
+            Fik<span className="text-gold-500">Conciergerie</span>
           </span>
         </Link>
 
