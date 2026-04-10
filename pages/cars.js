@@ -19,8 +19,8 @@ export default function CarsPage({ cars }) {
   return (
     <>
       <Head>
-        <title>Nos VÃ©hicules â Fik Conciergerie</title>
-        <meta name="description" content="DÃ©couvrez notre flotte de vÃ©hicules disponibles Ã  la location." />
+        <title>Nos Véhicules — Fik Conciergerie</title>
+        <meta name="description" content="Découvrez notre flotte de véhicules disponibles à la location." />
       </Head>
 
       <div className="grain min-h-screen bg-noir-950">
@@ -30,9 +30,9 @@ export default function CarsPage({ cars }) {
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-14">
               <span className="text-gold-500 text-sm font-semibold tracking-widest uppercase">Notre flotte</span>
-              <h1 className="font-display text-4xl md:text-6xl font-bold text-white mt-3">Tous nos vÃ©hicules</h1>
+              <h1 className="font-display text-4xl md:text-6xl font-bold text-white mt-3">Tous nos véhicules</h1>
               <p className="text-white/40 mt-4 max-w-xl mx-auto">
-                {cars.length} vÃ©hicule{cars.length > 1 ? 's' : ''} disponibles. Choisissez celui qui correspond Ã  votre besoin.
+                {cars.length} véhicule{cars.length > 1 ? 's' : ''} disponibles. Choisissez celui qui correspond à votre besoin.
               </p>
             </div>
 
@@ -62,13 +62,13 @@ export default function CarsPage({ cars }) {
                 onChange={e => setMaxPrice(Number(e.target.value))}
                 className="w-32 accent-yellow-500"
               />
-              <span className="text-gold-500 font-semibold text-sm w-16">{maxPrice} â¬</span>
+              <span className="text-gold-500 font-semibold text-sm w-16">{maxPrice} €</span>
             </div>
 
             {filtered.length === 0 ? (
               <div className="text-center py-24 text-white/30">
-                <div className="text-5xl mb-4">ð</div>
-                <p>Aucun vÃ©hicule ne correspond Ã  vos filtres.</p>
+                <div className="text-5xl mb-4">🔍</div>
+                <p>Aucun véhicule ne correspond à vos filtres.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -86,12 +86,12 @@ export default function CarsPage({ cars }) {
 
 function CarCard({ car }) {
   const icons = {
-    citadine: 'ð',
-    berline: 'ð',
-    SUV: 'ð',
-    familiale: 'ð',
-    utilitaire: 'ð',
-    premium: 'ðï¸',
+    citadine: '🚗',
+    berline: '🚙',
+    SUV: '🚐',
+    familiale: '🚌',
+    utilitaire: '🚐',
+    premium: '🏎️',
   };
 
   return (
@@ -105,7 +105,7 @@ function CarCard({ car }) {
           />
         ) : (
           <div className="text-center">
-            <div className="text-5xl">{icons[car.category] || 'ð'}</div>
+            <div className="text-5xl">{icons[car.category] || '🚗'}</div>
           </div>
         )}
         <div className="absolute top-3 right-3">
@@ -120,12 +120,12 @@ function CarCard({ car }) {
           <div>
             <h3 className="text-white font-semibold text-lg">{car.name}</h3>
             <div className="flex items-center gap-3 mt-1">
-              <span className="text-white/30 text-xs">â½ {car.fuel}</span>
-              <span className="text-white/30 text-xs">ð¤ {car.seats} places</span>
+              <span className="text-white/30 text-xs">⛽ {car.fuel}</span>
+              <span className="text-white/30 text-xs">👤 {car.seats} places</span>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-gold-500 font-bold text-xl">{car.resale_price} â¬</div>
+            <div className="text-gold-500 font-bold text-xl">{car.resale_price} €</div>
             <div className="text-white/20 text-xs">/jour</div>
           </div>
         </div>
@@ -134,7 +134,7 @@ function CarCard({ car }) {
           href={`/reservation?car=${car.id}`}
           className="block w-full text-center bg-gold-500 text-noir-950 font-semibold py-2.5 rounded-xl hover:bg-gold-400 transition-colors duration-200 text-sm"
         >
-          RÃ©server ce vÃ©hicule
+          Réserver ce véhicule
         </Link>
       </div>
     </div>
