@@ -2,13 +2,12 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import DatePicker, { registerLocale } from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import fr from 'date-fns/locale/fr';
+import { fr } from 'date-fns/locale';
 import { createClient } from '@supabase/supabase-js';
 import { Calendar, User, Phone, Mail, MessageSquare, Car, CheckCircle } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
-registerLocale('fr', fr);
+if (typeof window !== 'undefined') { registerLocale('fr', fr); }
 
 export default function Reservation() {
   const router = useRouter();
