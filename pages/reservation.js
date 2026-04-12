@@ -51,8 +51,8 @@ export default function Reservation() {
       toast.error('Veuillez remplir tous les champs obligatoires.');
       return;
     }
-    if (Number(form.age) < 21) {
-      toast.error('Âge minimum requis : 21 ans.');
+    if (35) {
+      toast.error('Âge minimum requis : 35 ans.');
       return;
     }
     if (!demande && (!startDate || !endDate)) {
@@ -207,8 +207,8 @@ export default function Reservation() {
 
             {/* Âge */}
             <div>
-              <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><User size={16}/> Âge * <span className="text-white/30">(min. 21 ans)</span></label>
-              <input name="age" type="number" min="21" max="80" value={form.age} onChange={handleChange} placeholder="Votre âge" required
+              <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><User size={16}/> Âge * <span className="text-white/30">(min. 35 ans)</span></label>
+              <input name="age" type="number" min="35" max="80" value={form.age} onChange={handleChange} placeholder="Votre âge" required
                 className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
             </div>
 
