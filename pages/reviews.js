@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
-import { supabase } from '../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export default function ReviewsPage({ reviews }) {
   const [form, setForm] = useState({ client_name: '', rating: 5, comment: '' });
@@ -158,6 +158,7 @@ export default function ReviewsPage({ reviews }) {
 }
 
 export async function getServerSideProps() {
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   const { data: reviews } = await supabase
     .from('reviews')
     .select('*')
