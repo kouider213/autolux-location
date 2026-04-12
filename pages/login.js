@@ -40,7 +40,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-10">
             <div className="w-14 h-14 bg-gold-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-noir-950 font-black text-xl">AL</span>
+              <span className="text-noir-950 font-black text-xl">FC</span>
             </div>
             <h1 className="font-display text-3xl font-bold text-white">Fik Conciergerie</h1>
             <p className="text-white/30 text-sm mt-1">Espace administration</p>
