@@ -1,287 +1,237 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
-import toast from 'react-hot-toast';
-import Navbar from '../components/Navbar';
-import { supabase } from '../lib/supabase';
-import { createBooking, calcDays, generateWhatsAppMessage } from '../lib/booking';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import fr from 'date-fns/locale/fr';
+import { createClient } from '@supabase/supabase-js';
+import { Calendar, User, Phone, Mail, MessageSquare, Car, CheckCircle } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
-export default function ReservationPage({ cars }) {
+registerLocale('fr', fr);
+
+export default function Reservation() {
   const router = useRouter();
-  const { car: preselectedCarId } = router.query;
+  const { car: carId, name: carName, prix, demande } = router.query;
 
-  const [step, setStep] = useState(1);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [form, setForm] = useState({ nom: '', telephone: '', email: '', age: '', message: '' });
   const [loading, setLoading] = useState(false);
-  const [booking, setBooking] = useState(null);
-
-  const [form, setForm] = useState({
-    carId: preselectedCarId || '',
-    startDate: '',
-    endDate: '',
-    name: '',
-    phone: '',
-    email: '',
-    age: '',
-    passport: '',
-    notes: '',
-  });
+  const [success, setSuccess] = useState(false);
+  const [cars, setCars] = useState([]);
+  const [selectedCar, setSelectedCar] = useState('');
 
   useEffect(() => {
-    if (preselectedCarId) setForm(f => ({ ...f, carId: preselectedCarId }));
-  }, [preselectedCarId]);
+    if (carId) setSelectedCar(carId);
+  }, [carId]);
 
-  const selectedCar = cars.find(c => c.id === form.carId);
-  const nbDays = calcDays(form.startDate, form.endDate);
-  const totalPrice = selectedCar && nbDays > 0 ? selectedCar.resale_price * nbDays : 0;
+  useEffect(() => {
+    const load = async () => {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+      const { data } = await supabase.from('cars').select('id,name,resale_price').eq('available', true).order('name');
+      if (data) setCars(data);
+    };
+    load();
+  }, []);
 
-  const update = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const validateStep1 = () => {
-    if (!form.carId) { toast.error('Choisissez un véhicule'); return false; }
-    if (!form.startDate || !form.endDate) { toast.error('Sélectionnez les dates'); return false; }
-    if (new Date(form.endDate) <= new Date(form.startDate)) {
-      toast.error('La date de retour doit être après la date de départ');
-      return false;
-    }
-    if (new Date(form.startDate) < new Date().setHours(0,0,0,0)) {
-      toast.error('La date de départ ne peut pas être dans le passé');
-      return false;
-    }
-    return true;
-  };
+  const totalJours = startDate && endDate
+    ? Math.max(1, Math.ceil((endDate - startDate) / 86400000))
+    : null;
 
-  const validateStep2 = () => {
-    if (!form.name.trim()) { toast.error('Entrez votre nom complet'); return false; }
-    if (!form.phone.trim()) { toast.error('Entrez votre numéro de téléphone'); return false; }
-    if (!form.age || isNaN(form.age)) { toast.error('Entrez votre âge'); return false; }
-    if (Number(form.age) < 35) {
-      toast.error('Nous sommes désolés, nos assurances exigent un âge minimum de 35 ans.', { duration: 5000 });
-      return false;
-    }
-    return true;
-  };
+  const totalPrix = totalJours && prix ? totalJours * Number(prix) : null;
 
-  const handleSubmit = async () => {
-    if (!validateStep2()) return;
-    setLoading(true);
-
-    const result = await createBooking({
-      carId: form.carId,
-      userId: null,
-      userRole: 'public',
-      clientInfo: {
-        name: form.name,
-        phone: form.phone,
-        email: form.email,
-        age: Number(form.age),
-        passport: form.passport,
-        notes: form.notes,
-      },
-      startDate: form.startDate,
-      endDate: form.endDate,
-    });
-
-    setLoading(false);
-
-    if (!result.success) {
-      toast.error(result.error);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.nom || !form.telephone || !form.email || !form.age) {
+      toast.error('Veuillez remplir tous les champs obligatoires.');
       return;
     }
-
-    setBooking(result.booking);
-    setStep(3);
-    toast.success('Réservation envoyée avec succès !');
+    if (Number(form.age) < 21) {
+      toast.error('Âge minimum requis : 21 ans.');
+      return;
+    }
+    if (!demande && (!startDate || !endDate)) {
+      toast.error('Veuillez sélectionner vos dates.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+      const booking = {
+        car_id: selectedCar || null,
+        client_name: form.nom,
+        client_phone: form.telephone,
+        client_email: form.email,
+        client_age: Number(form.age),
+        message: form.message || null,
+        start_date: startDate ? startDate.toISOString().split('T')[0] : null,
+        end_date: endDate ? endDate.toISOString().split('T')[0] : null,
+        status: 'pending',
+      };
+      await supabase.from('bookings').insert(booking);
+      setSuccess(true);
+    } catch (err) {
+      toast.error('Erreur lors de la réservation. Réessayez.');
+    }
+    setLoading(false);
   };
 
-  const whatsappUrl = booking && selectedCar
-    ? generateWhatsAppMessage(booking, selectedCar)
-    : '#';
+  if (success) {
+    return (
+      <div className="min-h-screen bg-noir-950 flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <CheckCircle size={64} className="text-gold-500 mx-auto mb-6" />
+          <h1 className="text-3xl font-bold text-white mb-4">Demande envoyée !</h1>
+          <p className="text-white/60 mb-8">Nous vous contactons sous 24h au {form.telephone} pour confirmer votre réservation.</p>
+          <button onClick={() => router.push('/cars')} className="bg-gold-500 text-noir-950 font-bold px-8 py-3 rounded-xl hover:bg-gold-400 transition-colors">
+            Voir nos véhicules
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
       <Head>
         <title>Réservation — Fik Conciergerie</title>
+        <meta name="description" content="Réservez votre véhicule en ligne chez Fik Conciergerie." />
       </Head>
+      <Toaster position="top-center" />
 
-      <div className="grain min-h-screen bg-noir-950">
-        <Navbar />
-
-        <div className="pt-28 pb-24 px-4">
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-10">
-              <h1 className="font-display text-4xl font-bold text-white mb-2">Réservation</h1>
-              <p className="text-white/40">Remplissez le formulaire ci-dessous</p>
-            </div>
-
-            <div className="flex items-center justify-center gap-2 mb-10">
-              {[1, 2, 3].map((s) => (
-                <div key={s} className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${step >= s ? 'bg-gold-500 text-noir-950' : 'bg-white/10 text-white/30'}`}>
-                    {step > s ? '✓' : s}
-                  </div>
-                  {s < 3 && <div className={`w-12 h-px transition-all duration-300 ${step > s ? 'bg-gold-500' : 'bg-white/10'}`} />}
-                </div>
-              ))}
-            </div>
-
-            <div className="card-dark p-6 md:p-8">
-              {step === 1 && (
-                <div className="space-y-5">
-                  <h2 className="text-white font-semibold text-lg mb-6">Choisir un véhicule et les dates</h2>
-                  <div>
-                    <label className="label-dark">Véhicule *</label>
-                    <select value={form.carId} onChange={update('carId')} className="input-dark">
-                      <option value="">— Sélectionnez un véhicule —</option>
-                      {cars.map(car => (
-                        <option key={car.id} value={car.id}>
-                          {car.name} — {car.resale_price} €/jour
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {selectedCar && (
-                    <div className="bg-noir-800 rounded-xl p-4 flex items-center gap-4">
-                      <div className="w-16 h-16 bg-noir-700 rounded-lg flex items-center justify-center text-3xl">🚗</div>
-                      <div>
-                        <p className="text-white font-semibold">{selectedCar.name}</p>
-                        <p className="text-gold-500 font-bold">{selectedCar.resale_price} € / jour</p>
-                        <p className="text-white/30 text-xs capitalize">{selectedCar.category} • {selectedCar.seats} places</p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="label-dark">Date de départ *</label>
-                      <input type="date" value={form.startDate} min={new Date().toISOString().split('T')[0]} onChange={update('startDate')} className="input-dark" />
-                    </div>
-                    <div>
-                      <label className="label-dark">Date de retour *</label>
-                      <input type="date" value={form.endDate} min={form.startDate || new Date().toISOString().split('T')[0]} onChange={update('endDate')} className="input-dark" />
-                    </div>
-                  </div>
-
-                  {nbDays > 0 && selectedCar && (
-                    <div className="bg-gold-500/10 border border-gold-500/20 rounded-xl p-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-white/60">{selectedCar.resale_price} € × {nbDays} jour{nbDays > 1 ? 's' : ''}</span>
-                        <span className="text-gold-500 font-bold text-xl">{totalPrice} €</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <button onClick={() => { if (validateStep1()) setStep(2); }} className="btn-gold w-full py-3 mt-2">
-                    Continuer →
-                  </button>
-                </div>
-              )}
-
-              {step === 2 && (
-                <div className="space-y-5">
-                  <div className="flex items-center gap-3 mb-6">
-                    <button onClick={() => setStep(1)} className="text-white/40 hover:text-white transition-colors">← Retour</button>
-                    <h2 className="text-white font-semibold text-lg">Vos informations</h2>
-                  </div>
-
-                  <div>
-                    <label className="label-dark">Nom complet *</label>
-                    <input type="text" value={form.name} onChange={update('name')} placeholder="Ex: Ahmed Benali" className="input-dark" />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="label-dark">Téléphone *</label>
-                      <input type="tel" value={form.phone} onChange={update('phone')} placeholder="06 XX XX XX XX" className="input-dark" />
-                    </div>
-                    <div>
-                      <label className="label-dark">Âge *</label>
-                      <input type="number" value={form.age} onChange={update('age')} placeholder="35+" min="18" max="99" className="input-dark" />
-                    </div>
-                  </div>
-
-                  {form.age && Number(form.age) < 35 && (
-                    <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-red-400 text-sm">
-                      ⚠️ Nos assurances exigent un âge minimum de 35 ans.
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="label-dark">Email (optionnel)</label>
-                    <input type="email" value={form.email} onChange={update('email')} placeholder="votre@email.com" className="input-dark" />
-                  </div>
-
-                  <div>
-                    <label className="label-dark">N° Passeport</label>
-                    <input type="text" value={form.passport} onChange={update('passport')} placeholder="Votre numéro de passeport" className="input-dark" />
-                  </div>
-
-                  <div>
-                    <label className="label-dark">Notes / Demandes spéciales</label>
-                    <textarea value={form.notes} onChange={update('notes')} rows={3} placeholder="Informations complémentaires..." className="input-dark resize-none" />
-                  </div>
-
-                  <div className="bg-noir-800 rounded-xl p-4 space-y-2">
-                    <p className="text-white/40 text-xs uppercase tracking-wider font-medium mb-3">Récapitulatif</p>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-white/50">Véhicule</span>
-                      <span className="text-white">{selectedCar?.name}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-white/50">Dates</span>
-                      <span className="text-white">{form.startDate} → {form.endDate}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-white/50">Durée</span>
-                      <span className="text-white">{nbDays} jour{nbDays > 1 ? 's' : ''}</span>
-                    </div>
-                    <div className="flex justify-between font-bold border-t border-white/10 pt-2 mt-2">
-                      <span className="text-white">Total estimé</span>
-                      <span className="text-gold-500">{totalPrice} €</span>
-                    </div>
-                  </div>
-
-                  <button onClick={handleSubmit} disabled={loading} className="btn-gold w-full py-3 mt-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                    {loading ? 'Envoi en cours...' : 'Envoyer la demande'}
-                  </button>
-                </div>
-              )}
-
-              {step === 3 && booking && (
-                <div className="text-center py-6">
-                  <div className="w-20 h-20 bg-gold-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <span className="text-4xl">✅</span>
-                  </div>
-                  <h2 className="font-display text-3xl font-bold text-white mb-3">Demande envoyée !</h2>
-                  <p className="text-white/50 mb-2">Votre demande de réservation a été reçue.</p>
-                  <p className="text-white/30 text-sm mb-8">N° de réservation : <span className="text-gold-500 font-mono">{booking.id?.substring(0, 8).toUpperCase()}</span></p>
-
-                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-8 text-left">
-                    <p className="text-amber-400 text-sm font-medium mb-1">⏳ En attente de confirmation</p>
-                    <p className="text-white/40 text-sm">Notre équipe va confirmer votre réservation dans les plus brefs délais. Vous serez contacté par téléphone ou WhatsApp.</p>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
-                      <span>💬</span> Confirmer via WhatsApp
-                    </a>
-                    <Link href="/" className="btn-outline py-3">
-                      Retour à l'accueil
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
+      <div className="min-h-screen bg-noir-950 py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-10">
+            <span className="text-gold-500 text-sm font-semibold uppercase tracking-widest">Réservation</span>
+            <h1 className="font-display text-4xl font-bold text-white mt-2">
+              {carName ? decodeURIComponent(carName) : 'Réserver un véhicule'}
+            </h1>
+            {prix && <p className="text-gold-500 text-xl mt-2 font-semibold">{prix} €/jour</p>}
+            {demande && <p className="text-gold-500 mt-2 font-semibold">Tarif sur devis</p>}
           </div>
+
+          <form onSubmit={handleSubmit} className="bg-noir-800 rounded-2xl p-8 space-y-6">
+
+            {/* Véhicule selector si pas de carId */}
+            {!carId && (
+              <div>
+                <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><Car size={16}/> Véhicule *</label>
+                <select
+                  value={selectedCar}
+                  onChange={e => setSelectedCar(e.target.value)}
+                  className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold-500"
+                  required
+                >
+                  <option value="">Choisir un véhicule...</option>
+                  {cars.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} {c.resale_price ? '— ' + c.resale_price + ' €/j' : '— Sur demande'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Calendrier dates */}
+            {!demande && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><Calendar size={16}/> Date de début *</label>
+                  <DatePicker
+                    selected={startDate}
+                    onChange={d => { setStartDate(d); if(endDate && d > endDate) setEndDate(null); }}
+                    selectsStart
+                    startDate={startDate}
+                    endDate={endDate}
+                    minDate={new Date()}
+                    locale="fr"
+                    dateFormat="dd/MM/yyyy"
+                    placeholderText="Choisir une date"
+                    className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><Calendar size={16}/> Date de fin *</label>
+                  <DatePicker
+                    selected={endDate}
+                    onChange={d => setEndDate(d)}
+                    selectsEnd
+                    startDate={startDate}
+                    endDate={endDate}
+                    minDate={startDate || new Date()}
+                    locale="fr"
+                    dateFormat="dd/MM/yyyy"
+                    placeholderText="Choisir une date"
+                    className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold-500"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Récap prix */}
+            {totalJours && totalPrix && (
+              <div className="bg-noir-900 rounded-xl p-4 flex justify-between items-center border border-gold-500/20">
+                <span className="text-white/60">{totalJours} jour{totalJours > 1 ? 's' : ''}</span>
+                <span className="text-gold-500 font-bold text-xl">{totalPrix} €</span>
+              </div>
+            )}
+
+            {/* Nom */}
+            <div>
+              <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><User size={16}/> Nom complet *</label>
+              <input name="nom" value={form.nom} onChange={handleChange} placeholder="Votre nom et prénom" required
+                className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
+            </div>
+
+            {/* Téléphone */}
+            <div>
+              <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><Phone size={16}/> Téléphone *</label>
+              <input name="telephone" type="tel" value={form.telephone} onChange={handleChange} placeholder="+213 6XX XXX XXX" required
+                className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><Mail size={16}/> Email *</label>
+              <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="votre@email.com" required
+                className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
+            </div>
+
+            {/* Âge */}
+            <div>
+              <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><User size={16}/> Âge * <span className="text-white/30">(min. 21 ans)</span></label>
+              <input name="age" type="number" min="21" max="80" value={form.age} onChange={handleChange} placeholder="Votre âge" required
+                className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
+            </div>
+
+            {/* Message */}
+            <div>
+              <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><MessageSquare size={16}/> Message (optionnel)</label>
+              <textarea name="message" value={form.message} onChange={handleChange} rows={4}
+                placeholder="Précisions sur votre demande, lieu de livraison, options souhaitées..."
+                className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500 resize-none" />
+            </div>
+
+            <button type="submit" disabled={loading}
+              className="w-full bg-gold-500 hover:bg-gold-400 disabled:opacity-50 text-noir-950 font-bold text-lg py-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+              {loading ? 'Envoi en cours...' : (demande ? 'Envoyer ma demande de devis' : 'Confirmer ma réservation')}
+            </button>
+
+            <p className="text-white/30 text-xs text-center">
+              Nous vous rappelons sous 24h pour confirmer la disponibilité et finaliser la réservation.
+            </p>
+          </form>
         </div>
       </div>
     </>
   );
-}
-
-export async function getServerSideProps() {
-  if (!supabase) return { props: { cars: [] } };
-  const { data: cars } = await supabase.from('cars').select('*').eq('available', true).order('resale_price');
-  return { props: { cars: cars || [] } };
 }
