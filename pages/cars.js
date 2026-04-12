@@ -126,7 +126,7 @@ function CarCard({ car }) {
           </div>
           <div className="text-right">
             <div className="text-gold-500 font-bold text-xl">{car.resale_price ? car.resale_price + ' €/jour' : 'Sur demande'}</div>
-            <div className="text-white/20 text-xs">/jour</div>
+            {car.resale_price ? <div className="text-white/20 text-xs">/jour</div> : null}
           </div>
         </div>
 
