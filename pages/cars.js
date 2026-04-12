@@ -1,12 +1,14 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
 
 const CATEGORIES = ['Tous', 'citadine', 'berline', 'SUV', 'familiale', 'utilitaire', 'premium'];
 
 export default function CarsPage({ cars }) {
+  const router = useRouter();
   const [filter, setFilter] = useState('Tous');
   const [maxPrice, setMaxPrice] = useState(200);
 
@@ -96,7 +98,7 @@ function CarCard({ car }) {
 
   return (
     <div className="card-dark overflow-hidden hover:border-gold-500/30 hover:-translate-y-1 transition-all duration-300 group">
-      <div className="bg-noir-800 h-44 flex items-center justify-center overflow-hidden relative">
+      <div className="bg-noir-800 h-44 flex items-center justify-center overflow-hidden relative cursor-pointer" onClick={()=>router.push(`/cars/${car.id}`)}>
         {car.image_url ? (
           <img
             src={car.image_url}
