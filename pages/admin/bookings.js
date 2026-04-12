@@ -41,11 +41,9 @@ export default function BookingsPage() {
 
   const updateStatus = async (bookingId, status) => {
     setActionLoading(true);
-    const { error } = await supabase
-      .from('bookings')
-      .update({ status })
-      .eq('id', bookingId);
-
+    const _res = await fetch('/api/update-booking-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingId, status }) });
+        const _data = await _res.json();
+            const error = !_res.ok ? _data.error : null;
     if (error) {
       toast.error('Erreur lors de la mise à jour');
     } else {
