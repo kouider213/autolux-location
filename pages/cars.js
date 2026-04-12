@@ -12,7 +12,7 @@ export default function CarsPage({ cars }) {
 
   const filtered = cars.filter(car => {
     const catMatch = filter === 'Tous' || car.category === filter;
-    const priceMatch = car.resale_price <= maxPrice;
+    const priceMatch = !car.resale_price || car.resale_price <= maxPrice;
     return catMatch && priceMatch;
   });
 
@@ -125,7 +125,7 @@ function CarCard({ car }) {
             </div>
           </div>
           <div className="text-right">
-            <div className="text-gold-500 font-bold text-xl">{car.resale_price} €</div>
+            <div className="text-gold-500 font-bold text-xl">{car.resale_price ? car.resale_price + ' €/jour' : 'Sur demande'}</div>
             <div className="text-white/20 text-xs">/jour</div>
           </div>
         </div>
