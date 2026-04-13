@@ -36,6 +36,7 @@ export default function Navbar() {
     { href: '/cars', label: 'Véhicules' },
     { href: '/conditions', label: 'Conditions' },
     { href: '/reviews', label: 'Avis' },
+    { href: '/contact', label: 'Contact' },
   ];
 
   return (
@@ -77,7 +78,10 @@ export default function Navbar() {
               <Link href="/admin" className="text-sm text-white/70 hover:text-white transition-colors">
                 Dashboard
               </Link>
-              <button onClick={handleLogout} className="text-sm text-white/50 hover:text-red-400 transition-colors">
+              <button
+                onClick={handleLogout}
+                className="text-sm text-white/50 hover:text-red-400 transition-colors"
+              >
                 Déconnexion
               </button>
             </>
@@ -134,4 +138,4 @@ export default function Navbar() {
       )}
     </nav>
   );
-}
+            }
