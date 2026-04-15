@@ -36,6 +36,10 @@ export default async function handler(req, res) {
     });
   }
 
+  // Calcul nb_days inclusif : du 20/04 au 26/04 = 7 jours
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const nbDays = Math.round((new Date(endDate) - new Date(startDate)) / msPerDay) + 1;
+
   let finalPrice, profit;
   if (userRole === 'kouider') {
     finalPrice = car.resale_price;
@@ -57,6 +61,7 @@ export default async function handler(req, res) {
       client_passport: clientPassport || null,
       start_date: startDate,
       end_date: endDate,
+      nb_days: nbDays,
       base_price_snapshot: car.base_price,
       resale_price_snapshot: car.resale_price,
       final_price: finalPrice,
@@ -85,7 +90,11 @@ async function sendSMSNotification(booking, car) {
   const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER, PHONE_KOUIDER, PHONE_HOUARI } = process.env;
   if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) return;
 
-  const msg = `🚗 Nouvelle résa Fik Conciergerie\nClient: ${booking.client_name}\nTél: ${booking.client_phone}\nVéhicule: ${car.name}\nDu ${booking.start_date} au ${booking.end_date}`;
+  const msg = `🚗 Nouvelle résa Fik Conciergerie
+Client: ${booking.client_name}
+Tél: ${booking.client_phone}
+Véhicule: ${car.name}
+Du ${booking.start_date} au ${booking.end_date}`;
   const phones = [PHONE_KOUIDER, PHONE_HOUARI].filter(Boolean);
 
   try {
