@@ -102,21 +102,14 @@ export default function BookingsPage() {
 
   const handleWhatsApp = (booking) => {
     const car = booking.cars;
-    const total = (Number(booking.final_price) * (booking.nb_days || 1)).toFixed(0);
-    const msg = `✅ *Confirmation de réservation*
-
-Bonjour ${booking.client_name},
-
-Votre réservation a été *confirmée* !
-
-🚗 *Véhicule :* ${car?.name}
-📅 *Du :* ${booking.start_date}
-📅 *Au :* ${booking.end_date}
-⏱ *Durée :* ${booking.nb_days} jour(s)
-💰 *Total :* ${total} €
-
-Merci de votre confiance. À bientôt !`;
     const phone = booking.client_phone?.replace(/\D/g, '');
+    let msg;
+    if (booking.status === 'REJECTED') {
+      msg = `Bonjour ${booking.client_name}, malheureusement nous n'avons pas de disponibilité à ces dates.`;
+    } else {
+      const total = (Number(booking.final_price) * (booking.nb_days || 1)).toFixed(0);
+      msg = `✅ *Confirmation de réservation*\n\nBonjour ${booking.client_name},\n\nVotre réservation a été *confirmée* !\n\n🚗 *Véhicule :* ${car?.name}\n📅 *Du :* ${booking.start_date}\n📅 *Au :* ${booking.end_date}\n⏱ *Durée :* ${booking.nb_days} jour(s)\n💰 *Total :* ${total} €\n\nMerci de votre confiance. À bientôt !`;
+    }
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
