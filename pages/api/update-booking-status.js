@@ -2,34 +2,50 @@ import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method not allowed' });
-        }
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-          const { bookingId, status } = req.body;
+  const { bookingId, status, finalPrice } = req.body;
 
-            if (!bookingId || !status) {
-                return res.status(400).json({ error: 'bookingId and status are required' });
-                  }
+  if (!bookingId || !status) {
+    return res.status(400).json({ error: 'bookingId and status are required' });
+  }
 
-                    const validStatuses = ['PENDING', 'ACCEPTED', 'REJECTED'];
-                      if (!validStatuses.includes(status)) {
-                          return res.status(400).json({ error: 'Invalid status value' });
-                            }
+  const validStatuses = ['PENDING', 'ACCEPTED', 'REJECTED'];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ error: 'Invalid status value' });
+  }
 
-                              const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-                                const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-                                  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const updatePayload = { status };
 
-                                    const { error } = await supabase
-                                        .from('bookings')
-                                            .update({ status })
-                                                .eq('id', bookingId);
+  if (status === 'ACCEPTED' && finalPrice !== undefined && finalPrice !== null && finalPrice !== '') {
+    const price = Number(finalPrice);
+    if (!isNaN(price) && price > 0) {
+      updatePayload.final_price = price;
+      const { data: booking } = await supabase
+        .from('bookings')
+        .select('base_price_snapshot')
+        .eq('id', bookingId)
+        .single();
+      if (booking?.base_price_snapshot) {
+        updatePayload.profit = price - booking.base_price_snapshot;
+      }
+    }
+  }
 
-                                                  if (error) {
-                                                      console.error('Supabase update error:', error);
-                                                          return res.status(500).json({ error: error.message });
-                                                            }
+  const { error } = await supabase
+    .from('bookings')
+    .update(updatePayload)
+    .eq('id', bookingId);
 
-                                                              return res.status(200).json({ success: true });
-                                                              }
+  if (error) {
+    console.error('Supabase update error:', error);
+    return res.status(500).json({ error: error.message });
+  }
+
+  return res.status(200).json({ success: true });
+}
