@@ -9,6 +9,14 @@ import toast, { Toaster } from 'react-hot-toast';
 
 if (typeof window !== 'undefined') { registerLocale('fr', fr); }
 
+// Fix timezone : évite le décalage UTC lors du stockage en base
+const formatLocalDate = (d) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
 export default function Reservation() {
   const router = useRouter();
   const { car: carId, name: carName, prix, demande } = router.query;
@@ -68,8 +76,8 @@ export default function Reservation() {
         client_email: form.email,
         client_age: Number(form.age),
         notes: form.message || null,
-        start_date: startDate ? startDate.toISOString().split('T')[0] : null,
-        end_date: endDate ? endDate.toISOString().split('T')[0] : null,
+        start_date: startDate ? formatLocalDate(startDate) : null,
+        end_date: endDate ? formatLocalDate(endDate) : null,
         nb_days: nbJours,
         base_price_snapshot: prixNum,
         resale_price_snapshot: prixNum,
@@ -217,4 +225,4 @@ export default function Reservation() {
       </div>
     </>
   );
-    }
+              }
