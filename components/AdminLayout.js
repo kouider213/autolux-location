@@ -28,10 +28,11 @@ export default function AdminLayout({ children }) {
   };
 
   const navItems = [
-    { href: '/admin', label: 'Tableau de bord', icon: '📊' },
-    { href: '/admin/bookings', label: 'Réservations', icon: '📅' },
-    { href: '/admin/cars', label: 'Véhicules', icon: '🚗' },
-    { href: '/admin/reviews', label: 'Avis', icon: '⭐' },
+    { href: '/admin',          label: 'Tableau de bord', icon: '📊' },
+    { href: '/admin/bookings', label: 'Réservations',    icon: '📅' },
+    { href: '/admin/calendar', label: 'Calendrier',      icon: '🗓️' },
+    { href: '/admin/cars',     label: 'Véhicules',       icon: '🚗' },
+    { href: '/admin/reviews',  label: 'Avis',            icon: '⭐' },
   ];
 
   if (loading) {
@@ -76,7 +77,11 @@ export default function AdminLayout({ children }) {
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map(item => (
             <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${router.pathname === item.href ? 'bg-gold-500/15 text-gold-500' : 'text-white/50 hover:text-white hover:bg-white/5'}`}>
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                router.pathname === item.href
+                  ? 'bg-gold-500/15 text-gold-500'
+                  : 'text-white/50 hover:text-white hover:bg-white/5'
+              }`}>
               <span>{item.icon}</span>
               {item.label}
             </Link>
@@ -108,4 +113,4 @@ export default function AdminLayout({ children }) {
       </div>
     </div>
   );
-          }
+              }
