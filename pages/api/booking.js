@@ -24,19 +24,6 @@ export default async function handler(req, res) {
     .from('cars').select('*').eq('id', carId).single();
   if (carErr || !car) return res.status(404).json({ error: 'Véhicule introuvable' });
 
-  const { data: available } = await admin.rpc('check_car_availability', {
-    p_car_id: carId,
-    p_start: startDate,
-    p_end: endDate,
-  });
-
-  if (!available) {
-    return res.status(409).json({
-      error: "Ce véhicule est déjà réservé sur ces dates.",
-    });
-  }
-
-  // Calcul nb_days inclusif : du 20/04 au 26/04 = 7 jours
   const msPerDay = 1000 * 60 * 60 * 24;
   const nbDays = Math.round((new Date(endDate) - new Date(startDate)) / msPerDay) + 1;
 
@@ -49,6 +36,7 @@ export default async function handler(req, res) {
     profit = 0;
   }
 
+  // INSERT protégé par le trigger prevent_double_booking() au niveau DB
   const { data: booking, error: bookErr } = await admin
     .from('bookings')
     .insert([{
@@ -73,6 +61,11 @@ export default async function handler(req, res) {
     .single();
 
   if (bookErr) {
+    if (bookErr.message && bookErr.message.includes('VEHICLE_NOT_AVAILABLE')) {
+      return res.status(409).json({
+        error: "Ce véhicule est déjà réservé sur ces dates.",
+      });
+    }
     console.error('Booking error:', bookErr);
     return res.status(500).json({ error: 'Erreur lors de la création de la réservation' });
   }
