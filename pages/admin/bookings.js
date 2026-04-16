@@ -270,4 +270,154 @@ export default function BookingsPage() {
                                                               <button
                                     onClick={() => updateStatus(b.id, 'ACCEPTED', b.final_price)}
                                     disabled={actionLoading}
-                                    className="bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400
+                                    className="bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 text-xs px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                                    title="Accepter"
+                                  >✓</button>
+                                  <button
+                                    onClick={() => updateStatus(b.id, 'REJECTED')}
+                                    disabled={actionLoading}
+                                    className="bg-red-500/20 hover:bg-red-500/40 text-red-400 text-xs px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                                    title="Refuser"
+                                  >✕</button>
+                                        </>
+                              )}
+                              <button
+                                onClick={() => handleWhatsApp(b)}
+                                className="bg-green-600/20 hover:bg-green-600/40 text-green-400 text-xs px-2.5 py-1.5 rounded-lg transition-colors"
+                                title="WhatsApp"
+                              >💬</button>
+{b.status === 'ACCEPTED' && (
+                                    <button
+                                   onClick={() => handlePDF(b)}
+                                   className="bg-blue-500/20 hover:bg-blue-500/40 text-blue-400 text-xs px-2.5 py-1.5 rounded-lg transition-colors"
+                                   title="PDF"
+                                 >📄</button>
+                               )}
+</div>
+    </td>
+    </tr>
+                      );
+})}
+</tbody>
+    </table>
+    </div>
+    </div>
+          )}
+              </div>
+
+{selected && (
+              <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setSelected(null)}>
+            <div className="card-dark w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                  <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                    <h2 className="text-white font-semibold text-lg">Détail réservation</h2>
+                <button onClick={() => setSelected(null)} className="text-white/30 hover:text-white text-xl">×</button>
+    </div>
+              <div className="p-6 space-y-5">
+                    <div className="flex items-center justify-between">
+                      <StatusBadge status={selected.status} />
+                  <span className="text-white/30 text-xs font-mono">#{selected.id?.substring(0, 8).toUpperCase()}</span>
+    </div>
+                <div>
+                      <p className="text-white/30 text-xs uppercase tracking-wider mb-3">Client</p>
+                  <div className="space-y-2">
+{[['Nom', selected.client_name],['Téléphone', selected.client_phone],['Email', selected.client_email || '—'],['Âge', `${selected.client_age} ans`],['Passeport', selected.client_passport || '—']].map(([label, value]) => (
+                          <div key={label} className="flex justify-between text-sm">
+                            <span className="text-white/40">{label}</span>
+                                                                                                                                                                                                                               <span className="text-white">{value}</span>
+                                                                                                                                                                                                                             </div>
+                                                                                                                                                                                                                           ))}
+</div>
+    </div>
+                <div>
+                      <p className="text-white/30 text-xs uppercase tracking-wider mb-3">Réservation</p>
+                  <div className="space-y-2">
+{[['Véhicule', selected.cars?.name || '—'],['Départ', selected.start_date || '—'],['Retour', selected.end_date || '—'],['Durée', selected.nb_days ? `${selected.nb_days} jour(s)` : '—']].map(([label, value]) => (
+                          <div key={label} className="flex justify-between text-sm">
+                            <span className="text-white/40">{label}</span>
+                                                                                                                                                                                                                      <span className="text-white">{value}</span>
+                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                  ))}
+</div>
+    </div>
+                <div className="bg-noir-800 rounded-xl p-4">
+                      <p className="text-white/30 text-xs uppercase tracking-wider mb-3">Tarification</p>
+                  <div className="space-y-2 text-sm">
+{selected.status === 'PENDING' ? (
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-white/40">Prix de base</span>
+                              <span className="text-white/40 line-through">{selected.final_price} €/j</span>
+    </div>
+                            <div className="flex items-center gap-2">
+                              <label className="text-gold-400 font-medium whitespace-nowrap">Prix modifié :</label>
+                          <div className="flex items-center gap-1 bg-noir-950 border border-gold-500/40 rounded-lg px-3 py-1.5 flex-1">
+                                <input type="number" value={editPrice} onChange={e => setEditPrice(e.target.value)} min="0" step="1" className="bg-transparent text-white text-sm w-full outline-none" placeholder={selected.final_price || '0'} />
+                            <span className="text-gold-400 text-sm">€/j</span>
+    </div>
+    </div>
+    </div>
+                    ) : (
+                                              <div className="flex justify-between">
+                                                <span className="text-white/40">Prix / jour</span>
+                        <span className="text-white">{selected.final_price ? selected.final_price + ' €' : 'Sur devis'}</span>
+                        </div>
+                    )}
+                    <div className="flex justify-between">
+                                              <span className="text-white/40">Durée</span>
+                      <span className="text-white">{selected.nb_days || '—'} jour(s)</span>
+                        </div>
+{(editPrice || selected.final_price) && selected.nb_days && (
+                          <div className="flex justify-between border-t border-white/10 pt-2 font-semibold">
+                            <span className="text-white">Total estimé</span>
+                         <span className="text-gold-500">{((Number(editPrice) || Number(selected.final_price)) * selected.nb_days).toFixed(0)} €</span>
+    </div>
+                    )}
+{profile?.role === 'kouider' && selected.profit !== null && selected.profit !== undefined && (
+                          <div className="flex justify-between border-t border-white/10 pt-2">
+                            <span className="text-emerald-400/60">Profit</span>
+                         <span className="text-emerald-400 font-bold">+{(selected.profit * (selected.nb_days || 1)).toFixed(0)} €</span>
+    </div>
+                    )}
+                        </div>
+                        </div>
+{selected.notes && (
+                      <div>
+                        <p className="text-white/30 text-xs uppercase tracking-wider mb-2">Notes</p>
+                     <p className="text-white/50 text-sm bg-noir-800 rounded-lg p-3">{selected.notes}</p>
+    </div>
+                 )}
+                <div className="flex flex-col gap-2 pt-2">
+                {selected.status === 'PENDING' && (
+                                        <div className="space-y-2">
+                {editPrice && Number(editPrice) !== Number(selected.final_price) && (
+                                            <div className="bg-gold-500/10 border border-gold-500/20 rounded-lg px-3 py-2 text-xs text-gold-400 text-center">
+                                              ⚠️ Prix modifié : {editPrice} €/j × {selected.nb_days} j = {(Number(editPrice) * (selected.nb_days || 1)).toFixed(0)} € total
+                    </div>
+                      )}
+                      <div className="grid grid-cols-2 gap-2">
+                                                  <button onClick={() => updateStatus(selected.id, 'ACCEPTED', editPrice || selected.final_price)} disabled={actionLoading} className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors disabled:opacity-50">
+                      {actionLoading ? '...' : '✓ Accepter'}
+</button>
+                        <button onClick={() => updateStatus(selected.id, 'REJECTED')} disabled={actionLoading} className="bg-red-500/20 hover:bg-red-500/40 text-red-400 font-semibold py-2.5 rounded-xl text-sm transition-colors disabled:opacity-50">
+{actionLoading ? '...' : '✕ Refuser'}
+</button>
+    </div>
+    </div>
+                  )}
+                  <button onClick={() => handleWhatsApp(selected)} className="w-full bg-green-600 hover:bg-green-500 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
+                                          💬 Contacter via WhatsApp
+                      </button>
+{selected.status === 'ACCEPTED' && (
+                        <button onClick={() => handlePDF(selected)} className="w-full bg-blue-500/20 hover:bg-blue-500/40 text-blue-400 font-semibold py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
+                          📄 Télécharger le contrat PDF
+    </button>
+                   )}
+</div>
+    </div>
+    </div>
+    </div>
+        )}
+            </AdminLayout>
+            </>
+  );
+}
