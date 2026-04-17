@@ -3,23 +3,21 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { fr } from 'date-fns/locale';
-import { createClient } from '@supabase/supabase-js';
 import { Calendar, User, Phone, Mail, MessageSquare, Car, CheckCircle } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
-if (typeof window !== 'undefined') { registerLocale('fr', fr); }
+import { supabase } from '../lib/supabase';
+import { createBooking } from '../lib/booking';
+import { daysBetween } from '../lib/date';
 
-// Fix timezone : évite le décalage UTC lors du stockage en base
-const formatLocalDate = (d) => {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-};
+if (typeof window !== 'undefined') {
+  registerLocale('fr', fr);
+}
 
 export default function Reservation() {
   const router = useRouter();
-  const { car: carId, name: carName, prix, demande } = router.query;
+  const { car: carId, name: carName, demande } = router.query;
+
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [form, setForm] = useState({ nom: '', telephone: '', email: '', age: '', message: '' });
@@ -27,28 +25,39 @@ export default function Reservation() {
   const [success, setSuccess] = useState(false);
   const [cars, setCars] = useState([]);
   const [selectedCar, setSelectedCar] = useState('');
+  const [selectedCarPrice, setSelectedCarPrice] = useState(null);
 
-  useEffect(() => { if (carId) setSelectedCar(carId); }, [carId]);
+  useEffect(() => {
+    if (carId) setSelectedCar(carId);
+  }, [carId]);
 
   useEffect(() => {
     const load = async () => {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      );
-      const { data } = await supabase.from('cars').select('id,name,resale_price').eq('available', true).order('name');
+      if (!supabase) return;
+      const { data } = await supabase
+        .from('cars')
+        .select('id,name,resale_price,base_price')
+        .eq('available', true)
+        .order('name');
       if (data) setCars(data);
     };
     load();
   }, []);
 
+  useEffect(() => {
+    if (!selectedCar || !cars.length) { setSelectedCarPrice(null); return; }
+    const c = cars.find(x => x.id === selectedCar);
+    setSelectedCarPrice(c ? Number(c.resale_price || c.base_price) : null);
+  }, [selectedCar, cars]);
+
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const totalJours = startDate && endDate ? Math.max(1, Math.ceil((endDate - startDate) / 86400000)) : null;
-  const totalPrix = totalJours && prix ? totalJours * Number(prix) : null;
+  const totalJours = startDate && endDate ? daysBetween(startDate, endDate) : 0;
+  const totalPrix = totalJours && selectedCarPrice ? totalJours * selectedCarPrice : null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!form.nom || !form.telephone || !form.email || !form.age) {
       toast.error('Veuillez remplir tous les champs obligatoires.');
       return;
@@ -57,45 +66,39 @@ export default function Reservation() {
       toast.error('Âge minimum requis : 35 ans.');
       return;
     }
-    if (!demande && (!startDate || !endDate)) {
-      toast.error('Veuillez sélectionner vos dates.');
+    if (!selectedCar) {
+      toast.error('Veuillez sélectionner un véhicule.');
       return;
     }
-    setLoading(true);
-    try {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      );
-      const prixNum = prix ? Number(prix) : 0;
-      const nbJours = totalJours || null;
-      const booking = {
-        car_id: selectedCar || null,
-        client_name: form.nom,
-        client_phone: form.telephone,
-        client_email: form.email,
-        client_age: Number(form.age),
-        notes: form.message || null,
-        start_date: startDate ? formatLocalDate(startDate) : null,
-        end_date: endDate ? formatLocalDate(endDate) : null,
-        nb_days: nbJours,
-        base_price_snapshot: prixNum,
-        resale_price_snapshot: prixNum,
-        final_price: prixNum,
-        profit: 0,
-        status: 'PENDING',
-      };
-      const { error } = await supabase.from('bookings').insert(booking);
-      if (error) {
-        console.error('Booking insert error:', error);
-        toast.error('Erreur lors de la réservation. Réessayez.');
-        setLoading(false);
-        return;
-      }
-      setSuccess(true);
-    } catch (err) {
-      toast.error('Erreur lors de la réservation. Réessayez.');
+    if (!demande && (!startDate || !endDate || totalJours < 1)) {
+      toast.error('Veuillez sélectionner des dates valides.');
+      return;
     }
+
+    setLoading(true);
+
+    const res = await createBooking({
+      carId: selectedCar,
+      userId: null,
+      userRole: 'public',
+      clientInfo: {
+        name: form.nom,
+        phone: form.telephone,
+        email: form.email,
+        age: Number(form.age),
+        notes: form.message || null,
+      },
+      startDate,
+      endDate,
+    });
+
+    if (!res.success) {
+      toast.error(res.error || 'Erreur lors de la réservation. Réessayez.');
+      setLoading(false);
+      return;
+    }
+
+    setSuccess(true);
     setLoading(false);
   };
 
@@ -128,7 +131,9 @@ export default function Reservation() {
             <h1 className="font-display text-4xl font-bold text-white mt-2">
               {carName ? decodeURIComponent(carName) : 'Réserver un véhicule'}
             </h1>
-            {prix && <p className="text-gold-500 text-xl mt-2 font-semibold">{prix} €/jour</p>}
+            {selectedCarPrice && !demande && (
+              <p className="text-gold-500 text-xl mt-2 font-semibold">{selectedCarPrice} €/jour</p>
+            )}
             {demande && <p className="text-gold-500 mt-2 font-semibold">Tarif sur devis</p>}
           </div>
 
@@ -136,9 +141,7 @@ export default function Reservation() {
             {!carId && (
               <div>
                 <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><Car size={16}/> Véhicule *</label>
-                <select value={selectedCar} onChange={e => setSelectedCar(e.target.value)}
-                  className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold-500"
-                  required>
+                <select value={selectedCar} onChange={e => setSelectedCar(e.target.value)} className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold-500" required>
                   <option value="">Choisir un véhicule...</option>
                   {cars.map(c => (
                     <option key={c.id} value={c.id}>
@@ -156,26 +159,25 @@ export default function Reservation() {
                   <DatePicker
                     selected={startDate}
                     onChange={d => { setStartDate(d); if(endDate && d > endDate) setEndDate(null); }}
-                    selectsStart startDate={startDate} endDate={endDate}
-                    minDate={new Date()} locale="fr" dateFormat="dd/MM/yyyy"
-                    placeholderText="Choisir une date"
+                    selectsStart startDate={startDate} endDate={endDate} minDate={new Date()}
+                    locale="fr" dateFormat="dd/MM/yyyy" placeholderText="Choisir une date"
                     className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold-500"
                   />
                 </div>
                 <div>
                   <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><Calendar size={16}/> Date de fin *</label>
                   <DatePicker
-                    selected={endDate} onChange={d => setEndDate(d)}
-                    selectsEnd startDate={startDate} endDate={endDate}
-                    minDate={startDate || new Date()} locale="fr" dateFormat="dd/MM/yyyy"
-                    placeholderText="Choisir une date"
+                    selected={endDate}
+                    onChange={d => setEndDate(d)}
+                    selectsEnd startDate={startDate} endDate={endDate} minDate={startDate || new Date()}
+                    locale="fr" dateFormat="dd/MM/yyyy" placeholderText="Choisir une date"
                     className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold-500"
                   />
                 </div>
               </div>
             )}
 
-            {totalJours && totalPrix && (
+            {totalJours > 0 && totalPrix && (
               <div className="bg-noir-900 rounded-xl p-4 flex justify-between items-center border border-gold-500/20">
                 <span className="text-white/60">{totalJours} jour{totalJours > 1 ? 's' : ''}</span>
                 <span className="text-gold-500 font-bold text-xl">{totalPrix} €</span>
@@ -184,39 +186,33 @@ export default function Reservation() {
 
             <div>
               <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><User size={16}/> Nom complet *</label>
-              <input name="nom" value={form.nom} onChange={handleChange} placeholder="Votre nom et prénom" required
-                className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
+              <input name="nom" value={form.nom} onChange={handleChange} placeholder="Votre nom et prénom" required className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
             </div>
 
             <div>
               <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><Phone size={16}/> Téléphone *</label>
-              <input name="telephone" type="tel" value={form.telephone} onChange={handleChange} placeholder="+213 6XX XXX XXX" required
-                className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
+              <input name="telephone" type="tel" value={form.telephone} onChange={handleChange} placeholder="+213 6XX XXX XXX" required className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
             </div>
 
             <div>
               <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><Mail size={16}/> Email *</label>
-              <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="votre@email.com" required
-                className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
+              <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="votre@email.com" required className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
             </div>
 
             <div>
               <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><User size={16}/> Âge * <span className="text-white/30">(min. 35 ans)</span></label>
-              <input name="age" type="number" min="35" max="80" value={form.age} onChange={handleChange} placeholder="Votre âge" required
-                className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
+              <input name="age" type="number" min="35" max="80" value={form.age} onChange={handleChange} placeholder="Votre âge" required className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500" />
             </div>
 
             <div>
               <label className="block text-white/60 text-sm mb-2 flex items-center gap-2"><MessageSquare size={16}/> Message (optionnel)</label>
-              <textarea name="message" value={form.message} onChange={handleChange} rows={4}
-                placeholder="Précisions sur votre demande, lieu de livraison, options souhaitées..."
-                className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500 resize-none" />
+              <textarea name="message" value={form.message} onChange={handleChange} rows={4} placeholder="Précisions sur votre demande, lieu de livraison, options souhaitées..." className="w-full bg-noir-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-500 resize-none" />
             </div>
 
-            <button type="submit" disabled={loading}
-              className="w-full bg-gold-500 hover:bg-gold-400 disabled:opacity-50 text-noir-950 font-bold text-lg py-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+            <button type="submit" disabled={loading} className="w-full bg-gold-500 hover:bg-gold-400 disabled:opacity-50 text-noir-950 font-bold text-lg py-4 rounded-xl transition-colors flex items-center justify-center gap-2">
               {loading ? 'Envoi en cours...' : (demande ? 'Envoyer ma demande de devis' : 'Confirmer ma réservation')}
             </button>
+
             <p className="text-white/30 text-xs text-center">
               Nous vous rappelons sous 24h pour confirmer la disponibilité et finaliser la réservation.
             </p>
@@ -225,4 +221,4 @@ export default function Reservation() {
       </div>
     </>
   );
-              }
+}
