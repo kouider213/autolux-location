@@ -2,6 +2,7 @@ import '../styles/globals.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
+import Script from 'next/script';
 
 const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { ssr: false });
 
@@ -31,6 +32,10 @@ export default function App({ Component, pageProps }) {
                       error: { iconTheme: { primary: '#ef4444', secondary: '#141414' } },
           }}
       />
+        <Script
+          src="https://ibrahim-backend-production.up.railway.app/api/widget/embed.js"
+          strategy="afterInteractive"
+        />
   </>
   );
 }
