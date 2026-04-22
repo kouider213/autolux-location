@@ -7,10 +7,7 @@ export default function Document() {
       <body>
         <Main />
         <NextScript />
-        <script
-          src="https://ibrahim-backend-production.up.railway.app/api/widget/embed.js"
-          async
-        />
+        <script src="/widget.js" async />
       </body>
     </Html>
   );
