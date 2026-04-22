@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import AdminLayout from '../../components/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase'; // used for cars CRUD (read/update/delete)
 
 export default function AdminCarsPage() {
   const [cars, setCars] = useState([]);
@@ -45,14 +45,20 @@ export default function AdminCarsPage() {
     if (file.size > 10 * 1024 * 1024) { toast.error('Photo trop lourde (max 10MB)'); return; }
     setUploading(true);
     try {
-      const ext = file.name.split('.').pop() || 'jpg';
-      const path = `cars/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from('car-images')
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from('car-images').getPublicUrl(path);
-      setForm(f => ({ ...f, image_url: urlData.publicUrl }));
+      const reader = new FileReader();
+      const base64 = await new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const res = await fetch('/api/upload-car-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur serveur');
+      setForm(f => ({ ...f, image_url: data.url }));
       toast.success('Photo importée ✓');
     } catch (err) {
       toast.error('Erreur upload: ' + (err.message || String(err)));
