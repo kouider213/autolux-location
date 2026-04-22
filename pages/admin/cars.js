@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
@@ -10,6 +10,9 @@ export default function AdminCarsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editCar, setEditCar] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
 
   const emptyForm = {
     name: '', base_price: '', resale_price: '',
@@ -37,6 +40,27 @@ export default function AdminCarsPage() {
     setShowForm(true);
   };
 
+  const uploadPhoto = async (file) => {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { toast.error('Photo trop lourde (max 10MB)'); return; }
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `cars/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from('car-images')
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from('car-images').getPublicUrl(path);
+      setForm(f => ({ ...f, image_url: urlData.publicUrl }));
+      toast.success('Photo importée ✓');
+    } catch (err) {
+      toast.error('Erreur upload: ' + (err.message || String(err)));
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!form.name || !form.base_price || !form.resale_price) {
       toast.error('Nom, prix propriétaire et prix revendeur sont obligatoires');
@@ -47,7 +71,6 @@ export default function AdminCarsPage() {
       return;
     }
     setSaving(true);
-
     const payload = {
       name: form.name.trim(),
       base_price: Number(form.base_price),
@@ -59,17 +82,14 @@ export default function AdminCarsPage() {
       image_url: form.image_url || null,
       description: form.description || null,
     };
-
     let error;
     if (editCar) {
       ({ error } = await supabase.from('cars').update(payload).eq('id', editCar.id));
     } else {
       ({ error } = await supabase.from('cars').insert([payload]));
     }
-
     setSaving(false);
     if (error) { toast.error('Erreur lors de la sauvegarde'); return; }
-
     toast.success(editCar ? 'Véhicule modifié' : 'Véhicule ajouté');
     setShowForm(false);
     loadCars();
@@ -96,6 +116,21 @@ export default function AdminCarsPage() {
   return (
     <>
       <Head><title>Véhicules — Fik Conciergerie Admin</title></Head>
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        style={{ display: 'none' }}
+        onChange={e => uploadPhoto(e.target.files?.[0])}
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={e => uploadPhoto(e.target.files?.[0])}
+      />
       <AdminLayout>
         <div className="space-y-6">
           <div className="flex items-center justify-between">
@@ -103,9 +138,7 @@ export default function AdminCarsPage() {
               <h1 className="font-display text-3xl font-bold text-white">Véhicules</h1>
               <p className="text-white/30 text-sm mt-1">{cars.length} véhicule(s) dans la flotte</p>
             </div>
-            <button onClick={openAdd} className="btn-gold py-2.5 px-5 text-sm">
-              + Ajouter
-            </button>
+            <button onClick={openAdd} className="btn-gold py-2.5 px-5 text-sm">+ Ajouter</button>
           </div>
 
           {loading ? (
@@ -221,15 +254,52 @@ export default function AdminCarsPage() {
                     </select>
                   </div>
                 </div>
+
+                {/* Photo upload */}
                 <div>
-                  <label className="label-dark">URL de l'image</label>
-                  <input value={form.image_url} onChange={up('image_url')} placeholder="https://..." className="input-dark" />
+                  <label className="label-dark">Photo du véhicule</label>
+                  {form.image_url ? (
+                    <div className="relative rounded-xl overflow-hidden h-44 bg-noir-800 mb-3">
+                      <img src={form.image_url} alt="aperçu" className="w-full h-full object-cover" />
+                      <button
+                        onClick={() => setForm(f => ({ ...f, image_url: '' }))}
+                        className="absolute top-2 right-2 bg-black/60 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm hover:bg-red-500/80 transition-colors"
+                      >×</button>
+                    </div>
+                  ) : null}
+                  <div className="grid grid-cols-2 gap-2 mb-2">
+                    <button
+                      type="button"
+                      disabled={uploading}
+                      onClick={() => cameraInputRef.current?.click()}
+                      className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-sm py-3 rounded-xl transition-colors disabled:opacity-50"
+                    >
+                      <span>{uploading ? '⏳' : '📷'}</span>
+                      <span>{uploading ? 'Import...' : 'Appareil photo'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={uploading}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-sm py-3 rounded-xl transition-colors disabled:opacity-50"
+                    >
+                      <span>{uploading ? '⏳' : '🖼️'}</span>
+                      <span>{uploading ? 'Import...' : 'Galerie photos'}</span>
+                    </button>
+                  </div>
+                  <input
+                    value={form.image_url}
+                    onChange={up('image_url')}
+                    placeholder="Ou colle une URL d'image"
+                    className="input-dark text-sm"
+                  />
                 </div>
+
                 <div>
                   <label className="label-dark">Description</label>
                   <textarea value={form.description} onChange={up('description')} rows={2} className="input-dark resize-none" />
                 </div>
-                <button onClick={handleSave} disabled={saving} className="btn-gold w-full py-3 disabled:opacity-50">
+                <button onClick={handleSave} disabled={saving || uploading} className="btn-gold w-full py-3 disabled:opacity-50">
                   {saving ? 'Sauvegarde...' : editCar ? 'Enregistrer les modifications' : 'Ajouter le véhicule'}
                 </button>
               </div>
@@ -239,4 +309,4 @@ export default function AdminCarsPage() {
       </AdminLayout>
     </>
   );
-            }
+}
