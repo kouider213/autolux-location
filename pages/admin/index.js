@@ -53,9 +53,9 @@ export default function AdminDashboard() {
   const kouiderProfit = accepted.reduce(
     (s, b) => s + Number(b.profit || 0) * (b.nb_days || 1), 0
   );
-  // Total = somme des final_price × nb_days
+  // Total = somme des final_price (DÉJÀ le total, pas par jour)
   const totalRevenue = accepted.reduce(
-    (s, b) => s + Number(b.final_price || 0) * (b.nb_days || 1), 0
+    (s, b) => s + Number(b.final_price || 0), 0
   );
 
   // ─── Badges statut ────────────────────────────────────────────────────────
@@ -219,8 +219,9 @@ export default function AdminDashboard() {
                       </thead>
                       <tbody>
                         {recentBookings.map((b) => {
-                          const total  = (Number(b.final_price) * (b.nb_days || 1)).toFixed(0);
-                          const profit = (Number(b.profit)      * (b.nb_days || 1)).toFixed(0);
+                          // final_price contient DÉJÀ le total (pas besoin de multiplier)
+                          const total  = Number(b.final_price).toFixed(0);
+                          const profit = (Number(b.profit) * (b.nb_days || 1)).toFixed(0);
                           return (
                             <tr key={b.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
                               <td className="px-5 py-4">
