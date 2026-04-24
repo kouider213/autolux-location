@@ -131,7 +131,7 @@ export default function BookingsPage() {
         if (booking.status === 'REJECTED') {
                 msg = `Bonjour ${booking.client_name}, malheureusement nous n'avons pas de disponibilité à ces dates.`;
         } else {
-                const total = (Number(booking.final_price) * (booking.nb_days || 1)).toFixed(0);
+                const total = Number(booking.final_price).toFixed(0);
                 msg = `✅ *Confirmation de réservation*\n\nBonjour ${booking.client_name},\n\nVotre réservation a été *confirmée* !\n\n🚗 *Véhicule :* ${car?.name}\n📅 *Du :* ${booking.start_date}\n📅 *Au :* ${booking.end_date}\n⏱ *Durée :* ${booking.nb_days} jour(s)\n💰 *Total :* ${total} €\n\nMerci de votre confiance. À bientôt !`;
         }
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -231,8 +231,8 @@ export default function BookingsPage() {
                          </thead>
                    <tbody className="divide-y divide-white/5">
                        {filtered.map((b) => {
-                                               const total = (Number(b.final_price) * (b.nb_days || 1)).toFixed(0);
-                                               const profit = (Number(b.profit) * (b.nb_days || 1)).toFixed(0);
+                                               const total = Number(b.final_price).toFixed(0);
+                                               const profit = Number(b.profit).toFixed(0);
                                                return (
                                                                          <tr
                                                    key={b.id}
@@ -358,7 +358,7 @@ export default function BookingsPage() {
     </div>
                     ) : (
                                               <div className="flex justify-between">
-                                                <span className="text-white/40">Prix / jour</span>
+                                                <span className="text-white/40">Prix total</span>
                         <span className="text-white">{selected.final_price ? selected.final_price + ' €' : 'Sur devis'}</span>
                         </div>
                     )}
@@ -366,16 +366,10 @@ export default function BookingsPage() {
                                               <span className="text-white/40">Durée</span>
                       <span className="text-white">{selected.nb_days || '—'} jour(s)</span>
                         </div>
-{(editPrice || selected.final_price) && selected.nb_days && (
-                          <div className="flex justify-between border-t border-white/10 pt-2 font-semibold">
-                            <span className="text-white">Total estimé</span>
-                         <span className="text-gold-500">{((Number(editPrice) || Number(selected.final_price)) * selected.nb_days).toFixed(0)} €</span>
-    </div>
-                    )}
 {profile?.role === 'kouider' && selected.profit !== null && selected.profit !== undefined && (
                           <div className="flex justify-between border-t border-white/10 pt-2">
                             <span className="text-emerald-400/60">Profit</span>
-                         <span className="text-emerald-400 font-bold">+{(selected.profit * (selected.nb_days || 1)).toFixed(0)} €</span>
+                         <span className="text-emerald-400 font-bold">+{Number(selected.profit).toFixed(0)} €</span>
     </div>
                     )}
                         </div>
@@ -391,7 +385,7 @@ export default function BookingsPage() {
                                         <div className="space-y-2">
                 {editPrice && Number(editPrice) !== Number(selected.final_price) && (
                                             <div className="bg-gold-500/10 border border-gold-500/20 rounded-lg px-3 py-2 text-xs text-gold-400 text-center">
-                                              ⚠️ Prix modifié : {editPrice} €/j × {selected.nb_days} j = {(Number(editPrice) * (selected.nb_days || 1)).toFixed(0)} € total
+                                              ⚠️ Prix modifié : {editPrice} € total
                     </div>
                       )}
                       <div className="grid grid-cols-2 gap-2">
