@@ -182,26 +182,26 @@ export default function AdminDashboard() {
 
                 {/* KOUIDER */}
                 <StatCard
-                  title="Kouider"
+                  title="Kouider — Bénéfice"
                   color="gold"
                   rows={[
-                    { label: 'CA (prix resale)', value: `${kouiderRevenue.toFixed(0)} €`, highlight: true },
-                    { label: 'Profit net',        value: `+${kouiderProfit.toFixed(0)} €`, highlight: true },
-                    { label: 'Locations gérées',  value: accepted.length },
-                    { label: 'En attente',         value: pending.length },
+                    { label: 'CA clients (encaissé)',  value: `${totalRevenue.toFixed(0)} €` },
+                    { label: 'Payé à Houari',          value: `−${houariRevenue.toFixed(0)} €` },
+                    { label: 'Bénéfice net Kouider',   value: `+${kouiderProfit.toFixed(0)} €`, highlight: true },
+                    { label: 'Locations gérées',       value: accepted.length },
                   ]}
-                  accent={{ label: 'Profit total Kouider', value: `${kouiderProfit.toFixed(0)} €` }}
+                  accent={{ label: 'Bénéfice total Kouider', value: `${kouiderProfit.toFixed(0)} €` }}
                 />
 
                 {/* HOUARI */}
                 <StatCard
-                  title="Houari (propriétaire)"
+                  title="Houari — Propriétaire"
                   color="blue"
                   rows={[
-                    { label: 'Revenu (prix base)', value: `${houariRevenue.toFixed(0)} €`, highlight: true },
-                    { label: 'Locations actives',   value: accepted.length },
-                    { label: 'En attente',           value: pending.length },
-                    { label: 'Part du CA total',     value: `${totalRevenue > 0 ? ((houariRevenue / totalRevenue) * 100).toFixed(0) : 0}%` },
+                    { label: 'Part Houari (prix base × jours)', value: `${houariRevenue.toFixed(0)} €`, highlight: true },
+                    { label: 'Locations',                        value: accepted.length },
+                    { label: 'En attente',                       value: pending.length },
+                    { label: '% du CA total',                    value: `${totalRevenue > 0 ? ((houariRevenue / totalRevenue) * 100).toFixed(0) : 0}%` },
                   ]}
                   accent={{ label: 'Revenu total Houari', value: `${houariRevenue.toFixed(0)} €` }}
                 />
@@ -211,10 +211,10 @@ export default function AdminDashboard() {
                   title="Total combiné"
                   color="emerald"
                   rows={[
-                    { label: 'CA total',         value: `${totalRevenue.toFixed(0)} €`,  highlight: true },
-                    { label: 'Part Kouider',      value: `${kouiderProfit.toFixed(0)} €` },
-                    { label: 'Part Houari',        value: `${houariRevenue.toFixed(0)} €` },
-                    { label: 'Réservations acc.', value: accepted.length },
+                    { label: 'CA total (prix clients)',  value: `${totalRevenue.toFixed(0)} €`,  highlight: true },
+                    { label: 'Bénéfice Kouider',         value: `${kouiderProfit.toFixed(0)} €` },
+                    { label: 'Part Houari',              value: `${houariRevenue.toFixed(0)} €` },
+                    { label: 'Réservations acceptées',   value: accepted.length },
                   ]}
                   accent={{ label: 'Chiffre d\'affaires total', value: `${totalRevenue.toFixed(0)} €` }}
                 />
