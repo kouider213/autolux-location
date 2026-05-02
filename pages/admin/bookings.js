@@ -390,8 +390,9 @@ export default function BookingsPage() {
                               }
                               return 1;
                             })();
-                            const pC = Number(selected.resale_price_snapshot || selected.cars?.resale_price || selected.final_price || 0);
-                            const pH = Number(selected.base_price_snapshot  || selected.cars?.base_price   || 0);
+                            // TOUJOURS depuis cars — snapshots ignorés (peuvent contenir le total au lieu du prix/jour)
+                            const pC = Number(selected.cars?.resale_price || 0);
+                            const pH = Number(selected.cars?.base_price   || 0);
                             const ben = (pC - pH) * nbD;
                             return (
                               <div className="space-y-1 border-t border-white/10 pt-2">
