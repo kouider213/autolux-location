@@ -63,31 +63,38 @@ export default function AdminDashboard() {
 
   /**
    * Prix Houari/jour : TOUJOURS cars.base_price (prix journalier réel).
-   * On ignore base_price_snapshot car certaines réservations legacy
-   * y ont stocké le total (ex: 300€) au lieu du prix/jour (ex: 19€).
-   * cars.base_price est toujours fiable et journalier.
+   * JAMAIS multiplier base_price × nb_days si base_price contient déjà un total.
+   * On cap la part Houari à final_price max pour éviter un résultat négatif absurde.
    */
   const getPrixHouariJour = (b) =>
     Number(b.cars?.base_price || 0);
 
   // ── Règle absolue : CA total = Part Houari + Bénéfice Kouider ──────────
-  // final_price en base = total payé par le client (pas un prix/jour)
-  // Part Houari = prix_houari_jour × nb_jours
+  // final_price = total payé par le client (stocké en base, source de vérité)
+  // Part Houari = MIN(prix_houari_jour × nb_jours, final_price)
   // Bénéfice Kouider = final_price - Part Houari
+  // CA total = Σ final_price → toujours égal à Houari + Kouider
   // ────────────────────────────────────────────────────────────────────────
 
-  // CA total = somme des final_price (totaux stockés en base)
+  // CA total = somme des final_price
   const totalRevenue = accepted.reduce((s, b) => {
     return s + Number(b.final_price || 0);
   }, 0);
 
-  // Part Houari = prix_houari_jour × nb_jours
-  const houariRevenue = accepted.reduce((s, b) => {
+  // Part Houari par réservation = prix_houari_jour × nb_jours
+  // MAIS jamais supérieur à final_price (protection contre données corrompues)
+  const getPartHouari = (b) => {
     const days = getNbDays(b);
-    return s + getPrixHouariJour(b) * days;
-  }, 0);
+    const prixHouariJ = getPrixHouariJour(b);
+    const fp = Number(b.final_price || 0);
+    const partBrute = prixHouariJ * days;
+    // Si part Houari > prix client → données incohérentes → on cap à final_price
+    return partBrute > fp ? fp : partBrute;
+  };
 
-  // Bénéfice Kouider = CA total - Part Houari (les deux somment toujours au CA)
+  const houariRevenue = accepted.reduce((s, b) => s + getPartHouari(b), 0);
+
+  // Bénéfice Kouider = CA total - Part Houari (garantit CA = Houari + Kouider)
   const kouiderProfit = totalRevenue - houariRevenue;
 
   // Contrôle automatique — alerte dans la console si incohérence
