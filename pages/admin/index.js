@@ -62,11 +62,13 @@ export default function AdminDashboard() {
     Number(b.resale_price_snapshot || b.cars?.resale_price || b.final_price || 0);
 
   /**
-   * Prix Houari/jour : base_price_snapshot en priorité,
-   * sinon base_price du join cars.
+   * Prix Houari/jour : TOUJOURS cars.base_price (prix journalier réel).
+   * On ignore base_price_snapshot car certaines réservations legacy
+   * y ont stocké le total (ex: 300€) au lieu du prix/jour (ex: 19€).
+   * cars.base_price est toujours fiable et journalier.
    */
   const getPrixHouariJour = (b) =>
-    Number(b.base_price_snapshot || b.cars?.base_price || 0);
+    Number(b.cars?.base_price || 0);
 
   // ── Règle absolue : CA total = Part Houari + Bénéfice Kouider ──────────
   // final_price en base = total payé par le client (pas un prix/jour)
