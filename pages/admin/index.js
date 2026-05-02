@@ -55,16 +55,15 @@ export default function AdminDashboard() {
   };
 
   /**
-   * Prix client/jour : on prend resale_price_snapshot en priorité,
-   * sinon resale_price du join cars, sinon final_price (cas legacy).
+   * Prix client/jour : TOUJOURS cars.resale_price (source fiable).
+   * Les snapshots sont ignorés — ils peuvent contenir le total au lieu du prix/jour.
    */
   const getPrixClientJour = (b) =>
-    Number(b.resale_price_snapshot || b.cars?.resale_price || b.final_price || 0);
+    Number(b.cars?.resale_price || 0);
 
   /**
    * Prix Houari/jour : TOUJOURS cars.base_price (prix journalier réel).
-   * JAMAIS multiplier base_price × nb_days si base_price contient déjà un total.
-   * On cap la part Houari à final_price max pour éviter un résultat négatif absurde.
+   * Les snapshots sont IGNORÉS — certains contiennent le total (ex: 300€) au lieu du prix/jour (ex: 19€).
    */
   const getPrixHouariJour = (b) =>
     Number(b.cars?.base_price || 0);
