@@ -41,7 +41,9 @@ export default function AdminDashboard() {
   const accepted = allBookings.filter(b => ['CONFIRMED', 'ACTIVE', 'COMPLETED'].includes(b.status));
   const pending  = allBookings.filter(b => b.status === 'PENDING');
 
-  // Calcul des jours depuis start_date / end_date (nb_days peut être null)
+  /**
+   * Nombre de jours — fallback start/end si nb_days est null
+   */
   const getNbDays = (b) => {
     if (b.nb_days && Number(b.nb_days) > 0) return Number(b.nb_days);
     if (b.start_date && b.end_date) {
@@ -52,32 +54,40 @@ export default function AdminDashboard() {
     return 1;
   };
 
-  // Total CA = somme des final_price (déjà le montant total encaissé client)
-  const totalRevenue = accepted.reduce(
-    (s, b) => s + Number(b.final_price || 0), 0
-  );
+  /**
+   * Prix client/jour : on prend resale_price_snapshot en priorité,
+   * sinon resale_price du join cars, sinon final_price (cas legacy).
+   */
+  const getPrixClientJour = (b) =>
+    Number(b.resale_price_snapshot || b.cars?.resale_price || b.final_price || 0);
 
-  // Houari : base_price (depuis cars join) × nb jours
+  /**
+   * Prix Houari/jour : base_price_snapshot en priorité,
+   * sinon base_price du join cars.
+   */
+  const getPrixHouariJour = (b) =>
+    Number(b.base_price_snapshot || b.cars?.base_price || 0);
+
+  // ── Totaux ──────────────────────────────────────────────────────────────
+  // CA total = ce que les clients paient (prix_client × jours)
+  const totalRevenue = accepted.reduce((s, b) => {
+    const days = getNbDays(b);
+    // Si final_price est déjà le total (>200) on l'utilise tel quel, sinon × jours
+    const clientTotal = Number(b.final_price || 0);
+    const prixJour   = getPrixClientJour(b);
+    // Heuristique : si final_price ≈ prixJour × jours → c'est déjà le total
+    const isTotal = clientTotal > prixJour * 1.5 || days === 1;
+    return s + (isTotal ? clientTotal : prixJour * days);
+  }, 0);
+
+  // Part Houari = prix_houari_jour × jours (ce que Kouider paye à Houari)
   const houariRevenue = accepted.reduce((s, b) => {
-    const days  = getNbDays(b);
-    const base  = Number(b.cars?.base_price || 0);
-    return s + base * days;
+    const days = getNbDays(b);
+    return s + getPrixHouariJour(b) * days;
   }, 0);
 
-  // Kouider CA : resale_price × nb jours
-  const kouiderRevenue = accepted.reduce((s, b) => {
-    const days   = getNbDays(b);
-    const resale = Number(b.cars?.resale_price || 0);
-    return s + resale * days;
-  }, 0);
-
-  // Profit Kouider = (resale - base) × jours
-  const kouiderProfit = accepted.reduce((s, b) => {
-    const days   = getNbDays(b);
-    const resale = Number(b.cars?.resale_price || 0);
-    const base   = Number(b.cars?.base_price   || 0);
-    return s + (resale - base) * days;
-  }, 0);
+  // Bénéfice Kouider = CA total - Part Houari
+  const kouiderProfit = totalRevenue - houariRevenue;
 
   // ─── Badges statut ────────────────────────────────────────────────────────
   const statusBadge = (status) => ({
