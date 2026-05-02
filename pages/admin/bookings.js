@@ -231,8 +231,22 @@ export default function BookingsPage() {
                          </thead>
                    <tbody className="divide-y divide-white/5">
                        {filtered.map((b) => {
-                                               const total = Number(b.final_price).toFixed(0);
-                                               const profit = Number(b.profit).toFixed(0);
+                                               const total = Number(b.final_price || 0).toFixed(0);
+                                               // Calcul jours
+                                               const nbDays = (() => {
+                                                 if (b.nb_days && Number(b.nb_days) > 0) return Number(b.nb_days);
+                                                 if (b.start_date && b.end_date) {
+                                                   const diff = new Date(b.end_date) - new Date(b.start_date);
+                                                   const d = Math.round(diff / (1000 * 60 * 60 * 24));
+                                                   return d > 0 ? d : 1;
+                                                 }
+                                                 return 1;
+                                               })();
+                                               // Prix client/jour et Houari/jour
+                                               const prixClient = Number(b.resale_price_snapshot || b.cars?.resale_price || b.final_price || 0);
+                                               const prixHouari = Number(b.base_price_snapshot  || b.cars?.base_price   || 0);
+                                               // Bénéfice = (prix_client - prix_houari) × jours
+                                               const profit = ((prixClient - prixHouari) * nbDays).toFixed(0);
                                                return (
                                                                          <tr
                                                    key={b.id}
