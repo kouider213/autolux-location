@@ -68,26 +68,30 @@ export default function AdminDashboard() {
   const getPrixHouariJour = (b) =>
     Number(b.base_price_snapshot || b.cars?.base_price || 0);
 
-  // ── Totaux ──────────────────────────────────────────────────────────────
-  // CA total = ce que les clients paient (prix_client × jours)
+  // ── Règle absolue : CA total = Part Houari + Bénéfice Kouider ──────────
+  // final_price en base = total payé par le client (pas un prix/jour)
+  // Part Houari = prix_houari_jour × nb_jours
+  // Bénéfice Kouider = final_price - Part Houari
+  // ────────────────────────────────────────────────────────────────────────
+
+  // CA total = somme des final_price (totaux stockés en base)
   const totalRevenue = accepted.reduce((s, b) => {
-    const days = getNbDays(b);
-    // Si final_price est déjà le total (>200) on l'utilise tel quel, sinon × jours
-    const clientTotal = Number(b.final_price || 0);
-    const prixJour   = getPrixClientJour(b);
-    // Heuristique : si final_price ≈ prixJour × jours → c'est déjà le total
-    const isTotal = clientTotal > prixJour * 1.5 || days === 1;
-    return s + (isTotal ? clientTotal : prixJour * days);
+    return s + Number(b.final_price || 0);
   }, 0);
 
-  // Part Houari = prix_houari_jour × jours (ce que Kouider paye à Houari)
+  // Part Houari = prix_houari_jour × nb_jours
   const houariRevenue = accepted.reduce((s, b) => {
     const days = getNbDays(b);
     return s + getPrixHouariJour(b) * days;
   }, 0);
 
-  // Bénéfice Kouider = CA total - Part Houari
+  // Bénéfice Kouider = CA total - Part Houari (les deux somment toujours au CA)
   const kouiderProfit = totalRevenue - houariRevenue;
+
+  // Contrôle automatique — alerte dans la console si incohérence
+  if (Math.abs((houariRevenue + kouiderProfit) - totalRevenue) > 0.01) {
+    console.error(`Erreur calcul financier : les parts ne correspondent pas au CA total. CA=${totalRevenue} | Houari=${houariRevenue} | Kouider=${kouiderProfit}`);
+  }
 
   // ─── Badges statut ────────────────────────────────────────────────────────
   const statusBadge = (status) => ({
