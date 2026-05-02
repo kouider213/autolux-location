@@ -267,10 +267,8 @@ export default function AdminDashboard() {
                         {recentBookings.map((b) => {
                           // CA client = final_price (total stocké en base)
                           const total  = Number(b.final_price || 0).toFixed(0);
-                          // Bénéfice Kouider = final_price - (prix_houari × jours)
-                          const prixHouariJ = Number(b.cars?.base_price || 0);
-                          const nbJ = getNbDays(b);
-                          const profit = (Number(b.final_price || 0) - prixHouariJ * nbJ).toFixed(0);
+                          // Bénéfice Kouider = final_price - part Houari (même logique que le dashboard)
+                          const profit = (Number(b.final_price || 0) - getPartHouari(b)).toFixed(0);
                           return (
                             <tr key={b.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
                               <td className="px-5 py-4">
