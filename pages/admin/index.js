@@ -41,22 +41,39 @@ export default function AdminDashboard() {
   const accepted = allBookings.filter(b => ['CONFIRMED', 'ACTIVE', 'COMPLETED'].includes(b.status));
   const pending  = allBookings.filter(b => b.status === 'PENDING');
 
-  // Kouider : prix resale × jours
-  const kouiderRevenue = accepted.reduce(
-    (s, b) => s + Number(b.resale_price_snapshot || b.cars?.resale_price || 0) * (b.nb_days || 1), 0
-  );
-  // Houari : prix base × jours
-  const houariRevenue = accepted.reduce(
-    (s, b) => s + Number(b.base_price_snapshot || b.cars?.base_price || 0) * (b.nb_days || 1), 0
-  );
-  // Profit Kouider = resale − base
-  const kouiderProfit = accepted.reduce(
-    (s, b) => s + Number(b.profit || 0) * (b.nb_days || 1), 0
-  );
+  // Calcul des jours depuis start_date / end_date (nb_days peut être null)
+  const getNbDays = (b) => {
+    if (b.nb_days && Number(b.nb_days) > 0) return Number(b.nb_days);
+    if (b.start_date && b.end_date) {
+      const diff = new Date(b.end_date) - new Date(b.start_date);
+      const days = Math.round(diff / (1000 * 60 * 60 * 24));
+      return days > 0 ? days : 1;
+    }
+    return 1;
+  };
+
   // Total = somme des final_price (DÉJÀ le total, pas par jour)
   const totalRevenue = accepted.reduce(
     (s, b) => s + Number(b.final_price || 0), 0
   );
+
+  // Kouider : prix resale × jours
+  const kouiderRevenue = accepted.reduce(
+    (s, b) => s + Number(b.resale_price_snapshot || b.cars?.resale_price || 0) * getNbDays(b), 0
+  );
+  // Houari : prix base × jours
+  const houariRevenue = accepted.reduce(
+    (s, b) => s + Number(b.base_price_snapshot || b.cars?.base_price || 0) * getNbDays(b), 0
+  );
+  // Profit Kouider = resale − base × jours  (si profit snapshot dispo, on l'utilise)
+  const kouiderProfit = accepted.reduce((s, b) => {
+    const days = getNbDays(b);
+    if (b.profit && Number(b.profit) > 0) return s + Number(b.profit) * days;
+    // Fallback : resale − base
+    const resale = Number(b.resale_price_snapshot || b.cars?.resale_price || 0);
+    const base   = Number(b.base_price_snapshot   || b.cars?.base_price   || 0);
+    return s + (resale - base) * days;
+  }, 0);
 
   // ─── Badges statut ────────────────────────────────────────────────────────
   const statusBadge = (status) => ({
