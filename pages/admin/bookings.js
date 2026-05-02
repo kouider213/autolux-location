@@ -242,9 +242,9 @@ export default function BookingsPage() {
                                                  }
                                                  return 1;
                                                })();
-                                               // Prix client/jour et Houari/jour
-                                               const prixClient = Number(b.resale_price_snapshot || b.cars?.resale_price || b.final_price || 0);
-                                               const prixHouari = Number(b.base_price_snapshot  || b.cars?.base_price   || 0);
+                                               // Prix client/jour et Houari/jour — TOUJOURS depuis cars (snapshots ignorés car potentiellement corrompus)
+                                               const prixClient = Number(b.cars?.resale_price || 0);
+                                               const prixHouari = Number(b.cars?.base_price   || 0);
                                                // Bénéfice = (prix_client - prix_houari) × jours
                                                const profit = ((prixClient - prixHouari) * nbDays).toFixed(0);
                                                return (
