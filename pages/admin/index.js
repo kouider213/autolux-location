@@ -38,7 +38,7 @@ export default function AdminDashboard() {
   };
 
   // ─── Calculs financiers ───────────────────────────────────────────────────
-  const accepted = allBookings.filter(b => b.status === 'ACCEPTED');
+  const accepted = allBookings.filter(b => ['CONFIRMED', 'ACTIVE', 'COMPLETED'].includes(b.status));
   const pending  = allBookings.filter(b => b.status === 'PENDING');
 
   // Kouider : prix resale × jours
