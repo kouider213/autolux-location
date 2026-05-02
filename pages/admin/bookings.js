@@ -380,12 +380,37 @@ export default function BookingsPage() {
                                               <span className="text-white/40">Durée</span>
                       <span className="text-white">{selected.nb_days || '—'} jour(s)</span>
                         </div>
-{profile?.role === 'kouider' && selected.profit !== null && selected.profit !== undefined && (
-                          <div className="flex justify-between border-t border-white/10 pt-2">
-                            <span className="text-emerald-400/60">Profit</span>
-                         <span className="text-emerald-400 font-bold">+{Number(selected.profit).toFixed(0)} €</span>
-    </div>
-                    )}
+{profile?.role === 'kouider' && (() => {
+                            const nbD = (() => {
+                              if (selected.nb_days && Number(selected.nb_days) > 0) return Number(selected.nb_days);
+                              if (selected.start_date && selected.end_date) {
+                                const diff = new Date(selected.end_date) - new Date(selected.start_date);
+                                const d = Math.round(diff / (1000 * 60 * 60 * 24));
+                                return d > 0 ? d : 1;
+                              }
+                              return 1;
+                            })();
+                            const pC = Number(selected.resale_price_snapshot || selected.cars?.resale_price || selected.final_price || 0);
+                            const pH = Number(selected.base_price_snapshot  || selected.cars?.base_price   || 0);
+                            const ben = (pC - pH) * nbD;
+                            return (
+                              <div className="space-y-1 border-t border-white/10 pt-2">
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-white/40">Prix client/jour</span>
+                                  <span className="text-gold-400">{pC} €</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-white/40">Part Houari/jour</span>
+                                  <span className="text-blue-400">−{pH} €</span>
+                                </div>
+                                <div className="flex justify-between text-sm font-bold">
+                                  <span className="text-emerald-400/80">Bénéfice Kouider</span>
+                                  <span className="text-emerald-400">+{ben.toFixed(0)} €</span>
+                                </div>
+                              </div>
+                            );
+                          })()
+                        }
                         </div>
                         </div>
 {selected.notes && (
