@@ -60,9 +60,11 @@ export default function AdminDashboard() {
 
   // ─── Badges statut ────────────────────────────────────────────────────────
   const statusBadge = (status) => ({
-    PENDING:  <span className="badge-pending">En attente</span>,
-    ACCEPTED: <span className="badge-accepted">Acceptée</span>,
-    REJECTED: <span className="badge-rejected">Refusée</span>,
+    PENDING:   <span className="badge-pending">En attente</span>,
+    CONFIRMED: <span className="badge-accepted">Confirmée</span>,
+    ACTIVE:    <span className="badge-accepted">En cours</span>,
+    COMPLETED: <span className="badge-accepted">Terminée</span>,
+    REJECTED:  <span className="badge-rejected">Refusée</span>,
   }[status] || <span>{status}</span>);
 
   // ─── Carte réutilisable ───────────────────────────────────────────────────
