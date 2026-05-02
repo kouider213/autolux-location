@@ -52,26 +52,30 @@ export default function AdminDashboard() {
     return 1;
   };
 
-  // Total = somme des final_price (DÉJÀ le total, pas par jour)
+  // Total CA = somme des final_price (déjà le montant total encaissé client)
   const totalRevenue = accepted.reduce(
     (s, b) => s + Number(b.final_price || 0), 0
   );
 
-  // Kouider : prix resale × jours
-  const kouiderRevenue = accepted.reduce(
-    (s, b) => s + Number(b.resale_price_snapshot || b.cars?.resale_price || 0) * getNbDays(b), 0
-  );
-  // Houari : prix base × jours
-  const houariRevenue = accepted.reduce(
-    (s, b) => s + Number(b.base_price_snapshot || b.cars?.base_price || 0) * getNbDays(b), 0
-  );
-  // Profit Kouider = resale − base × jours  (si profit snapshot dispo, on l'utilise)
+  // Houari : base_price (depuis cars join) × nb jours
+  const houariRevenue = accepted.reduce((s, b) => {
+    const days  = getNbDays(b);
+    const base  = Number(b.cars?.base_price || 0);
+    return s + base * days;
+  }, 0);
+
+  // Kouider CA : resale_price × nb jours
+  const kouiderRevenue = accepted.reduce((s, b) => {
+    const days   = getNbDays(b);
+    const resale = Number(b.cars?.resale_price || 0);
+    return s + resale * days;
+  }, 0);
+
+  // Profit Kouider = (resale - base) × jours
   const kouiderProfit = accepted.reduce((s, b) => {
-    const days = getNbDays(b);
-    if (b.profit && Number(b.profit) > 0) return s + Number(b.profit) * days;
-    // Fallback : resale − base
-    const resale = Number(b.resale_price_snapshot || b.cars?.resale_price || 0);
-    const base   = Number(b.base_price_snapshot   || b.cars?.base_price   || 0);
+    const days   = getNbDays(b);
+    const resale = Number(b.cars?.resale_price || 0);
+    const base   = Number(b.cars?.base_price   || 0);
     return s + (resale - base) * days;
   }, 0);
 
