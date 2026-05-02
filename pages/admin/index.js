@@ -261,7 +261,7 @@ export default function AdminDashboard() {
                           // CA client = final_price (total stocké en base)
                           const total  = Number(b.final_price || 0).toFixed(0);
                           // Bénéfice Kouider = final_price - (prix_houari × jours)
-                          const prixHouariJ = Number(b.base_price_snapshot || b.cars?.base_price || 0);
+                          const prixHouariJ = Number(b.cars?.base_price || 0);
                           const nbJ = getNbDays(b);
                           const profit = (Number(b.final_price || 0) - prixHouariJ * nbJ).toFixed(0);
                           return (
