@@ -31,6 +31,10 @@ export default function Home({ cars, reviews }) {
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold-500/5 rounded-full blur-3xl" />
           <div className="absolute top-1/4 right-0 w-64 h-64 bg-gold-500/10 rounded-full blur-2xl" />
           <div className="relative z-10 text-center max-w-5xl mx-auto px-4">
+            {/* TEST DZARYX - DIAGNOSTIC BUILD */}
+            <div style={{ background: '#ff0000', color: '#fff', padding: '8px 20px', borderRadius: 8, marginBottom: 16, fontWeight: 'bold', fontSize: 14 }}>
+              ✅ TEST DZARYX — BUILD ACTIF — {new Date().toISOString().slice(0,10)}
+            </div>
             <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 rounded-full px-4 py-1.5 mb-8">
               <span className="w-1.5 h-1.5 bg-gold-500 rounded-full animate-pulse" />
               <span className="text-gold-400 text-sm font-medium">Réservation disponible maintenant</span>
