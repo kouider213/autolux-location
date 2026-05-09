@@ -43,7 +43,7 @@ export default function TestDisponibilites() {
       </ul>
 
       <p style={{ marginTop: 40, color: "#6b7280", fontSize: 13 }}>
-        Page de test — Dzaryx · {new Date().toLocaleDateString("fr-FR")} · build v2
+        Page de test — Dzaryx · {new Date().toLocaleDateString("fr-FR")} · build v3
       </p>
     </div>
   );
