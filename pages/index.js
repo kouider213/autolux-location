@@ -236,7 +236,7 @@ export default function Home({ cars, reviews }) {
           });
           if (i < n - 1) {
             gsap.to(slide, {
-              opacity: 0, y: -50, scale: 0.94, ease: 'none',
+              opacity: 0.1, y: -50, scale: 0.94, ease: 'none',
               scrollTrigger: { trigger: '.gsap-benefits-scene', start: `${hold}% top`, end: `${end}% top`, scrub: 1.5 },
             });
           }
@@ -360,12 +360,12 @@ export default function Home({ cars, reviews }) {
                   <div className="w-18 h-18 w-[72px] h-[72px] bg-gold-500/[0.08] border border-gold-500/25 rounded-2xl flex items-center justify-center mx-auto mb-7">
                     <b.icon size={30} className="text-gold-400" />
                   </div>
-                  <p className="text-white/20 text-xs tracking-[0.3em] uppercase font-body mb-4">{b.num} / 06</p>
+                  <p className="text-white/60 text-xs tracking-[0.3em] uppercase font-body mb-4">{b.num} / 06</p>
                   <h2 className="font-display font-black text-white mb-5 leading-tight"
                     style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>
                     {b.title}
                   </h2>
-                  <p className="text-white/45 text-base md:text-xl font-body leading-relaxed">{b.desc}</p>
+                  <p className="text-white/70 text-base md:text-xl font-body leading-relaxed">{b.desc}</p>
                   <div className="w-12 h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent mx-auto mt-7" />
                 </div>
               </div>
