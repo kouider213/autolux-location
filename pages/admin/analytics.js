@@ -229,6 +229,34 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
+            {/* Microsoft Clarity embed */}
+            <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-white font-semibold text-sm flex items-center gap-2">
+                  <span className="text-blue-400">⬡</span> Microsoft Clarity
+                  <span className="text-white/25 text-xs font-normal">— heatmaps & enregistrements</span>
+                </h2>
+                <a href="https://clarity.microsoft.com/projects/view/wzu6j89axc" target="_blank" rel="noopener noreferrer"
+                  className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                  Ouvrir Clarity →
+                </a>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <a href="https://clarity.microsoft.com/projects/view/wzu6j89axc/heatmaps" target="_blank" rel="noopener noreferrer"
+                  className="flex flex-col gap-1.5 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] rounded-xl p-4 transition-all group">
+                  <span className="text-2xl">🔥</span>
+                  <span className="text-white font-semibold text-sm">Cartes thermiques</span>
+                  <span className="text-white/30 text-xs">Zones de clics et scrolls</span>
+                </a>
+                <a href="https://clarity.microsoft.com/projects/view/wzu6j89axc/recordings" target="_blank" rel="noopener noreferrer"
+                  className="flex flex-col gap-1.5 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] rounded-xl p-4 transition-all group">
+                  <span className="text-2xl">🎬</span>
+                  <span className="text-white font-semibold text-sm">Enregistrements</span>
+                  <span className="text-white/30 text-xs">Replay sessions clients</span>
+                </a>
+              </div>
+            </div>
+
             {/* Conversion */}
             <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5">
               <h2 className="text-white font-semibold text-sm mb-4">Entonnoir de conversion</h2>
