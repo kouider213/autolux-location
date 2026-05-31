@@ -218,9 +218,11 @@ export default function Home({ cars, reviews }) {
           },
         });
 
-        /* Benefits: set invisible then reveal per scrub */
+        /* Benefits: first visible, others hidden (GSAP will control reveal) */
         const slides = gsap.utils.toArray('.gsap-benefit-slide');
-        gsap.set(slides, { opacity: 0, y: 50, scale: 0.94 });
+        slides.forEach((slide, i) => {
+          gsap.set(slide, { opacity: i === 0 ? 1 : 0, y: 50, scale: 0.94 });
+        });
 
         slides.forEach((slide, i) => {
           const n    = slides.length;
@@ -384,7 +386,7 @@ export default function Home({ cars, reviews }) {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
           <div className="relative z-10 max-w-5xl mx-auto">
             <motion.div className="mb-10"
-              initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }}
+              initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
               viewport={{ once:true }} transition={{ duration:0.7, ease }}>
               <span className="section-badge mb-5 inline-block">Notre flotte</span>
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-3">
@@ -399,7 +401,7 @@ export default function Home({ cars, reviews }) {
 
             {cars && cars.length > 0 && (
               <motion.div
-                initial={{ opacity:0, y:40 }} whileInView={{ opacity:1, y:0 }}
+                initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ duration:0.7, delay:0.15, ease }}>
                 <CarCarousel cars={cars.filter(c => c.available !== false)} />
               </motion.div>
@@ -414,7 +416,7 @@ export default function Home({ cars, reviews }) {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/20 to-transparent" />
           <div className="relative z-10 max-w-6xl mx-auto">
             <motion.div className="text-center mb-16"
-              initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }}
+              initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
               viewport={{ once:true }} transition={{ duration:0.7 }}>
               <span className="section-badge mb-5 inline-block">Fik Conciergerie en chiffres</span>
               <h2 className="font-display text-4xl md:text-6xl font-bold text-white mt-5">
@@ -429,7 +431,7 @@ export default function Home({ cars, reviews }) {
                 { val:98,              suffix:'%', label:'Satisfaction',        desc:'avis vérifiés' },
               ].map((s, i) => (
                 <motion.div key={i} className="text-center"
-                  initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }}
+                  initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
                   viewport={{ once:true }} transition={{ duration:0.7, delay:i*0.1, ease }}>
                   <div className="font-display font-black text-gold-gradient leading-none mb-3"
                        style={{ fontSize:'clamp(44px,6vw,80px)' }}>
@@ -450,7 +452,7 @@ export default function Home({ cars, reviews }) {
                  style={{ background:'radial-gradient(circle,rgba(226,182,20,0.04) 0%,transparent 70%)' }} />
             <div className="relative z-10 max-w-7xl mx-auto">
               <motion.div className="text-center mb-14"
-                initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }}
+                initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ duration:0.7 }}>
                 <span className="section-badge mb-5 inline-block">Témoignages</span>
                 <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
@@ -469,7 +471,7 @@ export default function Home({ cars, reviews }) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {reviews.slice(0,3).map((review,i) => (
                   <motion.div key={review.id} className="card-dark p-6 relative overflow-hidden"
-                    initial={{ opacity:0, y:40 }} whileInView={{ opacity:1, y:0 }}
+                    initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
                     viewport={{ once:true }} transition={{ duration:0.65, delay:i*0.12, ease }}
                     whileHover={{ y:-4, transition:{duration:0.2} }}>
                     <span className="absolute top-3 right-4 font-display text-8xl text-gold-500/[0.05] leading-none select-none pointer-events-none">"</span>
@@ -503,7 +505,7 @@ export default function Home({ cars, reviews }) {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full pointer-events-none"
                style={{ background:'radial-gradient(circle,rgba(226,182,20,0.07) 0%,transparent 65%)' }} />
           <div className="relative z-10 max-w-3xl mx-auto text-center">
-            <motion.div initial={{ opacity:0, y:40 }} whileInView={{ opacity:1, y:0 }}
+            <motion.div initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
               viewport={{ once:true }} transition={{ duration:0.8, ease }}>
               <motion.div className="w-20 h-20 bg-gold-500/[0.08] border border-gold-500/20 rounded-2xl flex items-center justify-center mx-auto mb-10"
                 animate={{ y:[0,-10,0] }} transition={{ duration:3.5, repeat:Infinity, ease:'easeInOut' }}>
