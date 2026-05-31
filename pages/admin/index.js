@@ -28,7 +28,7 @@ export default function AdminDashboard() {
 
     const { data: bookings } = await supabase
       .from('bookings')
-      .select('*, cars(name, base_price, resale_price)')
+      .select('*, cars(name, base_price, resale_price, category)')
       .order('created_at', { ascending: false });
 
     if (!bookings) { setLoading(false); return; }
@@ -38,7 +38,8 @@ export default function AdminDashboard() {
   };
 
   // ─── Calculs financiers ───────────────────────────────────────────────────
-  const accepted = allBookings.filter(b => ['CONFIRMED', 'ACTIVE', 'COMPLETED'].includes(b.status));
+  // Même statuts que Dzaryx (inclut ACCEPTED)
+  const accepted = allBookings.filter(b => ['ACCEPTED', 'CONFIRMED', 'ACTIVE', 'COMPLETED'].includes(b.status));
   const pending  = allBookings.filter(b => b.status === 'PENDING');
 
   /**
@@ -54,19 +55,17 @@ export default function AdminDashboard() {
     return 1;
   };
 
-  /**
-   * Prix client/jour : TOUJOURS cars.resale_price (source fiable).
-   * Les snapshots sont ignorés — ils peuvent contenir le total au lieu du prix/jour.
-   */
-  const getPrixClientJour = (b) =>
-    Number(b.cars?.resale_price || 0);
+  // Prix client/jour : booking-level d'abord (comme Dzaryx), fallback catalogue
+  const getPrixClientJour = (b) => {
+    if (b.client_price_per_day && Number(b.client_price_per_day) > 0) return Number(b.client_price_per_day);
+    return Number(b.cars?.resale_price || 0);
+  };
 
-  /**
-   * Prix Houari/jour : TOUJOURS cars.base_price (prix journalier réel).
-   * Les snapshots sont IGNORÉS — certains contiennent le total (ex: 300€) au lieu du prix/jour (ex: 19€).
-   */
-  const getPrixHouariJour = (b) =>
-    Number(b.cars?.base_price || 0);
+  // Prix Houari/jour : booking-level d'abord (comme Dzaryx), fallback catalogue
+  const getPrixHouariJour = (b) => {
+    if (b.owner_price_per_day && Number(b.owner_price_per_day) > 0) return Number(b.owner_price_per_day);
+    return Number(b.cars?.base_price || 0);
+  };
 
   // ── Règle absolue : CA total = Part Houari + Bénéfice Kouider ──────────
   // final_price = total payé par le client (stocké en base, source de vérité)
