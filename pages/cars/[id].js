@@ -25,7 +25,8 @@ export default function CarDetail({ car }) {
   const whatsappMsg = encodeURIComponent(
     `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par la location du véhicule :\n*${car.name}* - ${car.resale_price ? car.resale_price + '€/jour' : 'Prix sur demande'}\n\nMerci de me confirmer les disponibilités.`
   );
-  const whatsappUrl = `https://wa.me/213XXXXXXXXX?text=${whatsappMsg}`;
+  // Belgian number: +32 466 31 14 69
+  const whatsappUrl = `https://wa.me/32466311469?text=${whatsappMsg}`;
 
   const specs = [
     { icon: Fuel,     label: 'Carburant',    value: car.fuel || 'Essence' },

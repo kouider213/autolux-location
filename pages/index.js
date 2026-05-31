@@ -215,8 +215,22 @@ function CarCarousel({ cars }) {
   );
 }
 
-export default function Home({ cars, reviews }) {
+export default function Home({ cars: initialCars, reviews: initialReviews }) {
   const statsRef = useRef(null);
+  const [cars, setCars] = useState(initialCars || []);
+  const [reviews, setReviews] = useState(initialReviews || []);
+
+  // Client-side refresh: always get fresh Supabase data (bypasses ISR cache)
+  useEffect(() => {
+    if (!supabase) return;
+    Promise.all([
+      supabase.from('cars').select('*').order('resale_price'),
+      supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false }).limit(6),
+    ]).then(([{ data: carsData }, { data: reviewsData }]) => {
+      if (carsData?.length > 0) setCars(carsData);
+      if (reviewsData?.length > 0) setReviews(reviewsData);
+    }).catch(() => {});
+  }, []);
 
   const heroCar = (
     cars?.find(c => c.image_url && c.name?.toLowerCase().includes('mercedes')) ||
@@ -491,15 +505,15 @@ export default function Home({ cars, reviews }) {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   try {
+    if (!supabase) return { props: { cars: [], reviews: [] }, revalidate: 30 };
     const [{ data: cars }, { data: reviews }] = await Promise.all([
       supabase.from('cars').select('*').order('resale_price'),
       supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false }).limit(6),
     ]);
-    return { props: { cars: cars||[], reviews: reviews||[] } };
-  } catch (err) {
-    console.error('Home SSR error:', err);
-    return { props: { cars: [], reviews: [] } };
+    return { props: { cars: cars||[], reviews: reviews||[] }, revalidate: 30 };
+  } catch {
+    return { props: { cars: [], reviews: [] }, revalidate: 30 };
   }
 }
