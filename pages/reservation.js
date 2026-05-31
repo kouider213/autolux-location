@@ -227,7 +227,13 @@ export default function ReservationPage({ cars }) {
                     {form.age && Number(form.age) < 35 && (
                       <div className="flex items-start gap-3 bg-red-500/[0.07] border border-red-500/20 rounded-xl p-4">
                         <AlertCircle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
-                        <p className="text-red-400/80 text-sm">Âge minimum requis : <strong className="text-red-400">35 ans</strong>. Nos assurances l'exigent.</p>
+                        <div>
+                          <p className="text-red-400 font-semibold text-sm mb-1.5">Âge minimum requis : 35 ans</p>
+                          <p className="text-red-400/70 text-xs leading-relaxed">
+                            En raison de nos contrats d'assurance, nous ne sommes pas autorisés à louer nos véhicules aux personnes de moins de 35 ans. Cette règle nous permet de protéger nos clients et notre société en cas de contrôle, d'accident ou de litige.
+                          </p>
+                          <p className="text-red-400/50 text-xs mt-2">Merci pour votre compréhension.</p>
+                        </div>
                       </div>
                     )}
 
@@ -331,7 +337,11 @@ export default function ReservationPage({ cars }) {
 }
 
 export async function getServerSideProps() {
-  const { data: cars } = await supabase.from('cars').select('*').eq('available', true).order('resale_price');
-  return { props: { cars: cars || [] } };
+  try {
+    const { data: cars } = await supabase.from('cars').select('*').eq('available', true).order('resale_price');
+    return { props: { cars: cars || [] } };
+  } catch {
+    return { props: { cars: [] } };
+  }
 }
 
