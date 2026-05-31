@@ -218,8 +218,13 @@ export default function ReviewsPage({ reviews }) {
   );
 }
 
-export async function getServerSideProps() {
-  const { data: reviews } = await supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false });
-  return { props: { reviews: reviews || [] } };
+export async function getStaticProps() {
+  try {
+    if (!supabase) return { props: { reviews: [] }, revalidate: 30 };
+    const { data: reviews } = await supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false });
+    return { props: { reviews: reviews || [] }, revalidate: 30 };
+  } catch {
+    return { props: { reviews: [] }, revalidate: 30 };
+  }
 }
 

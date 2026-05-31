@@ -225,8 +225,13 @@ function CarCard({ car }) {
   );
 }
 
-export async function getServerSideProps() {
-  const { data: cars } = await supabase.from('cars').select('*').order('resale_price');
-  return { props: { cars: cars || [] } };
+export async function getStaticProps() {
+  try {
+    if (!supabase) return { props: { cars: [] }, revalidate: 30 };
+    const { data: cars } = await supabase.from('cars').select('*').order('resale_price');
+    return { props: { cars: cars || [] }, revalidate: 30 };
+  } catch {
+    return { props: { cars: [] }, revalidate: 30 };
+  }
 }
 
