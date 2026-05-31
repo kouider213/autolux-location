@@ -51,7 +51,7 @@ export default function Navbar({ scrollContainerRef }) {
         <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
           <div className="relative w-9 h-9 flex-shrink-0">
             <div className="absolute inset-0 bg-gold-500/20 rounded-lg blur-md group-hover:opacity-60 transition-opacity" />
-            <div className="relative w-9 h-9 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center shadow-[0_2px_12px_rgba(226,182,20,0.4)]">
+            <div className="relative w-9 h-9 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center shadow-[0_2px_12px_rgba(226,182,20,0.4)] animate-float">
               <span className="text-noir-950 font-black text-xs tracking-tight">FK</span>
             </div>
           </div>

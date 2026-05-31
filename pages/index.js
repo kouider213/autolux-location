@@ -288,7 +288,7 @@ export default function Home({ cars, reviews }) {
 
               {/* Brand badge — center, CSS animated */}
               <div className="hero-css-brand absolute inset-0 flex items-center justify-center flex-col gap-3 pointer-events-none" style={{ paddingBottom: '20%' }}>
-                <div className="w-16 h-16 bg-gradient-to-br from-gold-400 to-gold-600 rounded-2xl flex items-center justify-center shadow-[0_0_50px_rgba(226,182,20,0.55)]">
+                <div className="w-16 h-16 bg-gradient-to-br from-gold-400 to-gold-600 rounded-2xl flex items-center justify-center shadow-[0_0_50px_rgba(226,182,20,0.55)] animate-float">
                   <span className="font-black text-noir-950 text-xl">FK</span>
                 </div>
                 <p className="font-display text-xl font-bold text-white tracking-wide">Fik Conciergerie</p>
