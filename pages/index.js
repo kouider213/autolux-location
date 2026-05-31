@@ -249,67 +249,7 @@ export default function Home({ cars, reviews }) {
   const avgRating = reviews.length > 0
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : '5.0';
 
-  /* GSAP: ONLY for hero car zoom + benefits scroll (no initial opacity changes) */
-  useEffect(() => {
-    let ctx;
-    const init = async () => {
-      const { gsap }          = await import('gsap');
-      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-      gsap.registerPlugin(ScrollTrigger);
-
-      ctx = gsap.context(() => {
-        /* Car Ken Burns — pure enhancement, no opacity manipulation */
-        gsap.to('.gsap-hero-car', {
-          scale: 1.25, ease: 'none',
-          scrollTrigger: {
-            trigger: '.gsap-hero-scene',
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 2,
-          },
-        });
-
-        /* Hero content slides up on scroll */
-        gsap.to('.gsap-hero-content', {
-          y: -50, opacity: 0, ease: 'none',
-          scrollTrigger: {
-            trigger: '.gsap-hero-scene',
-            start: '30% top',
-            end: '55% top',
-            scrub: 1.5,
-          },
-        });
-
-        /* Benefits: first visible, others hidden (GSAP will control reveal) */
-        const slides = gsap.utils.toArray('.gsap-benefit-slide');
-        slides.forEach((slide, i) => {
-          gsap.set(slide, { opacity: i === 0 ? 1 : 0, y: 50, scale: 0.94 });
-        });
-
-        slides.forEach((slide, i) => {
-          const n    = slides.length;
-          const step = 1 / n;
-          const s    = i * step * 100;
-          const peak = (i * step + step * 0.40) * 100;
-          const hold = (i * step + step * 0.60) * 100;
-          const end  = (i + 1) * step * 100;
-
-          gsap.to(slide, {
-            opacity: 1, y: 0, scale: 1, ease: 'none',
-            scrollTrigger: { trigger: '.gsap-benefits-scene', start: `${s}% top`, end: `${peak}% top`, scrub: 1.5 },
-          });
-          if (i < n - 1) {
-            gsap.to(slide, {
-              opacity: 0.1, y: -50, scale: 0.94, ease: 'none',
-              scrollTrigger: { trigger: '.gsap-benefits-scene', start: `${hold}% top`, end: `${end}% top`, scrub: 1.5 },
-            });
-          }
-        });
-      });
-    };
-    init();
-    return () => ctx?.revert();
-  }, []);
+  // GSAP removed — CSS animations handle hero entry, no scroll-driven opacity issues
 
   const ease = [0.16, 1, 0.3, 1];
 
@@ -324,8 +264,7 @@ export default function Home({ cars, reviews }) {
         <Navbar />
 
         {/* ══ HERO — CSS animated, instant ══ */}
-        <div className="gsap-hero-scene relative">
-          <div className="sticky top-0 h-screen overflow-hidden">
+        <div className="relative min-h-screen overflow-hidden">
 
             {/* Background image — zoom without overflow clipping */}
             <div className="absolute inset-0 bg-gradient-to-br from-gold-500/20 via-[#1a1a1a] to-[#050505]">
@@ -412,7 +351,6 @@ export default function Home({ cars, reviews }) {
                 <ChevronDown size={12} className="animate-bounce" />
               </div>
             </div>
-          </div>
         </div>
 
         {/* ══ BENEFITS CAROUSEL — simple, stable ══ */}
