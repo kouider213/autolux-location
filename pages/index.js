@@ -18,6 +18,45 @@ const BENEFITS = [
   { icon: Sparkles,      num:'06', title:'Large choix',           desc:'Citadines, SUV, utilitaires, premium. Le véhicule fait pour vous.' },
 ];
 
+/* ── Benefits carousel ── */
+function BenefitsCarousel({ benefits }) {
+  const [idx, setIdx] = useState(0);
+  const goTo = (i) => setIdx(i % benefits.length);
+  const slide = benefits[idx];
+
+  return (
+    <div className="relative w-full">
+      <AnimatePresence mode="wait">
+        <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}>
+          <div className="flex items-center justify-center px-6 py-12">
+            <div className="max-w-lg text-center">
+              <div className="w-[72px] h-[72px] bg-gold-500/[0.08] border border-gold-500/25 rounded-2xl flex items-center justify-center mx-auto mb-7">
+                <slide.icon size={30} className="text-gold-400" />
+              </div>
+              <p className="text-white/60 text-xs tracking-[0.3em] uppercase font-body mb-4">{slide.num} / 06</p>
+              <h2 className="font-display font-black text-white mb-5 leading-tight" style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>
+                {slide.title}
+              </h2>
+              <p className="text-white/70 text-base md:text-xl font-body leading-relaxed">{slide.desc}</p>
+              <div className="w-12 h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent mx-auto mt-7" />
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Navigation dots */}
+      <div className="flex justify-center gap-2 mt-8">
+        {benefits.map((_, i) => (
+          <button key={i} onClick={() => goTo(i)} className={`rounded-full transition-all ${i === idx ? 'w-8 h-2 bg-gold-500' : 'w-2 h-2 bg-white/20 hover:bg-white/40'}`} />
+        ))}
+      </div>
+
+      {/* Auto-advance */}
+      <div className="hidden md:block mt-6 text-center text-white/30 text-sm">Slide {idx + 1} / {benefits.length}</div>
+    </div>
+  );
+}
+
 /* ── Animated counter ── */
 function AnimCounter({ to, suffix }) {
   const [v, setV] = useState(0);
@@ -267,8 +306,8 @@ export default function Home({ cars, reviews }) {
         <div className="gsap-hero-scene relative">
           <div className="sticky top-0 h-screen overflow-hidden">
 
-            {/* Background image — CSS zoom in */}
-            <div className="absolute inset-0 overflow-hidden bg-gradient-to-br from-gold-500/20 via-[#1a1a1a] to-[#050505]">
+            {/* Background image — zoom without overflow clipping */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gold-500/20 via-[#1a1a1a] to-[#050505]">
               {heroCar?.image_url ? (
                 <img src={heroCar.image_url} alt={heroCar.name}
                   className="gsap-hero-car hero-css-img absolute inset-0 w-full h-full object-cover origin-center"
@@ -355,39 +394,22 @@ export default function Home({ cars, reviews }) {
           </div>
         </div>
 
-        {/* ══ BENEFITS SCENE — responsive scroll height ══ */}
-        <div className="gsap-benefits-scene relative">
-          <div className="sticky top-0 h-screen overflow-hidden flex items-center justify-center">
-            <div className="absolute inset-0 bg-[#050505]" />
-            <div className="absolute inset-0 opacity-[0.018]"
-              style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px)', backgroundSize: '70px 70px' }} />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none"
-              style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.05) 0%,transparent 65%)' }} />
-
-            {BENEFITS.map((b, i) => (
-              <div key={i} className="gsap-benefit-slide absolute inset-0 flex items-center justify-center px-6">
-                <div className="max-w-lg text-center">
-                  <div className="w-18 h-18 w-[72px] h-[72px] bg-gold-500/[0.08] border border-gold-500/25 rounded-2xl flex items-center justify-center mx-auto mb-7">
-                    <b.icon size={30} className="text-gold-400" />
-                  </div>
-                  <p className="text-white/60 text-xs tracking-[0.3em] uppercase font-body mb-4">{b.num} / 06</p>
-                  <h2 className="font-display font-black text-white mb-5 leading-tight"
-                    style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>
-                    {b.title}
-                  </h2>
-                  <p className="text-white/70 text-base md:text-xl font-body leading-relaxed">{b.desc}</p>
-                  <div className="w-12 h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent mx-auto mt-7" />
-                </div>
-              </div>
-            ))}
-
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2.5 z-20">
-              {BENEFITS.map((_, i) => (
-                <div key={i} className="w-1 h-1 bg-white/20 rounded-full" />
-              ))}
+        {/* ══ BENEFITS CAROUSEL — simple, stable ══ */}
+        <section className="relative py-16 md:py-24 px-5 overflow-hidden bg-[#050505]">
+          <div className="absolute inset-0 opacity-[0.018] pointer-events-none"
+            style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px)', backgroundSize: '70px 70px' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.05) 0%,transparent 65%)' }} />
+          <div className="relative max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <span className="section-badge mb-5 inline-block">Avantages</span>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
+                Pourquoi <span className="text-gold-gradient italic">nous choisir</span>
+              </h2>
             </div>
+            <BenefitsCarousel benefits={BENEFITS} />
           </div>
-        </div>
+        </section>
 
         {/* ══ VÉHICULES INTERACTIFS ══ */}
         <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#080808]">
