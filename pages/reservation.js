@@ -13,7 +13,7 @@ const DatePicker = dynamic(() => import('react-datepicker'), { ssr: false });
 
 const WHATSAPP = '32466311469';
 
-function buildWhatsAppUrl(form, car, days, total) {
+function buildWhatsAppUrl(form, car, days, total, bookingId) {
   const lines = [
     `🚗 *Nouvelle Réservation — Fik Conciergerie*`,
     ``,
@@ -24,7 +24,7 @@ function buildWhatsAppUrl(form, car, days, total) {
     `*Client :* ${form.name}`,
     `*Téléphone :* ${form.phone}`,
     `*Âge :* ${form.age} ans`,
-    form.email    ? `*Email :* ${form.email}`        : null,
+    form.email    ? `*Email :* ${form.email}`         : null,
     form.passport ? `*Passeport/CIN :* ${form.passport}` : null,
     ``,
     `*Départ :* ${form.startDate}`,
@@ -33,6 +33,7 @@ function buildWhatsAppUrl(form, car, days, total) {
     `*Total estimé :* ${total}€`,
     form.notes ? `*Notes :* ${form.notes}` : null,
     ``,
+    bookingId ? `🔗 Suivi: https://autolux-location.vercel.app/suivi/${bookingId}` : null,
     `_Demande envoyée depuis le site Fik Conciergerie._`,
   ].filter(l => l !== null).join('\n');
 
@@ -155,12 +156,15 @@ export default function ReservationPage({ cars: initialCars }) {
     setErr2(''); return true;
   };
 
+  const [bookingId, setBookingId] = useState(null);
+
   const handleSubmit = async () => {
     if (!validateStep2()) return;
     setLoading(true);
+    let newBookingId = null;
     try {
       if (supabase && selectedCar) {
-        await supabase.from('bookings').insert([{
+        const { data: inserted } = await supabase.from('bookings').insert([{
           car_id:               form.carId,
           client_name:          form.name,
           client_phone:         form.phone,
@@ -172,13 +176,14 @@ export default function ReservationPage({ cars: initialCars }) {
           final_price:          total,
           status:               'PENDING',
           notes:                form.notes    || null,
-          // Champs financiers — alignés avec Dzaryx
           client_price_per_day: selectedCar.resale_price || null,
           owner_price_per_day:  selectedCar.base_price   || null,
           rented_by:            'Kouider',
           payment_status:       'UNPAID',
           paid_amount:          0,
-        }]);
+        }]).select('id').single();
+        newBookingId = inserted?.id || null;
+        setBookingId(newBookingId);
       }
       // Notify Dzaryx
       fetch('/api/notify-dzaryx', {

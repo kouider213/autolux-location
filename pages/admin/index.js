@@ -171,20 +171,67 @@ export default function AdminDashboard() {
             </div>
 
             {/* ── Résumé rapide ── */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[
-                { label: 'Réservations totales', value: allBookings.length, icon: '📅', color: 'bg-blue-500/15 text-blue-400 border-blue-500/20' },
-                { label: 'En attente',            value: pending.length,    icon: '⏳', color: 'bg-amber-500/15 text-amber-400 border-amber-500/20' },
-                { label: 'Acceptées',             value: accepted.length,   icon: '✅', color: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' },
-                { label: 'CA total',              value: `${totalRevenue.toFixed(0)} €`, icon: '💰', color: 'bg-gold-500/15 text-gold-400 border-gold-500/20' },
-              ].map(card => (
-                <div key={card.label} className={`card-dark p-5 border ${card.color}`}>
-                  <div className="text-2xl mb-3">{card.icon}</div>
-                  <div className="font-display text-2xl font-bold text-white mb-1">{card.value}</div>
-                  <div className="text-white/40 text-xs">{card.label}</div>
+            {(() => {
+              const now = new Date();
+              const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+              const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+              const lastMonthEnd   = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+              const thisMonth = accepted.filter(b => b.created_at >= thisMonthStart);
+              const lastMonth = accepted.filter(b => b.created_at >= lastMonthStart && b.created_at < lastMonthEnd);
+
+              const thisCA = thisMonth.reduce((s, b) => s + Number(b.final_price || 0), 0);
+              const lastCA = lastMonth.reduce((s, b) => s + Number(b.final_price || 0), 0);
+              const caDelta = lastCA > 0 ? Math.round(((thisCA - lastCA) / lastCA) * 100) : null;
+
+              const thisBen = thisMonth.reduce((s, b) => s + (Number(b.final_price || 0) - getPartHouari(b)), 0);
+              const lastBen = lastMonth.reduce((s, b) => s + (Number(b.final_price || 0) - getPartHouari(b)), 0);
+              const benDelta = lastBen > 0 ? Math.round(((thisBen - lastBen) / lastBen) * 100) : null;
+
+              const DeltaBadge = ({ delta }) => {
+                if (delta === null) return null;
+                const pos = delta >= 0;
+                return (
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1 ${pos ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
+                    {pos ? '▲' : '▼'} {Math.abs(delta)}%
+                  </span>
+                );
+              };
+
+              return (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="card-dark p-5 border bg-blue-500/15 text-blue-400 border-blue-500/20">
+                    <div className="text-2xl mb-3">📅</div>
+                    <div className="font-display text-2xl font-bold text-white mb-0.5">{allBookings.length}</div>
+                    <div className="text-white/40 text-xs">Réservations totales</div>
+                    <div className="text-white/25 text-[10px] mt-1">{thisMonth.length} ce mois</div>
+                  </div>
+                  <div className="card-dark p-5 border bg-amber-500/15 text-amber-400 border-amber-500/20">
+                    <div className="text-2xl mb-3">⏳</div>
+                    <div className="font-display text-2xl font-bold text-white mb-1">{pending.length}</div>
+                    <div className="text-white/40 text-xs">En attente</div>
+                  </div>
+                  <div className="card-dark p-5 border bg-gold-500/15 text-gold-400 border-gold-500/20">
+                    <div className="text-2xl mb-3">💰</div>
+                    <div className="flex items-baseline gap-1">
+                      <div className="font-display text-2xl font-bold text-white">{thisCA.toFixed(0)} €</div>
+                      <DeltaBadge delta={caDelta} />
+                    </div>
+                    <div className="text-white/40 text-xs mt-0.5">CA ce mois</div>
+                    <div className="text-white/25 text-[10px] mt-1">vs {lastCA.toFixed(0)}€ mois dernier</div>
+                  </div>
+                  <div className="card-dark p-5 border bg-emerald-500/15 text-emerald-400 border-emerald-500/20">
+                    <div className="text-2xl mb-3">📈</div>
+                    <div className="flex items-baseline gap-1">
+                      <div className="font-display text-2xl font-bold text-white">{thisBen.toFixed(0)} €</div>
+                      <DeltaBadge delta={benDelta} />
+                    </div>
+                    <div className="text-white/40 text-xs mt-0.5">Bénéfice ce mois</div>
+                    <div className="text-white/25 text-[10px] mt-1">vs {lastBen.toFixed(0)}€ mois dernier</div>
+                  </div>
                 </div>
-              ))}
-            </div>
+              );
+            })()}
 
             {/* ── 3 Cases financières ── */}
             <div>

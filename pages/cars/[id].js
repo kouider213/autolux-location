@@ -1,14 +1,26 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Car, Fuel, Users, Settings, ArrowLeft, CalendarCheck, MessageCircle, Wind, Star, CheckCircle } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import { trackPageView } from '../../lib/tracker';
 
-export default function CarDetail({ car }) {
+export default function CarDetail({ car, photos: initialPhotos }) {
+  const [photos, setPhotos]       = useState(initialPhotos || []);
+  const [activePhoto, setActive]  = useState(0);
+
   useEffect(() => {
     if (car?.id) trackPageView(`/cars/${car.id}`, car.id);
+    // Fetch extra photos client-side
+    if (car?.id) {
+      const client = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+      client.from('car_photos').select('url, position').eq('car_id', car.id).order('position')
+        .then(({ data }) => { if (data?.length) setPhotos(data.map(p => p.url)); });
+    }
   }, [car?.id]);
 
   if (!car) {
@@ -71,34 +83,44 @@ export default function CarDetail({ car }) {
         <div className="px-5 pb-24 max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
 
-            {/* Left — image */}
-            <div className="space-y-4">
-              <div className="relative rounded-2xl overflow-hidden bg-[#141414] border border-white/[0.06]"
-                style={{ aspectRatio: '16/10' }}>
-                {car.image_url ? (
-                  <img
-                    src={car.image_url}
-                    alt={car.name}
-                    className="w-full h-full object-cover object-center"
-                    loading="eager"
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-                    <Car size={56} className="text-white/[0.07]" />
-                    <span className="text-white/15 text-xs tracking-widest uppercase font-body">Photo à venir</span>
-                  </div>
-                )}
-
-                {/* Category badge */}
-                <span className="absolute top-4 left-4 tag-category capitalize">{car.category}</span>
-
-                {/* Unavailable overlay */}
-                {car.available === false && (
-                  <div className="absolute inset-0 bg-[#0e0e0e]/75 backdrop-blur-sm flex items-center justify-center">
-                    <span className="text-white/60 text-xs font-medium tracking-widest uppercase border border-white/20 rounded-full px-4 py-2">Indisponible</span>
-                  </div>
-                )}
-              </div>
+            {/* Left — image gallery */}
+            <div className="space-y-3">
+              {/* Main photo */}
+              {(() => {
+                const allPhotos = photos.length > 0 ? photos : (car.image_url ? [car.image_url] : []);
+                const src = allPhotos[activePhoto] || null;
+                return (
+                  <>
+                    <div className="relative rounded-2xl overflow-hidden bg-[#141414] border border-white/[0.06]" style={{ aspectRatio: '16/10' }}>
+                      {src ? (
+                        <img src={src} alt={car.name} className="w-full h-full object-cover object-center" loading="eager" />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+                          <Car size={56} className="text-white/[0.07]" />
+                          <span className="text-white/15 text-xs tracking-widest uppercase font-body">Photo à venir</span>
+                        </div>
+                      )}
+                      <span className="absolute top-4 left-4 tag-category capitalize">{car.category}</span>
+                      {car.available === false && (
+                        <div className="absolute inset-0 bg-[#0e0e0e]/75 backdrop-blur-sm flex items-center justify-center">
+                          <span className="text-white/60 text-xs font-medium tracking-widest uppercase border border-white/20 rounded-full px-4 py-2">Indisponible</span>
+                        </div>
+                      )}
+                    </div>
+                    {/* Thumbnails */}
+                    {allPhotos.length > 1 && (
+                      <div className="flex gap-2 overflow-x-auto pb-1">
+                        {allPhotos.map((s, i) => (
+                          <button key={i} onClick={() => setActive(i)}
+                            className={`flex-shrink-0 w-16 h-12 rounded-xl overflow-hidden border-2 transition-all ${i === activePhoto ? 'border-gold-500' : 'border-white/[0.06] opacity-60 hover:opacity-100'}`}>
+                            <img src={s} alt={`${car.name} ${i+1}`} className="w-full h-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
 
               {/* Perks */}
               <div className="grid grid-cols-2 gap-2">

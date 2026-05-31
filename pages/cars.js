@@ -1,6 +1,6 @@
 ﻿import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Car, Fuel, Users, SlidersHorizontal, Search, ArrowRight, X } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
@@ -11,6 +11,23 @@ export default function CarsPage({ cars }) {
   const [filter, setFilter]     = useState('Tous');
   const [maxPrice, setMaxPrice] = useState(200);
   const [search, setSearch]     = useState('');
+  const [bookedCarIds, setBookedCarIds] = useState({});
+
+  // Fetch active bookings to show availability badges
+  useEffect(() => {
+    if (!supabase) return;
+    const today = new Date().toISOString().split('T')[0];
+    supabase.from('bookings')
+      .select('car_id, start_date, end_date, status')
+      .in('status', ['ACCEPTED', 'CONFIRMED', 'ACTIVE'])
+      .lte('start_date', today)
+      .gte('end_date', today)
+      .then(({ data }) => {
+        const map = {};
+        (data || []).forEach(b => { map[b.car_id] = b.end_date; });
+        setBookedCarIds(map);
+      });
+  }, []);
 
   const filtered = cars.filter(car => {
     const catMatch   = filter === 'Tous' || car.category === filter;
@@ -141,7 +158,7 @@ export default function CarsPage({ cars }) {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {filtered.map(car => <CarCard key={car.id} car={car} />)}
+                {filtered.map(car => <CarCard key={car.id} car={car} bookedUntil={bookedCarIds[car.id] || null} />)}
               </div>
             )}
           </div>
@@ -151,7 +168,8 @@ export default function CarsPage({ cars }) {
   );
 }
 
-function CarCard({ car }) {
+function CarCard({ car, bookedUntil }) {
+  const isBookedNow = !!bookedUntil;
   return (
     <div className="group card-dark overflow-hidden hover:border-gold-500/25 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-300">
       {/* Image — clickable to detail */}
@@ -170,10 +188,19 @@ function CarCard({ car }) {
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-transparent to-transparent opacity-60" />
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
           <span className="tag-category">{car.category}</span>
+          {isBookedNow ? (
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 backdrop-blur-sm">
+              Loué jusqu'au {bookedUntil}
+            </span>
+          ) : car.available ? (
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 backdrop-blur-sm">
+              ● Disponible
+            </span>
+          ) : null}
         </div>
-        {!car.available && (
+        {!car.available && !isBookedNow && (
           <div className="absolute inset-0 bg-[#0e0e0e]/70 backdrop-blur-sm flex items-center justify-center">
             <span className="text-white/60 text-xs font-medium tracking-widest uppercase border border-white/20 rounded-full px-3 py-1">Indisponible</span>
           </div>
