@@ -21,13 +21,21 @@ export default function App({ Component, pageProps }) {
   }, []);
 
   useEffect(() => {
+    // Don't load widget on admin pages
+    if (router.pathname.startsWith('/admin')) return;
     if (document.getElementById('ibr-widget-script')) return;
     const s = document.createElement('script');
     s.id = 'ibr-widget-script';
     s.src = 'https://ibrahim-backend-production.up.railway.app/api/widget/embed.js';
     s.async = true;
     document.body.appendChild(s);
-  }, []);
+  }, [router.pathname]);
+
+  // Hide widget on admin pages (handles navigation after initial load)
+  useEffect(() => {
+    const widget = document.getElementById('ibr-widget-root') || document.querySelector('[id^="ibr-"]');
+    if (widget) widget.style.display = router.pathname.startsWith('/admin') ? 'none' : '';
+  }, [router.pathname]);
 
     return (
           <>
