@@ -133,7 +133,7 @@ export default function ContactPage() {
                 <div>
                   <h3 className="text-white font-bold text-lg mb-1">Localisation</h3>
                   <p className="text-gold-400 font-semibold text-sm mb-2">Oran, Algérie</p>
-                  <p className="text-white/35 text-sm">Livraison à domicile disponible · Hôtel · Aéroport</p>
+                  <p className="text-white/35 text-sm">Livraison à l'aéroport · Récupération en magasin</p>
                 </div>
                 <div className="flex items-center gap-1.5 text-gold-400/70 text-xs font-medium mt-auto">
                   Voir sur Maps <ArrowRight size={12} />
