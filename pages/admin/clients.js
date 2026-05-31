@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
-import { Phone, Search, X, Star, CalendarCheck, TrendingUp } from 'lucide-react';
+import { Phone, Search, X } from 'lucide-react';
 
 export default function ClientsPage() {
   const [allBookings, setAllBookings] = useState([]);
@@ -11,10 +11,12 @@ export default function ClientsPage() {
   const [selected, setSelected]       = useState(null);
 
   useEffect(() => {
+    if (!supabase) { setLoading(false); return; }
     supabase.from('bookings')
       .select('*, cars(name, resale_price, image_url)')
       .order('created_at', { ascending: false })
-      .then(({ data }) => { setAllBookings(data || []); setLoading(false); });
+      .then(({ data }) => { setAllBookings(data || []); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
   // Build client list from bookings (group by phone)
