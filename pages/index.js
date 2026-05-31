@@ -599,12 +599,13 @@ export default function Home({ cars, reviews }) {
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   try {
     const { data: cars }    = await supabase.from('cars').select('*').order('resale_price');
     const { data: reviews } = await supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false }).limit(6);
-    return { props: { cars: cars||[], reviews: reviews||[] }, revalidate: 60 };
-  } catch {
-    return { props: { cars: [], reviews: [] }, revalidate: 30 };
+    return { props: { cars: cars||[], reviews: reviews||[] } };
+  } catch (err) {
+    console.error('Error fetching home data:', err);
+    return { props: { cars: [], reviews: [] } };
   }
 }
