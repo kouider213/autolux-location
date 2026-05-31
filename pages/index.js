@@ -21,11 +21,30 @@ const BENEFITS = [
 /* ── Benefits carousel ── */
 function BenefitsCarousel({ benefits }) {
   const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
   const goTo = (i) => setIdx(i % benefits.length);
   const slide = benefits[idx];
 
+  // Autoplay: advance every 3s unless paused
+  useEffect(() => {
+    if (paused) return;
+    const timer = setInterval(() => setIdx(i => (i + 1) % benefits.length), 3000);
+    return () => clearInterval(timer);
+  }, [paused, benefits.length]);
+
+  // Swipe support
+  const [touchStart, setTouchStart] = useState(0);
+  const handleTouchStart = (e) => { setTouchStart(e.touches[0].clientX); setPaused(true); };
+  const handleTouchEnd = (e) => {
+    const diff = touchStart - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) { // swipe threshold
+      setIdx(i => diff > 0 ? (i + 1) % benefits.length : (i - 1 + benefits.length) % benefits.length);
+    }
+    setTimeout(() => setPaused(false), 100);
+  };
+
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <AnimatePresence mode="wait">
         <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}>
           <div className="flex items-center justify-center px-6 py-12">
@@ -47,12 +66,13 @@ function BenefitsCarousel({ benefits }) {
       {/* Navigation dots */}
       <div className="flex justify-center gap-2 mt-8">
         {benefits.map((_, i) => (
-          <button key={i} onClick={() => goTo(i)} className={`rounded-full transition-all ${i === idx ? 'w-8 h-2 bg-gold-500' : 'w-2 h-2 bg-white/20 hover:bg-white/40'}`} />
+          <button key={i} onClick={() => { goTo(i); setPaused(true); setTimeout(() => setPaused(false), 3000); }} className={`rounded-full transition-all ${i === idx ? 'w-8 h-2 bg-gold-500' : 'w-2 h-2 bg-white/20 hover:bg-white/40'}`} />
         ))}
       </div>
 
-      {/* Auto-advance */}
-      <div className="hidden md:block mt-6 text-center text-white/30 text-sm">Slide {idx + 1} / {benefits.length}</div>
+      {/* Swipe hint */}
+      <div className="md:hidden mt-4 text-center text-white/25 text-xs">Swipe ou cliquez pour naviguer</div>
+      <div className="hidden md:block mt-6 text-center text-white/30 text-sm">Slide {idx + 1} / {benefits.length} (auto-advance 3s)</div>
     </div>
   );
 }
@@ -323,9 +343,9 @@ export default function Home({ cars, reviews }) {
               )}
             </div>
 
-            {/* Overlays */}
-            <div className="hero-css-overlay absolute inset-0 bg-black" style={{ opacity: 0.52 }} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/25 pointer-events-none" />
+            {/* Overlays — reduced to keep image visible */}
+            <div className="hero-css-overlay absolute inset-0 bg-black" style={{ opacity: 0.25 }} />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10 pointer-events-none" />
             <div className="absolute inset-0 opacity-[0.015] pointer-events-none"
               style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px)', backgroundSize: '70px 70px' }} />
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent" />
@@ -465,7 +485,7 @@ export default function Home({ cars, reviews }) {
                   viewport={{ once:true }} transition={{ duration:0.7, delay:i*0.1, ease }}>
                   <div className="font-display font-black text-gold-gradient leading-none mb-3"
                        style={{ fontSize:'clamp(44px,6vw,80px)' }}>
-                    {statsInView ? <AnimCounter to={s.val} suffix={s.suffix}/> : `0${s.suffix}`}
+                    <AnimCounter to={s.val} suffix={s.suffix}/>
                   </div>
                   <div className="text-white font-semibold text-sm md:text-base font-body mb-1">{s.label}</div>
                   <div className="text-white/30 text-xs md:text-sm font-body">{s.desc}</div>
