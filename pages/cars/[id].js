@@ -1,10 +1,16 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Car, Fuel, Users, Settings, ArrowLeft, CalendarCheck, MessageCircle, Wind, Star, CheckCircle } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+import { trackPageView } from '../../lib/tracker';
 
 export default function CarDetail({ car }) {
+  useEffect(() => {
+    if (car?.id) trackPageView(`/cars/${car.id}`, car.id);
+  }, [car?.id]);
+
   if (!car) {
     return (
       <>

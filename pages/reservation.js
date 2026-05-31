@@ -168,6 +168,20 @@ export default function ReservationPage({ cars: initialCars }) {
           notes: form.notes || null,
         }]);
       }
+      // Notify Dzaryx
+      fetch('/api/notify-dzaryx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'new_booking',
+          data: {
+            car_name: selectedCar?.name, client_name: form.name,
+            client_phone: form.phone, client_age: form.age,
+            start_date: form.startDate, end_date: form.endDate,
+            total, notes: form.notes,
+          },
+        }),
+      }).catch(() => {});
     } catch { /* non-blocking */ }
     setLoading(false);
     setDone(true);

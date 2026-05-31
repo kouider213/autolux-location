@@ -2,24 +2,50 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { supabase } from '../lib/supabase';
+import {
+  LayoutDashboard, Car, CalendarCheck, Users, Star,
+  BarChart3, LogOut, Globe, Menu, X, Bell, TrendingUp,
+} from 'lucide-react';
 
-export default function AdminLayout({ children }) {
+const NAV = [
+  { href: '/admin',            label: 'Dashboard',     icon: LayoutDashboard },
+  { href: '/admin/analytics',  label: 'Analytics',     icon: BarChart3 },
+  { href: '/admin/bookings',   label: 'Réservations',  icon: CalendarCheck },
+  { href: '/admin/clients',    label: 'Clients',       icon: Users },
+  { href: '/admin/cars',       label: 'Véhicules',     icon: Car },
+  { href: '/admin/reviews',    label: 'Avis',          icon: Star },
+];
+
+export default function AdminLayout({ children, title }) {
   const router = useRouter();
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [profile, setProfile]     = useState(null);
+  const [loading, setLoading]     = useState(true);
+  const [sidebar, setSidebar]     = useState(false);
+  const [pendingCount, setPending] = useState(0);
 
   useEffect(() => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push('/login'); return; }
-      const { data: prof } = await supabase
-        .from('profiles').select('*').eq('id', session.user.id).single();
+      const { data: prof } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
       if (!prof) { router.push('/login'); return; }
       setProfile(prof);
       setLoading(false);
     };
     init();
+
+    // Live badge pending bookings
+    if (!supabase) return;
+    supabase.from('bookings').select('id', { count: 'exact' }).eq('status', 'PENDING')
+      .then(({ count }) => setPending(count || 0));
+
+    const sub = supabase.channel('admin-pending')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
+        supabase.from('bookings').select('id', { count: 'exact' }).eq('status', 'PENDING')
+          .then(({ count }) => setPending(count || 0));
+      }).subscribe();
+
+    return () => supabase.removeChannel(sub);
   }, []);
 
   const handleLogout = async () => {
@@ -27,90 +53,133 @@ export default function AdminLayout({ children }) {
     router.push('/login');
   };
 
-  const navItems = [
-    { href: '/admin',          label: 'Tableau de bord', icon: '📊' },
-    { href: '/admin/bookings', label: 'Réservations',    icon: '📅' },
-    { href: '/admin/calendar', label: 'Calendrier',      icon: '🗓️' },
-    { href: '/admin/cars',     label: 'Véhicules',       icon: '🚗' },
-    { href: '/admin/reviews',  label: 'Avis',            icon: '⭐' },
-  ];
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-noir-950 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-white/40 text-sm">Chargement...</span>
+      <div className="min-h-screen bg-[#0e0e0e] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-white/30 text-sm font-body">Chargement...</span>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-noir-950 flex">
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/60 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
-      <aside className={`fixed md:sticky top-0 left-0 h-screen w-64 bg-noir-900 border-r border-white/5 flex flex-col z-40 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="p-6 border-b border-white/5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gold-500 rounded-xl flex items-center justify-center">
-              <span className="text-noir-950 font-black text-sm">FC</span>
-            </div>
-            <div>
-              <p className="text-white font-bold text-sm">Fik Conciergerie</p>
-              <p className="text-white/30 text-xs">Administration</p>
-            </div>
+  const SidebarContent = () => (
+    <>
+      {/* Logo */}
+      <div className="px-6 py-5 border-b border-white/[0.05]">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-gradient-to-br from-gold-400 to-gold-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(226,182,20,0.3)]">
+            <span className="text-noir-950 font-black text-xs">FK</span>
+          </div>
+          <div>
+            <p className="text-white font-bold text-sm font-body">Fik Conciergerie</p>
+            <p className="text-white/25 text-[10px] tracking-widest uppercase">Administration</p>
           </div>
         </div>
-        <div className="px-4 py-4 border-b border-white/5">
-          <div className="flex items-center gap-3 bg-noir-800 rounded-xl p-3">
-            <div className="w-9 h-9 bg-gold-500/20 rounded-full flex items-center justify-center text-gold-500 font-bold">
-              {profile?.name?.[0]?.toUpperCase()}
-            </div>
-            <div>
-              <p className="text-white text-sm font-semibold">{profile?.name}</p>
-              <p className="text-gold-500 text-xs capitalize">{profile?.role}</p>
-            </div>
+      </div>
+
+      {/* Profile */}
+      <div className="px-4 py-3 border-b border-white/[0.05]">
+        <div className="flex items-center gap-3 bg-white/[0.04] rounded-xl px-3 py-2.5">
+          <div className="w-8 h-8 bg-gradient-to-br from-gold-400/30 to-gold-600/20 rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-gold-400 font-bold text-xs">{profile?.name?.[0]?.toUpperCase()}</span>
+          </div>
+          <div className="min-w-0">
+            <p className="text-white text-sm font-semibold truncate font-body">{profile?.name}</p>
+            <p className="text-gold-500/70 text-[10px] capitalize font-body">{profile?.role}</p>
           </div>
         </div>
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map(item => (
-            <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                router.pathname === item.href
-                  ? 'bg-gold-500/15 text-gold-500'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
+      </div>
+
+      {/* Nav */}
+      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
+        {NAV.map(({ href, label, icon: Icon }) => {
+          const active = router.pathname === href;
+          const hasBadge = href === '/admin/bookings' && pendingCount > 0;
+          return (
+            <Link key={href} href={href} onClick={() => setSidebar(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium font-body transition-all duration-150 ${
+                active
+                  ? 'bg-gold-500/15 text-gold-400 border border-gold-500/20'
+                  : 'text-white/45 hover:text-white hover:bg-white/[0.05]'
               }`}>
-              <span>{item.icon}</span>
-              {item.label}
+              <Icon size={16} className={active ? 'text-gold-400' : 'text-white/35'} />
+              <span className="flex-1">{label}</span>
+              {hasBadge && (
+                <span className="w-5 h-5 bg-gold-500 text-noir-950 text-[10px] font-black rounded-full flex items-center justify-center">
+                  {pendingCount > 9 ? '9+' : pendingCount}
+                </span>
+              )}
             </Link>
-          ))}
-        </nav>
-        <div className="p-4 border-t border-white/5 space-y-2">
-          <Link href="/" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white/30 hover:text-white/60 transition-colors">
-            <span>🌐</span> Voir le site
-          </Link>
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200">
-            <span>🚪</span> Déconnexion
-          </button>
-        </div>
+          );
+        })}
+      </nav>
+
+      {/* Footer */}
+      <div className="px-3 py-3 border-t border-white/[0.05] space-y-0.5">
+        <Link href="/" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/30 hover:text-white/60 font-body transition-all hover:bg-white/[0.04]">
+          <Globe size={15} />Voir le site
+        </Link>
+        <button onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400/50 hover:text-red-400 hover:bg-red-500/[0.07] font-body transition-all">
+          <LogOut size={15} />Déconnexion
+        </button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#0e0e0e] flex font-body">
+
+      {/* Mobile overlay */}
+      {sidebar && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-30 md:hidden" onClick={() => setSidebar(false)} />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`fixed md:sticky top-0 left-0 h-screen w-60 bg-[#0a0a0a] border-r border-white/[0.05] flex flex-col z-40 transition-transform duration-300 ${
+        sidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      }`}>
+        <SidebarContent />
       </aside>
+
+      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-noir-900/80 backdrop-blur border-b border-white/5 px-6 py-4 flex items-center justify-between sticky top-0 z-20">
-          <button onClick={() => setSidebarOpen(true)} className="md:hidden text-white/50 hover:text-white">☰</button>
-          <div className="hidden md:block">
-            <span className="text-white/20 text-sm">{new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+        {/* Topbar */}
+        <header className="bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/[0.05] px-5 py-3.5 flex items-center justify-between sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebar(true)}
+              className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/[0.06] transition-all">
+              <Menu size={18} />
+            </button>
+            <div>
+              <h1 className="text-white font-semibold text-base font-body">{title || 'Dashboard'}</h1>
+              <p className="text-white/25 text-xs font-body hidden sm:block">
+                {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              </p>
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-white/40">
-            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            Connecté — {profile?.name}
+          <div className="flex items-center gap-3">
+            {pendingCount > 0 && (
+              <Link href="/admin/bookings"
+                className="flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 rounded-xl px-3 py-1.5 text-gold-400 text-xs font-medium hover:bg-gold-500/15 transition-all">
+                <Bell size={13} className="animate-pulse" />
+                {pendingCount} en attente
+              </Link>
+            )}
+            <div className="flex items-center gap-1.5 text-xs text-white/25 font-body">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+              {profile?.name}
+            </div>
           </div>
         </header>
-        <main className="flex-1 p-6 overflow-auto">
+
+        {/* Content */}
+        <main className="flex-1 p-5 md:p-6 overflow-auto">
           {children}
         </main>
       </div>
     </div>
   );
-              }
+}

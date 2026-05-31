@@ -3,18 +3,31 @@ import 'react-datepicker/dist/react-datepicker.css';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { trackPageView } from '../lib/tracker';
 
 const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { ssr: false });
 
 export default function App({ Component, pageProps }) {
-    useEffect(() => {
-        if (document.getElementById('ibr-widget-script')) return;
-        const s = document.createElement('script');
-        s.id = 'ibr-widget-script';
-        s.src = 'https://ibrahim-backend-production.up.railway.app/api/widget/embed.js';
-        s.async = true;
-        document.body.appendChild(s);
-    }, []);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Track initial page
+    trackPageView(router.pathname);
+    // Track on route change
+    const handleRouteChange = (url) => trackPageView(url);
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => router.events.off('routeChangeComplete', handleRouteChange);
+  }, []);
+
+  useEffect(() => {
+    if (document.getElementById('ibr-widget-script')) return;
+    const s = document.createElement('script');
+    s.id = 'ibr-widget-script';
+    s.src = 'https://ibrahim-backend-production.up.railway.app/api/widget/embed.js';
+    s.async = true;
+    document.body.appendChild(s);
+  }, []);
 
     return (
           <>
