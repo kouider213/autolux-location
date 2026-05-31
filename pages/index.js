@@ -237,13 +237,14 @@ export default function Home({ cars, reviews }) {
   const benefitsRef = useRef(null);
 
   const heroCar = (
-    cars?.find(c => c.name?.toLowerCase().includes('mercedes')) ||
-    cars?.find(c => c.name?.toLowerCase().includes('alpine'))   ||
-    cars?.find(c => c.name?.toLowerCase().includes('clio 7'))   ||
-    cars?.find(c => c.name?.toLowerCase().includes('clio'))     ||
+    cars?.find(c => c.image_url && c.name?.toLowerCase().includes('mercedes')) ||
+    cars?.find(c => c.image_url && c.name?.toLowerCase().includes('alpine'))   ||
+    cars?.find(c => c.image_url && c.name?.toLowerCase().includes('clio 7'))   ||
+    cars?.find(c => c.image_url && c.name?.toLowerCase().includes('clio'))     ||
     cars?.find(c => c.image_url) || null
   );
   if (heroCar) console.log('Hero car:', heroCar.name, heroCar.image_url);
+  if (!heroCar && cars?.length > 0) console.warn('No hero car with image found. Cars:', cars.map(c => ({ name: c.name, img: c.image_url })));
 
   const avgRating = reviews.length > 0
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : '5.0';
