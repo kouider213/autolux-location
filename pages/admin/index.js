@@ -154,7 +154,7 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <Head><title>Dashboard — AutoLux Admin</title></Head>
+      <Head><title>Dashboard — Fik Conciergerie Admin</title></Head>
       <AdminLayout>
         {loading ? (
           <div className="flex items-center justify-center h-64">
