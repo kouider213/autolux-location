@@ -1,4 +1,4 @@
-import Head from 'next/head';
+﻿import Head from 'next/head';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
@@ -28,7 +28,7 @@ export default function LoginPage() {
   return (
     <>
       <Head>
-        <title>Connexion — AutoLux</title>
+        <title>Connexion — Fik Conciergerie</title>
       </Head>
 
       <div className="grain min-h-screen bg-[#0e0e0e] flex items-center justify-center px-5">
@@ -47,7 +47,7 @@ export default function LoginPage() {
               </div>
             </div>
             <h1 className="font-display text-3xl font-bold text-white mb-1">
-              Auto<span className="text-gold-500">Lux</span>
+              Fik <span className="text-gold-500">Conciergerie</span>
             </h1>
             <p className="text-white/30 text-sm">Espace administration</p>
           </div>
@@ -129,10 +129,11 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-white/15 text-xs mt-6">
-            AutoLux Location — Oran, Algérie
+            Fik Conciergerie — Oran, Algérie
           </p>
         </div>
       </div>
     </>
   );
 }
+

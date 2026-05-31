@@ -1,4 +1,4 @@
-import Head from 'next/head';
+﻿import Head from 'next/head';
 import Link from 'next/link';
 import { Shield, CakeSlice, BookOpen, Wallet, AlertTriangle, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -42,8 +42,8 @@ export default function ConditionsPage() {
   return (
     <>
       <Head>
-        <title>Conditions de Location — AutoLux</title>
-        <meta name="description" content="Conditions générales de location AutoLux. Âge minimum 35 ans, sans caution, passeport conservé." />
+        <title>Conditions de Location — Fik Conciergerie</title>
+        <meta name="description" content="Conditions générales de location Fik Conciergerie. Âge minimum 35 ans, sans caution, passeport conservé." />
       </Head>
 
       <div className="grain min-h-screen bg-[#0e0e0e]">
@@ -132,3 +132,4 @@ export default function ConditionsPage() {
     </>
   );
 }
+

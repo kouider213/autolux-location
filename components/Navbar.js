@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
@@ -52,12 +52,12 @@ export default function Navbar({ scrollContainerRef }) {
           <div className="relative w-9 h-9 flex-shrink-0">
             <div className="absolute inset-0 bg-gold-500/20 rounded-lg blur-md group-hover:opacity-60 transition-opacity" />
             <div className="relative w-9 h-9 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center shadow-[0_2px_12px_rgba(226,182,20,0.4)]">
-              <span className="text-noir-950 font-black text-xs tracking-tight">AL</span>
+              <span className="text-noir-950 font-black text-xs tracking-tight">FK</span>
             </div>
           </div>
           <div className="leading-none">
             <span className="font-display font-bold text-lg text-white block leading-tight">
-              Auto<span className="text-gold-500">Lux</span>
+              Fik <span className="text-gold-500">Conciergerie</span>
             </span>
             <span className="text-white/20 text-[9px] tracking-widest uppercase font-body">Location Premium</span>
           </div>
@@ -130,3 +130,4 @@ export default function Navbar({ scrollContainerRef }) {
     </nav>
   );
 }
+

@@ -1,4 +1,4 @@
-import Head from 'next/head';
+﻿import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -74,7 +74,7 @@ export default function ReservationPage({ cars }) {
 
   return (
     <>
-      <Head><title>Réservation — AutoLux Location</title></Head>
+      <Head><title>Réservation — Fik Conciergerie</title></Head>
 
       <div className="grain min-h-screen bg-[#0e0e0e]">
         <Navbar />
@@ -334,3 +334,4 @@ export async function getServerSideProps() {
   const { data: cars } = await supabase.from('cars').select('*').eq('available', true).order('resale_price');
   return { props: { cars: cars || [] } };
 }
+

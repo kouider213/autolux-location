@@ -1,4 +1,4 @@
-import Head from 'next/head';
+﻿import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Car, Fuel, Users, SlidersHorizontal, Search, ArrowRight, X } from 'lucide-react';
@@ -24,7 +24,7 @@ export default function CarsPage({ cars }) {
   return (
     <>
       <Head>
-        <title>Nos Véhicules — AutoLux Location</title>
+        <title>Nos Véhicules — Fik Conciergerie</title>
         <meta name="description" content="Découvrez notre flotte complète. Citadines, SUV, utilitaires et véhicules premium à louer à Oran." />
       </Head>
 
@@ -224,3 +224,4 @@ export async function getServerSideProps() {
   const { data: cars } = await supabase.from('cars').select('*').order('resale_price');
   return { props: { cars: cars || [] } };
 }
+

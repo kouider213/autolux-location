@@ -1,4 +1,4 @@
-import Head from 'next/head';
+﻿import Head from 'next/head';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Star, MessageSquarePlus, Check, Loader2 } from 'lucide-react';
@@ -32,7 +32,7 @@ export default function ReviewsPage({ reviews }) {
   return (
     <>
       <Head>
-        <title>Avis Clients — AutoLux Location</title>
+        <title>Avis Clients — Fik Conciergerie</title>
         <meta name="description" content="Lisez les témoignages de nos clients satisfaits et partagez votre expérience." />
       </Head>
 
@@ -129,7 +129,7 @@ export default function ReviewsPage({ reviews }) {
                     </div>
                     <div>
                       <h2 className="font-display text-xl font-bold text-white">Laisser un avis</h2>
-                      <p className="text-white/30 text-xs">Partagez votre expérience avec AutoLux</p>
+                      <p className="text-white/30 text-xs">Partagez votre expérience avec Fik Conciergerie</p>
                     </div>
                   </div>
 
@@ -222,3 +222,4 @@ export async function getServerSideProps() {
   const { data: reviews } = await supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false });
   return { props: { reviews: reviews || [] } };
 }
+

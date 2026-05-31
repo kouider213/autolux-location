@@ -181,8 +181,8 @@ export default function Home({ cars, reviews }) {
   return (
     <>
       <Head>
-        <title>AutoLux — Location de Véhicules Premium Oran</title>
-        <meta name="description" content="Louez votre véhicule idéal à Oran. Large gamme sans caution. Réservation rapide." />
+        <title>Fik Conciergerie — Location de Véhicules Premium Oran</title>
+        <meta name="description" content="Fik Conciergerie — Louez votre véhicule idéal à Oran. Large gamme sans caution. Réservation rapide." />
       </Head>
 
       <div className="grain bg-[#080808] overflow-x-hidden">
@@ -199,7 +199,7 @@ export default function Home({ cars, reviews }) {
               {heroCar?.image_url ? (
                 <img
                   src={heroCar.image_url}
-                  alt="AutoLux flotte premium"
+                  alt="Fik Conciergerie flotte premium"
                   className="gsap-hero-car absolute inset-0 w-full h-full object-cover origin-center"
                   style={{ willChange: 'transform' }}
                 />
@@ -227,7 +227,7 @@ export default function Home({ cars, reviews }) {
               <div className="w-16 h-16 bg-gradient-to-br from-gold-400 to-gold-600 rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(226,182,20,0.5)]">
                 <span className="font-black text-noir-950 text-xl">AL</span>
               </div>
-              <p className="font-display text-2xl font-bold text-white tracking-wide">AutoLux</p>
+              <p className="font-display text-2xl font-bold text-white tracking-wide">Fik Conciergerie</p>
               <p className="text-white/40 text-sm tracking-[0.25em] uppercase font-body">Location Premium · Oran</p>
             </div>
 
@@ -411,7 +411,7 @@ export default function Home({ cars, reviews }) {
 
           <div className="relative z-10 max-w-6xl mx-auto">
             <div className="gsap-reveal text-center mb-20">
-              <span className="section-badge mb-5 inline-block">AutoLux en chiffres</span>
+              <span className="section-badge mb-5 inline-block">Fik Conciergerie en chiffres</span>
               <h2 className="font-display text-5xl md:text-6xl font-bold text-white mt-5">
                 Confiance & <span className="text-gold-gradient italic">Excellence</span>
               </h2>
@@ -525,7 +525,7 @@ export default function Home({ cars, reviews }) {
               <div className="w-8 h-8 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center">
                 <span className="text-noir-950 font-black text-xs">AL</span>
               </div>
-              <span className="font-display font-bold text-white">Auto<span className="text-gold-500">Lux</span></span>
+              <span className="font-display font-bold text-white">Fik <span className="text-gold-500">Conciergerie</span></span>
             </div>
             <div className="flex gap-6 text-white/25 text-sm font-body">
               {[{h:'/cars',l:'Véhicules'},{h:'/conditions',l:'Conditions'},{h:'/reviews',l:'Avis'},{h:'/reservation',l:'Réserver'}].map(x => (
@@ -533,7 +533,7 @@ export default function Home({ cars, reviews }) {
               ))}
             </div>
             <div className="flex items-center gap-1.5 text-white/20 text-xs font-body">
-              <MapPin size={10} /><span>Oran, Algérie · © {new Date().getFullYear()} AutoLux</span>
+              <MapPin size={10} /><span>Oran, Algérie · © {new Date().getFullYear()} Fik Conciergerie</span>
             </div>
           </div>
         </footer>
@@ -562,8 +562,12 @@ function AnimCounter({ to, suffix }) {
   return <>{v}{suffix}</>;
 }
 
-export async function getServerSideProps() {
-  const { data: cars }    = await supabase.from('cars').select('*').order('resale_price');
-  const { data: reviews } = await supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false }).limit(6);
-  return { props: { cars: cars || [], reviews: reviews || [] } };
+export async function getStaticProps() {
+  try {
+    const { data: cars }    = await supabase.from('cars').select('*').order('resale_price');
+    const { data: reviews } = await supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false }).limit(6);
+    return { props: { cars: cars || [], reviews: reviews || [] }, revalidate: 60 };
+  } catch {
+    return { props: { cars: [], reviews: [] }, revalidate: 30 };
+  }
 }
