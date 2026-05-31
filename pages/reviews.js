@@ -27,6 +27,11 @@ export default function ReviewsPage({ reviews }) {
     if (error) { toast.error("Erreur lors de l'envoi"); return; }
     setSubmitted(true);
     toast.success('Merci pour votre avis !');
+    // Notify Dzaryx
+    fetch('/api/notify-dzaryx', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'new_review', data: { client_name: form.client_name, rating: form.rating, comment: form.comment } }),
+    }).catch(() => {});
   };
 
   return (
