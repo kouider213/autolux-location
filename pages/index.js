@@ -180,9 +180,11 @@ export default function Home({ cars, reviews }) {
   const heroCar = (
     cars?.find(c => c.name?.toLowerCase().includes('mercedes')) ||
     cars?.find(c => c.name?.toLowerCase().includes('alpine'))   ||
-    cars?.find(c => c.name?.toLowerCase().includes('clio 5'))   ||
+    cars?.find(c => c.name?.toLowerCase().includes('clio 7'))   ||
+    cars?.find(c => c.name?.toLowerCase().includes('clio'))     ||
     cars?.find(c => c.image_url) || null
   );
+  if (heroCar) console.log('Hero car:', heroCar.name, heroCar.image_url);
 
   const avgRating = reviews.length > 0
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : '5.0';
@@ -266,13 +268,19 @@ export default function Home({ cars, reviews }) {
           <div className="sticky top-0 h-screen overflow-hidden">
 
             {/* Background image — CSS zoom in */}
-            <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 overflow-hidden bg-gradient-to-br from-gold-500/20 via-[#1a1a1a] to-[#050505]">
               {heroCar?.image_url ? (
                 <img src={heroCar.image_url} alt={heroCar.name}
                   className="gsap-hero-car hero-css-img absolute inset-0 w-full h-full object-cover origin-center"
-                  style={{ willChange: 'transform' }} />
+                  style={{ willChange: 'transform' }}
+                  onError={() => console.warn('Hero image failed:', heroCar.image_url)} />
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1c1c1c] to-[#050505]" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <Car size={64} className="text-white/10 mx-auto mb-4" />
+                    <p className="text-white/20 text-sm font-body">{heroCar?.name || 'Véhicule'}</p>
+                  </div>
+                </div>
               )}
             </div>
 
