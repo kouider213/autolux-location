@@ -1,48 +1,52 @@
-// Send notification to Dzaryx (Ibrahim AI backend)
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { type, data } = req.body;
-  const DZARYX_URL = process.env.DZARYX_NOTIFY_URL || 'https://ibrahim-backend-production.up.railway.app';
 
+  let title = '';
   let message = '';
 
   if (type === 'new_booking') {
+    title = `🚗 Nouvelle réservation — ${data.car_name}`;
     message = [
-      `🚗 *Nouvelle réservation — Fik Conciergerie*`,
-      ``,
-      `Véhicule: ${data.car_name}`,
-      `Client: ${data.client_name} · ${data.client_phone}`,
-      `Âge: ${data.client_age} ans`,
+      `Client: ${data.client_name} | Tél: ${data.client_phone} | Âge: ${data.client_age} ans`,
       `Dates: ${data.start_date} → ${data.end_date}`,
       `Total: ${data.total}€`,
       data.notes ? `Notes: ${data.notes}` : null,
     ].filter(Boolean).join('\n');
-  }
-
-  if (type === 'new_review') {
-    message = `⭐ Nouvel avis de ${data.client_name} (${data.rating}/5): "${data.comment}"`;
-  }
-
-  if (type === 'booking_status') {
-    message = `📋 Réservation #${data.id?.substring(0,8)} → statut: ${data.status} (${data.car_name} / ${data.client_name})`;
+  } else if (type === 'new_review') {
+    title = `⭐ Nouvel avis (${data.rating}/5) — ${data.client_name}`;
+    message = `"${data.comment}"`;
+  } else if (type === 'booking_status') {
+    title = `📋 Réservation mise à jour`;
+    message = `${data.car_name} / ${data.client_name} → ${data.status}`;
+  } else {
+    title = data?.title || 'Notification Fik Conciergerie';
+    message = data?.message || JSON.stringify(data);
   }
 
   try {
-    // Notify Dzaryx via Ibrahim backend
-    const resp = await fetch(`${DZARYX_URL}/api/dzaryx/notify`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, type, data }),
-      signal: AbortSignal.timeout(5000),
-    });
+    const { error } = await supabase.from('notifications').insert([{
+      type:     type || 'fik_event',
+      channel:  'socket',
+      title,
+      message,
+      priority: type === 'new_booking' ? 1 : 0,
+      payload:  data || {},
+      status:   'pending',
+    }]);
 
-    if (!resp.ok) throw new Error(`Dzaryx responded ${resp.status}`);
+    if (error) throw error;
     res.status(200).json({ ok: true });
   } catch (err) {
-    // Non-critical — log but don't fail
     console.error('Dzaryx notify error:', err.message);
-    res.status(200).json({ ok: true, warn: err.message });
+    res.status(500).json({ error: err.message });
   }
 }
