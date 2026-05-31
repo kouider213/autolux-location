@@ -132,23 +132,25 @@ function CarCarousel({ cars }) {
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
             className="absolute inset-0"
           >
-            {/* Background image */}
-            {car.image_url ? (
-              <motion.img
-                src={car.image_url}
-                alt={car.name}
-                className="w-full h-full object-cover"
-                initial={{ scale: 1.06 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#080808] flex items-center justify-center">
-                <Car size={100} className="text-white/[0.05]" />
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
+            {/* Background image — clickable to detail page */}
+            <Link href={`/cars/${car.id}`} className="absolute inset-0 z-0">
+              {car.image_url ? (
+                <motion.img
+                  src={car.image_url}
+                  alt={car.name}
+                  className="w-full h-full object-cover"
+                  initial={{ scale: 1.06 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#080808] flex items-center justify-center">
+                  <Car size={100} className="text-white/[0.05]" />
+                </div>
+              )}
+            </Link>
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent pointer-events-none" />
 
             {/* Car info */}
             <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
