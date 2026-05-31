@@ -264,7 +264,7 @@ export default function Home({ cars, reviews }) {
         <Navbar />
 
         {/* ══ HERO — CSS animated, instant ══ */}
-        <div className="gsap-hero-scene relative" style={{ height: '400vh' }}>
+        <div className="gsap-hero-scene relative">
           <div className="sticky top-0 h-screen overflow-hidden">
 
             {/* Background image — CSS zoom in */}
@@ -355,8 +355,8 @@ export default function Home({ cars, reviews }) {
           </div>
         </div>
 
-        {/* ══ BENEFITS SCENE — 700vh ══ */}
-        <div className="gsap-benefits-scene relative" style={{ height: '700vh' }}>
+        {/* ══ BENEFITS SCENE — responsive scroll height ══ */}
+        <div className="gsap-benefits-scene relative">
           <div className="sticky top-0 h-screen overflow-hidden flex items-center justify-center">
             <div className="absolute inset-0 bg-[#050505]" />
             <div className="absolute inset-0 opacity-[0.018]"
@@ -390,7 +390,7 @@ export default function Home({ cars, reviews }) {
         </div>
 
         {/* ══ VÉHICULES INTERACTIFS ══ */}
-        <section className="py-20 px-5 relative overflow-hidden bg-[#080808]">
+        <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#080808]">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
           <div className="relative z-10 max-w-5xl mx-auto">
             <motion.div className="mb-10"
@@ -418,7 +418,7 @@ export default function Home({ cars, reviews }) {
         </section>
 
         {/* ══ STATS ══ */}
-        <section ref={statsRef} className="relative py-24 px-5 overflow-hidden bg-[#050505]">
+        <section ref={statsRef} className="relative py-16 md:py-24 px-5 overflow-hidden bg-[#050505]">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none"
                style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.05) 0%,transparent 65%)' }} />
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/20 to-transparent" />
@@ -455,7 +455,7 @@ export default function Home({ cars, reviews }) {
 
         {/* ══ REVIEWS ══ */}
         {reviews?.length > 0 && (
-          <section className="py-24 px-5 relative overflow-hidden bg-[#080808]">
+          <section className="py-16 md:py-24 px-5 relative overflow-hidden bg-[#080808]">
             <div className="absolute top-1/2 left-1/4 w-[400px] h-[400px] -translate-y-1/2 rounded-full pointer-events-none"
                  style={{ background:'radial-gradient(circle,rgba(226,182,20,0.04) 0%,transparent 70%)' }} />
             <div className="relative z-10 max-w-7xl mx-auto">
@@ -508,7 +508,7 @@ export default function Home({ cars, reviews }) {
         )}
 
         {/* ══ CTA ══ */}
-        <section className="relative py-28 px-5 overflow-hidden bg-[#080808]">
+        <section className="relative py-20 md:py-28 px-5 overflow-hidden bg-[#080808]">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/20 to-transparent" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full pointer-events-none"
                style={{ background:'radial-gradient(circle,rgba(226,182,20,0.07) 0%,transparent 65%)' }} />
@@ -533,7 +533,7 @@ export default function Home({ cars, reviews }) {
         </section>
 
         {/* ══ FOOTER ══ */}
-        <footer className="border-t border-white/[0.05] bg-[#050505] py-7 px-5">
+        <footer className="border-t border-white/[0.05] bg-[#050505] py-6 md:py-7 px-5">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center">
