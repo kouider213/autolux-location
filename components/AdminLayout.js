@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import Head from 'next/head';
 import { supabase } from '../lib/supabase';
 import {
   LayoutDashboard, Car, CalendarCheck, Users, Star,
-  BarChart3, LogOut, Globe, Menu, X, Bell, TrendingUp,
+  BarChart3, LogOut, Globe, Menu, Bell,
 } from 'lucide-react';
 
 const NAV = [
@@ -55,12 +56,18 @@ export default function AdminLayout({ children, title }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0e0e0e] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-white/30 text-sm font-body">Chargement...</span>
+      <>
+        <Head>
+          {/* Hide Ibrahim widget on all admin pages */}
+          <style>{`[id*="ibr"],[class*="ibr"],[id*="ibrahim"],[id*="widget-root"],[id*="chatbot"]{display:none!important}`}</style>
+        </Head>
+        <div className="min-h-screen bg-[#0e0e0e] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-white/30 text-sm font-body">Chargement...</span>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -131,6 +138,10 @@ export default function AdminLayout({ children, title }) {
 
   return (
     <div className="min-h-screen bg-[#0e0e0e] flex font-body">
+      <Head>
+        {/* Hide Ibrahim widget on all admin pages */}
+        <style>{`[id*="ibr"],[class*="ibr"],[id*="ibrahim"],[id*="widget-root"],[id*="chatbot"],[id*="chat-widget"]{display:none!important}`}</style>
+      </Head>
 
       {/* Mobile overlay */}
       {sidebar && (
