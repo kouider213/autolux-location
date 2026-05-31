@@ -46,6 +46,17 @@ export default function App({ Component, pageProps }) {
               <link rel="apple-touch-icon" href="/icons/icon-192.png" />
               <meta name="apple-mobile-web-app-capable" content="yes" />
               <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+              {/* Open Graph — partage WhatsApp/Facebook/Instagram */}
+              <meta property="og:type"        content="website" />
+              <meta property="og:site_name"   content="Fik Conciergerie" />
+              <meta property="og:title"       content="Fik Conciergerie — Location de Véhicules Premium Oran" />
+              <meta property="og:description" content="Location de voitures premium à Oran. Sans caution. Réservation rapide 7j/7. Citadines, SUV, berlines." />
+              <meta property="og:url"         content="https://autolux-location.vercel.app" />
+              <meta property="og:locale"      content="fr_FR" />
+              {/* Twitter Card */}
+              <meta name="twitter:card"        content="summary_large_image" />
+              <meta name="twitter:title"       content="Fik Conciergerie — Location Premium Oran" />
+              <meta name="twitter:description" content="Location de voitures premium à Oran. Sans caution. 7j/7." />
               <title>Fik Conciergerie</title>
       </Head>
         <Component {...pageProps} />
