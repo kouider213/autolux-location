@@ -161,11 +161,23 @@ export default function ReservationPage({ cars: initialCars }) {
     try {
       if (supabase && selectedCar) {
         await supabase.from('bookings').insert([{
-          car_id: form.carId, client_name: form.name, client_phone: form.phone,
-          client_age: ageNum, client_email: form.email || null,
-          client_passport: form.passport || null, start_date: form.startDate,
-          end_date: form.endDate, final_price: total, status: 'PENDING',
-          notes: form.notes || null,
+          car_id:               form.carId,
+          client_name:          form.name,
+          client_phone:         form.phone,
+          client_age:           ageNum,
+          client_email:         form.email    || null,
+          client_passport:      form.passport || null,
+          start_date:           form.startDate,
+          end_date:             form.endDate,
+          final_price:          total,
+          status:               'PENDING',
+          notes:                form.notes    || null,
+          // Champs financiers — alignés avec Dzaryx
+          client_price_per_day: selectedCar.resale_price || null,
+          owner_price_per_day:  selectedCar.base_price   || null,
+          rented_by:            'Kouider',
+          payment_status:       'UNPAID',
+          paid_amount:          0,
         }]);
       }
       // Notify Dzaryx

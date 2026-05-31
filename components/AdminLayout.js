@@ -40,8 +40,25 @@ export default function AdminLayout({ children, title }) {
     supabase.from('bookings').select('id', { count: 'exact' }).eq('status', 'PENDING')
       .then(({ count }) => setPending(count || 0));
 
+    // Demande permission notification dès ouverture admin
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
     const sub = supabase.channel('admin-pending')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, (payload) => {
+        // Notification push navigateur
+        if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+          new Notification('🚗 Nouvelle réservation — Fik Conciergerie', {
+            body: `${payload.new?.client_name || 'Nouveau client'} · ${payload.new?.start_date || ''} → ${payload.new?.end_date || ''}`,
+            icon: '/icons/icon-192.png',
+            badge: '/icons/icon-192.png',
+          });
+        }
+        supabase.from('bookings').select('id', { count: 'exact' }).eq('status', 'PENDING')
+          .then(({ count }) => setPending(count || 0));
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings' }, () => {
         supabase.from('bookings').select('id', { count: 'exact' }).eq('status', 'PENDING')
           .then(({ count }) => setPending(count || 0));
       }).subscribe();
