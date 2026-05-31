@@ -34,8 +34,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        display: ['var(--font-display)', 'serif'],
-        body: ['var(--font-body)', 'sans-serif'],
+        display: ['Bodoni Moda', 'Playfair Display', 'var(--font-display)', 'serif'],
+        body: ['Jost', 'DM Sans', 'var(--font-body)', 'sans-serif'],
       },
       animation: {
         'fade-up': 'fadeUp 0.6s ease-out forwards',
