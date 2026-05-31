@@ -225,14 +225,19 @@ export default function ReservationPage({ cars: initialCars }) {
                 </div>
               ))}
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
+            <div className="flex flex-col gap-3 w-full max-w-sm">
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white font-semibold py-3.5 rounded-xl transition-colors shadow-[0_4px_16px_rgba(37,211,102,0.3)]">
+                className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white font-semibold py-3.5 rounded-xl transition-colors shadow-[0_4px_16px_rgba(37,211,102,0.3)]">
                 <MessageCircle size={17} />Ouvrir WhatsApp
               </a>
-              <Link href="/" className="flex-1 flex items-center justify-center gap-2 btn-outline py-3.5">
-                <Home size={15} />Accueil
-              </Link>
+              <div className="flex gap-3">
+                <Link href="/" className="flex-1 flex items-center justify-center gap-2 btn-outline py-3">
+                  <Home size={15} />Accueil
+                </Link>
+                <Link href="/reviews" className="flex-1 flex items-center justify-center gap-2 py-3 bg-gold-500/10 border border-gold-500/20 text-gold-400 rounded-xl text-sm font-medium hover:bg-gold-500/15 transition-all">
+                  ⭐ Laisser un avis
+                </Link>
+              </div>
             </div>
             <div className="mt-6 flex items-start gap-2 bg-amber-500/[0.06] border border-amber-500/20 rounded-xl p-4 max-w-sm text-left">
               <AlertCircle size={15} className="text-amber-400 flex-shrink-0 mt-0.5" />
