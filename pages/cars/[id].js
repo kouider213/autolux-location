@@ -1,87 +1,188 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
-import { Car, Fuel, Users, Settings, ArrowLeft, Calendar } from 'lucide-react';
+import { Car, Fuel, Users, Settings, ArrowLeft, CalendarCheck, MessageCircle, Wind, Star, CheckCircle } from 'lucide-react';
+import Navbar from '../../components/Navbar';
 
 export default function CarDetail({ car }) {
   if (!car) {
     return (
-      <div className="min-h-screen bg-noir-950 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-white text-xl mb-4">Véhicule introuvable.</p>
-          <Link href="/cars" className="text-gold-500 underline">Retour aux véhicules</Link>
+      <>
+        <div className="grain min-h-screen bg-[#0e0e0e]">
+          <Navbar />
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <Car size={48} className="text-white/10 mx-auto mb-4" />
+              <p className="text-white/50 text-lg mb-2">Véhicule introuvable</p>
+              <Link href="/cars" className="text-gold-500 hover:text-gold-400 text-sm transition-colors">← Retour aux véhicules</Link>
+            </div>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
-  const isSurDemande = !car.resale_price;
+  const whatsappMsg = encodeURIComponent(
+    `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par la location du véhicule :\n*${car.name}* - ${car.resale_price ? car.resale_price + '€/jour' : 'Prix sur demande'}\n\nMerci de me confirmer les disponibilités.`
+  );
+  const whatsappUrl = `https://wa.me/213XXXXXXXXX?text=${whatsappMsg}`;
+
+  const specs = [
+    { icon: Fuel,     label: 'Carburant',    value: car.fuel || 'Essence' },
+    { icon: Settings, label: 'Transmission', value: car.transmission || 'Manuelle' },
+    { icon: Users,    label: 'Places',       value: `${car.seats || 5} places` },
+    { icon: Wind,     label: 'Climatisation',value: car.clim ? 'Oui' : 'Incluse' },
+    { icon: Car,      label: 'Catégorie',    value: car.category },
+  ].filter(s => s.value);
+
+  const perks = [
+    'Sans caution requise',
+    'Véhicule nettoyé & vérifié',
+    'Confirmation WhatsApp',
+    'Service 7j/7 à Oran',
+  ];
 
   return (
     <>
       <Head>
         <title>{car.name} — Fik Conciergerie</title>
-        <meta name="description" content={car.description || car.name} />
+        <meta name="description" content={`Louez le ${car.name} à Oran. ${car.resale_price ? car.resale_price + '€/jour' : 'Prix sur demande'}. Sans caution.`} />
       </Head>
-      <div className="min-h-screen bg-noir-950 text-white">
-        <div className="max-w-6xl mx-auto px-4 pt-8">
-          <Link href="/cars" className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors">
-            <ArrowLeft size={18} /><span>Retour aux véhicules</span>
+
+      <div className="grain min-h-screen bg-[#0e0e0e]">
+        <Navbar />
+
+        {/* Back + Page header */}
+        <div className="pt-24 pb-0 px-5 max-w-6xl mx-auto">
+          <Link href="/cars" className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm font-body mb-6 group">
+            <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" />
+            Retour aux véhicules
           </Link>
         </div>
-        <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          <div className="relative">
-            <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-noir-800 flex items-center justify-center">
-              <img src={car.image_url || '/placeholder-car.jpg'} alt={car.name} className="w-full h-full object-contain p-4" />
-            </div>
-            <span className="absolute top-4 left-4 bg-gold-500 text-noir-950 text-xs font-bold px-3 py-1 rounded-full uppercase">{car.category}</span>
-          </div>
-          <div className="flex flex-col justify-between">
-            <div>
-              <h1 className="font-display text-3xl sm:text-4xl font-bold mb-2">{car.name}</h1>
-              <div className="mb-6">
-                {isSurDemande ? (
-                  <span className="text-gold-500 font-bold text-3xl">Sur demande</span>
+
+        {/* Main content */}
+        <div className="px-5 pb-24 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+
+            {/* Left — image */}
+            <div className="space-y-4">
+              <div className="relative rounded-2xl overflow-hidden bg-[#141414] border border-white/[0.06]"
+                style={{ aspectRatio: '16/10' }}>
+                {car.image_url ? (
+                  <img
+                    src={car.image_url}
+                    alt={car.name}
+                    className="w-full h-full object-cover object-center"
+                    loading="eager"
+                  />
                 ) : (
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-gold-500 font-bold text-3xl">{car.resale_price} €</span>
-                    <span className="text-white/50 text-sm">/jour</span>
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+                    <Car size={56} className="text-white/[0.07]" />
+                    <span className="text-white/15 text-xs tracking-widest uppercase font-body">Photo à venir</span>
+                  </div>
+                )}
+
+                {/* Category badge */}
+                <span className="absolute top-4 left-4 tag-category capitalize">{car.category}</span>
+
+                {/* Unavailable overlay */}
+                {car.available === false && (
+                  <div className="absolute inset-0 bg-[#0e0e0e]/75 backdrop-blur-sm flex items-center justify-center">
+                    <span className="text-white/60 text-xs font-medium tracking-widest uppercase border border-white/20 rounded-full px-4 py-2">Indisponible</span>
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-3 mb-8">
-                {[
-                  [Fuel, 'Carburant', car.fuel || 'Essence'],
-                  [Settings, 'Transmission', car.transmission || 'Manuelle'],
-                  [Users, 'Places', (car.seats || 5) + ' places'],
-                  [Car, 'Catégorie', car.category],
-                ].map(([Icon, label, value]) => (
-                  <div key={label} className="bg-noir-800 rounded-xl p-4 flex items-center gap-3">
-                    <Icon size={20} className="text-gold-500 flex-shrink-0" />
-                    <div>
-                      <p className="text-white/40 text-xs">{label}</p>
-                      <p className="font-semibold text-sm capitalize">{value}</p>
-                    </div>
+
+              {/* Perks */}
+              <div className="grid grid-cols-2 gap-2">
+                {perks.map((p, i) => (
+                  <div key={i} className="flex items-center gap-2.5 bg-[#141414] border border-white/[0.05] rounded-xl px-4 py-3">
+                    <CheckCircle size={14} className="text-gold-500 flex-shrink-0" />
+                    <span className="text-white/55 text-xs font-body">{p}</span>
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Right — details */}
+            <div className="flex flex-col gap-6">
+
+              {/* Name + price */}
+              <div>
+                <p className="text-white/30 text-xs tracking-widest uppercase font-body mb-2">{car.category}</p>
+                <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+                  {car.name}
+                </h1>
+                <div className="flex items-baseline gap-2">
+                  {car.resale_price ? (
+                    <>
+                      <span className="font-display font-black text-gold-gradient leading-none"
+                        style={{ fontSize: 'clamp(36px, 4vw, 52px)' }}>
+                        {car.resale_price}€
+                      </span>
+                      <span className="text-white/30 text-base font-body">/jour</span>
+                    </>
+                  ) : (
+                    <span className="font-display font-black text-gold-gradient text-3xl">Sur demande</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Specs grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {specs.map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="bg-[#141414] border border-white/[0.06] rounded-xl p-4">
+                    <Icon size={16} className="text-gold-500 mb-2" />
+                    <p className="text-white/30 text-xs font-body mb-0.5">{label}</p>
+                    <p className="text-white font-semibold text-sm capitalize font-body">{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Description */}
               {car.description && (
-                <div className="mb-8">
-                  <h2 className="text-lg font-semibold mb-2 text-gold-500">À propos</h2>
-                  <p className="text-white/70 leading-relaxed text-sm">{car.description}</p>
+                <div className="bg-[#141414] border border-white/[0.06] rounded-xl p-5">
+                  <h2 className="text-gold-500 font-semibold text-sm mb-3 font-body tracking-wide uppercase">À propos</h2>
+                  <p className="text-white/55 leading-relaxed text-sm font-body">{car.description}</p>
                 </div>
               )}
+
+              {/* Rating if any */}
+              {car.rating && (
+                <div className="flex items-center gap-2">
+                  {Array.from({length:5}).map((_,i)=>(
+                    <Star key={i} size={14} className={i < Math.round(car.rating) ? 'text-gold-500 fill-gold-500' : 'text-white/15'} />
+                  ))}
+                  <span className="text-white/30 text-sm font-body">{car.rating}/5</span>
+                </div>
+              )}
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3 mt-auto pt-2">
+                {car.available !== false ? (
+                  <Link
+                    href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
+                    className="btn-gold flex-1 py-4 text-base justify-center">
+                    <CalendarCheck size={18} />Réserver ce véhicule
+                  </Link>
+                ) : (
+                  <button disabled className="flex-1 py-4 text-base bg-white/[0.04] text-white/30 rounded-xl cursor-not-allowed font-semibold">
+                    Indisponible
+                  </button>
+                )}
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-outline flex-1 sm:flex-none py-4 px-6 justify-center gap-2 text-base">
+                  <MessageCircle size={17} />WhatsApp
+                </a>
+              </div>
+
+              <p className="text-white/20 text-xs font-body text-center">
+                Sans caution · Confirmation immédiate · 7j/7 à Oran
+              </p>
             </div>
-            <Link
-              href={isSurDemande
-                ? `/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&demande=1`
-                : `/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price}`
-              }
-              className="block w-full text-center bg-gold-500 hover:bg-gold-400 text-noir-950 font-bold text-lg py-4 rounded-xl transition-colors flex items-center justify-center gap-2"
-            >
-              <Calendar size={20} />
-              {isSurDemande ? 'Demander un devis' : 'Réserver ce véhicule'}
-            </Link>
           </div>
         </div>
       </div>
@@ -91,10 +192,13 @@ export default function CarDetail({ car }) {
 
 export async function getServerSideProps({ params }) {
   try {
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-    const { data: car } = await supabase.from('cars').select('*').eq('id', params.id).single();
+    const supabaseClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+    const { data: car } = await supabaseClient.from('cars').select('*').eq('id', params.id).single();
     return { props: { car: car || null } };
   } catch {
     return { props: { car: null } };
   }
-                  }
+}

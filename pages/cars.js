@@ -154,13 +154,13 @@ export default function CarsPage({ cars }) {
 function CarCard({ car }) {
   return (
     <div className="group card-dark overflow-hidden hover:border-gold-500/25 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-300">
-      {/* Image */}
-      <div className="relative bg-[#181818] h-44 overflow-hidden">
+      {/* Image — clickable to detail */}
+      <Link href={`/cars/${car.id}`} className="block relative bg-[#181818] overflow-hidden" style={{ aspectRatio: '16/10' }}>
         {car.image_url ? (
           <img
             src={car.image_url}
             alt={car.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
             loading="lazy"
           />
         ) : (
@@ -169,7 +169,7 @@ function CarCard({ car }) {
             <span className="text-white/15 text-[10px] tracking-widest uppercase">Photo à venir</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-transparent to-transparent opacity-70" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-transparent to-transparent opacity-60" />
         <div className="absolute top-3 right-3">
           <span className="tag-category">{car.category}</span>
         </div>
@@ -178,43 +178,48 @@ function CarCard({ car }) {
             <span className="text-white/60 text-xs font-medium tracking-widest uppercase border border-white/20 rounded-full px-3 py-1">Indisponible</span>
           </div>
         )}
-      </div>
+      </Link>
 
-      <div className="p-5">
-        <div className="flex items-start justify-between mb-4">
+      <div className="p-4">
+        <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0">
-            <h3 className="text-white font-semibold text-base leading-tight truncate">{car.name}</h3>
-            <div className="flex items-center gap-3 mt-2">
+            <Link href={`/cars/${car.id}`}>
+              <h3 className="text-white font-semibold text-base leading-tight truncate hover:text-gold-400 transition-colors">{car.name}</h3>
+            </Link>
+            <div className="flex items-center gap-2.5 mt-1.5">
               <span className="flex items-center gap-1 text-white/30 text-xs">
-                <Fuel size={10} />
-                {car.fuel}
+                <Fuel size={10} />{car.fuel}
               </span>
               <span className="flex items-center gap-1 text-white/30 text-xs">
-                <Users size={10} />
-                {car.seats} places
+                <Users size={10} />{car.seats}p
               </span>
+              {car.transmission && (
+                <span className="text-white/30 text-xs capitalize">{car.transmission}</span>
+              )}
             </div>
           </div>
           <div className="text-right ml-3 flex-shrink-0">
-            <div className="text-gold-400 font-bold text-xl leading-none">{car.resale_price}€</div>
+            <div className="text-gold-400 font-bold text-lg leading-none">{car.resale_price}€</div>
             <div className="text-white/25 text-[10px] mt-0.5">/ jour</div>
           </div>
         </div>
 
-        <Link
-          href={`/reservation?car=${car.id}`}
-          className={`flex items-center justify-center gap-2 w-full text-center text-sm font-semibold py-2.5 rounded-xl transition-all duration-200 ${
-            car.available !== false
-              ? 'bg-gold-500 text-noir-950 hover:bg-gold-400 shadow-[0_4px_12px_rgba(226,182,20,0.25)] hover:shadow-[0_6px_20px_rgba(226,182,20,0.35)]'
-              : 'bg-white/[0.04] text-white/30 cursor-not-allowed'
-          }`}
-        >
-          {car.available !== false ? (
-            <>Réserver <ArrowRight size={13} /></>
-          ) : (
-            'Indisponible'
-          )}
-        </Link>
+        <div className="flex gap-2">
+          <Link href={`/cars/${car.id}`}
+            className="flex-1 flex items-center justify-center text-xs font-medium py-2.5 rounded-xl border border-white/[0.08] text-white/45 hover:border-gold-500/30 hover:text-white/70 transition-all">
+            Détails
+          </Link>
+          <Link
+            href={`/reservation?car=${car.id}`}
+            className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2.5 rounded-xl transition-all duration-200 ${
+              car.available !== false
+                ? 'bg-gold-500 text-noir-950 hover:bg-gold-400 shadow-[0_4px_12px_rgba(226,182,20,0.25)]'
+                : 'bg-white/[0.04] text-white/30 cursor-not-allowed'
+            }`}
+          >
+            {car.available !== false ? (<>Réserver <ArrowRight size={11} /></>) : 'Indisponible'}
+          </Link>
+        </div>
       </div>
     </div>
   );
