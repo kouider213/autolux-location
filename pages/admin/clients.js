@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
-import { Phone, Search, X } from 'lucide-react';
+import { Phone, Search, X, Users } from 'lucide-react';
 
 export default function ClientsPage() {
   const [allBookings, setAllBookings] = useState([]);
