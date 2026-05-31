@@ -15,6 +15,7 @@ export default function Navbar({ scrollContainerRef }) {
     const fn = () => {
       const top = scrollContainerRef?.current?.scrollTop ?? window.scrollY;
       setScrolled(top > 30);
+      if (top > 60) setMenuOpen(false); // ferme menu au scroll
     };
     fn();
     el.addEventListener('scroll', fn, { passive: true });
@@ -37,8 +38,9 @@ export default function Navbar({ scrollContainerRef }) {
   const links = [
     { href: '/',           label: 'Accueil' },
     { href: '/cars',       label: 'Véhicules' },
-    { href: '/conditions', label: 'Conditions' },
+    { href: '/immo',       label: 'Immobilier' },
     { href: '/reviews',    label: 'Avis' },
+    { href: '/contact',    label: 'Contact' },
   ];
 
   return (

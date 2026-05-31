@@ -1,129 +1,244 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
+import { MessageCircle, MapPin, Clock, Shield, Star, Zap, Heart, Car, CheckCircle, ArrowRight, Phone } from 'lucide-react';
+
+const WHY_US = [
+  {
+    icon: Shield,
+    title: 'Sans caution',
+    desc: 'Contrairement à d\'autres agences, nous ne bloquons pas d\'argent sur votre compte. Zéro dépôt requis.',
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-500/10 border-emerald-500/20',
+  },
+  {
+    icon: Zap,
+    title: 'Confirmation en 1h',
+    desc: 'Votre réservation est confirmée par WhatsApp en moins d\'1 heure. Pas d\'attente interminable.',
+    color: 'text-gold-400',
+    bg: 'bg-gold-500/10 border-gold-500/20',
+  },
+  {
+    icon: Clock,
+    title: '7j/7 · 24h/24',
+    desc: 'Disponibles à toute heure, tous les jours. Besoin d\'un véhicule à 23h ? On est là.',
+    color: 'text-blue-400',
+    bg: 'bg-blue-500/10 border-blue-500/20',
+  },
+  {
+    icon: Heart,
+    title: 'Service personnalisé',
+    desc: 'Chaque client est unique. Livraison, mariage, déplacement pro — on adapte l\'offre à vos besoins.',
+    color: 'text-pink-400',
+    bg: 'bg-pink-500/10 border-pink-500/20',
+  },
+  {
+    icon: Car,
+    title: 'Flotte entretenue',
+    desc: 'Chaque véhicule est nettoyé, révisé et vérifié avant chaque location. Aucune mauvaise surprise.',
+    color: 'text-purple-400',
+    bg: 'bg-purple-500/10 border-purple-500/20',
+  },
+  {
+    icon: Star,
+    title: 'Confiance locale',
+    desc: 'Agence oranaise locale. Vous parlez directement avec le propriétaire, pas un call center.',
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/10 border-amber-500/20',
+  },
+];
+
+const STATS = [
+  { value: '150+', label: 'Clients satisfaits' },
+  { value: '15+',  label: 'Véhicules disponibles' },
+  { value: '4.9',  label: 'Note moyenne' },
+  { value: '3 ans', label: 'D\'expérience à Oran' },
+];
 
 export default function ContactPage() {
   return (
     <>
       <Head>
-        <title>Contact — Fik Conciergerie</title>
-        <meta name="description" content="Contactez Fik Conciergerie à Oran. WhatsApp, adresse et horaires d'ouverture 24h/24 7j/7." />
+        <title>Contact & Pourquoi nous choisir — Fik Conciergerie</title>
+        <meta name="description" content="Fik Conciergerie, location de véhicules premium à Oran. Sans caution, 7j/7, confirmation rapide. Découvrez pourquoi nos clients nous font confiance." />
+        <meta property="og:title" content="Fik Conciergerie — Contact" />
+        <meta property="og:description" content="Location de véhicules premium à Oran. Sans caution. Contactez-nous 24h/24." />
       </Head>
-      <div className="grain min-h-screen bg-noir-950">
+
+      <div className="grain min-h-screen bg-[#0e0e0e]">
         <Navbar />
-        <div className="pt-28 pb-24 px-4">
+
+        {/* Hero section */}
+        <div className="relative pt-28 pb-20 px-5 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#111] to-[#0e0e0e]" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/20 to-transparent" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gold-500/[0.04] rounded-full blur-[100px] pointer-events-none" />
+          <div className="relative max-w-3xl mx-auto text-center">
+            <span className="section-badge mb-5 inline-block">Contactez-nous</span>
+            <h1 className="font-display text-4xl md:text-6xl font-bold text-white mb-6">
+              Parlons de votre <br />
+              <span className="text-gold-gradient italic">projet</span>
+            </h1>
+            <p className="text-white/40 text-lg max-w-xl mx-auto leading-relaxed">
+              Notre équipe est disponible 24h/24 pour répondre à toutes vos demandes.
+              Réservation, devis, questions — on répond vite.
+            </p>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="px-5 mb-20">
+          <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
+            {STATS.map(s => (
+              <div key={s.label} className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5 text-center">
+                <div className="font-display font-black text-3xl text-gold-400 mb-1">{s.value}</div>
+                <div className="text-white/35 text-xs">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Contact cards */}
+        <div className="px-5 mb-20">
           <div className="max-w-4xl mx-auto">
-
-            {/* Header */}
-            <div className="text-center mb-14">
-              <span className="text-gold-500 text-sm font-semibold tracking-widest uppercase">Nous trouver</span>
-              <h1 className="font-display text-4xl md:text-5xl font-bold text-white mt-3">Contactez-nous</h1>
-              <p className="text-white/40 mt-4 max-w-xl mx-auto leading-relaxed">
-                Notre équipe est disponible 24h/24, 7j/7 pour répondre à toutes vos questions.
-              </p>
+            <div className="text-center mb-10">
+              <span className="section-badge mb-4 inline-block">Nous joindre</span>
+              <h2 className="font-display text-3xl font-bold text-white">Contactez-nous</h2>
             </div>
+            <div className="grid md:grid-cols-3 gap-5">
 
-            {/* Cartes contact */}
-            <div className="grid md:grid-cols-3 gap-4 mb-10">
-
-              {/* WhatsApp */}
-              <a
-                href="https://wa.me/32466311469"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="card-dark p-6 flex flex-col items-center text-center gap-4 hover:border-gold-500/30 transition-colors duration-300"
-              >
-                <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center text-3xl">
-                  💬
+              {/* WhatsApp — principal */}
+              <a href="https://wa.me/32466311469" target="_blank" rel="noopener noreferrer"
+                className="relative group bg-[#141414] border border-white/[0.06] hover:border-[#25D366]/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#25D366]/[0.03] to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="w-14 h-14 bg-[#25D366]/10 border border-[#25D366]/20 rounded-2xl flex items-center justify-center">
+                  <MessageCircle size={24} className="text-[#25D366]" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold text-lg mb-1">WhatsApp</h3>
-                  <p className="text-gold-500 font-medium">+32 466 31 14 69</p>
-                  <p className="text-white/40 text-sm mt-1">Réponse immédiate</p>
+                  <h3 className="text-white font-bold text-lg mb-1">WhatsApp</h3>
+                  <p className="text-[#25D366] font-semibold text-sm mb-2">+32 466 31 14 69</p>
+                  <p className="text-white/35 text-sm">Réponse immédiate · Message direct avec le gérant</p>
+                </div>
+                <div className="flex items-center gap-1.5 text-[#25D366]/70 text-xs font-medium mt-auto">
+                  Ouvrir WhatsApp <ArrowRight size={12} />
                 </div>
               </a>
 
               {/* Adresse */}
-              <a
-                href="https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="card-dark p-6 flex flex-col items-center text-center gap-4 hover:border-gold-500/30 transition-colors duration-300"
-              >
-                <div className="w-14 h-14 bg-gold-500/10 rounded-2xl flex items-center justify-center text-3xl">
-                  📍
+              <a href="https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria" target="_blank" rel="noopener noreferrer"
+                className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/20 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1">
+                <div className="w-14 h-14 bg-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center">
+                  <MapPin size={24} className="text-gold-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold text-lg mb-1">Adresse</h3>
-                  <p className="text-gold-500 font-medium">M8GM+QMV</p>
-                  <p className="text-white/40 text-sm mt-1">Oran, Algérie</p>
+                  <h3 className="text-white font-bold text-lg mb-1">Localisation</h3>
+                  <p className="text-gold-400 font-semibold text-sm mb-2">Oran, Algérie</p>
+                  <p className="text-white/35 text-sm">Livraison à domicile disponible · Hôtel · Aéroport</p>
+                </div>
+                <div className="flex items-center gap-1.5 text-gold-400/70 text-xs font-medium mt-auto">
+                  Voir sur Maps <ArrowRight size={12} />
                 </div>
               </a>
 
               {/* Horaires */}
-              <div className="card-dark p-6 flex flex-col items-center text-center gap-4">
-                <div className="w-14 h-14 bg-gold-500/10 rounded-2xl flex items-center justify-center text-3xl">
-                  🕐
+              <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-6 flex flex-col gap-4">
+                <div className="w-14 h-14 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-center">
+                  <Clock size={24} className="text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold text-lg mb-1">Horaires</h3>
-                  <p className="text-gold-500 font-medium">24h/24 — 7j/7</p>
-                  <p className="text-white/40 text-sm mt-1">Toujours disponible</p>
+                  <h3 className="text-white font-bold text-lg mb-1">Disponibilité</h3>
+                  <p className="text-blue-400 font-semibold text-sm mb-2">24h/24 · 7j/7</p>
+                  <p className="text-white/35 text-sm">Y compris jours fériés · Réponse garantie</p>
+                </div>
+                <div className="mt-auto flex flex-col gap-1.5">
+                  {['Lun–Dim: 07h00 – 23h00', 'WhatsApp: 24h/24'].map(h => (
+                    <div key={h} className="flex items-center gap-2 text-white/40 text-xs">
+                      <CheckCircle size={10} className="text-blue-400 flex-shrink-0" />{h}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Carte Google Maps */}
-            <div className="card-dark overflow-hidden mb-10">
-              <div className="p-5 border-b border-white/5 flex items-center justify-between">
-                <h2 className="text-white font-semibold text-lg">Notre localisation</h2>
-                <a
-                  href="https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-gold text-xs py-2 px-4"
-                >
-                  📍 Ouvrir dans GPS
+        {/* Google Maps */}
+        <div className="px-5 mb-20">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden">
+              <div className="p-5 border-b border-white/[0.05] flex items-center justify-between">
+                <h2 className="text-white font-semibold">Notre zone de service</h2>
+                <a href="https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria" target="_blank" rel="noopener noreferrer"
+                  className="btn-gold text-xs py-2 px-4">
+                  Ouvrir GPS
                 </a>
               </div>
-              <div style={{ height: '400px', width: '100%' }}>
+              <div style={{ height: '320px' }}>
                 <iframe
-                  src="https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria&output=embed&z=16"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Fik Conciergerie localisation"
+                  src="https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria&output=embed&z=14"
+                  width="100%" height="100%" style={{ border: 0 }}
+                  allowFullScreen loading="lazy" title="Fik Conciergerie Oran"
                 />
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Note horaires */}
-            <div className="bg-gold-500/10 border border-gold-500/20 rounded-2xl p-6 mb-10">
-              <h3 className="text-gold-400 font-semibold mb-2">⏰ Disponibilité</h3>
-              <p className="text-white/50 text-sm leading-relaxed">
-                Nous sommes disponibles <strong className="text-white">24h/24 et 7j/7</strong>, y compris les jours fériés. 
-                Pour toute réservation ou question, contactez-nous directement sur WhatsApp pour une réponse immédiate.
+        {/* Pourquoi nous */}
+        <div className="px-5 mb-20">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <span className="section-badge mb-4 inline-block">Notre différence</span>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
+                Pourquoi choisir <span className="text-gold-gradient italic">Fik Conciergerie</span> ?
+              </h2>
+              <p className="text-white/35 max-w-xl mx-auto">
+                Nous ne sommes pas une agence de location comme les autres. Voici pourquoi nos clients reviennent.
               </p>
             </div>
-
-            {/* CTA */}
-            <div className="text-center">
-              <a
-                href="https://wa.me/32466311469"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-gold px-10 py-4 text-base inline-block"
-              >
-                💬 Nous contacter sur WhatsApp
-              </a>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {WHY_US.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.title} className={`bg-[#141414] border ${item.bg} rounded-2xl p-6 group hover:scale-[1.02] transition-transform duration-300`}>
+                    <div className={`w-12 h-12 ${item.bg} border rounded-2xl flex items-center justify-center mb-4`}>
+                      <Icon size={22} className={item.color} />
+                    </div>
+                    <h3 className="text-white font-bold text-base mb-2">{item.title}</h3>
+                    <p className="text-white/40 text-sm leading-relaxed">{item.desc}</p>
+                  </div>
+                );
+              })}
             </div>
+          </div>
+        </div>
 
+        {/* CTA final */}
+        <div className="px-5 pb-24">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative bg-gradient-to-br from-[#1a1a0d] to-[#141414] border border-gold-500/20 rounded-3xl p-8 md:p-12 text-center overflow-hidden">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(226,182,20,0.06),transparent_70%)]" />
+              <div className="relative">
+                <h2 className="font-display text-3xl font-bold text-white mb-3">
+                  Prêt à réserver ?
+                </h2>
+                <p className="text-white/40 mb-8">
+                  Un message WhatsApp suffit. On s'occupe du reste.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <a href="https://wa.me/32466311469" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white font-bold py-4 px-8 rounded-xl transition-all shadow-[0_4px_20px_rgba(37,211,102,0.3)] hover:shadow-[0_8px_30px_rgba(37,211,102,0.4)]">
+                    <MessageCircle size={18} />Nous contacter
+                  </a>
+                  <Link href="/reservation" className="btn-gold py-4 px-8">
+                    Réserver en ligne
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </>
   );
-              }
+}
