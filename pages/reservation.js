@@ -1,10 +1,15 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { Car, CalendarCheck, User, Check, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Phone, FileText, Loader2, Home } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { Car, User, Check, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Phone, FileText, Loader2, Home, CalendarDays, Info } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
+import { format, isWithinInterval, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
+import { fr } from 'date-fns/locale';
+
+const DatePicker = dynamic(() => import('react-datepicker'), { ssr: false });
 
 const WHATSAPP = '32466311469';
 
@@ -13,22 +18,22 @@ function buildWhatsAppUrl(form, car, days, total) {
     `🚗 *Nouvelle Réservation — Fik Conciergerie*`,
     ``,
     `*Véhicule :* ${car.name}`,
-    `*Catégorie :* ${car.category || '—'}`,
+    `*Catégorie :* ${car.category || '—'} · ${car.seats || '—'} places`,
     `*Prix/jour :* ${car.resale_price}€`,
     ``,
     `*Client :* ${form.name}`,
     `*Téléphone :* ${form.phone}`,
     `*Âge :* ${form.age} ans`,
     form.email    ? `*Email :* ${form.email}`        : null,
-    form.passport ? `*Passeport :* ${form.passport}` : null,
+    form.passport ? `*Passeport/CIN :* ${form.passport}` : null,
     ``,
     `*Départ :* ${form.startDate}`,
     `*Retour :* ${form.endDate}`,
     `*Durée :* ${days} jour${days > 1 ? 's' : ''}`,
     `*Total estimé :* ${total}€`,
-    form.notes    ? `*Notes :* ${form.notes}`        : null,
+    form.notes ? `*Notes :* ${form.notes}` : null,
     ``,
-    `_Demande envoyée depuis le site Fik Conciergerie. Merci de confirmer la disponibilité._`,
+    `_Demande envoyée depuis le site Fik Conciergerie._`,
   ].filter(l => l !== null).join('\n');
 
   return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(lines)}`;
@@ -38,17 +43,22 @@ export default function ReservationPage({ cars: initialCars }) {
   const router = useRouter();
   const { car: preselectedId } = router.query;
 
-  const [cars, setCars]   = useState(initialCars || []);
-  const [step, setStep]   = useState(1);
-  const [done, setDone]   = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [cars, setCars]           = useState(initialCars || []);
+  const [step, setStep]           = useState(1);
+  const [done, setDone]           = useState(false);
+  const [loading, setLoading]     = useState(false);
+  const [bookedRanges, setBookedRanges] = useState([]);
+  const [loadingCal, setLoadingCal]     = useState(false);
+
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate]      = dateRange;
 
   const [form, setForm] = useState({
     carId: '', startDate: '', endDate: '',
     name: '', phone: '', age: '', email: '', passport: '', notes: '',
   });
 
-  // Refresh cars client-side (bypass ISR cache)
+  // Refresh cars
   useEffect(() => {
     if (!supabase) return;
     supabase.from('cars').select('*').eq('available', true).order('resale_price')
@@ -56,13 +66,24 @@ export default function ReservationPage({ cars: initialCars }) {
       .catch(() => {});
   }, []);
 
-  // Pre-select car from URL param
+  // Pre-select car from URL
   useEffect(() => {
-    if (preselectedId && cars.length > 0) {
-      const found = cars.find(c => c.id === preselectedId || String(c.id) === String(preselectedId));
-      if (found) setForm(f => ({ ...f, carId: found.id }));
-    }
+    if (!preselectedId || !cars.length) return;
+    const found = cars.find(c => String(c.id) === String(preselectedId));
+    if (found) setForm(f => ({ ...f, carId: found.id }));
   }, [preselectedId, cars]);
+
+  // Fetch booked dates when car changes
+  useEffect(() => {
+    if (!form.carId || !supabase) { setBookedRanges([]); return; }
+    setLoadingCal(true);
+    supabase.from('bookings')
+      .select('start_date, end_date')
+      .eq('car_id', form.carId)
+      .in('status', ['PENDING', 'CONFIRMED', 'ACTIVE', 'ACCEPTED'])
+      .then(({ data }) => { setBookedRanges(data || []); setLoadingCal(false); })
+      .catch(() => setLoadingCal(false));
+  }, [form.carId]);
 
   const set = field => e => setForm(f => ({ ...f, [field]: e.target.value }));
 
@@ -73,20 +94,54 @@ export default function ReservationPage({ cars: initialCars }) {
     return d > 0 ? d : 0;
   })();
   const total = selectedCar && days > 0 ? selectedCar.resale_price * days : 0;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
 
-  const today = new Date().toISOString().split('T')[0];
+  // Check if a date is in a booked range
+  const isDateBooked = useCallback((date) => {
+    return bookedRanges.some(b => {
+      try {
+        const s = parseISO(b.start_date);
+        const e = parseISO(b.end_date);
+        return isWithinInterval(date, { start: s, end: e }) || isSameDay(date, s) || isSameDay(date, e);
+      } catch { return false; }
+    });
+  }, [bookedRanges]);
 
-  // ── Validation step 1
+  // Check if selected range overlaps booked dates
+  const rangeHasConflict = useCallback(() => {
+    if (!startDate || !endDate) return false;
+    return bookedRanges.some(b => {
+      try {
+        const bs = parseISO(b.start_date);
+        const be = parseISO(b.end_date);
+        return !(isAfter(startDate, be) || isBefore(endDate, bs));
+      } catch { return false; }
+    });
+  }, [startDate, endDate, bookedRanges]);
+
+  // Day class for calendar
+  const getDayClass = useCallback((date) => {
+    if (isDateBooked(date)) return 'day-booked';
+    return undefined;
+  }, [isDateBooked]);
+
+  // Filter: disable past + booked dates
+  const filterDate = useCallback((date) => {
+    return !isBefore(date, today) && !isDateBooked(date);
+  }, [today, isDateBooked]);
+
+  // Validation step 1
   const [err1, setErr1] = useState('');
   const validateStep1 = () => {
-    if (!form.carId)       { setErr1('Veuillez sélectionner un véhicule.'); return false; }
-    if (!form.startDate)   { setErr1('Veuillez choisir une date de départ.'); return false; }
-    if (!form.endDate)     { setErr1('Veuillez choisir une date de retour.'); return false; }
-    if (days <= 0)         { setErr1('La date de retour doit être après le départ.'); return false; }
+    if (!form.carId)    { setErr1('Veuillez sélectionner un véhicule.'); return false; }
+    if (!form.startDate){ setErr1('Veuillez choisir une date de départ.'); return false; }
+    if (!form.endDate)  { setErr1('Veuillez choisir une date de retour.'); return false; }
+    if (days <= 0)      { setErr1('La date de retour doit être après le départ.'); return false; }
+    if (rangeHasConflict()) { setErr1('Le véhicule n\'est pas disponible sur ces dates. Veuillez choisir d\'autres dates.'); return false; }
     setErr1(''); return true;
   };
 
-  // ── Validation step 2
+  // Validation step 2
   const [err2, setErr2] = useState('');
   const ageNum = Number(form.age);
   const ageTooYoung = form.age && ageNum < 35;
@@ -95,43 +150,29 @@ export default function ReservationPage({ cars: initialCars }) {
     if (!form.name.trim()) { setErr2('Entrez votre nom complet.'); return false; }
     if (!form.phone.trim()){ setErr2('Entrez votre numéro de téléphone.'); return false; }
     if (!form.age)         { setErr2('Entrez votre âge.'); return false; }
-    if (isNaN(ageNum))     { setErr2('Âge invalide.'); return false; }
-    if (ageNum < 35)       { setErr2('Âge minimum 35 ans requis.'); return false; }
+    if (isNaN(ageNum) || ageNum <= 0) { setErr2('Âge invalide.'); return false; }
+    if (ageNum < 35)       { setErr2('Âge minimum 35 ans requis (exigence assurance).'); return false; }
     setErr2(''); return true;
   };
 
-  // ── Submit: save to Supabase (optional) then open WhatsApp
   const handleSubmit = async () => {
     if (!validateStep2()) return;
     setLoading(true);
-
-    // Try to save booking to Supabase (non-blocking — WhatsApp opens regardless)
     try {
       if (supabase && selectedCar) {
         await supabase.from('bookings').insert([{
-          car_id:           form.carId,
-          client_name:      form.name,
-          client_phone:     form.phone,
-          client_age:       ageNum,
-          client_email:     form.email || null,
-          client_passport:  form.passport || null,
-          start_date:       form.startDate,
-          end_date:         form.endDate,
-          final_price:      total,
-          status:           'PENDING',
-          notes:            form.notes || null,
+          car_id: form.carId, client_name: form.name, client_phone: form.phone,
+          client_age: ageNum, client_email: form.email || null,
+          client_passport: form.passport || null, start_date: form.startDate,
+          end_date: form.endDate, final_price: total, status: 'PENDING',
+          notes: form.notes || null,
         }]);
       }
     } catch { /* non-blocking */ }
-
     setLoading(false);
     setDone(true);
-
-    // Open WhatsApp automatically
     const url = buildWhatsAppUrl(form, selectedCar, days, total);
-    if (typeof window !== 'undefined') {
-      setTimeout(() => { window.open(url, '_blank'); }, 300);
-    }
+    if (typeof window !== 'undefined') setTimeout(() => window.open(url, '_blank'), 300);
   };
 
   const whatsappUrl = selectedCar ? buildWhatsAppUrl(form, selectedCar, days, total) : '#';
@@ -150,19 +191,19 @@ export default function ReservationPage({ cars: initialCars }) {
                 <Check size={40} className="text-gold-400" />
               </div>
             </div>
-            <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-3">Demande envoyée !</h1>
-            <p className="text-white/45 mb-1 max-w-sm">Votre demande a bien été reçue.</p>
-            <p className="text-white/30 text-sm mb-10 max-w-sm">WhatsApp s'est ouvert automatiquement. Si ce n'est pas le cas, cliquez ci-dessous.</p>
-
+            <h1 className="font-display text-3xl font-bold text-white mb-3">Demande envoyée !</h1>
+            <p className="text-white/45 mb-1 max-w-sm">WhatsApp s'est ouvert automatiquement.</p>
+            <p className="text-white/30 text-sm mb-10 max-w-sm">Si ce n'est pas le cas, cliquez sur le bouton vert ci-dessous.</p>
             <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5 max-w-sm w-full mb-8 text-left space-y-2">
               <p className="text-white/25 text-xs uppercase tracking-widest font-medium mb-3">Résumé</p>
               {[
-                ['Véhicule',  selectedCar.name],
-                ['Départ',    form.startDate],
-                ['Retour',    form.endDate],
-                ['Durée',     `${days} jour${days > 1 ? 's' : ''}`],
-                ['Total',     `${total}€`],
-                ['Client',    form.name],
+                ['Véhicule', selectedCar.name],
+                ['Départ',   form.startDate],
+                ['Retour',   form.endDate],
+                ['Durée',    `${days} jour${days > 1 ? 's' : ''}`],
+                ['Total',    `${total}€`],
+                ['Client',   form.name],
+                ['Tél',      form.phone],
               ].map(([label, value]) => (
                 <div key={label} className="flex justify-between text-sm">
                   <span className="text-white/35">{label}</span>
@@ -170,20 +211,18 @@ export default function ReservationPage({ cars: initialCars }) {
                 </div>
               ))}
             </div>
-
             <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white font-semibold py-3.5 rounded-xl transition-colors shadow-[0_4px_16px_rgba(37,211,102,0.3)]">
-                <MessageCircle size={17} />WhatsApp
+                <MessageCircle size={17} />Ouvrir WhatsApp
               </a>
               <Link href="/" className="flex-1 flex items-center justify-center gap-2 btn-outline py-3.5">
                 <Home size={15} />Accueil
               </Link>
             </div>
-
             <div className="mt-6 flex items-start gap-2 bg-amber-500/[0.06] border border-amber-500/20 rounded-xl p-4 max-w-sm text-left">
               <AlertCircle size={15} className="text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-amber-400/80 text-xs leading-relaxed">Notre équipe confirmera votre réservation par téléphone ou WhatsApp dans les plus brefs délais.</p>
+              <p className="text-amber-400/80 text-xs leading-relaxed">Notre équipe confirmera votre réservation par WhatsApp dans les plus brefs délais.</p>
             </div>
           </div>
         </div>
@@ -197,7 +236,6 @@ export default function ReservationPage({ cars: initialCars }) {
 
       <div className="grain min-h-screen bg-[#0e0e0e]">
         <Navbar />
-
         <div className="pt-24 pb-24 px-5">
           <div className="max-w-lg mx-auto">
 
@@ -205,10 +243,10 @@ export default function ReservationPage({ cars: initialCars }) {
             <div className="text-center mb-8">
               <span className="section-badge mb-4 inline-block">Location</span>
               <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">Réservation</h1>
-              <p className="text-white/35 text-sm">Remplissez le formulaire — WhatsApp s'ouvrira automatiquement</p>
+              <p className="text-white/35 text-sm">Choisissez votre véhicule et vos dates disponibles</p>
             </div>
 
-            {/* Step indicator */}
+            {/* Step pills */}
             <div className="flex items-center justify-center gap-2 mb-8">
               {[{n:1,l:'Véhicule & dates'},{n:2,l:'Vos infos'}].map((s, i) => (
                 <div key={s.n} className="flex items-center gap-2">
@@ -232,10 +270,10 @@ export default function ReservationPage({ cars: initialCars }) {
 
                 {/* ══ STEP 1 ══ */}
                 {step === 1 && (
-                  <div className="space-y-5">
+                  <div className="space-y-6">
                     <div>
-                      <h2 className="text-white font-semibold text-lg mb-1">Choisir votre véhicule</h2>
-                      <p className="text-white/30 text-xs mb-5">Sélectionnez le véhicule et les dates souhaitées.</p>
+                      <h2 className="text-white font-semibold text-lg mb-1">Véhicule & disponibilités</h2>
+                      <p className="text-white/30 text-xs">Sélectionnez un véhicule pour voir son calendrier de disponibilités.</p>
                     </div>
 
                     {/* Car selector */}
@@ -243,12 +281,11 @@ export default function ReservationPage({ cars: initialCars }) {
                       <label className="label-dark">Véhicule *</label>
                       <div className="relative">
                         <Car size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
-                        <select value={form.carId} onChange={set('carId')} className="input-dark pl-10 appearance-none cursor-pointer">
+                        <select value={form.carId} onChange={e => { set('carId')(e); setDateRange([null, null]); setForm(f => ({ ...f, carId: e.target.value, startDate: '', endDate: '' })); }}
+                          className="input-dark pl-10 appearance-none cursor-pointer">
                           <option value="">— Sélectionnez un véhicule —</option>
                           {cars.map(car => (
-                            <option key={car.id} value={car.id}>
-                              {car.name} — {car.resale_price}€/jour
-                            </option>
+                            <option key={car.id} value={car.id}>{car.name} — {car.resale_price}€/jour</option>
                           ))}
                         </select>
                       </div>
@@ -260,12 +297,12 @@ export default function ReservationPage({ cars: initialCars }) {
                         <div className="w-16 h-12 bg-[#252525] rounded-lg overflow-hidden flex-shrink-0">
                           {selectedCar.image_url
                             ? <img src={selectedCar.image_url} alt={selectedCar.name} className="w-full h-full object-cover" />
-                            : <div className="w-full h-full flex items-center justify-center"><Car size={20} className="text-gold-500/40" /></div>
+                            : <div className="w-full h-full flex items-center justify-center"><Car size={18} className="text-gold-500/40" /></div>
                           }
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-white font-semibold text-sm truncate">{selectedCar.name}</p>
-                          <p className="text-white/35 text-xs capitalize mt-0.5">{selectedCar.category} · {selectedCar.seats} places · {selectedCar.fuel}</p>
+                          <p className="text-white/35 text-xs capitalize mt-0.5">{selectedCar.category} · {selectedCar.seats}p · {selectedCar.fuel}</p>
                         </div>
                         <div className="text-right flex-shrink-0">
                           <div className="text-gold-400 font-bold">{selectedCar.resale_price}€</div>
@@ -274,31 +311,96 @@ export default function ReservationPage({ cars: initialCars }) {
                       </div>
                     )}
 
-                    {/* Dates */}
-                    <div className="grid grid-cols-2 gap-3">
+                    {/* Calendar — shown when car selected */}
+                    {selectedCar && (
                       <div>
-                        <label className="label-dark">Départ *</label>
-                        <input type="date" value={form.startDate} min={today}
-                          onChange={set('startDate')} className="input-dark" />
-                      </div>
-                      <div>
-                        <label className="label-dark">Retour *</label>
-                        <input type="date" value={form.endDate}
-                          min={form.startDate || today}
-                          onChange={set('endDate')} className="input-dark" />
-                      </div>
-                    </div>
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="label-dark mb-0 flex items-center gap-2">
+                            <CalendarDays size={13} />Choisir vos dates *
+                          </label>
+                          {loadingCal && <span className="text-white/30 text-xs animate-pulse">Chargement...</span>}
+                        </div>
 
-                    {/* Price recap */}
-                    {days > 0 && selectedCar && (
-                      <div className="bg-gold-500/[0.06] border border-gold-500/15 rounded-xl p-4">
-                        <div className="flex justify-between items-center">
-                          <span className="text-white/45 text-sm">{selectedCar.resale_price}€ × {days} jour{days > 1 ? 's' : ''}</span>
-                          <div className="text-right">
-                            <span className="text-gold-400 font-bold text-2xl">{total}€</span>
-                            <span className="text-white/25 text-xs block">total estimé</span>
+                        {/* Legend */}
+                        <div className="flex items-center gap-4 mb-3">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 bg-gold-500 rounded-sm" />
+                            <span className="text-white/40 text-xs">Sélectionné</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 bg-red-500/30 rounded-sm border border-red-500/20" />
+                            <span className="text-white/40 text-xs">Indisponible</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 bg-white/10 rounded-sm" />
+                            <span className="text-white/40 text-xs">Disponible</span>
                           </div>
                         </div>
+
+                        {/* DatePicker inline range */}
+                        <div className="w-full overflow-hidden rounded-2xl">
+                          <DatePicker
+                            selectsRange
+                            startDate={startDate}
+                            endDate={endDate}
+                            onChange={(update) => {
+                              setDateRange(update);
+                              const [s, e] = update;
+                              setForm(f => ({
+                                ...f,
+                                startDate: s ? format(s, 'yyyy-MM-dd') : '',
+                                endDate:   e ? format(e, 'yyyy-MM-dd') : '',
+                              }));
+                            }}
+                            filterDate={filterDate}
+                            dayClassName={getDayClass}
+                            minDate={today}
+                            locale={fr}
+                            inline
+                            calendarStartDay={1}
+                          />
+                        </div>
+
+                        {/* Selected range display */}
+                        {form.startDate && (
+                          <div className="mt-3 bg-[#1e1e1e] border border-white/[0.06] rounded-xl p-3 flex items-center justify-between">
+                            <div className="text-center">
+                              <p className="text-white/30 text-xs mb-0.5">Départ</p>
+                              <p className="text-gold-400 font-semibold text-sm">{form.startDate}</p>
+                            </div>
+                            <ChevronRight size={14} className="text-white/20" />
+                            <div className="text-center">
+                              <p className="text-white/30 text-xs mb-0.5">Retour</p>
+                              <p className={`font-semibold text-sm ${form.endDate ? 'text-gold-400' : 'text-white/25'}`}>
+                                {form.endDate || '—'}
+                              </p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-white/30 text-xs mb-0.5">Durée</p>
+                              <p className="text-white font-semibold text-sm">{days > 0 ? `${days}j` : '—'}</p>
+                            </div>
+                            {days > 0 && (
+                              <div className="text-center">
+                                <p className="text-white/30 text-xs mb-0.5">Total</p>
+                                <p className="text-gold-400 font-bold text-sm">{total}€</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {rangeHasConflict() && (
+                          <div className="mt-3 flex items-start gap-2 bg-red-500/[0.07] border border-red-500/20 rounded-xl p-3">
+                            <AlertCircle size={14} className="text-red-400 flex-shrink-0 mt-0.5" />
+                            <p className="text-red-400/80 text-sm">Ce véhicule est déjà réservé sur une partie de ces dates. Veuillez choisir d'autres dates.</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {!selectedCar && (
+                      <div className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-xl p-4">
+                        <Info size={16} className="text-white/20 flex-shrink-0" />
+                        <p className="text-white/30 text-sm">Sélectionnez un véhicule pour afficher son calendrier de disponibilités.</p>
                       </div>
                     )}
 
@@ -309,8 +411,7 @@ export default function ReservationPage({ cars: initialCars }) {
                       </div>
                     )}
 
-                    <button
-                      onClick={() => { if (validateStep1()) setStep(2); }}
+                    <button onClick={() => { if (validateStep1()) setStep(2); }}
                       className="btn-gold w-full py-3.5">
                       Continuer <ChevronRight size={15} />
                     </button>
@@ -356,7 +457,6 @@ export default function ReservationPage({ cars: initialCars }) {
                       </div>
                     </div>
 
-                    {/* Age warning — full explanation */}
                     {ageTooYoung && (
                       <div className="flex items-start gap-3 bg-red-500/[0.07] border border-red-500/20 rounded-xl p-4">
                         <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
@@ -388,23 +488,22 @@ export default function ReservationPage({ cars: initialCars }) {
                     <div>
                       <label className="label-dark">Notes / Demandes spéciales</label>
                       <textarea value={form.notes} onChange={set('notes')} rows={3}
-                        placeholder="Informations complémentaires, lieu de livraison, etc."
+                        placeholder="Lieu de livraison, demandes particulières..."
                         className="input-dark resize-none" />
                     </div>
 
-                    {/* Recap */}
                     {selectedCar && (
                       <div className="bg-[#1a1a1a] border border-white/[0.06] rounded-xl p-4 space-y-2">
                         <p className="text-white/25 text-xs uppercase tracking-widest font-medium mb-2">Récapitulatif</p>
                         {[
                           ['Véhicule', selectedCar.name],
-                          ['Dates', `${form.startDate} → ${form.endDate}`],
-                          ['Durée', `${days} jour${days > 1 ? 's' : ''}`],
-                          ['Total estimé', `${total}€`],
-                        ].map(([label, value]) => (
-                          <div key={label} className="flex justify-between text-sm">
-                            <span className="text-white/35">{label}</span>
-                            <span className="text-white/80 font-medium">{value}</span>
+                          ['Dates',    `${form.startDate} → ${form.endDate}`],
+                          ['Durée',    `${days} jour${days > 1 ? 's' : ''}`],
+                          ['Total',    `${total}€`],
+                        ].map(([l, v]) => (
+                          <div key={l} className="flex justify-between text-sm">
+                            <span className="text-white/35">{l}</span>
+                            <span className="text-white/80 font-medium">{v}</span>
                           </div>
                         ))}
                       </div>
@@ -420,11 +519,10 @@ export default function ReservationPage({ cars: initialCars }) {
                     <button onClick={handleSubmit} disabled={loading || ageTooYoung}
                       className="btn-gold w-full py-4 text-base disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0">
                       {loading
-                        ? <><Loader2 size={16} className="animate-spin" />Envoi en cours...</>
+                        ? <><Loader2 size={16} className="animate-spin" />Envoi...</>
                         : <><MessageCircle size={17} />Envoyer via WhatsApp</>
                       }
                     </button>
-
                     <p className="text-center text-white/20 text-xs">
                       WhatsApp s'ouvrira automatiquement avec toutes vos informations.
                     </p>
