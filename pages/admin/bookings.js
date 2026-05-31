@@ -80,6 +80,16 @@ export default function BookingsPage() {
     if (!res.ok) { toast.error('Erreur : ' + (data.error || 'impossible')); await loadBookings(); setActionLoading(false); return; }
     toast.success(status === 'ACCEPTED' ? 'Réservation acceptée' : 'Réservation refusée');
 
+    // Auto WhatsApp quand acceptée
+    if (status === 'ACCEPTED') {
+      const bk = bookings.find(b => b.id === bookingId) || selected;
+      if (bk) {
+        const phone = bk.client_phone?.replace(/\D/g, '');
+        const msg = `✅ *Confirmation de réservation — Fik Conciergerie*\n\nBonjour ${bk.client_name},\n\nVotre réservation est *confirmée* !\n\n🚗 *Véhicule :* ${bk.cars?.name || '—'}\n📅 *Départ :* ${bk.start_date}\n📅 *Retour :* ${bk.end_date}\n💰 *Total :* ${bk.final_price || editPrice}€\n\nMerci de votre confiance — Fik Conciergerie 🙏`;
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+      }
+    }
+
     // Notify Dzaryx
     fetch('/api/notify-dzaryx', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
