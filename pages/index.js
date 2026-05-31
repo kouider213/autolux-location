@@ -266,26 +266,19 @@ export default function Home({ cars, reviews }) {
         {/* ══ HERO — CSS animated, instant ══ */}
         <div className="relative min-h-screen overflow-hidden">
 
-            {/* Background image — zoom without overflow clipping */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gold-500/20 via-[#1a1a1a] to-[#050505]">
-              {heroCar?.image_url ? (
+            {/* Background image */}
+            <div className="absolute inset-0 bg-[#0a0a0a]">
+              {heroCar?.image_url && (
                 <img src={heroCar.image_url} alt={heroCar.name}
-                  className="gsap-hero-car hero-css-img absolute inset-0 w-full h-full object-cover origin-center"
-                  style={{ willChange: 'transform' }}
-                  onError={() => console.warn('Hero image failed:', heroCar.image_url)} />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <Car size={64} className="text-white/10 mx-auto mb-4" />
-                    <p className="text-white/20 text-sm font-body">{heroCar?.name || 'Véhicule'}</p>
-                  </div>
-                </div>
+                  className="absolute inset-0 w-full h-full object-cover object-center"
+                  loading="eager"
+                  style={{ display: 'block' }} />
               )}
             </div>
 
-            {/* Overlays — reduced to keep image visible */}
-            <div className="hero-css-overlay absolute inset-0 bg-black" style={{ opacity: 0.25 }} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10 pointer-events-none" />
+            {/* Overlays — minimal, just enough for text readability */}
+            <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
             <div className="absolute inset-0 opacity-[0.015] pointer-events-none"
               style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px)', backgroundSize: '70px 70px' }} />
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent" />
