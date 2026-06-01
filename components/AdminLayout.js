@@ -94,9 +94,7 @@ export default function AdminLayout({ children, title }) {
       {/* Logo */}
       <div className="px-6 py-5 border-b border-white/[0.05]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-gold-400 to-gold-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(226,182,20,0.3)]">
-            <span className="text-noir-950 font-black text-xs">FK</span>
-          </div>
+          <img src="/logo.png" alt="Fik Conciergerie" className="w-9 h-9 object-contain drop-shadow-[0_0_12px_rgba(226,182,20,0.4)]" />
           <div>
             <p className="text-white font-bold text-sm font-body">Fik Conciergerie</p>
             <p className="text-white/25 text-[10px] tracking-widest uppercase">Administration</p>
