@@ -42,9 +42,11 @@ export default function LoginPage() {
           <div className="text-center mb-10">
             <div className="relative inline-block mb-6">
               <div className="absolute inset-0 bg-gold-500/20 rounded-2xl blur-xl" />
-              <div className="relative w-16 h-16 bg-gradient-to-br from-gold-400 to-gold-600 rounded-2xl flex items-center justify-center shadow-[0_8px_32px_rgba(226,182,20,0.35)]">
-                <span className="text-noir-950 font-black text-xl tracking-tight">AL</span>
-              </div>
+              <img
+                src="/logo.png"
+                alt="Fik Conciergerie"
+                className="relative w-16 h-16 object-contain drop-shadow-[0_4px_16px_rgba(226,182,20,0.5)]"
+              />
             </div>
             <h1 className="font-display text-3xl font-bold text-white mb-1">
               Fik <span className="text-gold-500">Conciergerie</span>
@@ -67,32 +69,32 @@ export default function LoginPage() {
 
               {/* Email */}
               <div>
-                <label className="label-dark">Email</label>
+                <label className="block text-white/50 text-xs font-semibold tracking-widest uppercase mb-2">Email</label>
                 <div className="relative">
-                  <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
+                  <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
                   <input
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="votre@email.com"
                     required
-                    className="input-dark pl-10"
+                    className="w-full bg-white/[0.05] border border-white/10 focus:border-gold-500/50 rounded-xl pl-10 pr-4 py-3.5 text-white text-sm placeholder:text-white/20 outline-none transition-colors"
                   />
                 </div>
               </div>
 
               {/* Password */}
               <div>
-                <label className="label-dark">Mot de passe</label>
+                <label className="block text-white/50 text-xs font-semibold tracking-widest uppercase mb-2">Mot de passe</label>
                 <div className="relative">
-                  <Lock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
+                  <Lock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
                   <input
                     type={showPwd ? 'text' : 'password'}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="input-dark pl-10 pr-11"
+                    className="w-full bg-white/[0.05] border border-white/10 focus:border-gold-500/50 rounded-xl pl-10 pr-11 py-3.5 text-white text-sm placeholder:text-white/20 outline-none transition-colors"
                   />
                   <button
                     type="button"
