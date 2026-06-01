@@ -378,6 +378,56 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
           </div>
         </section>
 
+        {/* ══ COMMENT LOUER EN 3 ÉTAPES ══ */}
+        <section className="relative py-20 md:py-28 px-5 overflow-hidden bg-[#080808]">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
+          <div className="relative max-w-5xl mx-auto">
+            <div className="text-center mb-16">
+              <span className="section-badge mb-5 inline-block">Simple &amp; rapide</span>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
+                Réservez en <span className="text-gold-gradient italic">3 étapes</span>
+              </h2>
+              <p className="text-white/35 mt-4 max-w-md mx-auto font-body">De la sélection à la remise des clés, tout est pensé pour votre confort.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+              {/* Connector */}
+              <div className="hidden md:block absolute top-14 left-1/3 right-1/3 h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
+
+              {[
+                { num: '01', title: 'Choisissez', desc: 'Parcourez notre flotte de 15 véhicules et sélectionnez celui qui vous correspond.', icon: Car, link: '/cars', cta: 'Voir les véhicules' },
+                { num: '02', title: 'Réservez', desc: 'Remplissez le formulaire rapide en 2 minutes. Acompte de 3 jours pour confirmer.', icon: CalendarCheck, link: '/reservation', cta: 'Réserver maintenant' },
+                { num: '03', title: 'Récupérez', desc: 'Confirmation WhatsApp sous 1h. Récupérez votre véhicule à Hay Badr ou livraison aéroport.', icon: MapPin, link: null, cta: null },
+              ].map((step, i) => (
+                <motion.div key={i}
+                  className="relative flex flex-col items-center text-center p-8 bg-[#0f0f0f] border border-white/[0.06] rounded-2xl hover:border-gold-500/20 transition-all duration-300 group"
+                  initial={{ opacity: 1, y: 0 }} whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.15, ease }}>
+
+                  {/* Step icon */}
+                  <div className="relative mb-6">
+                    <div className="w-[72px] h-[72px] bg-[#161616] border border-gold-500/20 group-hover:border-gold-500/40 rounded-2xl flex items-center justify-center transition-colors">
+                      <step.icon size={28} className="text-gold-400" />
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-7 h-7 bg-gold-500 rounded-full flex items-center justify-center text-[11px] font-black text-noir-950 shadow-[0_0_12px_rgba(226,182,20,0.4)]">
+                      {step.num.replace('0','')}
+                    </div>
+                  </div>
+
+                  <h3 className="font-display font-bold text-white text-xl mb-3">{step.title}</h3>
+                  <p className="text-white/40 text-sm leading-relaxed font-body mb-5 flex-1">{step.desc}</p>
+
+                  {step.link && (
+                    <Link href={step.link} className="text-gold-500 text-xs font-semibold hover:text-gold-400 transition-colors flex items-center gap-1 group/link">
+                      {step.cta} <ArrowRight size={11} className="group-hover/link:translate-x-1 transition-transform" />
+                    </Link>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ══ VÉHICULES INTERACTIFS ══ */}
         <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#080808]">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
@@ -521,20 +571,100 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
           </div>
         </section>
 
-        {/* ══ FOOTER ══ */}
-        <footer className="border-t border-white/[0.05] bg-[#050505] py-6 md:py-7 px-5">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <img src="/logo.png" alt="Fik Conciergerie" className="w-8 h-8 object-contain" />
-              <span className="font-display font-bold text-white">Fik <span className="text-gold-500">Conciergerie</span></span>
+        {/* ══ FOOTER PREMIUM ══ */}
+        <footer className="relative border-t border-white/[0.07] bg-[#040404]">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/20 to-transparent" />
+
+          <div className="max-w-7xl mx-auto px-5 pt-14 pb-10">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+
+              {/* Brand */}
+              <div className="md:col-span-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <img src="/logo.png" alt="Fik Conciergerie" className="w-10 h-10 object-contain" />
+                  <div>
+                    <span className="font-display font-bold text-white text-base block leading-tight">Fik <span className="text-gold-500">Conciergerie</span></span>
+                    <span className="text-white/25 text-[10px] tracking-widest uppercase font-body">Location Premium</span>
+                  </div>
+                </div>
+                <p className="text-white/30 text-sm font-body leading-relaxed mb-5">
+                  Agence de location de véhicules premium à Oran, Algérie. Sans caution. 7j/7.
+                </p>
+                <a href="https://wa.me/32466311469" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#25D366]/20 transition-colors">
+                  <MessageCircle size={14} />WhatsApp
+                </a>
+              </div>
+
+              {/* Navigation */}
+              <div>
+                <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">Navigation</h3>
+                <ul className="space-y-3">
+                  {[
+                    { h: '/', l: 'Accueil' },
+                    { h: '/cars', l: 'Nos véhicules' },
+                    { h: '/reservation', l: 'Réserver' },
+                    { h: '/reviews', l: 'Avis clients' },
+                    { h: '/contact', l: 'Contact' },
+                  ].map(x => (
+                    <li key={x.h}>
+                      <Link href={x.h} className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors flex items-center gap-2 group">
+                        <span className="w-1 h-1 bg-gold-500/0 group-hover:bg-gold-500 rounded-full transition-colors" />
+                        {x.l}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Informations */}
+              <div>
+                <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">Informations</h3>
+                <ul className="space-y-3">
+                  {[
+                    { h: '/conditions', l: 'Conditions de location' },
+                    { h: '/immo', l: 'Immobilier' },
+                  ].map(x => (
+                    <li key={x.h}>
+                      <Link href={x.h} className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors flex items-center gap-2 group">
+                        <span className="w-1 h-1 bg-gold-500/0 group-hover:bg-gold-500 rounded-full transition-colors" />
+                        {x.l}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Contact */}
+              <div>
+                <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">Contact</h3>
+                <ul className="space-y-4">
+                  <li className="flex items-start gap-3">
+                    <MapPin size={13} className="text-gold-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-white/35 text-sm font-body leading-relaxed">Hay Badr, Oran, Algérie</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <MessageCircle size={13} className="text-gold-500 flex-shrink-0" />
+                    <a href="https://wa.me/32466311469" className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors">
+                      +32 466 31 14 69
+                    </a>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <Star size={13} className="text-gold-500 flex-shrink-0" />
+                    <span className="text-white/35 text-sm font-body">7j/7 · 24h/24</span>
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div className="flex gap-5 text-white/25 text-sm font-body">
-              {[{h:'/cars',l:'Véhicules'},{h:'/conditions',l:'Conditions'},{h:'/reviews',l:'Avis'},{h:'/reservation',l:'Réserver'}].map(x=>(
-                <Link key={x.h} href={x.h} className="hover:text-gold-400 transition-colors">{x.l}</Link>
-              ))}
-            </div>
-            <div className="flex items-center gap-1.5 text-white/20 text-xs font-body">
-              <MapPin size={10}/><span>Oran, Algérie · © {new Date().getFullYear()} Fik Conciergerie</span>
+
+            {/* Bottom bar */}
+            <div className="border-t border-white/[0.05] pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
+              <p className="text-white/15 text-xs font-body">
+                © {new Date().getFullYear()} Fik Conciergerie — Tous droits réservés
+              </p>
+              <div className="flex items-center gap-4">
+                <span className="text-white/15 text-xs font-body">Kilométrage illimité · Assurance incluse · Sans caution</span>
+              </div>
             </div>
           </div>
         </footer>

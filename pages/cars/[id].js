@@ -79,8 +79,30 @@ export default function CarDetail({ car, photos: initialPhotos }) {
           </Link>
         </div>
 
+        {/* Sticky CTA mobile — fixe en bas sur mobile uniquement */}
+        {car.available !== false && (
+          <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/[0.08] px-5 py-4 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-white/40 text-xs font-body">À partir de</p>
+              <p className="font-display font-black text-gold-400 text-xl leading-none tabular-nums">
+                {car.resale_price}€<span className="text-sm font-body text-white/25 ml-1">/jour</span>
+              </p>
+            </div>
+            <div className="flex gap-2 flex-1 justify-end">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
+                className="w-11 h-11 flex items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.05] hover:bg-white/10 text-white/50 hover:text-white transition-all flex-shrink-0">
+                <MessageCircle size={18} />
+              </a>
+              <Link href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
+                className="btn-gold py-3 px-6 text-sm flex-1 justify-center max-w-[160px]">
+                <CalendarCheck size={15} />Réserver
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Main content */}
-        <div className="px-5 pb-24 max-w-6xl mx-auto">
+        <div className="px-5 pb-36 md:pb-24 max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
 
             {/* Left — image gallery */}
