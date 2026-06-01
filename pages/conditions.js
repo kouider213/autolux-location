@@ -31,7 +31,7 @@ const CONDITIONS = [
   {
     icon: Wallet,
     title: 'Acompte requis',
-    desc: 'Un acompte est demandé pour confirmer et bloquer votre véhicule. Son montant sera précisé lors de la confirmation.',
+    desc: 'Un acompte équivalent à 3 jours de location est demandé pour confirmer et bloquer votre véhicule. Ce montant est déduit du prix total lors de la remise des clés.',
     accent: 'text-purple-400',
     bg: 'bg-purple-500/10',
     border: 'border-purple-500/20',
