@@ -1,52 +1,40 @@
-import { createClient } from '@supabase/supabase-js';
+// Webhook → Ibrahim backend (Railway) — notifie Dzaryx en temps réel
+// Appelé sur: nouvelle réservation, nouvel avis, changement statut
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+const IBRAHIM_BACKEND = process.env.IBRAHIM_BACKEND_URL || 'https://ibrahim-backend-production.up.railway.app';
+const WEBHOOK_SECRET  = process.env.IBRAHIM_WEBHOOK_SECRET;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { type, data } = req.body;
 
-  let title = '';
-  let message = '';
-
-  if (type === 'new_booking') {
-    title = `🚗 Nouvelle réservation — ${data.car_name}`;
-    message = [
-      `Client: ${data.client_name} | Tél: ${data.client_phone} | Âge: ${data.client_age} ans`,
-      `Dates: ${data.start_date} → ${data.end_date}`,
-      `Total: ${data.total}€`,
-      data.notes ? `Notes: ${data.notes}` : null,
-    ].filter(Boolean).join('\n');
-  } else if (type === 'new_review') {
-    title = `⭐ Nouvel avis (${data.rating}/5) — ${data.client_name}`;
-    message = `"${data.comment}"`;
-  } else if (type === 'booking_status') {
-    title = `📋 Réservation mise à jour`;
-    message = `${data.car_name} / ${data.client_name} → ${data.status}`;
-  } else {
-    title = data?.title || 'Notification Fik Conciergerie';
-    message = data?.message || JSON.stringify(data);
-  }
-
   try {
-    const { error } = await supabase.from('notifications').insert([{
-      type:     type || 'fik_event',
-      channel:  'socket',
-      title,
-      message,
-      priority: type === 'new_booking' ? 1 : 0,
-      payload:  data || {},
-      status:   'pending',
-    }]);
+    if (!WEBHOOK_SECRET) {
+      console.warn('[notify-dzaryx] IBRAHIM_WEBHOOK_SECRET manquant — skip notification');
+      return res.status(200).json({ ok: true, skipped: true });
+    }
 
-    if (error) throw error;
+    const response = await fetch(`${IBRAHIM_BACKEND}/api/fik-site/notify`, {
+      method:  'POST',
+      headers: {
+        'Content-Type':     'application/json',
+        'x-webhook-secret': WEBHOOK_SECRET,
+      },
+      body: JSON.stringify({ type, data }),
+      signal: AbortSignal.timeout(8000),
+    });
+
+    if (!response.ok) {
+      const err = await response.text().catch(() => 'unknown');
+      console.error(`[notify-dzaryx] Backend responded ${response.status}: ${err}`);
+      return res.status(200).json({ ok: true, backend_error: response.status }); // non-bloquant
+    }
+
     res.status(200).json({ ok: true });
   } catch (err) {
-    console.error('Dzaryx notify error:', err.message);
-    res.status(500).json({ error: err.message });
+    // Non-bloquant — ne pas bloquer le site si Ibrahim est down
+    console.error('[notify-dzaryx] Error:', err.message);
+    res.status(200).json({ ok: true, error: err.message });
   }
 }

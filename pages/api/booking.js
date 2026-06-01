@@ -67,6 +67,29 @@ export default async function handler(req, res) {
   }
 
   try { await sendSMSNotification(booking, car); } catch (e) { console.error('SMS error (non-bloquant):', e.message); }
+
+  // Notifier Dzaryx en temps réel
+  try {
+    await fetch(`${req.headers['x-forwarded-proto'] || 'https'}://${req.headers['host']}/api/notify-dzaryx`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'new_booking',
+        data: {
+          client_name:  booking.client_name,
+          client_phone: booking.client_phone,
+          client_age:   booking.client_age,
+          car_name:     car.name,
+          start_date:   booking.start_date,
+          end_date:     booking.end_date,
+          total:        booking.final_price,
+          notes:        booking.notes || null,
+          booking_id:   booking.id,
+        },
+      }),
+    });
+  } catch (e) { console.error('Dzaryx notify error (non-bloquant):', e.message); }
+
   return res.status(200).json({ success: true, booking });
 }
 
