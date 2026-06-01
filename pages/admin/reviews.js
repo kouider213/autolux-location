@@ -64,28 +64,24 @@ export default function AdminReviewsPage() {
         <div className="space-y-6">
 
           {/* KPIs */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-[#141414] border border-gold-500/20 rounded-2xl p-4">
-              <div className="w-8 h-8 bg-gold-500/10 rounded-xl flex items-center justify-center mb-3">
-                <Star size={16} className="text-gold-400 fill-gold-400" />
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { Icon: Star,         val: avgRating,     label: 'Note moyenne', line: 'from-gold-500/0 via-gold-500 to-gold-500/0',          glow: 'bg-gold-500/8',    icon: 'bg-gold-500/15 text-gold-400',      grad: 'from-gold-300 to-gold-500' },
+              { Icon: Clock,        val: pendingCount,  label: 'En attente',   line: 'from-amber-500/0 via-amber-500 to-amber-500/0',       glow: 'bg-amber-500/8',   icon: 'bg-amber-500/15 text-amber-400',    grad: 'from-amber-300 to-amber-400' },
+              { Icon: CheckCircle2, val: approvedCount, label: 'Publiés',      line: 'from-emerald-500/0 via-emerald-500 to-emerald-500/0', glow: 'bg-emerald-500/8', icon: 'bg-emerald-500/15 text-emerald-400', grad: 'from-emerald-300 to-emerald-400' },
+            ].map(({ Icon, val, label, line, glow, icon, grad }) => (
+              <div key={label} className="relative bg-[#141414] border border-white/[0.07] rounded-2xl p-4 overflow-hidden">
+                <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${line}`} />
+                <div className={`absolute -top-8 -right-8 w-24 h-24 rounded-full ${glow} blur-3xl pointer-events-none`} />
+                <div className="relative">
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center mb-3 ${icon}`}>
+                    <Icon size={15} />
+                  </div>
+                  <div className={`font-display text-2xl font-black bg-gradient-to-br ${grad} bg-clip-text text-transparent tabular-nums leading-none mb-1`}>{val}</div>
+                  <div className="text-white/35 text-[11px] font-medium">{label}</div>
+                </div>
               </div>
-              <div className="font-display text-2xl font-bold text-white tabular-nums">{avgRating}</div>
-              <div className="text-white/35 text-xs mt-0.5">Note moyenne</div>
-            </div>
-            <div className="bg-[#141414] border border-amber-500/20 rounded-2xl p-4">
-              <div className="w-8 h-8 bg-amber-500/10 rounded-xl flex items-center justify-center mb-3">
-                <Clock size={16} className="text-amber-400" />
-              </div>
-              <div className="font-display text-2xl font-bold text-white tabular-nums">{pendingCount}</div>
-              <div className="text-white/35 text-xs mt-0.5">En attente</div>
-            </div>
-            <div className="bg-[#141414] border border-emerald-500/20 rounded-2xl p-4">
-              <div className="w-8 h-8 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-3">
-                <CheckCircle2 size={16} className="text-emerald-400" />
-              </div>
-              <div className="font-display text-2xl font-bold text-white tabular-nums">{approvedCount}</div>
-              <div className="text-white/35 text-xs mt-0.5">Publiés</div>
-            </div>
+            ))}
           </div>
 
           {/* Tabs */}

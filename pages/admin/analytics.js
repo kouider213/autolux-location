@@ -27,20 +27,24 @@ function BarChart({ data, max, color = 'gold' }) {
 }
 
 function StatCard({ icon: Icon, label, value, sub, color = 'gold' }) {
-  const colors = {
-    gold:    { bg: 'bg-gold-500/10',    border: 'border-gold-500/20',    text: 'text-gold-400' },
-    emerald: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', text: 'text-emerald-400' },
-    blue:    { bg: 'bg-blue-500/10',    border: 'border-blue-500/20',    text: 'text-blue-400' },
-    purple:  { bg: 'bg-purple-500/10',  border: 'border-purple-500/20',  text: 'text-purple-400' },
+  const c = {
+    gold:    { line: 'from-gold-500/0 via-gold-500 to-gold-500/0',          glow: 'bg-gold-500/8',    icon: 'bg-gold-500/15 text-gold-400',      grad: 'from-gold-300 to-gold-500' },
+    emerald: { line: 'from-emerald-500/0 via-emerald-500 to-emerald-500/0', glow: 'bg-emerald-500/8', icon: 'bg-emerald-500/15 text-emerald-400', grad: 'from-emerald-300 to-emerald-400' },
+    blue:    { line: 'from-blue-500/0 via-blue-500 to-blue-500/0',          glow: 'bg-blue-500/8',    icon: 'bg-blue-500/15 text-blue-400',       grad: 'from-blue-300 to-blue-400' },
+    purple:  { line: 'from-purple-500/0 via-purple-500 to-purple-500/0',    glow: 'bg-purple-500/8',  icon: 'bg-purple-500/15 text-purple-400',   grad: 'from-purple-300 to-purple-400' },
   }[color];
   return (
-    <div className={`bg-[#141414] border ${colors.border} rounded-2xl p-5`}>
-      <div className={`w-10 h-10 ${colors.bg} ${colors.border} border rounded-xl flex items-center justify-center mb-4`}>
-        <Icon size={18} className={colors.text} />
+    <div className="relative bg-[#141414] border border-white/[0.07] rounded-2xl p-5 overflow-hidden">
+      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${c.line}`} />
+      <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full ${c.glow} blur-3xl pointer-events-none`} />
+      <div className="relative">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${c.icon}`}>
+          <Icon size={18} />
+        </div>
+        <div className={`font-display font-black text-3xl bg-gradient-to-br ${c.grad} bg-clip-text text-transparent mb-1 tabular-nums leading-none`}>{value}</div>
+        <div className="text-white/70 font-semibold text-sm mb-0.5">{label}</div>
+        {sub && <div className="text-white/25 text-xs">{sub}</div>}
       </div>
-      <div className={`font-display font-black text-3xl ${colors.text} mb-1`}>{value}</div>
-      <div className="text-white font-semibold text-sm mb-0.5">{label}</div>
-      {sub && <div className="text-white/30 text-xs">{sub}</div>}
     </div>
   );
 }
