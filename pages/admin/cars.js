@@ -1,8 +1,9 @@
 import Head from 'next/head';
 import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { Car, Plus, Edit2, Trash2, Eye, EyeOff, Camera, ImageIcon, Loader2, X } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
-import { supabase } from '../../lib/supabase'; // used for cars CRUD (read/update/delete)
+import { supabase } from '../../lib/supabase';
 
 export default function AdminCarsPage() {
   const [cars, setCars] = useState([]);
@@ -137,14 +138,13 @@ export default function AdminCarsPage() {
         style={{ display: 'none' }}
         onChange={e => uploadPhoto(e.target.files?.[0])}
       />
-      <AdminLayout>
+      <AdminLayout title="Véhicules">
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="font-display text-3xl font-bold text-white">Véhicules</h1>
-              <p className="text-white/30 text-sm mt-1">{cars.length} véhicule(s) dans la flotte</p>
-            </div>
-            <button onClick={openAdd} className="btn-gold py-2.5 px-5 text-sm">+ Ajouter</button>
+            <p className="text-white/35 text-sm">{cars.length} véhicule{cars.length !== 1 ? 's' : ''} dans la flotte</p>
+            <button onClick={openAdd} className="btn-gold py-2.5 px-5 text-sm flex items-center gap-2">
+              <Plus size={15} /> Ajouter
+            </button>
           </div>
 
           {loading ? (
@@ -154,46 +154,63 @@ export default function AdminCarsPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {cars.map(car => (
-                <div key={car.id} className={`card-dark overflow-hidden transition-all duration-200 ${!car.available ? 'opacity-50' : ''}`}>
-                  <div className="bg-noir-800 h-36 flex items-center justify-center overflow-hidden relative">
-                    {car.image_url ? (
-                      <img src={car.image_url} alt={car.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-4xl">🚗</span>
-                    )}
-                    <div className="absolute top-2 right-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        car.available ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+                <div key={car.id} className={`bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden transition-all hover:border-white/15 ${!car.available ? 'opacity-60' : ''}`}>
+                  {/* Image */}
+                  <div className="h-40 bg-[#0e0e0e] flex items-center justify-center overflow-hidden relative">
+                    {car.image_url
+                      ? <img src={car.image_url} alt={car.name} className="w-full h-full object-cover" />
+                      : <Car size={36} className="text-white/10" />
+                    }
+                    <div className="absolute top-2.5 left-2.5">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${
+                        car.available
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
+                          : 'bg-red-500/20 text-red-400 border border-red-500/20'
                       }`}>
                         {car.available ? 'Actif' : 'Inactif'}
                       </span>
                     </div>
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-white font-semibold mb-1">{car.name}</h3>
-                    <div className="flex justify-between text-xs mb-3">
-                      <div>
-                        <span className="text-white/30">Propriétaire : </span>
-                        <span className="text-white/60">{car.base_price} €</span>
+                    {car.category && (
+                      <div className="absolute bottom-2 right-2">
+                        <span className="text-[10px] bg-black/60 text-white/50 px-2 py-0.5 rounded-md backdrop-blur-sm capitalize">{car.category}</span>
                       </div>
-                      <div>
-                        <span className="text-white/30">Revendeur : </span>
-                        <span className="text-gold-500 font-semibold">{car.resale_price} €</span>
+                    )}
+                  </div>
+                  {/* Body */}
+                  <div className="p-4">
+                    <h3 className="text-white font-semibold text-sm mb-2 truncate">{car.name}</h3>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-center">
+                        <p className="text-white/25 text-[10px] uppercase tracking-wide">Proprio</p>
+                        <p className="text-white/60 text-sm font-semibold tabular-nums">{car.base_price} €</p>
+                      </div>
+                      <div className="w-px h-6 bg-white/[0.06]" />
+                      <div className="text-center">
+                        <p className="text-white/25 text-[10px] uppercase tracking-wide">Client</p>
+                        <p className="text-gold-400 text-sm font-bold tabular-nums">{car.resale_price} €</p>
+                      </div>
+                      <div className="w-px h-6 bg-white/[0.06]" />
+                      <div className="text-center">
+                        <p className="text-white/25 text-[10px] uppercase tracking-wide">Marge</p>
+                        <p className="text-emerald-400 text-sm font-semibold tabular-nums">+{car.resale_price - car.base_price} €</p>
                       </div>
                     </div>
                     <div className="flex gap-1.5">
-                      <button onClick={() => openEdit(car)} className="flex-1 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs py-1.5 rounded-lg transition-colors">
-                        ✏️ Modifier
+                      <button onClick={() => openEdit(car)}
+                        className="flex-1 flex items-center justify-center gap-1.5 bg-white/[0.05] hover:bg-white/10 text-white/55 hover:text-white text-xs py-2 rounded-xl transition-colors">
+                        <Edit2 size={12} /> Modifier
                       </button>
-                      <button onClick={() => handleToggle(car)} className={`flex-1 text-xs py-1.5 rounded-lg transition-colors ${
-                        car.available
-                          ? 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
-                          : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-                      }`}>
-                        {car.available ? '⏸ Désact.' : '▶ Activer'}
+                      <button onClick={() => handleToggle(car)}
+                        className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs transition-colors ${
+                          car.available
+                            ? 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
+                            : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                        }`}>
+                        {car.available ? <EyeOff size={12} /> : <Eye size={12} />}
                       </button>
-                      <button onClick={() => handleDelete(car)} className="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs px-2 py-1.5 rounded-lg transition-colors">
-                        🗑
+                      <button onClick={() => handleDelete(car)}
+                        className="flex items-center justify-center px-2.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors">
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   </div>
@@ -204,11 +221,11 @@ export default function AdminCarsPage() {
         </div>
 
         {showForm && (
-          <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-            <div className="card-dark w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/5 flex justify-between items-center">
-                <h2 className="text-white font-semibold text-lg">{editCar ? 'Modifier le véhicule' : 'Ajouter un véhicule'}</h2>
-                <button onClick={() => setShowForm(false)} className="text-white/30 hover:text-white text-xl">×</button>
+          <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
+            <div className="bg-[#141414] border border-white/[0.08] rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between sticky top-0 bg-[#141414]">
+                <h2 className="text-white font-bold text-base">{editCar ? 'Modifier le véhicule' : 'Ajouter un véhicule'}</h2>
+                <button onClick={() => setShowForm(false)} className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/[0.05] hover:bg-white/10 text-white/50 hover:text-white transition-all"><X size={16} /></button>
               </div>
               <div className="p-6 space-y-4">
                 <div>
@@ -274,23 +291,15 @@ export default function AdminCarsPage() {
                     </div>
                   ) : null}
                   <div className="grid grid-cols-2 gap-2 mb-2">
-                    <button
-                      type="button"
-                      disabled={uploading}
-                      onClick={() => cameraInputRef.current?.click()}
-                      className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-sm py-3 rounded-xl transition-colors disabled:opacity-50"
-                    >
-                      <span>{uploading ? '⏳' : '📷'}</span>
-                      <span>{uploading ? 'Import...' : 'Appareil photo'}</span>
+                    <button type="button" disabled={uploading} onClick={() => cameraInputRef.current?.click()}
+                      className="flex items-center justify-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-white/60 hover:text-white text-sm py-3 rounded-xl transition-colors disabled:opacity-50">
+                      {uploading ? <Loader2 size={15} className="animate-spin" /> : <Camera size={15} />}
+                      {uploading ? 'Import...' : 'Appareil photo'}
                     </button>
-                    <button
-                      type="button"
-                      disabled={uploading}
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-sm py-3 rounded-xl transition-colors disabled:opacity-50"
-                    >
-                      <span>{uploading ? '⏳' : '🖼️'}</span>
-                      <span>{uploading ? 'Import...' : 'Galerie photos'}</span>
+                    <button type="button" disabled={uploading} onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center justify-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-white/60 hover:text-white text-sm py-3 rounded-xl transition-colors disabled:opacity-50">
+                      {uploading ? <Loader2 size={15} className="animate-spin" /> : <ImageIcon size={15} />}
+                      {uploading ? 'Import...' : 'Galerie photos'}
                     </button>
                   </div>
                   <input

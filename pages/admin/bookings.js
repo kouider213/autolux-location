@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import { generateContract } from '../../lib/pdf';
-import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag } from 'lucide-react';
+import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck } from 'lucide-react';
 
 const STATUS_LABELS = {
   PENDING:   { label: 'En attente',  cls: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
@@ -168,10 +168,15 @@ export default function BookingsPage() {
             <div className="flex gap-2 overflow-x-auto pb-1">
               {filters.map(f => (
                 <button key={f.key} onClick={() => setFilter(f.key)}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                    filter === f.key ? 'bg-gold-500 text-noir-950 border-gold-500' : 'border-white/10 text-white/40 hover:border-white/20 hover:text-white/60'
+                  className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    filter === f.key
+                      ? 'bg-gold-500 text-noir-950'
+                      : 'bg-white/[0.04] border border-white/[0.08] text-white/40 hover:text-white/70 hover:border-white/20'
                   }`}>
-                  {f.label} <span className="ml-1 opacity-70">({counts[f.key]})</span>
+                  {f.label}
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${filter === f.key ? 'bg-black/20 text-noir-950/70' : 'bg-white/10 text-white/40'}`}>
+                    {counts[f.key]}
+                  </span>
                 </button>
               ))}
             </div>
@@ -181,7 +186,7 @@ export default function BookingsPage() {
             <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" /></div>
           ) : filtered.length === 0 ? (
             <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-12 text-center">
-              <p className="text-3xl mb-3">📭</p>
+              <CalendarCheck size={32} className="text-white/15 mx-auto mb-3" />
               <p className="text-white/30 text-sm">Aucune réservation</p>
             </div>
           ) : (

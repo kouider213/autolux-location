@@ -135,12 +135,12 @@ export default function AnalyticsPage() {
       <AdminLayout title="Analytics">
         {/* Period selector */}
         <div className="flex items-center justify-between mb-6">
-          <p className="text-white/40 text-sm">Données des {period} derniers jours</p>
-          <div className="flex gap-2">
+          <p className="text-white/35 text-xs font-semibold uppercase tracking-widest">{period} derniers jours</p>
+          <div className="flex gap-1.5 bg-white/[0.04] border border-white/[0.08] rounded-xl p-1">
             {[7, 30, 90].map(d => (
               <button key={d} onClick={() => setPeriod(d)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  period === d ? 'bg-gold-500 text-noir-950' : 'bg-white/[0.05] text-white/40 hover:text-white'
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  period === d ? 'bg-gold-500 text-noir-950' : 'text-white/40 hover:text-white'
                 }`}>
                 {d}j
               </button>
@@ -164,8 +164,8 @@ export default function AnalyticsPage() {
 
             {/* Visits by day */}
             <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5">
-              <h2 className="text-white font-semibold text-sm mb-5 flex items-center gap-2">
-                <TrendingUp size={15} className="text-gold-400" />
+              <h2 className="text-white/60 text-xs font-bold uppercase tracking-widest mb-5 flex items-center gap-2">
+                <TrendingUp size={13} className="text-gold-400" />
                 Visites par jour
               </h2>
               {stats.byDay.length > 0 ? (
@@ -197,7 +197,7 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {/* Top pages */}
               <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5">
-                <h2 className="text-white font-semibold text-sm mb-5">Pages les plus visitées</h2>
+                <h2 className="text-white/60 text-xs font-bold uppercase tracking-widest mb-5">Pages les plus visitées</h2>
                 {stats.topPages.length > 0
                   ? <BarChart data={stats.topPages} color="gold" />
                   : <p className="text-white/20 text-sm">Aucune donnée</p>
@@ -206,8 +206,8 @@ export default function AnalyticsPage() {
 
               {/* Top cars */}
               <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5">
-                <h2 className="text-white font-semibold text-sm mb-5 flex items-center gap-2">
-                  <Car size={14} className="text-gold-400" />
+                <h2 className="text-white/60 text-xs font-bold uppercase tracking-widest mb-5 flex items-center gap-2">
+                  <Car size={13} className="text-gold-400" />
                   Véhicules les plus vus
                 </h2>
                 {stats.topCars.length > 0
@@ -218,8 +218,8 @@ export default function AnalyticsPage() {
 
               {/* Top countries */}
               <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5">
-                <h2 className="text-white font-semibold text-sm mb-5 flex items-center gap-2">
-                  <Globe size={14} className="text-gold-400" />
+                <h2 className="text-white/60 text-xs font-bold uppercase tracking-widest mb-5 flex items-center gap-2">
+                  <Globe size={13} className="text-gold-400" />
                   Pays visiteurs
                 </h2>
                 {stats.topCountries.length > 0
@@ -232,9 +232,10 @@ export default function AnalyticsPage() {
             {/* Microsoft Clarity embed */}
             <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-white font-semibold text-sm flex items-center gap-2">
-                  <span className="text-blue-400">⬡</span> Microsoft Clarity
-                  <span className="text-white/25 text-xs font-normal">— heatmaps & enregistrements</span>
+                <h2 className="text-white/60 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                  <Monitor size={13} className="text-blue-400" />
+                  Microsoft Clarity
+                  <span className="text-white/25 text-[10px] font-normal normal-case tracking-normal">heatmaps & enregistrements</span>
                 </h2>
                 <a href="https://clarity.microsoft.com/projects/view/wzu6j89axc" target="_blank" rel="noopener noreferrer"
                   className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
