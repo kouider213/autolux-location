@@ -45,11 +45,15 @@ export default function Navbar({ scrollContainerRef }) {
 
   return (
     <nav
-      style={scrolled ? { backgroundColor: '#080808', borderBottom: '1px solid rgba(255,255,255,0.06)' } : {}}
+      style={{
+        backgroundColor: scrolled ? '#080808' : undefined,
+        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : undefined,
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+      }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'py-3 shadow-[0_4px_24px_rgba(0,0,0,0.7)]'
-          : 'bg-gradient-to-b from-black/60 to-transparent py-5'
+          ? 'pb-3 shadow-[0_4px_24px_rgba(0,0,0,0.7)]'
+          : 'bg-gradient-to-b from-black/60 to-transparent pb-5'
       }`}>
       <div className="max-w-7xl mx-auto px-5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
