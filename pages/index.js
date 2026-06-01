@@ -301,9 +301,11 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
 
               {/* Brand badge — center, CSS animated */}
               <div className="hero-css-brand absolute inset-0 flex items-center justify-center flex-col gap-3 pointer-events-none" style={{ paddingBottom: '20%' }}>
-                <div className="w-16 h-16 bg-gradient-to-br from-gold-400 to-gold-600 rounded-2xl flex items-center justify-center shadow-[0_0_50px_rgba(226,182,20,0.55)] animate-float">
-                  <span className="font-black text-noir-950 text-xl">FK</span>
-                </div>
+                <img
+                  src="/logo.png"
+                  alt="Fik Conciergerie"
+                  className="w-20 h-20 object-contain drop-shadow-[0_0_30px_rgba(226,182,20,0.7)] animate-float"
+                />
                 <p className="font-display text-xl font-bold text-white tracking-wide">Fik Conciergerie</p>
                 <p className="text-white/35 text-xs tracking-[0.25em] uppercase font-body">Location Premium · Oran</p>
               </div>
@@ -523,9 +525,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
         <footer className="border-t border-white/[0.05] bg-[#050505] py-6 md:py-7 px-5">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center">
-                <span className="text-noir-950 font-black text-xs">FK</span>
-              </div>
+              <img src="/logo.png" alt="Fik Conciergerie" className="w-8 h-8 object-contain" />
               <span className="font-display font-bold text-white">Fik <span className="text-gold-500">Conciergerie</span></span>
             </div>
             <div className="flex gap-5 text-white/25 text-sm font-body">
