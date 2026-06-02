@@ -106,8 +106,8 @@ export default function Navbar({ scrollContainerRef }) {
         </button>
       </div>
 
-      <div className={`md:hidden overflow-hidden transition-all duration-300 ${menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="bg-[#080808]/98 backdrop-blur-xl border-t border-white/[0.05] px-5 py-4 space-y-1">
+      <div className={`md:hidden overflow-hidden transition-all duration-300 ${menuOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="bg-[#080808]/98 backdrop-blur-xl border-t border-white/[0.05] px-5 py-4 space-y-1 max-h-[80vh] overflow-y-auto">
           {links.map(link => {
             const active = router.pathname === link.href;
             return (
