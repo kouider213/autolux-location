@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Tag, Fuel, Gauge, Calendar, MapPin, Search, X, ArrowRight, Star, MessageCircle } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
+import { useLang } from '../lib/i18n';
 
 const WHATSAPP = '32466311469';
 
@@ -63,6 +64,7 @@ function VehicleCard({ v }) {
 }
 
 export default function VenteVoituresPage({ vehicles }) {
+  const { t } = useLang();
   const [search, setSearch]   = useState('');
   const [fuel, setFuel]       = useState('Tous');
   const hasListings = vehicles && vehicles.length > 0;
@@ -93,13 +95,13 @@ export default function VenteVoituresPage({ vehicles }) {
           <div className="absolute top-20 left-1/3 w-72 h-72 bg-gold-500/[0.05] rounded-full blur-[100px] pointer-events-none" />
           <div className="relative max-w-7xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
-              <Tag size={11} /> Occasions
+              <Tag size={11} /> {t('sale.badge')}
             </div>
             <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-none mb-5">
-              Véhicules <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">à vendre</span>
+              {t('sale.title1')} <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{t('sale.title2')}</span>
             </h1>
             <p className="text-white/35 max-w-lg mx-auto text-base leading-relaxed">
-              Voitures d'occasion vérifiées à Oran. Vous vendez ? Proposez votre véhicule via nous.
+              {t('sale.subtitle')}
             </p>
           </div>
         </div>
@@ -112,11 +114,11 @@ export default function VenteVoituresPage({ vehicles }) {
               <div className="flex items-center gap-4">
                 <div className="w-11 h-11 bg-gold-500/15 border border-gold-500/25 rounded-xl flex items-center justify-center flex-shrink-0"><Tag size={18} className="text-gold-400" /></div>
                 <div>
-                  <p className="text-white font-bold text-sm">Vous voulez vendre votre voiture ?</p>
-                  <p className="text-white/40 text-xs">Confiez-nous la vente. Photos, annonce et contacts gérés pour vous.</p>
+                  <p className="text-white font-bold text-sm">{t('sale.sell_title')}</p>
+                  <p className="text-white/40 text-xs">{t('sale.sell_desc')}</p>
                 </div>
               </div>
-              <a href={`https://wa.me/${WHATSAPP}?text=${proposeMsg}`} target="_blank" rel="noopener noreferrer" className="btn-gold py-2.5 px-6 text-sm whitespace-nowrap flex items-center gap-2"><MessageCircle size={14} /> Proposer mon véhicule</a>
+              <a href={`https://wa.me/${WHATSAPP}?text=${proposeMsg}`} target="_blank" rel="noopener noreferrer" className="btn-gold py-2.5 px-6 text-sm whitespace-nowrap flex items-center gap-2"><MessageCircle size={14} /> {t('sale.sell_cta')}</a>
             </div>
 
             {hasListings ? (
@@ -149,9 +151,9 @@ export default function VenteVoituresPage({ vehicles }) {
               /* Coming soon */
               <div className="text-center py-20 max-w-lg mx-auto">
                 <div className="w-20 h-20 bg-gold-500/[0.08] border border-gold-500/20 rounded-3xl flex items-center justify-center mx-auto mb-7"><Tag size={32} className="text-gold-400" /></div>
-                <h2 className="font-display text-3xl font-bold text-white mb-3">Bientôt disponible</h2>
-                <p className="text-white/40 leading-relaxed mb-8">Nos premiers véhicules d'occasion arrivent prochainement. Vous cherchez une voiture précise, ou vous voulez vendre la vôtre ? Contactez-nous dès maintenant.</p>
-                <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Bonjour, je suis intéressé(e) par vos véhicules à vendre.')}`} target="_blank" rel="noopener noreferrer" className="btn-gold px-8 py-3.5 text-sm inline-flex items-center gap-2"><MessageCircle size={15} /> Nous contacter sur WhatsApp</a>
+                <h2 className="font-display text-3xl font-bold text-white mb-3">{t('sale.soon_title')}</h2>
+                <p className="text-white/40 leading-relaxed mb-8">{t('sale.soon_desc')}</p>
+                <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Bonjour, je suis intéressé(e) par vos véhicules à vendre.')}`} target="_blank" rel="noopener noreferrer" className="btn-gold px-8 py-3.5 text-sm inline-flex items-center gap-2"><MessageCircle size={15} /> {t('common.contact_wa')}</a>
               </div>
             )}
           </div>

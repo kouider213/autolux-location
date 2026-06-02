@@ -5,6 +5,7 @@ import {
   Send, Car, MapPin, Gauge, Fuel, Settings, Calendar, Palette, MessageCircle, CheckCircle2,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import { useLang } from '../lib/i18n';
 
 const WHATSAPP = '32466311469';
 const ACOMPTE_PCT = 50; // % acompte affiché
@@ -42,6 +43,7 @@ const emptyForm = {
 };
 
 export default function CommandeVehiculePage() {
+  const { t } = useLang();
   const [form, setForm]       = useState(emptyForm);
   const [accept, setAccept]   = useState(false);
   const [error, setError]     = useState('');
@@ -119,9 +121,9 @@ export default function CommandeVehiculePage() {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/25 to-transparent" />
           <div className="absolute top-20 left-1/3 w-72 h-72 bg-gold-500/[0.05] rounded-full blur-[100px] pointer-events-none" />
           <div className="relative max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6"><Globe size={11} /> Sur mesure · Importation</div>
+            <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6"><Globe size={11} /> {t('order.badge')}</div>
             <h1 className="font-display text-4xl md:text-6xl font-bold text-white leading-tight mb-5">
-              Commandez le véhicule<br /><span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">de vos rêves</span>
+              {t('order.title1')}<br /><span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{t('order.title2')}</span>
             </h1>
             <p className="text-white/40 max-w-xl mx-auto text-base leading-relaxed">
               Vous cherchez une voiture précise, en Algérie ou à l'étranger ? On la trouve, on l'achète et on l'achemine jusqu'à vous. Remplissez votre demande, on s'occupe du reste.
@@ -225,7 +227,7 @@ export default function CommandeVehiculePage() {
 
               {/* Submit */}
               <button onClick={handleSubmit} className="w-full bg-[#25D366] hover:bg-[#1ebe5a] text-white font-bold py-4 rounded-xl transition-all shadow-[0_4px_20px_rgba(37,211,102,0.3)] flex items-center justify-center gap-2 text-base">
-                <Send size={18} /> Envoyer ma demande sur WhatsApp
+                <Send size={18} /> {t('order.send')}
               </button>
               <p className="text-white/25 text-xs text-center">Votre demande s'ouvre dans WhatsApp, pré-remplie. Aucun compte requis.</p>
             </div>
@@ -237,7 +239,7 @@ export default function CommandeVehiculePage() {
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center flex-shrink-0"><AlertTriangle size={18} className="text-amber-400" /></div>
                 <div>
-                  <h2 className="text-white font-bold text-lg">Conditions importantes</h2>
+                  <h2 className="text-white font-bold text-lg">{t('order.conditions')}</h2>
                   <p className="text-white/35 text-xs">À lire avant toute demande</p>
                 </div>
               </div>

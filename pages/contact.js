@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { MessageCircle, MapPin, Clock, Shield, Star, Zap, Heart, Car, CheckCircle, ArrowRight, Phone, Instagram, Music2, Facebook } from 'lucide-react';
 import { getSettings } from '../lib/settings';
+import { useLang } from '../lib/i18n';
 
 function SocialSection() {
+  const { t } = useLang();
   const [s, setS] = useState(null);
   useEffect(() => { getSettings().then(setS); }, []);
   if (!s) return null;
@@ -18,7 +20,7 @@ function SocialSection() {
   return (
     <div className="px-5 mb-20">
       <div className="max-w-4xl mx-auto text-center">
-        <span className="section-badge mb-4 inline-block">Suivez-nous</span>
+        <span className="section-badge mb-4 inline-block">{t('contact.follow')}</span>
         <h2 className="font-display text-3xl font-bold text-white mb-8">Rejoignez la communauté</h2>
         <div className="flex flex-wrap justify-center gap-4">
           {socials.map(soc => (
@@ -87,6 +89,7 @@ const STATS = [
 ];
 
 export default function ContactPage() {
+  const { t } = useLang();
   return (
     <>
       <Head>
@@ -105,10 +108,10 @@ export default function ContactPage() {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/20 to-transparent" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gold-500/[0.04] rounded-full blur-[100px] pointer-events-none" />
           <div className="relative max-w-3xl mx-auto text-center">
-            <span className="section-badge mb-5 inline-block">Contactez-nous</span>
+            <span className="section-badge mb-5 inline-block">{t('contact.badge')}</span>
             <h1 className="font-display text-4xl md:text-6xl font-bold text-white mb-6">
-              Parlons de votre <br />
-              <span className="text-gold-gradient italic">projet</span>
+              {t('contact.title1')} <br />
+              <span className="text-gold-gradient italic">{t('contact.title2')}</span>
             </h1>
             <p className="text-white/40 text-lg max-w-xl mx-auto leading-relaxed">
               Notre équipe est disponible 24h/24 pour répondre à toutes vos demandes.

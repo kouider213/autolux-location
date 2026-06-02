@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
+import { useLang } from '../lib/i18n';
 
 const WHATSAPP = '32466311469';
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
@@ -81,6 +82,7 @@ const OWNER_OFFERS = [
 ];
 
 export default function ImmoPage({ properties }) {
+  const { t } = useLang();
   const [search, setSearch]   = useState('');
   const [txn, setTxn]         = useState('Tous');   // Tous | location | vente
   const [type, setType]       = useState('Tous');
@@ -115,9 +117,9 @@ export default function ImmoPage({ properties }) {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/25 to-transparent" />
           <div className="absolute top-20 right-1/3 w-72 h-72 bg-gold-500/[0.05] rounded-full blur-[100px] pointer-events-none" />
           <div className="relative max-w-7xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6"><Building2 size={11} /> Immobilier · Douba Groupe</div>
-            <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-none mb-5">Location &amp; <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">vente</span></h1>
-            <p className="text-white/35 max-w-lg mx-auto text-base leading-relaxed">Appartements, villas, locaux à Oran. Propriétaire ou locataire, tout passe par WhatsApp.</p>
+            <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6"><Building2 size={11} /> {t('immo.badge')}</div>
+            <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-none mb-5">{t('immo.title1')} <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{t('immo.title2')}</span></h1>
+            <p className="text-white/35 max-w-lg mx-auto text-base leading-relaxed">{t('immo.subtitle')}</p>
           </div>
         </div>
 
@@ -166,9 +168,9 @@ export default function ImmoPage({ properties }) {
             {/* ── ESPACE PROPRIÉTAIRES ── */}
             <section className="mt-20 pt-16 border-t border-white/[0.06]">
               <div className="text-center mb-12">
-                <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5"><Key size={11} /> Propriétaires</div>
-                <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-3">Vous avez un bien à <span className="text-gold-gradient italic">louer ou vendre ?</span></h2>
-                <p className="text-white/35 max-w-xl mx-auto">Confiez-nous votre bien. On s'occupe de tout : mise en ligne, visibilité, contacts clients. Choisissez votre formule.</p>
+                <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5"><Key size={11} /> {t('immo.owners_badge')}</div>
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-3">{t('immo.owners_title1')} <span className="text-gold-gradient italic">{t('immo.owners_title2')}</span></h2>
+                <p className="text-white/35 max-w-xl mx-auto">{t('immo.owners_desc')}</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
@@ -183,11 +185,11 @@ export default function ImmoPage({ properties }) {
 
               <div className="bg-gradient-to-b from-[#141414] to-[#111] border border-white/[0.07] rounded-3xl p-8 text-center max-w-2xl mx-auto">
                 <TrendingUp size={28} className="text-gold-400 mx-auto mb-4" />
-                <h3 className="text-white font-bold text-xl mb-2">Estimez votre bien gratuitement</h3>
-                <p className="text-white/40 text-sm mb-6 max-w-md mx-auto">Contactez-nous sur WhatsApp pour savoir combien vous pouvez louer ou vendre votre bien. Réponse rapide, sans engagement.</p>
+                <h3 className="text-white font-bold text-xl mb-2">{t('immo.estimate_title')}</h3>
+                <p className="text-white/40 text-sm mb-6 max-w-md mx-auto">{t('immo.estimate_desc')}</p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <a href={`https://wa.me/${WHATSAPP}?text=${ownerMsg}`} target="_blank" rel="noopener noreferrer" className="btn-gold px-7 py-3.5 text-sm justify-center"><Briefcase size={15} /> Proposer mon bien</a>
-                  <a href={`https://wa.me/${WHATSAPP}?text=${estimateMsg}`} target="_blank" rel="noopener noreferrer" className="btn-outline px-7 py-3.5 text-sm justify-center"><Calculator size={15} /> Estimation gratuite</a>
+                  <a href={`https://wa.me/${WHATSAPP}?text=${ownerMsg}`} target="_blank" rel="noopener noreferrer" className="btn-gold px-7 py-3.5 text-sm justify-center"><Briefcase size={15} /> {t('immo.propose')}</a>
+                  <a href={`https://wa.me/${WHATSAPP}?text=${estimateMsg}`} target="_blank" rel="noopener noreferrer" className="btn-outline px-7 py-3.5 text-sm justify-center"><Calculator size={15} /> {t('immo.estimate')}</a>
                 </div>
               </div>
             </section>

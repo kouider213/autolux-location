@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { Car, Fuel, Users, Search, ArrowRight, X, Gauge } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
+import { useLang } from '../lib/i18n';
 
 const CATEGORIES = ['Tous', 'citadine', 'berline', 'SUV', 'familiale', 'utilitaire', 'premium'];
 
 export default function CarsPage({ cars }) {
+  const { t } = useLang();
   const [filter, setFilter]     = useState('Tous');
   const [search, setSearch]     = useState('');
   const [bookedCarIds, setBookedCarIds] = useState({});
@@ -56,14 +58,14 @@ export default function CarsPage({ cars }) {
           <div className="relative max-w-7xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
               <Car size={11} />
-              Notre flotte · {cars.length} véhicules
+              {t('cars.badge')} · {cars.length}
             </div>
             <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-none mb-5">
-              Tous nos<br />
-              <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">véhicules</span>
+              {t('cars.title1')}<br />
+              <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{t('cars.title2')}</span>
             </h1>
             <p className="text-white/35 max-w-lg mx-auto text-base leading-relaxed">
-              Kilométrage illimité · Assurance incluse · Disponible 7j/7
+              {t('cars.tags')}
             </p>
           </div>
         </div>
@@ -80,7 +82,7 @@ export default function CarsPage({ cars }) {
                     type="text"
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    placeholder="Rechercher un véhicule..."
+                    placeholder={t('cars.search')}
                     className="w-full bg-white/[0.04] border border-white/[0.07] hover:border-white/15 focus:border-gold-500/40 rounded-xl pl-10 pr-4 py-3 text-white text-sm placeholder-white/25 outline-none transition-colors"
                   />
                   {search && (
