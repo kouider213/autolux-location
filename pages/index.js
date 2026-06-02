@@ -5,7 +5,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Shield, Zap, Car, Star, ChevronDown, ArrowRight, ChevronLeft, ChevronRight,
   Users, MapPin, CalendarCheck, Fuel, MessageCircle, Sparkles, Building2, Tag,
-  Instagram, Music2, Facebook,
+  Instagram, Music2, Facebook, Gauge,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { getSettings } from '../lib/settings';
@@ -276,14 +276,100 @@ function CarCarousel({ cars }) {
   );
 }
 
+/* ── Generic showcase carousel (vente auto + immobilier) ── */
+function ShowcaseCarousel({ items, render }) {
+  const [idx, setIdx] = useState(0);
+  const [dir, setDir] = useState(1);
+  const total = items.length;
+  const goTo = (n) => { setDir(n > idx ? 1 : -1); setIdx(n); };
+  const prev = () => goTo(idx === 0 ? total - 1 : idx - 1);
+  const next = () => goTo(idx === total - 1 ? 0 : idx + 1);
+  const item = items[idx];
+  if (!item) return null;
+  const c = render(item, idx, total);
+  const variants = {
+    enter:  (d) => ({ x: d > 0 ? '100%' : '-100%', opacity: 0, scale: 0.95 }),
+    center: { x: 0, opacity: 1, scale: 1 },
+    exit:   (d) => ({ x: d > 0 ? '-100%' : '100%', opacity: 0, scale: 0.95 }),
+  };
+  return (
+    <div className="relative" style={{ height: '90vh', maxHeight: 700 }}>
+      <div className="absolute inset-0 overflow-hidden rounded-2xl">
+        <AnimatePresence mode="wait" custom={dir}>
+          <motion.div key={idx} custom={dir} variants={variants} initial="enter" animate="center" exit="exit"
+            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }} className="absolute inset-0">
+            <Link href={c.href} className="absolute inset-0 z-0">
+              {c.image ? (
+                <motion.img src={c.image} alt={c.title} className="w-full h-full object-cover"
+                  initial={{ scale: 1.06 }} animate={{ scale: 1 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#080808] flex items-center justify-center">
+                  {c.emptyIcon}
+                </div>
+              )}
+            </Link>
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
+              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+                <div className="flex items-center gap-3 mb-3 flex-wrap">
+                  {c.badges}
+                  <span className="text-white/25 text-xs font-body tracking-widest">
+                    {String(idx + 1).padStart(2,'0')} / {String(total).padStart(2,'0')}
+                  </span>
+                </div>
+                <h3 className="font-display font-black text-white leading-[0.9] mb-3" style={{ fontSize: 'clamp(32px, 5.5vw, 64px)' }}>{c.title}</h3>
+                <div className="flex items-center gap-3 mb-6 flex-wrap">{c.specs}</div>
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    {c.priceLabel && <span className="text-white/30 text-xs tracking-widest uppercase font-body block mb-1">{c.priceLabel}</span>}
+                    <span className="font-display font-black text-gold-gradient leading-none" style={{ fontSize: 'clamp(28px, 4vw, 48px)' }}>{c.price}</span>
+                    {c.priceSuffix && <span className="text-white/30 text-sm font-body ml-1">{c.priceSuffix}</span>}
+                  </div>
+                  <Link href={c.href} className="btn-gold px-6 py-3 text-sm md:text-base whitespace-nowrap">{c.ctaIcon}{c.cta}</Link>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:border-gold-500 hover:text-noir-950 transition-all"><ChevronLeft size={18} /></button>
+      <button onClick={next} className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:border-gold-500 hover:text-noir-950 transition-all"><ChevronRight size={18} /></button>
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+        {items.map((_, i) => (
+          <button key={i} onClick={() => goTo(i)} className={`rounded-full transition-all duration-300 ${i === idx ? 'w-6 h-1.5 bg-gold-500' : 'w-1.5 h-1.5 bg-white/30'}`} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Coming soon block ── */
+function ComingSoon({ icon, title, desc, cta, href }) {
+  return (
+    <div className="relative rounded-2xl border border-white/[0.07] bg-gradient-to-b from-[#141414] to-[#0d0d0d] overflow-hidden" style={{ minHeight: 360 }}>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.05) 0%,transparent 65%)' }} />
+      <div className="relative flex flex-col items-center justify-center text-center px-6 py-16 h-full">
+        <div className="w-20 h-20 bg-gold-500/[0.08] border border-gold-500/20 rounded-3xl flex items-center justify-center mb-6">{icon}</div>
+        <span className="inline-block bg-gold-500/10 border border-gold-500/20 text-gold-400 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">Coming soon</span>
+        <h3 className="font-display text-2xl md:text-3xl font-bold text-white mb-3">{title}</h3>
+        <p className="text-white/40 text-sm max-w-md leading-relaxed mb-7">{desc}</p>
+        <Link href={href} className="btn-outline px-7 py-3 text-sm">{cta}<ArrowRight size={14} /></Link>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main ── */
-export default function Home({ cars: initialCars, reviews: initialReviews }) {
+export default function Home({ cars: initialCars, reviews: initialReviews, vehiclesSale: initialSale, properties: initialProps }) {
   const { t } = useLang();
   const statsRef    = useRef(null);
   const statsInView = useInView(statsRef, { once: true, amount: 0.4 });
   const benefitsRef = useRef(null);
   const [cars, setCars]       = useState(initialCars   || []);
   const [reviews, setReviews] = useState(initialReviews || []);
+  const [vehiclesSale, setVehiclesSale] = useState(initialSale  || []);
+  const [properties, setProperties]     = useState(initialProps || []);
 
   // Client refresh: bypass ISR cache, get fresh Supabase data on mount
   useEffect(() => {
@@ -294,7 +380,22 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
     supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false }).limit(6).then(({ data }) => {
       if (data && data.length > 0) setReviews(data);
     }).catch(() => {});
+    supabase.from('vehicles_for_sale').select('*, vehicle_sale_photos(url, position)').order('featured', { ascending: false }).order('created_at', { ascending: false }).then(({ data }) => {
+      if (data) setVehiclesSale(data);
+    }).catch(() => {});
+    supabase.from('properties').select('*, property_photos(url, position)').order('featured', { ascending: false }).order('created_at', { ascending: false }).then(({ data }) => {
+      if (data) setProperties(data);
+    }).catch(() => {});
   }, []);
+
+  // Helpers carousel vente/immo
+  const saleAvailable = (vehiclesSale || []).filter(v => v.status !== 'vendu');
+  const immoAvailable = (properties || []).filter(p => p.status !== 'vendu' && p.status !== 'loue');
+  const curSym = (c) => (c === 'EUR' ? '€' : 'DA');
+  const photoOf = (rows, fallback) => {
+    const sorted = (rows || []).slice().sort((a, b) => a.position - b.position);
+    return sorted[0]?.url || fallback || null;
+  };
 
   const heroCar = (
     cars?.find(c => c.image_url && c.name?.toLowerCase().includes('mercedes')) ||
@@ -549,6 +650,77 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
           </div>
         </section>
 
+        {/* ══ VÉHICULES À VENDRE ══ */}
+        <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#050505]">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
+          <div className="relative z-10 max-w-5xl mx-auto">
+            <div className="mb-10">
+              <span className="section-badge mb-5 inline-block">{t('home.sale_badge')}</span>
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-3">
+                <h2 className="font-display text-4xl md:text-5xl font-bold text-white">{t('home.sale_t1')} <span className="text-gold-gradient italic">{t('home.sale_t2')}</span></h2>
+                <Link href="/vente-voitures" className="btn-outline text-sm py-2.5 self-start">{t('home.sale_all')} <ArrowRight size={13} /></Link>
+              </div>
+            </div>
+            {saleAvailable.length > 0 ? (
+              <ShowcaseCarousel items={saleAvailable} render={(v, i, total) => ({
+                href: `/vente-voitures/${v.id}`,
+                image: photoOf(v.vehicle_sale_photos, v.image_url),
+                emptyIcon: <Tag size={100} className="text-white/[0.05]" />,
+                title: `${v.brand} ${v.model}`,
+                badges: <><span className="tag-category">{v.year || t('home.sale_badge')}</span>{v.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950">{t('b.featured')}</span>}</>,
+                specs: <>
+                  {v.mileage != null && <span className="flex items-center gap-1.5 text-white/50 text-sm font-body"><Gauge size={12} className="text-gold-500/60" />{Number(v.mileage).toLocaleString('fr-FR')} km</span>}
+                  {v.fuel && <><span className="text-white/20">·</span><span className="flex items-center gap-1.5 text-white/50 text-sm font-body"><Fuel size={12} className="text-gold-500/60" />{v.fuel}</span></>}
+                  {v.city && <><span className="text-white/20">·</span><span className="flex items-center gap-1.5 text-white/50 text-sm font-body"><MapPin size={12} className="text-gold-500/60" />{v.city}</span></>}
+                </>,
+                price: v.price ? `${Number(v.price).toLocaleString('fr-FR')} ${curSym(v.currency)}` : t('b.price_request'),
+                href2: null, cta: t('home.view'), ctaIcon: <ArrowRight size={15} />,
+              })} />
+            ) : (
+              <ComingSoon icon={<Tag size={32} className="text-gold-400" />} title={t('home.sale_soon_t')} desc={t('home.sale_soon_d')} cta={t('sale.sell_cta')} href="/vente-voitures" />
+            )}
+          </div>
+        </section>
+
+        {/* ══ IMMOBILIER ══ */}
+        <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#080808]">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
+          <div className="relative z-10 max-w-5xl mx-auto">
+            <div className="mb-10">
+              <span className="section-badge mb-5 inline-block">{t('home.immo_badge')}</span>
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-3">
+                <h2 className="font-display text-4xl md:text-5xl font-bold text-white">{t('home.immo_t1')} <span className="text-gold-gradient italic">{t('home.immo_t2')}</span></h2>
+                <Link href="/immo" className="btn-outline text-sm py-2.5 self-start">{t('home.immo_all')} <ArrowRight size={13} /></Link>
+              </div>
+            </div>
+            {immoAvailable.length > 0 ? (
+              <ShowcaseCarousel items={immoAvailable} render={(p, i, total) => {
+                const isSale = (p.transaction || 'location') === 'vente';
+                return {
+                  href: `/immo/${p.id}`,
+                  image: photoOf(p.property_photos, null),
+                  emptyIcon: <Building2 size={100} className="text-white/[0.05]" />,
+                  title: p.title,
+                  badges: <>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${isSale ? 'bg-purple-500/20 text-purple-300 border-purple-500/25' : 'bg-blue-500/20 text-blue-300 border-blue-500/25'}`}>{isSale ? t('b.forsale') : t('b.forrent')}</span>
+                    {p.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950">{t('b.featured')}</span>}
+                  </>,
+                  specs: <>
+                    {(p.district || p.city) && <span className="flex items-center gap-1.5 text-white/50 text-sm font-body"><MapPin size={12} className="text-gold-500/60" />{[p.district, p.city].filter(Boolean).join(', ')}</span>}
+                    {p.surface && <><span className="text-white/20">·</span><span className="text-white/50 text-sm font-body">{p.surface} m²</span></>}
+                    {(p.bedrooms || p.rooms) && <><span className="text-white/20">·</span><span className="text-white/50 text-sm font-body">{p.bedrooms || p.rooms} {t('d.rooms')}</span></>}
+                  </>,
+                  price: p.price ? `${Number(p.price).toLocaleString('fr-FR')} ${curSym(p.currency)}` : t('b.price_request'),
+                  priceSuffix: p.price && !isSale ? t('b.per_month') : null,
+                  cta: isSale ? t('home.buy') : t('home.view'), ctaIcon: <ArrowRight size={15} />,
+                };
+              }} />
+            ) : (
+              <ComingSoon icon={<Building2 size={32} className="text-gold-400" />} title={t('home.immo_soon_t')} desc={t('home.immo_soon_d')} cta={t('immo.propose')} href="/immo" />
+            )}
+          </div>
+        </section>
+
         {/* ══ STATS ══ */}
         <section ref={statsRef} className="relative py-16 md:py-24 px-5 overflow-hidden bg-[#050505]">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none"
@@ -773,9 +945,12 @@ export async function getStaticProps() {
   try {
     const { data: cars }    = await supabase.from('cars').select('*').order('resale_price');
     const { data: reviews } = await supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false }).limit(6);
-    return { props: { cars: cars||[], reviews: reviews||[] }, revalidate: 10 };
+    let vehiclesSale = [], properties = [];
+    try { const r = await supabase.from('vehicles_for_sale').select('*, vehicle_sale_photos(url, position)').order('featured', { ascending: false }).order('created_at', { ascending: false }); vehiclesSale = r.data || []; } catch {}
+    try { const r = await supabase.from('properties').select('*, property_photos(url, position)').order('featured', { ascending: false }).order('created_at', { ascending: false }); properties = r.data || []; } catch {}
+    return { props: { cars: cars||[], reviews: reviews||[], vehiclesSale, properties }, revalidate: 10 };
   } catch (err) {
     console.error('Error fetching home data:', err);
-    return { props: { cars: [], reviews: [] }, revalidate: 10 };
+    return { props: { cars: [], reviews: [], vehiclesSale: [], properties: [] }, revalidate: 10 };
   }
 }
