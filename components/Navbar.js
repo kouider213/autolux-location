@@ -93,10 +93,8 @@ export default function Navbar({ scrollContainerRef }) {
               <button onClick={handleLogout} className="btn-ghost text-sm font-body text-white/40 hover:text-red-400"><LogOut size={14} />Déconnexion</button>
             </>
           ) : (
-            <>
-              <Link href="/login" className="btn-ghost text-sm font-body"><LogIn size={14} />Connexion</Link>
-              <Link href="/reservation" className="btn-gold text-sm py-2 px-5 font-body"><CalendarCheck size={14} />Réserver</Link>
-            </>
+            /* Accès admin masqué : connexion via URL /login directement */
+            <Link href="/reservation" className="btn-gold text-sm py-2 px-5 font-body"><CalendarCheck size={14} />Réserver</Link>
           )}
         </div>
 
@@ -127,10 +125,8 @@ export default function Navbar({ scrollContainerRef }) {
                 <button onClick={handleLogout} className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-400/60 hover:text-red-400 hover:bg-red-500/5 font-body transition-all"><LogOut size={15} />Déconnexion</button>
               </>
             ) : (
-              <>
-                <Link href="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/55 hover:text-white hover:bg-white/[0.04] font-body transition-all"><LogIn size={15} />Connexion</Link>
-                <Link href="/reservation" className="btn-gold w-full py-3 text-sm font-body"><CalendarCheck size={15} />Réserver maintenant</Link>
-              </>
+              /* Accès admin masqué : connexion via /login directement */
+              <Link href="/reservation" className="btn-gold w-full py-3 text-sm font-body"><CalendarCheck size={15} />Réserver maintenant</Link>
             )}
           </div>
         </div>
