@@ -5,6 +5,7 @@ import Head from 'next/head';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { trackPageView } from '../lib/tracker';
+import { LangProvider } from '../lib/i18n';
 
 const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { ssr: false });
 
@@ -90,7 +91,9 @@ export default function App({ Component, pageProps }) {
               }) }} />
               <title>Fik Conciergerie — Location, Vente & Immobilier à Oran</title>
       </Head>
-        <Component {...pageProps} />
+        <LangProvider>
+          <Component {...pageProps} />
+        </LangProvider>
         <Toaster
           position="top-right"
           toastOptions={{

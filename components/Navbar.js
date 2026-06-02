@@ -3,12 +3,14 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Menu, X, LayoutDashboard, LogOut, LogIn, CalendarCheck } from 'lucide-react';
+import { useLang } from '../lib/i18n';
 
 export default function Navbar({ scrollContainerRef }) {
   const [scrolled, setScrolled]   = useState(false);
   const [menuOpen, setMenuOpen]   = useState(false);
   const [user, setUser]           = useState(null);
   const router = useRouter();
+  const { lang, setLang, t } = useLang();
 
   useEffect(() => {
     const el = scrollContainerRef?.current || window;
@@ -36,14 +38,24 @@ export default function Navbar({ scrollContainerRef }) {
   };
 
   const links = [
-    { href: '/',                  label: 'Accueil' },
-    { href: '/cars',              label: 'Location' },
-    { href: '/vente-voitures',    label: 'Vente auto' },
-    { href: '/commande-vehicule', label: 'Commande' },
-    { href: '/immo',              label: 'Immobilier' },
-    { href: '/reviews',           label: 'Avis' },
-    { href: '/contact',           label: 'Contact' },
+    { href: '/',                  label: t('nav.home') },
+    { href: '/cars',              label: t('nav.rental') },
+    { href: '/vente-voitures',    label: t('nav.sale') },
+    { href: '/commande-vehicule', label: t('nav.order') },
+    { href: '/immo',              label: t('nav.immo') },
+    { href: '/reviews',           label: t('nav.reviews') },
+    { href: '/contact',           label: t('nav.contact') },
   ];
+
+  const LangToggle = ({ className = '' }) => (
+    <button
+      onClick={() => setLang(lang === 'ar' ? 'fr' : 'ar')}
+      className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold transition-all bg-white/[0.05] hover:bg-gold-500/15 text-white/70 hover:text-gold-400 ${className}`}
+      aria-label="Changer de langue">
+      <span className="text-base leading-none">🌐</span>
+      {lang === 'ar' ? 'FR' : 'عربية'}
+    </button>
+  );
 
   return (
     <nav
@@ -87,6 +99,7 @@ export default function Navbar({ scrollContainerRef }) {
         </div>
 
         <div className="hidden md:flex items-center gap-2">
+          <LangToggle />
           {user ? (
             <>
               <Link href="/admin" className="btn-ghost text-sm font-body"><LayoutDashboard size={14} />Dashboard</Link>
@@ -94,14 +107,17 @@ export default function Navbar({ scrollContainerRef }) {
             </>
           ) : (
             /* Accès admin masqué : connexion via URL /login directement */
-            <Link href="/reservation" className="btn-gold text-sm py-2 px-5 font-body"><CalendarCheck size={14} />Réserver</Link>
+            <Link href="/reservation" className="btn-gold text-sm py-2 px-5 font-body"><CalendarCheck size={14} />{t('nav.book')}</Link>
           )}
         </div>
 
-        <button onClick={() => setMenuOpen(v => !v)}
-          className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl text-white/60 hover:text-white hover:bg-white/[0.06] transition-all">
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="md:hidden flex items-center gap-2">
+          <LangToggle className="!py-1.5 !px-2.5 text-xs" />
+          <button onClick={() => setMenuOpen(v => !v)}
+            className="w-10 h-10 flex items-center justify-center rounded-xl text-white/60 hover:text-white hover:bg-white/[0.06] transition-all">
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       <div className={`md:hidden overflow-hidden transition-all duration-300 ${menuOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'}`}>
@@ -126,7 +142,7 @@ export default function Navbar({ scrollContainerRef }) {
               </>
             ) : (
               /* Accès admin masqué : connexion via /login directement */
-              <Link href="/reservation" className="btn-gold w-full py-3 text-sm font-body"><CalendarCheck size={15} />Réserver maintenant</Link>
+              <Link href="/reservation" className="btn-gold w-full py-3 text-sm font-body"><CalendarCheck size={15} />{t('nav.book_now')}</Link>
             )}
           </div>
         </div>

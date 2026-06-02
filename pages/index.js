@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { getSettings } from '../lib/settings';
+import { useLang } from '../lib/i18n';
 
 /* ── Social icons (footer) — lit les réseaux depuis les paramètres ── */
 function SocialIcons() {
@@ -277,6 +278,7 @@ function CarCarousel({ cars }) {
 
 /* ── Main ── */
 export default function Home({ cars: initialCars, reviews: initialReviews }) {
+  const { t } = useLang();
   const statsRef    = useRef(null);
   const statsInView = useInView(statsRef, { once: true, amount: 0.4 });
   const benefitsRef = useRef(null);
@@ -358,13 +360,13 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
                 <div className="overflow-hidden">
                   <h1 className="hero-css-line1 font-display font-black text-hero-gradient leading-[0.88]"
                     style={{ fontSize: 'clamp(50px, 9vw, 116px)' }}>
-                    La Route,
+                    {t('hero.line1')}
                   </h1>
                 </div>
                 <div className="overflow-hidden">
                   <h1 className="hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88]"
                     style={{ fontSize: 'clamp(50px, 9vw, 116px)' }}>
-                    Votre Style
+                    {t('hero.line2')}
                   </h1>
                 </div>
               </div>
@@ -372,18 +374,18 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
               {/* Subtitle */}
               <div className="hero-css-sub absolute left-5 md:left-12 bottom-[20%] right-5 pointer-events-none">
                 <p className="text-white/60 text-base md:text-xl font-body max-w-md leading-relaxed">
-                  Location de véhicules premium à Oran.
-                  <span className="block text-white/35 text-sm md:text-base mt-0.5">Sans caution · Réservation rapide · 7j/7</span>
+                  {t('hero.subtitle')}
+                  <span className="block text-white/35 text-sm md:text-base mt-0.5">{t('hero.tags')}</span>
                 </p>
               </div>
 
               {/* CTAs */}
               <div className="hero-css-cta absolute left-5 md:left-12 bottom-[8%] flex gap-3 flex-wrap">
                 <Link href="/reservation" className="btn-gold text-sm md:text-base px-6 md:px-8 py-3 md:py-4">
-                  <CalendarCheck size={16} />Réserver
+                  <CalendarCheck size={16} />{t('nav.book')}
                 </Link>
                 <Link href="/cars" className="btn-outline text-sm md:text-base px-5 md:px-7 py-3 md:py-4">
-                  <Car size={15} />La flotte
+                  <Car size={15} />{t('hero.fleet')}
                 </Link>
               </div>
 
@@ -427,20 +429,20 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.04) 0%,transparent 65%)' }} />
           <div className="relative max-w-6xl mx-auto">
             <div className="text-center mb-14">
-              <span className="section-badge mb-5 inline-block">Nos services</span>
+              <span className="section-badge mb-5 inline-block">{t('poles.badge')}</span>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
-                Trois pôles, <span className="text-gold-gradient italic">une confiance</span>
+                {t('poles.title1')} <span className="text-gold-gradient italic">{t('poles.title2')}</span>
               </h2>
               <p className="text-white/35 mt-4 max-w-lg mx-auto font-body">
-                Tout ce dont vous avez besoin à Oran — voiture, logement, achat. Sans caution sur la location, sans création de compte.
+                {t('poles.subtitle')}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {[
-                { icon: Car,       title: 'Location de voiture', desc: 'Citadines, SUV, utilitaires, premium. Kilométrage illimité, assurance incluse, sans caution.', href: '/cars', cta: 'Voir la flotte', color: 'gold' },
-                { icon: Building2, title: 'Immobilier', desc: 'Appartements, villas et locaux à louer ou à vendre à Oran. Propriétaire ? Confiez-nous votre bien.', href: '/immo', cta: 'Voir les biens', color: 'blue' },
-                { icon: Tag,       title: 'Véhicules à vendre', desc: 'Voitures d\'occasion vérifiées. Vous vendez ? On gère l\'annonce, les photos et les contacts.', href: '/vente-voitures', cta: 'Voir les occasions', color: 'purple' },
+                { icon: Car,       title: t('poles.rental.title'), desc: t('poles.rental.desc'), href: '/cars', cta: t('poles.rental.cta'), color: 'gold' },
+                { icon: Building2, title: t('poles.immo.title'),   desc: t('poles.immo.desc'),   href: '/immo', cta: t('poles.immo.cta'), color: 'blue' },
+                { icon: Tag,       title: t('poles.sale.title'),   desc: t('poles.sale.desc'),   href: '/vente-voitures', cta: t('poles.sale.cta'), color: 'purple' },
               ].map((p, i) => {
                 const c = {
                   gold:   { ring: 'group-hover:border-gold-500/40',   ico: 'bg-gold-500/10 border-gold-500/25 text-gold-400',     glow: 'bg-gold-500/[0.06]' },
