@@ -5,7 +5,7 @@ import Head from 'next/head';
 import { supabase } from '../lib/supabase';
 import {
   LayoutDashboard, Car, CalendarCheck, Users, Star,
-  BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag,
+  BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag, Settings,
 } from 'lucide-react';
 
 const NAV = [
@@ -17,6 +17,7 @@ const NAV = [
   { href: '/admin/vehicles-sale', label: 'Véhicules à vendre', icon: Tag },
   { href: '/admin/immo',        label: 'Immobilier',         icon: Building2 },
   { href: '/admin/reviews',     label: 'Avis',               icon: Star },
+  { href: '/admin/settings',    label: 'Paramètres',         icon: Settings },
 ];
 
 export default function AdminLayout({ children, title }) {

@@ -1,7 +1,38 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
-import { MessageCircle, MapPin, Clock, Shield, Star, Zap, Heart, Car, CheckCircle, ArrowRight, Phone } from 'lucide-react';
+import { MessageCircle, MapPin, Clock, Shield, Star, Zap, Heart, Car, CheckCircle, ArrowRight, Phone, Instagram, Music2, Facebook } from 'lucide-react';
+import { getSettings } from '../lib/settings';
+
+function SocialSection() {
+  const [s, setS] = useState(null);
+  useEffect(() => { getSettings().then(setS); }, []);
+  if (!s) return null;
+  const socials = [
+    s.instagram && { icon: Instagram, label: 'Instagram', href: s.instagram, color: 'text-pink-400', bg: 'hover:border-pink-500/30' },
+    s.tiktok    && { icon: Music2,    label: 'TikTok',    href: s.tiktok,    color: 'text-white',     bg: 'hover:border-white/30' },
+    s.facebook  && { icon: Facebook,  label: 'Facebook',  href: s.facebook,  color: 'text-blue-400',  bg: 'hover:border-blue-500/30' },
+  ].filter(Boolean);
+  if (socials.length === 0) return null;
+  return (
+    <div className="px-5 mb-20">
+      <div className="max-w-4xl mx-auto text-center">
+        <span className="section-badge mb-4 inline-block">Suivez-nous</span>
+        <h2 className="font-display text-3xl font-bold text-white mb-8">Rejoignez la communauté</h2>
+        <div className="flex flex-wrap justify-center gap-4">
+          {socials.map(soc => (
+            <a key={soc.label} href={soc.href} target="_blank" rel="noopener noreferrer"
+              className={`group bg-[#141414] border border-white/[0.06] ${soc.bg} rounded-2xl px-8 py-5 flex items-center gap-3 transition-all hover:-translate-y-1`}>
+              <soc.icon size={22} className={soc.color} />
+              <span className="text-white font-semibold">{soc.label}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const WHY_US = [
   {
@@ -212,6 +243,9 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
+
+        {/* Réseaux sociaux */}
+        <SocialSection />
 
         {/* CTA final */}
         <div className="px-5 pb-24">

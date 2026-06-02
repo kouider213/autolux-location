@@ -5,8 +5,33 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Shield, Zap, Car, Star, ChevronDown, ArrowRight, ChevronLeft, ChevronRight,
   Users, MapPin, CalendarCheck, Fuel, MessageCircle, Sparkles, Building2, Tag,
+  Instagram, Music2, Facebook,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import { getSettings } from '../lib/settings';
+
+/* ── Social icons (footer) — lit les réseaux depuis les paramètres ── */
+function SocialIcons() {
+  const [s, setS] = useState(null);
+  useEffect(() => { getSettings().then(setS); }, []);
+  if (!s) return null;
+  const items = [
+    s.instagram && { Icon: Instagram, href: s.instagram, label: 'Instagram' },
+    s.tiktok    && { Icon: Music2,    href: s.tiktok,    label: 'TikTok' },
+    s.facebook  && { Icon: Facebook,  href: s.facebook,  label: 'Facebook' },
+  ].filter(Boolean);
+  if (items.length === 0) return null;
+  return (
+    <div className="flex items-center gap-2.5 mt-4">
+      {items.map(({ Icon, href, label }) => (
+        <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+          className="w-9 h-9 rounded-xl bg-white/[0.05] hover:bg-gold-500 hover:text-noir-950 text-white/50 flex items-center justify-center transition-all">
+          <Icon size={16} />
+        </a>
+      ))}
+    </div>
+  );
+}
 import { supabase } from '../lib/supabase';
 
 const BENEFITS = [
@@ -660,6 +685,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
                   className="inline-flex items-center gap-2 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#25D366]/20 transition-colors">
                   <MessageCircle size={14} />WhatsApp
                 </a>
+                <SocialIcons />
               </div>
 
               {/* Navigation */}

@@ -46,18 +46,49 @@ export default function App({ Component, pageProps }) {
               <link rel="apple-touch-icon" href="/icons/icon-192.png" />
               <meta name="apple-mobile-web-app-capable" content="yes" />
               <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+              {/* SEO de base */}
+              <meta name="description" content="Fik Conciergerie — Location de voitures, vente de véhicules et immobilier à Oran, Algérie. Sans caution, kilométrage illimité, 7j/7. Réservation par WhatsApp." />
+              <meta name="keywords" content="location voiture Oran, louer voiture Algérie, vente voiture Oran, immobilier Oran, location auto Oran, Fik Conciergerie, voiture occasion Algérie, importer voiture Algérie" />
+              <meta name="author" content="Fik Conciergerie" />
+              <meta name="robots" content="index, follow" />
+              <link rel="canonical" href="https://autolux-location.vercel.app" />
+              {/* Géolocalisation Oran (SEO local) */}
+              <meta name="geo.region" content="DZ-31" />
+              <meta name="geo.placename" content="Oran" />
+              <meta name="geo.position" content="35.6976;-0.6369" />
+              <meta name="ICBM" content="35.6976, -0.6369" />
               {/* Open Graph — partage WhatsApp/Facebook/Instagram */}
               <meta property="og:type"        content="website" />
               <meta property="og:site_name"   content="Fik Conciergerie" />
-              <meta property="og:title"       content="Fik Conciergerie — Location de Véhicules Premium Oran" />
-              <meta property="og:description" content="Location de voitures premium à Oran. Sans caution. Réservation rapide 7j/7. Citadines, SUV, berlines." />
+              <meta property="og:title"       content="Fik Conciergerie — Location, Vente & Immobilier à Oran" />
+              <meta property="og:description" content="Location de voitures sans caution, véhicules à vendre et immobilier à Oran. Kilométrage illimité, 7j/7. Réservez par WhatsApp." />
               <meta property="og:url"         content="https://autolux-location.vercel.app" />
+              <meta property="og:image"       content="https://autolux-location.vercel.app/logo.png" />
               <meta property="og:locale"      content="fr_FR" />
+              <meta property="og:locale:alternate" content="ar_DZ" />
               {/* Twitter Card */}
               <meta name="twitter:card"        content="summary_large_image" />
               <meta name="twitter:title"       content="Fik Conciergerie — Location Premium Oran" />
               <meta name="twitter:description" content="Location de voitures premium à Oran. Sans caution. 7j/7." />
-              <title>Fik Conciergerie</title>
+              <meta name="twitter:image"       content="https://autolux-location.vercel.app/logo.png" />
+              {/* JSON-LD — Google comprend que c'est une entreprise locale */}
+              <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'AutoRental',
+                name: 'Fik Conciergerie',
+                description: 'Location de voitures, vente de véhicules et immobilier à Oran, Algérie.',
+                url: 'https://autolux-location.vercel.app',
+                logo: 'https://autolux-location.vercel.app/logo.png',
+                image: 'https://autolux-location.vercel.app/logo.png',
+                telephone: '+32466311469',
+                priceRange: '€€',
+                address: { '@type': 'PostalAddress', addressLocality: 'Oran', addressRegion: 'Oran', addressCountry: 'DZ', streetAddress: 'Hay Badr' },
+                geo: { '@type': 'GeoCoordinates', latitude: 35.6976, longitude: -0.6369 },
+                areaServed: { '@type': 'City', name: 'Oran' },
+                openingHours: 'Mo-Su 00:00-23:59',
+                sameAs: [],
+              }) }} />
+              <title>Fik Conciergerie — Location, Vente & Immobilier à Oran</title>
       </Head>
         <Component {...pageProps} />
         <Toaster
