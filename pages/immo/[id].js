@@ -2,13 +2,21 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { MapPin, Maximize, BedDouble, Building2, ArrowLeft, MessageCircle, ChevronLeft, ChevronRight, Home, Layers } from 'lucide-react';
+import { MapPin, Maximize, BedDouble, Bath, Building2, ArrowLeft, MessageCircle, ChevronLeft, ChevronRight, Home, Layers, Wallet, KeyRound, CalendarClock } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 
 const supabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
+
+const cur = (c) => c === 'DZD' ? 'DA' : '€';
+const STATUS_BADGE = {
+  disponible:  { label: 'Disponible', cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' },
+  loue:        { label: 'Loué',       cls: 'bg-amber-500/15 text-amber-400 border-amber-500/20' },
+  vendu:       { label: 'Vendu',      cls: 'bg-red-500/15 text-red-400 border-red-500/20' },
+  coming_soon: { label: 'Bientôt',    cls: 'bg-blue-500/15 text-blue-400 border-blue-500/20' },
+};
 
 export default function PropertyDetail({ property, photos }) {
   const [active, setActive] = useState(0);
@@ -26,16 +34,24 @@ export default function PropertyDetail({ property, photos }) {
     </>
   );
 
-  const whatsappMsg = `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par le bien :\n*${property.title}*\n${property.price ? `Prix: ${Number(property.price).toLocaleString()}€ (${property.price_type})` : 'Prix sur demande'}\n\nMerci de me contacter.`;
+  const isSale = (property.transaction || 'location') === 'vente';
+  const available = (property.status || 'disponible') === 'disponible';
+  const st = STATUS_BADGE[property.status] || STATUS_BADGE.disponible;
+  const priceTxt = property.price ? `${Number(property.price).toLocaleString()} ${cur(property.currency)}${isSale ? '' : '/mois'}` : 'Prix sur demande';
+
+  const whatsappMsg = `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par le bien :\n*${property.title}*\n${property.price ? `Prix: ${priceTxt}` : 'Prix sur demande'}\n\nMerci de me contacter.`;
   const whatsappUrl = `https://wa.me/32466311469?text=${encodeURIComponent(whatsappMsg)}`;
 
   const specs = [
     property.surface && { icon: Maximize, label: 'Surface', value: `${property.surface} m²` },
-    property.rooms   && { icon: BedDouble, label: 'Pièces',  value: `${property.rooms} pièces` },
-    property.floor != null && { icon: Layers, label: 'Étage', value: property.floor === 0 ? 'RDC' : `${property.floor}ème étage` },
+    (property.bedrooms || property.rooms) && { icon: BedDouble, label: property.bedrooms ? 'Chambres' : 'Pièces', value: property.bedrooms || property.rooms },
+    property.bathrooms && { icon: Bath, label: 'Salles de bain', value: property.bathrooms },
+    property.floor != null && property.floor !== '' && { icon: Layers, label: 'Étage', value: property.floor === 0 ? 'RDC' : `${property.floor}e` },
     property.type    && { icon: Building2, label: 'Type',    value: property.type },
     property.city    && { icon: MapPin,    label: 'Ville',   value: property.city },
-    property.district && { icon: MapPin,   label: 'Quartier', value: property.district },
+    !isSale && property.deposit && { icon: KeyRound, label: 'Caution', value: `${Number(property.deposit).toLocaleString()} ${cur(property.currency)}` },
+    !isSale && property.min_duration && { icon: CalendarClock, label: 'Durée min.', value: property.min_duration },
+    property.charges_included != null && { icon: Wallet, label: 'Charges', value: property.charges_included ? 'Incluses' : (property.charges_amount ? `${Number(property.charges_amount).toLocaleString()} ${cur(property.currency)}` : 'Non incluses') },
   ].filter(Boolean);
 
   const allPhotos = photos || [];
@@ -48,13 +64,23 @@ export default function PropertyDetail({ property, photos }) {
       </Head>
       <div className="grain min-h-screen bg-[#0e0e0e]">
         <Navbar />
+
+        {/* Sticky CTA mobile */}
+        <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/[0.08] px-5 py-4 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-white/40 text-xs">{isSale ? 'Prix de vente' : 'Loyer'}</p>
+            <p className="font-display font-black text-gold-400 text-lg leading-none">{priceTxt}</p>
+          </div>
+          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366] text-white font-bold py-3 px-6 rounded-xl text-sm flex-1 max-w-[200px]"><MessageCircle size={16} /> Contacter</a>
+        </div>
+
         <div className="pt-24 pb-0 px-5 max-w-6xl mx-auto">
           <Link href="/immo" className="inline-flex items-center gap-2 text-white/40 hover:text-white text-sm mb-6 group transition-colors">
             <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" />Retour à l'immobilier
           </Link>
         </div>
 
-        <div className="px-5 pb-24 max-w-6xl mx-auto">
+        <div className="px-5 pb-36 md:pb-24 max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
 
             {/* Galerie */}
@@ -109,9 +135,10 @@ export default function PropertyDetail({ property, photos }) {
             {/* Infos */}
             <div className="flex flex-col gap-6">
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-white/30 text-xs tracking-widest uppercase">{property.type}</span>
-                  {property.available && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">Disponible</span>}
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${isSale ? 'bg-purple-500/20 text-purple-300 border-purple-500/25' : 'bg-blue-500/20 text-blue-300 border-blue-500/25'}`}>{isSale ? 'À VENDRE' : 'À LOUER'}</span>
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${st.cls}`}>{st.label}</span>
+                  {property.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950">EN AVANT</span>}
                 </div>
                 <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">{property.title}</h1>
                 {(property.district || property.city) && (
@@ -120,9 +147,9 @@ export default function PropertyDetail({ property, photos }) {
                   </p>
                 )}
                 {property.price ? (
-                  <div>
-                    <div className="font-display font-black text-gold-400 text-4xl leading-none">{Number(property.price).toLocaleString()}€</div>
-                    <div className="text-white/30 text-sm capitalize mt-1">{property.price_type}</div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-display font-black text-gold-400 text-4xl leading-none">{Number(property.price).toLocaleString()} {cur(property.currency)}</span>
+                    {!isSale && <span className="text-white/30 text-sm">/mois</span>}
                   </div>
                 ) : (
                   <div className="text-white/40 text-lg">Prix sur demande</div>
@@ -148,12 +175,20 @@ export default function PropertyDetail({ property, photos }) {
               {property.description && (
                 <div>
                   <p className="text-white/25 text-xs uppercase tracking-widest mb-2">Description</p>
-                  <p className="text-white/55 text-sm leading-relaxed">{property.description}</p>
+                  <p className="text-white/55 text-sm leading-relaxed whitespace-pre-wrap">{property.description}</p>
                 </div>
               )}
 
-              {/* CTA */}
-              <div className="space-y-3 mt-auto">
+              {/* Conditions */}
+              {property.conditions && (
+                <div>
+                  <p className="text-white/25 text-xs uppercase tracking-widest mb-2">Conditions</p>
+                  <p className="text-white/55 text-sm leading-relaxed whitespace-pre-wrap">{property.conditions}</p>
+                </div>
+              )}
+
+              {/* CTA desktop */}
+              <div className="space-y-3 mt-auto hidden md:block">
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#1ebe5a] text-white font-bold py-4 rounded-xl transition-all shadow-[0_4px_16px_rgba(37,211,102,0.3)] text-base">
                   <MessageCircle size={18} />Contacter pour ce bien
