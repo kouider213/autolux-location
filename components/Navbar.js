@@ -79,7 +79,7 @@ export default function Navbar({ scrollContainerRef }) {
             <span className="font-display font-bold text-lg text-white block leading-tight">
               Fik <span className="text-gold-500">Conciergerie</span>
             </span>
-            <span className="text-white/20 text-[9px] tracking-widest uppercase font-body">Location Premium</span>
+            <span className="text-white/20 text-[9px] tracking-widest uppercase font-body">Conciergerie Premium</span>
           </div>
         </Link>
 

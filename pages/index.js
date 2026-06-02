@@ -36,16 +36,17 @@ function SocialIcons() {
 import { supabase } from '../lib/supabase';
 
 const BENEFITS = [
-  { icon: Shield,        num:'01', title:'Aucune caution',        desc:'Pas de dépôt. Nous vous faisons confiance dès le premier jour.' },
-  { icon: Zap,           num:'02', title:'Réservation en 2 min',  desc:'Formulaire rapide, confirmation immédiate. Votre véhicule est bloqué.' },
-  { icon: MessageCircle, num:'03', title:'Confirmation WhatsApp', desc:'Reçevez la confirmation directement sur votre téléphone.' },
-  { icon: Car,           num:'04', title:'Véhicules entretenus',  desc:'Chaque voiture est nettoyée et contrôlée avant chaque location.' },
-  { icon: Users,         num:'05', title:'Accueil professionnel', desc:'Notre équipe vous accueille avec le sourire à Oran, 7j/7.' },
-  { icon: Sparkles,      num:'06', title:'Large choix',           desc:'Citadines, SUV, utilitaires, premium. Le véhicule fait pour vous.' },
+  { icon: Sparkles,      num:'01', tk:'ben1t', dk:'ben1d' },
+  { icon: Shield,        num:'02', tk:'ben2t', dk:'ben2d' },
+  { icon: MessageCircle, num:'03', tk:'ben3t', dk:'ben3d' },
+  { icon: Building2,     num:'04', tk:'ben4t', dk:'ben4d' },
+  { icon: Star,          num:'05', tk:'ben5t', dk:'ben5d' },
+  { icon: Users,         num:'06', tk:'ben6t', dk:'ben6d' },
 ];
 
 /* ── Benefits carousel ── */
 function BenefitsCarousel({ benefits }) {
+  const { t } = useLang();
   const [idx, setIdx] = useState(0);
   const pausedRef  = useRef(false);
   const touchStart = useRef(0);
@@ -86,8 +87,8 @@ function BenefitsCarousel({ benefits }) {
                 <slide.icon size={30} className="text-gold-400" />
               </div>
               <p className="text-white/60 text-xs tracking-[0.3em] uppercase font-body mb-4">{slide.num} / 06</p>
-              <h2 className="font-display font-black text-white mb-5 leading-tight" style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>{slide.title}</h2>
-              <p className="text-white/70 text-base md:text-xl font-body leading-relaxed">{slide.desc}</p>
+              <h2 className="font-display font-black text-white mb-5 leading-tight" style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>{t(slide.tk)}</h2>
+              <p className="text-white/70 text-base md:text-xl font-body leading-relaxed">{t(slide.dk)}</p>
               <div className="w-12 h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent mx-auto mt-7" />
             </div>
           </div>
@@ -416,7 +417,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
     <>
       <Head>
         <title>Fik Conciergerie — Location de Véhicules Premium Oran</title>
-        <meta name="description" content="Fik Conciergerie — Location premium à Oran. Sans caution. Réservation rapide." />
+        <meta name="description" content="Fik Conciergerie — Conciergerie premium à Oran : location & vente de voitures, immobilier. Sans caution." />
       </Head>
 
       <div className="grain bg-[#080808] overflow-x-hidden">
@@ -453,7 +454,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   className="w-20 h-20 object-contain drop-shadow-[0_0_30px_rgba(226,182,20,0.7)] animate-float"
                 />
                 <p className="font-display text-xl font-bold text-white tracking-wide">Fik Conciergerie</p>
-                <p className="text-white/35 text-xs tracking-[0.25em] uppercase font-body">Location Premium · Oran</p>
+                <p className="text-white/35 text-xs tracking-[0.25em] uppercase font-body">Conciergerie Premium · Oran</p>
               </div>
 
               {/* Headline bottom-left — CSS animated */}
@@ -849,7 +850,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   <img src="/logo.png" alt="Fik Conciergerie" className="w-10 h-10 object-contain" />
                   <div>
                     <span className="font-display font-bold text-white text-base block leading-tight">Fik <span className="text-gold-500">Conciergerie</span></span>
-                    <span className="text-white/25 text-[10px] tracking-widest uppercase font-body">Location Premium</span>
+                    <span className="text-white/25 text-[10px] tracking-widest uppercase font-body">Conciergerie Premium</span>
                   </div>
                 </div>
                 <p className="text-white/30 text-sm font-body leading-relaxed mb-5">

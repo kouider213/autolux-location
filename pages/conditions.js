@@ -1,6 +1,6 @@
 ﻿import Head from 'next/head';
 import Link from 'next/link';
-import { Shield, CakeSlice, BookOpen, Wallet, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Shield, CakeSlice, BookOpen, Wallet, AlertTriangle, ArrowRight, MessageCircle } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { useLang } from '../lib/i18n';
 
@@ -43,8 +43,25 @@ export default function ConditionsPage() {
         <div className="pb-24 px-5">
           <div className="max-w-3xl mx-auto">
 
+            {/* Intro WhatsApp */}
+            <div className="relative mb-10">
+              <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-[#25D366]/20 via-[#25D366]/5 to-transparent" />
+              <div className="relative bg-[#0d1510] border border-[#25D366]/20 rounded-2xl p-6 flex items-start gap-4">
+                <div className="w-11 h-11 bg-[#25D366]/10 border border-[#25D366]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <MessageCircle size={20} className="text-[#25D366]" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-base mb-1.5">{t('cd.intro_t')}</h3>
+                  <p className="text-white/50 text-sm leading-relaxed">{t('cd.intro_d')}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Section : Location voiture */}
+            <h2 className="font-display text-xl font-bold text-white mb-4 flex items-center gap-2"><span className="w-1 h-5 bg-gold-500 rounded-full" />{t('cd.sec_rental')}</h2>
+
             {/* Conditions list */}
-            <div className="space-y-4 mb-10">
+            <div className="space-y-4 mb-12">
               {CONDITIONS.map((item, i) => (
                 <div
                   key={i}
@@ -66,6 +83,36 @@ export default function ConditionsPage() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Section : Vente de véhicules */}
+            <h2 className="font-display text-xl font-bold text-white mb-4 flex items-center gap-2"><span className="w-1 h-5 bg-purple-400 rounded-full" />{t('cd.sec_sale')}</h2>
+            <div className="card-dark p-6 mb-12">
+              <ul className="space-y-3">
+                {['cd.sale1','cd.sale2','cd.sale3','cd.sale4'].map(k => (
+                  <li key={k} className="flex items-start gap-3"><span className="mt-1.5 w-1.5 h-1.5 bg-purple-400/60 rounded-full flex-shrink-0" /><span className="text-white/50 text-sm leading-relaxed">{t(k)}</span></li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Section : Immobilier */}
+            <h2 className="font-display text-xl font-bold text-white mb-4 flex items-center gap-2"><span className="w-1 h-5 bg-blue-400 rounded-full" />{t('cd.sec_immo')}</h2>
+            <div className="card-dark p-6 mb-12">
+              <ul className="space-y-3">
+                {['cd.immo1','cd.immo2','cd.immo3','cd.immo4'].map(k => (
+                  <li key={k} className="flex items-start gap-3"><span className="mt-1.5 w-1.5 h-1.5 bg-blue-400/60 rounded-full flex-shrink-0" /><span className="text-white/50 text-sm leading-relaxed">{t(k)}</span></li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Section : Propriétaires & vendeurs */}
+            <h2 className="font-display text-xl font-bold text-white mb-4 flex items-center gap-2"><span className="w-1 h-5 bg-gold-500 rounded-full" />{t('cd.sec_owner')}</h2>
+            <div className="card-dark p-6 mb-12">
+              <ul className="space-y-3">
+                {['cd.owner1','cd.owner2','cd.owner3','cd.owner4'].map(k => (
+                  <li key={k} className="flex items-start gap-3"><span className="mt-1.5 w-1.5 h-1.5 bg-gold-500/60 rounded-full flex-shrink-0" /><span className="text-white/50 text-sm leading-relaxed">{t(k)}</span></li>
+                ))}
+              </ul>
             </div>
 
             {/* Warning card */}
