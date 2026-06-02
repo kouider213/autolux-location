@@ -5,17 +5,18 @@ import Head from 'next/head';
 import { supabase } from '../lib/supabase';
 import {
   LayoutDashboard, Car, CalendarCheck, Users, Star,
-  BarChart3, LogOut, Globe, Menu, Bell, Building2,
+  BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag,
 } from 'lucide-react';
 
 const NAV = [
-  { href: '/admin',            label: 'Dashboard',     icon: LayoutDashboard },
-  { href: '/admin/analytics',  label: 'Analytics',     icon: BarChart3 },
-  { href: '/admin/bookings',   label: 'Réservations',  icon: CalendarCheck },
-  { href: '/admin/clients',    label: 'Clients',       icon: Users },
-  { href: '/admin/cars',       label: 'Véhicules',     icon: Car },
-  { href: '/admin/immo',       label: 'Immobilier',    icon: Building2 },
-  { href: '/admin/reviews',    label: 'Avis',          icon: Star },
+  { href: '/admin',             label: 'Dashboard',          icon: LayoutDashboard },
+  { href: '/admin/analytics',   label: 'Analytics',          icon: BarChart3 },
+  { href: '/admin/bookings',    label: 'Réservations',       icon: CalendarCheck },
+  { href: '/admin/clients',     label: 'Clients',            icon: Users },
+  { href: '/admin/cars',        label: 'Location voiture',   icon: Car },
+  { href: '/admin/vehicles-sale', label: 'Véhicules à vendre', icon: Tag },
+  { href: '/admin/immo',        label: 'Immobilier',         icon: Building2 },
+  { href: '/admin/reviews',     label: 'Avis',               icon: Star },
 ];
 
 export default function AdminLayout({ children, title }) {
