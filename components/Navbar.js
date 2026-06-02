@@ -36,12 +36,13 @@ export default function Navbar({ scrollContainerRef }) {
   };
 
   const links = [
-    { href: '/',               label: 'Accueil' },
-    { href: '/cars',           label: 'Location' },
-    { href: '/vente-voitures', label: 'Vente auto' },
-    { href: '/immo',           label: 'Immobilier' },
-    { href: '/reviews',        label: 'Avis' },
-    { href: '/contact',        label: 'Contact' },
+    { href: '/',                  label: 'Accueil' },
+    { href: '/cars',              label: 'Location' },
+    { href: '/vente-voitures',    label: 'Vente auto' },
+    { href: '/commande-vehicule', label: 'Commande' },
+    { href: '/immo',              label: 'Immobilier' },
+    { href: '/reviews',           label: 'Avis' },
+    { href: '/contact',           label: 'Contact' },
   ];
 
   return (

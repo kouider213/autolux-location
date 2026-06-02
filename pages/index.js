@@ -671,6 +671,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
                 <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">Informations</h3>
                 <ul className="space-y-3">
                   {[
+                    { h: '/commande-vehicule', l: 'Commande sur mesure' },
                     { h: '/conditions', l: 'Conditions de location' },
                     { h: '/immo', l: 'Immobilier' },
                   ].map(x => (
