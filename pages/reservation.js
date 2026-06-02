@@ -67,7 +67,7 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr') {
 }
 
 export default function ReservationPage({ cars: initialCars }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const router = useRouter();
   const { car: preselectedId } = router.query;
 
@@ -160,12 +160,16 @@ export default function ReservationPage({ cars: initialCars }) {
 
   // Validation step 1
   const [err1, setErr1] = useState('');
+  const ar = lang === 'ar';
   const validateStep1 = () => {
-    if (!form.carId)    { setErr1('Veuillez sélectionner un véhicule.'); return false; }
-    if (!form.startDate){ setErr1('Veuillez choisir une date de départ.'); return false; }
-    if (!form.endDate)  { setErr1('Veuillez choisir une date de retour.'); return false; }
-    if (days <= 0)      { setErr1('La date de retour doit être après le départ.'); return false; }
-    if (rangeHasConflict()) { setErr1('Le véhicule n\'est pas disponible sur ces dates. Veuillez choisir d\'autres dates.'); return false; }
+    const E = ar
+      ? { car: 'يرجى اختيار سيارة.', sd: 'يرجى اختيار تاريخ الانطلاق.', ed: 'يرجى اختيار تاريخ العودة.', neg: 'تاريخ العودة يجب أن يكون بعد الانطلاق.', conf: 'السيارة غير متوفّرة في هذه التواريخ. اختر تواريخ أخرى.' }
+      : { car: 'Veuillez sélectionner un véhicule.', sd: 'Veuillez choisir une date de départ.', ed: 'Veuillez choisir une date de retour.', neg: 'La date de retour doit être après le départ.', conf: 'Le véhicule n\'est pas disponible sur ces dates. Veuillez choisir d\'autres dates.' };
+    if (!form.carId)    { setErr1(E.car); return false; }
+    if (!form.startDate){ setErr1(E.sd); return false; }
+    if (!form.endDate)  { setErr1(E.ed); return false; }
+    if (days <= 0)      { setErr1(E.neg); return false; }
+    if (rangeHasConflict()) { setErr1(E.conf); return false; }
     setErr1(''); return true;
   };
 
@@ -175,11 +179,14 @@ export default function ReservationPage({ cars: initialCars }) {
   const ageTooYoung = form.age && ageNum < 35;
 
   const validateStep2 = () => {
-    if (!form.name.trim()) { setErr2('Entrez votre nom complet.'); return false; }
-    if (!form.phone.trim()){ setErr2('Entrez votre numéro de téléphone.'); return false; }
-    if (!form.age)         { setErr2('Entrez votre âge.'); return false; }
-    if (isNaN(ageNum) || ageNum <= 0) { setErr2('Âge invalide.'); return false; }
-    if (ageNum < 35)       { setErr2('Âge minimum 35 ans requis (exigence assurance).'); return false; }
+    const E = ar
+      ? { name: 'أدخل اسمك الكامل.', phone: 'أدخل رقم هاتفك.', age: 'أدخل عمرك.', ageInv: 'عمر غير صحيح.', ageMin: 'السن الأدنى المطلوب 35 سنة (شرط التأمين).' }
+      : { name: 'Entrez votre nom complet.', phone: 'Entrez votre numéro de téléphone.', age: 'Entrez votre âge.', ageInv: 'Âge invalide.', ageMin: 'Âge minimum 35 ans requis (exigence assurance).' };
+    if (!form.name.trim()) { setErr2(E.name); return false; }
+    if (!form.phone.trim()){ setErr2(E.phone); return false; }
+    if (!form.age)         { setErr2(E.age); return false; }
+    if (isNaN(ageNum) || ageNum <= 0) { setErr2(E.ageInv); return false; }
+    if (ageNum < 35)       { setErr2(E.ageMin); return false; }
     setErr2(''); return true;
   };
 
@@ -249,19 +256,19 @@ export default function ReservationPage({ cars: initialCars }) {
                 <Check size={40} className="text-gold-400" />
               </div>
             </div>
-            <h1 className="font-display text-3xl font-bold text-white mb-3">Demande envoyée !</h1>
-            <p className="text-white/45 mb-1 max-w-sm">WhatsApp s'est ouvert automatiquement.</p>
-            <p className="text-white/30 text-sm mb-10 max-w-sm">Si ce n'est pas le cas, cliquez sur le bouton vert ci-dessous.</p>
+            <h1 className="font-display text-3xl font-bold text-white mb-3">{t('res.sent')}</h1>
+            <p className="text-white/45 mb-1 max-w-sm">{t('res.wa_open')}</p>
+            <p className="text-white/30 text-sm mb-10 max-w-sm">{t('res.wa_not')}</p>
             <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5 max-w-sm w-full mb-8 text-left space-y-2">
-              <p className="text-white/25 text-xs uppercase tracking-widest font-medium mb-3">Résumé</p>
+              <p className="text-white/25 text-xs uppercase tracking-widest font-medium mb-3">{t('res.summary')}</p>
               {[
-                ['Véhicule', selectedCar.name],
-                ['Départ',   form.startDate],
-                ['Retour',   form.endDate],
-                ['Durée',    `${days} jour${days > 1 ? 's' : ''}`],
-                ['Total',    `${fmt(total)} ${sym(selectedCar?.currency)}`],
-                ['Client',   form.name],
-                ['Tél',      form.phone],
+                [t('res.vehicle').replace(' *',''), selectedCar.name],
+                [t('res.depart'),   form.startDate],
+                [t('res.retour'),   form.endDate],
+                [t('res.duree'),    `${days} ${t('res.days')}`],
+                [t('res.total'),    `${fmt(total)} ${sym(selectedCar?.currency)}`],
+                [t('res.client'),   form.name],
+                [t('res.tel'),      form.phone],
               ].map(([label, value]) => (
                 <div key={label} className="flex justify-between text-sm">
                   <span className="text-white/35">{label}</span>
@@ -272,20 +279,20 @@ export default function ReservationPage({ cars: initialCars }) {
             <div className="flex flex-col gap-3 w-full max-w-sm">
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white font-semibold py-3.5 rounded-xl transition-colors shadow-[0_4px_16px_rgba(37,211,102,0.3)]">
-                <MessageCircle size={17} />Ouvrir WhatsApp
+                <MessageCircle size={17} />{t('res.open_wa')}
               </a>
               <div className="flex gap-3">
                 <Link href="/" className="flex-1 flex items-center justify-center gap-2 btn-outline py-3">
-                  <Home size={15} />Accueil
+                  <Home size={15} />{t('res.home')}
                 </Link>
                 <Link href="/reviews" className="flex-1 flex items-center justify-center gap-2 py-3 bg-gold-500/10 border border-gold-500/20 text-gold-400 rounded-xl text-sm font-medium hover:bg-gold-500/15 transition-all">
-                  ⭐ Laisser un avis
+                  ⭐ {t('res.leave')}
                 </Link>
               </div>
             </div>
             <div className="mt-6 flex items-start gap-2 bg-amber-500/[0.06] border border-amber-500/20 rounded-xl p-4 max-w-sm text-left">
               <AlertCircle size={15} className="text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-amber-400/80 text-xs leading-relaxed">Notre équipe confirmera votre réservation par WhatsApp dans les plus brefs délais.</p>
+              <p className="text-amber-400/80 text-xs leading-relaxed">{t('res.team')}</p>
             </div>
           </div>
         </div>
@@ -335,18 +342,18 @@ export default function ReservationPage({ cars: initialCars }) {
                 {step === 1 && (
                   <div className="space-y-6">
                     <div>
-                      <h2 className="text-white font-semibold text-lg mb-1">Véhicule & disponibilités</h2>
-                      <p className="text-white/30 text-xs">Sélectionnez un véhicule pour voir son calendrier de disponibilités.</p>
+                      <h2 className="text-white font-semibold text-lg mb-1">{t("res.s1t")}</h2>
+                      <p className="text-white/30 text-xs">{t("res.s1d")}</p>
                     </div>
 
                     {/* Car selector */}
                     <div>
-                      <label className="label-dark">Véhicule *</label>
+                      <label className="label-dark">{t("res.vehicle")}</label>
                       <div className="relative">
                         <Car size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
                         <select value={form.carId} onChange={e => { set('carId')(e); setDateRange([null, null]); setForm(f => ({ ...f, carId: e.target.value, startDate: '', endDate: '' })); }}
                           className="input-dark pl-10 appearance-none cursor-pointer">
-                          <option value="">— Sélectionnez un véhicule —</option>
+                          <option value="">{t("res.select")}</option>
                           {cars.map(car => (
                             <option key={car.id} value={car.id}>{car.name} — {fmt(car.resale_price)} {sym(car.currency)}/jour</option>
                           ))}
@@ -379,7 +386,7 @@ export default function ReservationPage({ cars: initialCars }) {
                       <div>
                         <div className="flex items-center justify-between mb-3">
                           <label className="label-dark mb-0 flex items-center gap-2">
-                            <CalendarDays size={13} />Choisir vos dates *
+                            <CalendarDays size={13} />{t("res.dates")}
                           </label>
                           {loadingCal && <span className="text-white/30 text-xs animate-pulse">Chargement...</span>}
                         </div>
@@ -388,15 +395,15 @@ export default function ReservationPage({ cars: initialCars }) {
                         <div className="flex items-center gap-4 mb-3">
                           <div className="flex items-center gap-1.5">
                             <div className="w-3 h-3 bg-gold-500 rounded-sm" />
-                            <span className="text-white/40 text-xs">Sélectionné</span>
+                            <span className="text-white/40 text-xs">{t("res.selected")}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <div className="w-3 h-3 bg-red-500/30 rounded-sm border border-red-500/20" />
-                            <span className="text-white/40 text-xs">Indisponible</span>
+                            <span className="text-white/40 text-xs">{t("res.indispo")}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <div className="w-3 h-3 bg-white/10 rounded-sm" />
-                            <span className="text-white/40 text-xs">Disponible</span>
+                            <span className="text-white/40 text-xs">{t("res.dispo")}</span>
                           </div>
                         </div>
 
@@ -428,23 +435,23 @@ export default function ReservationPage({ cars: initialCars }) {
                         {form.startDate && (
                           <div className="mt-3 bg-[#1e1e1e] border border-white/[0.06] rounded-xl p-3 flex items-center justify-between">
                             <div className="text-center">
-                              <p className="text-white/30 text-xs mb-0.5">Départ</p>
+                              <p className="text-white/30 text-xs mb-0.5">{t("res.depart")}</p>
                               <p className="text-gold-400 font-semibold text-sm">{form.startDate}</p>
                             </div>
                             <ChevronRight size={14} className="text-white/20" />
                             <div className="text-center">
-                              <p className="text-white/30 text-xs mb-0.5">Retour</p>
+                              <p className="text-white/30 text-xs mb-0.5">{t("res.retour")}</p>
                               <p className={`font-semibold text-sm ${form.endDate ? 'text-gold-400' : 'text-white/25'}`}>
                                 {form.endDate || '—'}
                               </p>
                             </div>
                             <div className="text-center">
-                              <p className="text-white/30 text-xs mb-0.5">Durée</p>
+                              <p className="text-white/30 text-xs mb-0.5">{t("res.duree")}</p>
                               <p className="text-white font-semibold text-sm">{days > 0 ? `${days}j` : '—'}</p>
                             </div>
                             {days > 0 && (
                               <div className="text-center">
-                                <p className="text-white/30 text-xs mb-0.5">Total</p>
+                                <p className="text-white/30 text-xs mb-0.5">{t("res.total")}</p>
                                 <p className="text-gold-400 font-bold text-sm">{fmt(total)} {sym(selectedCar?.currency)}</p>
                               </div>
                             )}
@@ -463,7 +470,7 @@ export default function ReservationPage({ cars: initialCars }) {
                     {!selectedCar && (
                       <div className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-xl p-4">
                         <Info size={16} className="text-white/20 flex-shrink-0" />
-                        <p className="text-white/30 text-sm">Sélectionnez un véhicule pour afficher son calendrier de disponibilités.</p>
+                        <p className="text-white/30 text-sm">{t("res.select_see")}</p>
                       </div>
                     )}
 
@@ -476,7 +483,7 @@ export default function ReservationPage({ cars: initialCars }) {
 
                     <button onClick={() => { if (validateStep1()) setStep(2); }}
                       className="btn-gold w-full py-3.5">
-                      Continuer <ChevronRight size={15} />
+                      {t("res.continue")} <ChevronRight size={15} />
                     </button>
                   </div>
                 )}
@@ -490,33 +497,33 @@ export default function ReservationPage({ cars: initialCars }) {
                         <ChevronLeft size={15} />
                       </button>
                       <div>
-                        <h2 className="text-white font-semibold text-lg leading-tight">Vos informations</h2>
+                        <h2 className="text-white font-semibold text-lg leading-tight">{t("res.s2t")}</h2>
                         <p className="text-white/30 text-xs">Champs * obligatoires</p>
                       </div>
                     </div>
 
                     <div>
-                      <label className="label-dark">Nom complet *</label>
+                      <label className="label-dark">{t("res.fullname")}</label>
                       <div className="relative">
                         <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
                         <input type="text" value={form.name} onChange={set('name')}
-                          placeholder="Ex: Ahmed Benali" className="input-dark pl-10" autoComplete="name" />
+                          placeholder={t("res.ph_name")} className="input-dark pl-10" autoComplete="name" />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="label-dark">Téléphone *</label>
+                        <label className="label-dark">{t("res.phone")}</label>
                         <div className="relative">
                           <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
                           <input type="tel" value={form.phone} onChange={set('phone')}
-                            placeholder="+213 6XX" className="input-dark pl-10" autoComplete="tel" />
+                            placeholder={t("res.ph_phone")} className="input-dark pl-10" autoComplete="tel" />
                         </div>
                       </div>
                       <div>
-                        <label className="label-dark">Âge *</label>
+                        <label className="label-dark">{t("res.age")}</label>
                         <input type="number" value={form.age} onChange={set('age')}
-                          placeholder="35+" min="18" max="99" className="input-dark" />
+                          placeholder={t("res.ph_age")} min="18" max="99" className="input-dark" />
                       </div>
                     </div>
 
@@ -524,40 +531,40 @@ export default function ReservationPage({ cars: initialCars }) {
                       <div className="flex items-start gap-3 bg-red-500/[0.07] border border-red-500/20 rounded-xl p-4">
                         <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-red-400 font-semibold text-sm mb-1.5">Âge minimum requis : 35 ans</p>
+                          <p className="text-red-400 font-semibold text-sm mb-1.5">{t("res.agemin")}</p>
                           <p className="text-red-400/70 text-xs leading-relaxed">
                             En raison de nos contrats d'assurance, nous ne sommes pas autorisés à louer nos véhicules aux personnes de moins de 35 ans. Cette règle nous permet de protéger nos clients et notre société en cas de contrôle, d'accident ou de litige avec les assurances.
                           </p>
-                          <p className="text-red-400/45 text-xs mt-2">Merci pour votre compréhension.</p>
+                          <p className="text-red-400/45 text-xs mt-2">{t("res.agemin_d")}</p>
                         </div>
                       </div>
                     )}
 
                     <div>
-                      <label className="label-dark">Email (optionnel)</label>
+                      <label className="label-dark">{t("res.email")}</label>
                       <input type="email" value={form.email} onChange={set('email')}
-                        placeholder="votre@email.com" className="input-dark" autoComplete="email" />
+                        placeholder={t("res.ph_email")} className="input-dark" autoComplete="email" />
                     </div>
 
                     <div>
-                      <label className="label-dark">N° Passeport / CIN</label>
+                      <label className="label-dark">{t("res.passport")}</label>
                       <div className="relative">
                         <FileText size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
                         <input type="text" value={form.passport} onChange={set('passport')}
-                          placeholder="Numéro de document" className="input-dark pl-10" />
+                          placeholder={t("res.ph_passport")} className="input-dark pl-10" />
                       </div>
                     </div>
 
                     <div>
-                      <label className="label-dark">Notes / Demandes spéciales</label>
+                      <label className="label-dark">{t("res.notes")}</label>
                       <textarea value={form.notes} onChange={set('notes')} rows={3}
-                        placeholder="Lieu de livraison, demandes particulières..."
+                        placeholder={t("res.ph_notes")}
                         className="input-dark resize-none" />
                     </div>
 
                     {selectedCar && (
                       <div className="bg-[#1a1a1a] border border-white/[0.06] rounded-xl p-4 space-y-2">
-                        <p className="text-white/25 text-xs uppercase tracking-widest font-medium mb-2">Récapitulatif</p>
+                        <p className="text-white/25 text-xs uppercase tracking-widest font-medium mb-2">{t("res.recap")}</p>
                         {[
                           ['Véhicule', selectedCar.name],
                           ['Dates',    `${form.startDate} → ${form.endDate}`],
@@ -583,7 +590,7 @@ export default function ReservationPage({ cars: initialCars }) {
                       className="btn-gold w-full py-4 text-base disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0">
                       {loading
                         ? <><Loader2 size={16} className="animate-spin" />Envoi...</>
-                        : <><MessageCircle size={17} />Envoyer via WhatsApp</>
+                        : <><MessageCircle size={17} />{t("res.send_wa")}</>
                       }
                     </button>
                     <p className="text-center text-white/20 text-xs">
