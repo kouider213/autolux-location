@@ -5,8 +5,10 @@ import { createClient } from '@supabase/supabase-js';
 import { Car, Fuel, Users, Settings, ArrowLeft, CalendarCheck, MessageCircle, Wind, Star, CheckCircle } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import { trackPageView } from '../../lib/tracker';
+import { useLang } from '../../lib/i18n';
 
 export default function CarDetail({ car, photos: initialPhotos }) {
+  const { t } = useLang();
   const [photos, setPhotos]       = useState(initialPhotos || []);
   const [activePhoto, setActive]  = useState(0);
 
@@ -31,8 +33,8 @@ export default function CarDetail({ car, photos: initialPhotos }) {
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-center">
               <Car size={48} className="text-white/10 mx-auto mb-4" />
-              <p className="text-white/50 text-lg mb-2">Véhicule introuvable</p>
-              <Link href="/cars" className="text-gold-500 hover:text-gold-400 text-sm transition-colors">← Retour aux véhicules</Link>
+              <p className="text-white/50 text-lg mb-2">{t("d.notfound")}</p>
+              <Link href="/cars" className="text-gold-500 hover:text-gold-400 text-sm transition-colors">← {t("d.back_cars")}</Link>
             </div>
           </div>
         </div>
@@ -47,19 +49,14 @@ export default function CarDetail({ car, photos: initialPhotos }) {
   const whatsappUrl = `https://wa.me/32466311469?text=${whatsappMsg}`;
 
   const specs = [
-    { icon: Fuel,     label: 'Carburant',    value: car.fuel || 'Essence' },
-    { icon: Settings, label: 'Transmission', value: car.transmission || 'Manuelle' },
-    { icon: Users,    label: 'Places',       value: `${car.seats || 5} places` },
-    { icon: Wind,     label: 'Climatisation',value: car.clim ? 'Oui' : 'Incluse' },
-    { icon: Car,      label: 'Catégorie',    value: car.category },
+    { icon: Fuel,     label: t('d.fuel'),         value: car.fuel || 'Essence' },
+    { icon: Settings, label: t('d.transmission'), value: car.transmission || 'Manuelle' },
+    { icon: Users,    label: t('d.seats'),        value: `${car.seats || 5} ${t('b.places')}` },
+    { icon: Wind,     label: t('d.clim'),         value: car.clim ? t('common.all') : t('d.included') },
+    { icon: Car,      label: t('d.category'),     value: car.category },
   ].filter(s => s.value);
 
-  const perks = [
-    'Sans caution requise',
-    'Véhicule nettoyé & vérifié',
-    'Confirmation WhatsApp',
-    'Service 7j/7 à Oran',
-  ];
+  const perks = [t('d.perk1'), t('d.perk2'), t('d.perk3'), t('d.perk4')];
 
   return (
     <>
@@ -75,7 +72,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
         <div className="pt-24 pb-0 px-5 max-w-6xl mx-auto">
           <Link href="/cars" className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm font-body mb-6 group">
             <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" />
-            Retour aux véhicules
+            {t("d.back_cars")}
           </Link>
         </div>
 
@@ -83,7 +80,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
         {car.available !== false && (
           <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/[0.08] px-5 py-4 flex items-center justify-between gap-4">
             <div>
-              <p className="text-white/40 text-xs font-body">À partir de</p>
+              <p className="text-white/40 text-xs font-body">{t("b.from")}</p>
               <p className="font-display font-black text-gold-400 text-xl leading-none tabular-nums">
                 {Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}<span className="text-sm font-body text-white/25 ml-1">/jour</span>
               </p>
@@ -95,7 +92,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
               </a>
               <Link href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
                 className="btn-gold py-3 px-6 text-sm flex-1 justify-center max-w-[160px]">
-                <CalendarCheck size={15} />Réserver
+                <CalendarCheck size={15} />{t("common.book")}
               </Link>
             </div>
           </div>
@@ -119,13 +116,13 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center gap-3">
                           <Car size={56} className="text-white/[0.07]" />
-                          <span className="text-white/15 text-xs tracking-widest uppercase font-body">Photo à venir</span>
+                          <span className="text-white/15 text-xs tracking-widest uppercase font-body">{t("d.photo_soon")}</span>
                         </div>
                       )}
                       <span className="absolute top-4 left-4 tag-category capitalize">{car.category}</span>
                       {car.available === false && (
                         <div className="absolute inset-0 bg-[#0e0e0e]/75 backdrop-blur-sm flex items-center justify-center">
-                          <span className="text-white/60 text-xs font-medium tracking-widest uppercase border border-white/20 rounded-full px-4 py-2">Indisponible</span>
+                          <span className="text-white/60 text-xs font-medium tracking-widest uppercase border border-white/20 rounded-full px-4 py-2">{t("b.unavailable")}</span>
                         </div>
                       )}
                     </div>
@@ -193,7 +190,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
               {/* Description */}
               {car.description && (
                 <div className="bg-[#141414] border border-white/[0.06] rounded-xl p-5">
-                  <h2 className="text-gold-500 font-semibold text-sm mb-3 font-body tracking-wide uppercase">À propos</h2>
+                  <h2 className="text-gold-500 font-semibold text-sm mb-3 font-body tracking-wide uppercase">{t("d.about")}</h2>
                   <p className="text-white/55 leading-relaxed text-sm font-body">{car.description}</p>
                 </div>
               )}
@@ -214,11 +211,11 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                   <Link
                     href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
                     className="btn-gold flex-1 py-4 text-base justify-center">
-                    <CalendarCheck size={18} />Réserver ce véhicule
+                    <CalendarCheck size={18} />{t("d.book_this")}
                   </Link>
                 ) : (
                   <button disabled className="flex-1 py-4 text-base bg-white/[0.04] text-white/30 rounded-xl cursor-not-allowed font-semibold">
-                    Indisponible
+                    {t("b.unavailable")}
                   </button>
                 )}
                 <a
@@ -226,12 +223,12 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-outline flex-1 sm:flex-none py-4 px-6 justify-center gap-2 text-base">
-                  <MessageCircle size={17} />WhatsApp
+                  <MessageCircle size={17} />{t("common.whatsapp")}
                 </a>
               </div>
 
               <p className="text-white/20 text-xs font-body text-center">
-                Sans caution · Confirmation immédiate · 7j/7 à Oran
+                {t("d.perks_note")}
               </p>
             </div>
           </div>

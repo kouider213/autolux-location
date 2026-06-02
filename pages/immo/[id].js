@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { MapPin, Maximize, BedDouble, Bath, Building2, ArrowLeft, MessageCircle, ChevronLeft, ChevronRight, Home, Layers, Wallet, KeyRound, CalendarClock } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+import { useLang } from '../../lib/i18n';
 
 const supabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -12,22 +13,24 @@ const supabaseClient = createClient(
 
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
 const STATUS_BADGE = {
-  disponible:  { label: 'Disponible', cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' },
-  loue:        { label: 'Loué',       cls: 'bg-amber-500/15 text-amber-400 border-amber-500/20' },
-  vendu:       { label: 'Vendu',      cls: 'bg-red-500/15 text-red-400 border-red-500/20' },
-  coming_soon: { label: 'Bientôt',    cls: 'bg-blue-500/15 text-blue-400 border-blue-500/20' },
+  disponible:  { cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' },
+  loue:        { cls: 'bg-amber-500/15 text-amber-400 border-amber-500/20' },
+  vendu:       { cls: 'bg-red-500/15 text-red-400 border-red-500/20' },
+  coming_soon: { cls: 'bg-blue-500/15 text-blue-400 border-blue-500/20' },
 };
 
 export default function PropertyDetail({ property, photos }) {
+  const { t } = useLang();
   const [active, setActive] = useState(0);
+  const STB = { disponible: t('b.available'), loue: t('b.rented'), vendu: t('b.sold'), coming_soon: t('b.soon') };
 
   if (!property) return (
     <>
       <div className="grain min-h-screen bg-[#0e0e0e]"><Navbar />
         <div className="flex items-center justify-center min-h-screen text-center px-5">
           <div><Building2 size={48} className="text-white/10 mx-auto mb-4" />
-            <p className="text-white/50 mb-4">Bien introuvable</p>
-            <Link href="/immo" className="text-gold-400 hover:text-gold-300 text-sm">← Retour à l'immobilier</Link>
+            <p className="text-white/50 mb-4">{t('d.notfound')}</p>
+            <Link href="/immo" className="text-gold-400 hover:text-gold-300 text-sm">← {t('d.back_immo')}</Link>
           </div>
         </div>
       </div>
@@ -37,21 +40,22 @@ export default function PropertyDetail({ property, photos }) {
   const isSale = (property.transaction || 'location') === 'vente';
   const available = (property.status || 'disponible') === 'disponible';
   const st = STATUS_BADGE[property.status] || STATUS_BADGE.disponible;
+  const stLabel = STB[property.status] || STB.disponible;
   const priceTxt = property.price ? `${Number(property.price).toLocaleString()} ${cur(property.currency)}${isSale ? '' : '/mois'}` : 'Prix sur demande';
 
   const whatsappMsg = `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par le bien :\n*${property.title}*\n${property.price ? `Prix: ${priceTxt}` : 'Prix sur demande'}\n\nMerci de me contacter.`;
   const whatsappUrl = `https://wa.me/32466311469?text=${encodeURIComponent(whatsappMsg)}`;
 
   const specs = [
-    property.surface && { icon: Maximize, label: 'Surface', value: `${property.surface} m²` },
-    (property.bedrooms || property.rooms) && { icon: BedDouble, label: property.bedrooms ? 'Chambres' : 'Pièces', value: property.bedrooms || property.rooms },
-    property.bathrooms && { icon: Bath, label: 'Salles de bain', value: property.bathrooms },
-    property.floor != null && property.floor !== '' && { icon: Layers, label: 'Étage', value: property.floor === 0 ? 'RDC' : `${property.floor}e` },
-    property.type    && { icon: Building2, label: 'Type',    value: property.type },
-    property.city    && { icon: MapPin,    label: 'Ville',   value: property.city },
-    !isSale && property.deposit && { icon: KeyRound, label: 'Caution', value: `${Number(property.deposit).toLocaleString()} ${cur(property.currency)}` },
-    !isSale && property.min_duration && { icon: CalendarClock, label: 'Durée min.', value: property.min_duration },
-    property.charges_included != null && { icon: Wallet, label: 'Charges', value: property.charges_included ? 'Incluses' : (property.charges_amount ? `${Number(property.charges_amount).toLocaleString()} ${cur(property.currency)}` : 'Non incluses') },
+    property.surface && { icon: Maximize, label: t('d.surface'), value: `${property.surface} m²` },
+    (property.bedrooms || property.rooms) && { icon: BedDouble, label: property.bedrooms ? t('d.bedrooms') : t('d.rooms'), value: property.bedrooms || property.rooms },
+    property.bathrooms && { icon: Bath, label: t('d.bathrooms'), value: property.bathrooms },
+    property.floor != null && property.floor !== '' && { icon: Layers, label: t('d.floor'), value: property.floor === 0 ? t('d.rdc') : `${property.floor}e` },
+    property.type    && { icon: Building2, label: t('d.type'),    value: property.type },
+    property.city    && { icon: MapPin,    label: t('d.city'),   value: property.city },
+    !isSale && property.deposit && { icon: KeyRound, label: t('d.deposit'), value: `${Number(property.deposit).toLocaleString()} ${cur(property.currency)}` },
+    !isSale && property.min_duration && { icon: CalendarClock, label: t('d.duration'), value: property.min_duration },
+    property.charges_included != null && { icon: Wallet, label: t('d.charges'), value: property.charges_included ? t('d.charges_inc') : (property.charges_amount ? `${Number(property.charges_amount).toLocaleString()} ${cur(property.currency)}` : t('d.charges_no')) },
   ].filter(Boolean);
 
   const allPhotos = photos || [];
@@ -68,15 +72,15 @@ export default function PropertyDetail({ property, photos }) {
         {/* Sticky CTA mobile */}
         <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/[0.08] px-5 py-4 flex items-center justify-between gap-4">
           <div>
-            <p className="text-white/40 text-xs">{isSale ? 'Prix de vente' : 'Loyer'}</p>
+            <p className="text-white/40 text-xs">{isSale ? t('d.sale_price') : t('d.rent_price')}</p>
             <p className="font-display font-black text-gold-400 text-lg leading-none">{priceTxt}</p>
           </div>
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366] text-white font-bold py-3 px-6 rounded-xl text-sm flex-1 max-w-[200px]"><MessageCircle size={16} /> Contacter</a>
+          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366] text-white font-bold py-3 px-6 rounded-xl text-sm flex-1 max-w-[200px]"><MessageCircle size={16} /> {t('d.contact_short')}</a>
         </div>
 
         <div className="pt-24 pb-0 px-5 max-w-6xl mx-auto">
           <Link href="/immo" className="inline-flex items-center gap-2 text-white/40 hover:text-white text-sm mb-6 group transition-colors">
-            <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" />Retour à l'immobilier
+            <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" />{t('d.back_immo')}
           </Link>
         </div>
 
@@ -112,7 +116,7 @@ export default function PropertyDetail({ property, photos }) {
                     </div>
                     <div className="flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-3 py-1.5">
                       <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
-                      <span className="text-blue-400 text-sm">Photos bientôt disponibles</span>
+                      <span className="text-blue-400 text-sm">{t('d.photos_soon')}</span>
                     </div>
                   </div>
                 )}
@@ -137,7 +141,7 @@ export default function PropertyDetail({ property, photos }) {
               <div>
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${isSale ? 'bg-purple-500/20 text-purple-300 border-purple-500/25' : 'bg-blue-500/20 text-blue-300 border-blue-500/25'}`}>{isSale ? 'À VENDRE' : 'À LOUER'}</span>
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${st.cls}`}>{st.label}</span>
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${st.cls}`}>{stLabel}</span>
                   {property.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950">EN AVANT</span>}
                 </div>
                 <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">{property.title}</h1>
@@ -174,7 +178,7 @@ export default function PropertyDetail({ property, photos }) {
               {/* Description */}
               {property.description && (
                 <div>
-                  <p className="text-white/25 text-xs uppercase tracking-widest mb-2">Description</p>
+                  <p className="text-white/25 text-xs uppercase tracking-widest mb-2">{t('d.description')}</p>
                   <p className="text-white/55 text-sm leading-relaxed whitespace-pre-wrap">{property.description}</p>
                 </div>
               )}
@@ -182,7 +186,7 @@ export default function PropertyDetail({ property, photos }) {
               {/* Conditions */}
               {property.conditions && (
                 <div>
-                  <p className="text-white/25 text-xs uppercase tracking-widest mb-2">Conditions</p>
+                  <p className="text-white/25 text-xs uppercase tracking-widest mb-2">{t('d.conditions')}</p>
                   <p className="text-white/55 text-sm leading-relaxed whitespace-pre-wrap">{property.conditions}</p>
                 </div>
               )}
@@ -191,10 +195,10 @@ export default function PropertyDetail({ property, photos }) {
               <div className="space-y-3 mt-auto hidden md:block">
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#1ebe5a] text-white font-bold py-4 rounded-xl transition-all shadow-[0_4px_16px_rgba(37,211,102,0.3)] text-base">
-                  <MessageCircle size={18} />Contacter pour ce bien
+                  <MessageCircle size={18} />{t('d.contact_this')}
                 </a>
                 <Link href="/immo" className="flex items-center justify-center gap-2 w-full btn-outline py-3.5">
-                  <Home size={15} />Voir tous les biens
+                  <Home size={15} />{t('d.all_immo')}
                 </Link>
               </div>
             </div>

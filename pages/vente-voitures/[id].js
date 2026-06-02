@@ -5,20 +5,23 @@ import { createClient } from '@supabase/supabase-js';
 import { Tag, Fuel, Gauge, Calendar, Settings, MapPin, ArrowLeft, MessageCircle, CheckCircle, Car } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import { trackPageView } from '../../lib/tracker';
+import { useLang } from '../../lib/i18n';
 
 const WHATSAPP = '32466311469';
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
 const STATUS_BADGE = {
-  disponible:  { label: 'Disponible', cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/25' },
-  reserve:     { label: 'Réservé',    cls: 'bg-amber-500/15 text-amber-400 border-amber-500/20' },
-  vendu:       { label: 'Vendu',      cls: 'bg-red-500/15 text-red-400 border-red-500/20' },
-  coming_soon: { label: 'Bientôt',    cls: 'bg-blue-500/15 text-blue-400 border-blue-500/20' },
+  disponible:  { cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/25' },
+  reserve:     { cls: 'bg-amber-500/15 text-amber-400 border-amber-500/20' },
+  vendu:       { cls: 'bg-red-500/15 text-red-400 border-red-500/20' },
+  coming_soon: { cls: 'bg-blue-500/15 text-blue-400 border-blue-500/20' },
 };
 
 export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
+  const { t } = useLang();
   const [photos, setPhotos] = useState(initialPhotos || []);
   const [active, setActive] = useState(0);
+  const STB = { disponible: t('b.available'), reserve: t('b.reserved'), vendu: t('b.sold'), coming_soon: t('b.soon') };
 
   useEffect(() => {
     if (vehicle?.id) {
@@ -36,8 +39,8 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <Tag size={48} className="text-white/10 mx-auto mb-4" />
-            <p className="text-white/50 text-lg mb-2">Véhicule introuvable</p>
-            <Link href="/vente-voitures" className="text-gold-500 hover:text-gold-400 text-sm">← Retour aux véhicules à vendre</Link>
+            <p className="text-white/50 text-lg mb-2">{t('d.notfound')}</p>
+            <Link href="/vente-voitures" className="text-gold-500 hover:text-gold-400 text-sm">← {t('d.back_sale')}</Link>
           </div>
         </div>
       </div>
@@ -48,6 +51,7 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
   const src = allPhotos[active] || null;
   const available = vehicle.status === 'disponible';
   const st = STATUS_BADGE[vehicle.status] || STATUS_BADGE.disponible;
+  const stLabel = STB[vehicle.status] || STB.disponible;
 
   const waMsg = encodeURIComponent(
     `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par le véhicule à vendre :\n*${vehicle.brand} ${vehicle.model}*${vehicle.year ? ` (${vehicle.year})` : ''}\n${vehicle.price ? `Prix : ${Number(vehicle.price).toLocaleString()} ${cur(vehicle.currency)}` : ''}\n\nEst-il toujours disponible ?`
@@ -55,12 +59,12 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
   const waUrl = `https://wa.me/${WHATSAPP}?text=${waMsg}`;
 
   const specs = [
-    vehicle.year     && { icon: Calendar, label: 'Année',       value: vehicle.year },
-    vehicle.mileage != null && { icon: Gauge, label: 'Kilométrage', value: `${Number(vehicle.mileage).toLocaleString()} km` },
-    vehicle.fuel     && { icon: Fuel,     label: 'Carburant',   value: vehicle.fuel },
-    vehicle.transmission && { icon: Settings, label: 'Boîte',   value: vehicle.transmission },
-    vehicle.city     && { icon: MapPin,   label: 'Ville',       value: vehicle.city },
-    vehicle.condition && { icon: CheckCircle, label: 'État',    value: vehicle.condition },
+    vehicle.year     && { icon: Calendar, label: t('d.year'),       value: vehicle.year },
+    vehicle.mileage != null && { icon: Gauge, label: t('d.mileage'), value: `${Number(vehicle.mileage).toLocaleString()} km` },
+    vehicle.fuel     && { icon: Fuel,     label: t('d.fuel'),   value: vehicle.fuel },
+    vehicle.transmission && { icon: Settings, label: t('d.transmission'),   value: vehicle.transmission },
+    vehicle.city     && { icon: MapPin,   label: t('d.city'),       value: vehicle.city },
+    vehicle.condition && { icon: CheckCircle, label: t('d.condition'),    value: vehicle.condition },
   ].filter(Boolean);
 
   return (
@@ -77,16 +81,16 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
         {available && (
           <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/[0.08] px-5 py-4 flex items-center justify-between gap-4">
             <div>
-              <p className="text-white/40 text-xs">Prix</p>
-              <p className="font-display font-black text-gold-400 text-xl leading-none tabular-nums">{vehicle.price ? `${Number(vehicle.price).toLocaleString()} ${cur(vehicle.currency)}` : 'Sur demande'}</p>
+              <p className="text-white/40 text-xs">{t('res.total')}</p>
+              <p className="font-display font-black text-gold-400 text-xl leading-none tabular-nums">{vehicle.price ? `${Number(vehicle.price).toLocaleString()} ${cur(vehicle.currency)}` : t('b.price_request')}</p>
             </div>
-            <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-gold py-3 px-6 text-sm flex-1 justify-center max-w-[200px]"><MessageCircle size={15} /> Contacter</a>
+            <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-gold py-3 px-6 text-sm flex-1 justify-center max-w-[200px]"><MessageCircle size={15} /> {t('d.contact_short')}</a>
           </div>
         )}
 
         <div className="pt-24 pb-0 px-5 max-w-6xl mx-auto">
           <Link href="/vente-voitures" className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm mb-6 group">
-            <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" /> Retour aux véhicules à vendre
+            <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" /> {t('d.back_sale')}
           </Link>
         </div>
 
@@ -97,8 +101,8 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
             <div className="space-y-3">
               <div className="relative rounded-2xl overflow-hidden bg-[#141414] border border-white/[0.06]" style={{ aspectRatio: '4/3' }}>
                 {src ? <img src={src} alt={vehicle.model} className="w-full h-full object-cover" loading="eager" /> : <div className="w-full h-full flex items-center justify-center"><Tag size={56} className="text-white/[0.07]" /></div>}
-                <span className={`absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-lg border ${st.cls}`}>{st.label}</span>
-                {vehicle.featured && <span className="absolute top-4 right-4 text-xs font-bold px-3 py-1.5 rounded-lg bg-gold-500 text-noir-950">EN AVANT</span>}
+                <span className={`absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-lg border ${st.cls}`}>{stLabel}</span>
+                {vehicle.featured && <span className="absolute top-4 right-4 text-xs font-bold px-3 py-1.5 rounded-lg bg-gold-500 text-noir-950">{t('b.featured')}</span>}
               </div>
               {allPhotos.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto pb-1">
@@ -114,12 +118,12 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
             {/* Details */}
             <div className="flex flex-col gap-6">
               <div>
-                <p className="text-white/30 text-xs tracking-widest uppercase mb-2">Occasion · {vehicle.city || 'Oran'}</p>
+                <p className="text-white/30 text-xs tracking-widest uppercase mb-2">{t('sale.badge')} · {vehicle.city || 'Oran'}</p>
                 <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">{vehicle.brand} {vehicle.model}</h1>
                 <div className="flex items-baseline gap-2">
                   {vehicle.price ? (
                     <><span className="font-display font-black text-gold-gradient leading-none" style={{ fontSize: 'clamp(36px, 4vw, 52px)' }}>{Number(vehicle.price).toLocaleString()} {cur(vehicle.currency)}</span></>
-                  ) : <span className="font-display font-black text-gold-gradient text-3xl">Prix sur demande</span>}
+                  ) : <span className="font-display font-black text-gold-gradient text-3xl">{t('b.price_request')}</span>}
                 </div>
               </div>
 
@@ -135,19 +139,19 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
 
               {vehicle.description && (
                 <div className="bg-[#141414] border border-white/[0.06] rounded-xl p-5">
-                  <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">Description</h2>
+                  <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{t('d.description')}</h2>
                   <p className="text-white/55 leading-relaxed text-sm whitespace-pre-wrap">{vehicle.description}</p>
                 </div>
               )}
 
               <div className="hidden md:flex flex-col sm:flex-row gap-3 mt-auto pt-2">
                 {available ? (
-                  <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-gold flex-1 py-4 text-base justify-center"><MessageCircle size={18} /> Contacter sur WhatsApp</a>
+                  <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-gold flex-1 py-4 text-base justify-center"><MessageCircle size={18} /> {t('d.contact')}</a>
                 ) : (
-                  <div className="flex-1 py-4 text-base bg-white/[0.04] text-white/30 rounded-xl text-center font-semibold">{st.label}</div>
+                  <div className="flex-1 py-4 text-base bg-white/[0.04] text-white/30 rounded-xl text-center font-semibold">{stLabel}</div>
                 )}
               </div>
-              <p className="text-white/20 text-xs text-center">Véhicule vérifié · Contact direct · Oran</p>
+              <p className="text-white/20 text-xs text-center">{t('d.perks_note')}</p>
             </div>
           </div>
         </div>
