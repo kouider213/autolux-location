@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Shield, Zap, Car, Star, ChevronDown, ArrowRight, ChevronLeft, ChevronRight,
-  Users, MapPin, CalendarCheck, Fuel, MessageCircle, Sparkles,
+  Users, MapPin, CalendarCheck, Fuel, MessageCircle, Sparkles, Building2, Tag,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
@@ -378,6 +378,54 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
           </div>
         </section>
 
+        {/* ══ NOS 3 PÔLES ══ */}
+        <section className="relative py-20 md:py-28 px-5 overflow-hidden bg-[#080808]">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.04) 0%,transparent 65%)' }} />
+          <div className="relative max-w-6xl mx-auto">
+            <div className="text-center mb-14">
+              <span className="section-badge mb-5 inline-block">Nos services</span>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
+                Trois pôles, <span className="text-gold-gradient italic">une confiance</span>
+              </h2>
+              <p className="text-white/35 mt-4 max-w-lg mx-auto font-body">
+                Tout ce dont vous avez besoin à Oran — voiture, logement, achat. Sans caution sur la location, sans création de compte.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {[
+                { icon: Car,       title: 'Location de voiture', desc: 'Citadines, SUV, utilitaires, premium. Kilométrage illimité, assurance incluse, sans caution.', href: '/cars', cta: 'Voir la flotte', color: 'gold' },
+                { icon: Building2, title: 'Immobilier', desc: 'Appartements, villas et locaux à louer ou à vendre à Oran. Propriétaire ? Confiez-nous votre bien.', href: '/immo', cta: 'Voir les biens', color: 'blue' },
+                { icon: Tag,       title: 'Véhicules à vendre', desc: 'Voitures d\'occasion vérifiées. Vous vendez ? On gère l\'annonce, les photos et les contacts.', href: '/vente-voitures', cta: 'Voir les occasions', color: 'purple' },
+              ].map((p, i) => {
+                const c = {
+                  gold:   { ring: 'group-hover:border-gold-500/40',   ico: 'bg-gold-500/10 border-gold-500/25 text-gold-400',     glow: 'bg-gold-500/[0.06]' },
+                  blue:   { ring: 'group-hover:border-blue-500/40',   ico: 'bg-blue-500/10 border-blue-500/25 text-blue-400',     glow: 'bg-blue-500/[0.06]' },
+                  purple: { ring: 'group-hover:border-purple-500/40', ico: 'bg-purple-500/10 border-purple-500/25 text-purple-300', glow: 'bg-purple-500/[0.06]' },
+                }[p.color];
+                return (
+                  <motion.div key={i}
+                    initial={{ opacity: 1, y: 0 }} whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.12, ease }}>
+                    <Link href={p.href} className={`group relative block h-full bg-[#0f0f0f] border border-white/[0.06] ${c.ring} rounded-2xl p-7 overflow-hidden transition-all duration-300 hover:-translate-y-1.5`}>
+                      <div className={`absolute -top-12 -right-12 w-40 h-40 rounded-full ${c.glow} blur-3xl pointer-events-none`} />
+                      <div className={`relative w-14 h-14 ${c.ico} border rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                        <p.icon size={24} />
+                      </div>
+                      <h3 className="relative font-display font-bold text-white text-xl mb-3">{p.title}</h3>
+                      <p className="relative text-white/40 text-sm leading-relaxed mb-6">{p.desc}</p>
+                      <span className="relative inline-flex items-center gap-1.5 text-gold-400 text-sm font-semibold group-hover:gap-2.5 transition-all">
+                        {p.cta} <ArrowRight size={14} />
+                      </span>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         {/* ══ COMMENT LOUER EN 3 ÉTAPES ══ */}
         <section className="relative py-20 md:py-28 px-5 overflow-hidden bg-[#080808]">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
@@ -602,7 +650,8 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
                 <ul className="space-y-3">
                   {[
                     { h: '/', l: 'Accueil' },
-                    { h: '/cars', l: 'Nos véhicules' },
+                    { h: '/cars', l: 'Location voiture' },
+                    { h: '/vente-voitures', l: 'Véhicules à vendre' },
                     { h: '/reservation', l: 'Réserver' },
                     { h: '/reviews', l: 'Avis clients' },
                     { h: '/contact', l: 'Contact' },
