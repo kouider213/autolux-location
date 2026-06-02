@@ -4,8 +4,10 @@ import toast from 'react-hot-toast';
 import { Star, MessageSquarePlus, Check, Loader2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
+import { useLang } from '../lib/i18n';
 
 export default function ReviewsPage({ reviews }) {
+  const { t } = useLang();
   const [form, setForm]         = useState({ client_name: '', rating: 5, comment: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted]   = useState(false);
@@ -26,7 +28,7 @@ export default function ReviewsPage({ reviews }) {
     setSubmitting(false);
     if (error) { toast.error("Erreur lors de l'envoi"); return; }
     setSubmitted(true);
-    toast.success('Merci pour votre avis !');
+    toast.success(t('rv.thanks'));
     // Notify Dzaryx
     fetch('/api/notify-dzaryx', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -51,9 +53,9 @@ export default function ReviewsPage({ reviews }) {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-gold-500/[0.04] rounded-full blur-[80px] pointer-events-none" />
 
           <div className="relative max-w-5xl mx-auto text-center">
-            <span className="section-badge mb-5 inline-block">Témoignages</span>
+            <span className="section-badge mb-5 inline-block">{t('rv.badge')}</span>
             <h1 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
-              Avis de nos <span className="text-gold-gradient italic">clients</span>
+              {t('rv.t1')} <span className="text-gold-gradient italic">{t('rv.t2')}</span>
             </h1>
 
             {reviews.length > 0 && (
@@ -85,7 +87,7 @@ export default function ReviewsPage({ reviews }) {
                 <div className="w-16 h-16 bg-white/[0.04] rounded-2xl flex items-center justify-center mx-auto mb-5">
                   <Star size={24} className="text-white/20" />
                 </div>
-                <p className="text-white/40 mb-1">Aucun avis pour l'instant.</p>
+                <p className="text-white/40 mb-1">{t('rv.none')}</p>
                 <p className="text-white/25 text-sm">Soyez le premier à partager votre expérience !</p>
               </div>
             ) : (
@@ -133,8 +135,8 @@ export default function ReviewsPage({ reviews }) {
                       <MessageSquarePlus size={18} className="text-gold-400" />
                     </div>
                     <div>
-                      <h2 className="font-display text-xl font-bold text-white">Laisser un avis</h2>
-                      <p className="text-white/30 text-xs">Partagez votre expérience avec Fik Conciergerie</p>
+                      <h2 className="font-display text-xl font-bold text-white">{t('rv.leave')}</h2>
+                      <p className="text-white/30 text-xs">{t('rv.share')}</p>
                     </div>
                   </div>
 
@@ -146,13 +148,13 @@ export default function ReviewsPage({ reviews }) {
                           <Check size={28} className="text-gold-400" />
                         </div>
                       </div>
-                      <h3 className="text-white font-semibold text-lg mb-2">Merci pour votre avis !</h3>
+                      <h3 className="text-white font-semibold text-lg mb-2">{t('rv.thanks')}</h3>
                       <p className="text-white/35 text-sm">Votre témoignage sera publié après validation par notre équipe.</p>
                     </div>
                   ) : (
                     <div className="space-y-5">
                       <div>
-                        <label className="label-dark">Votre nom *</label>
+                        <label className="label-dark">{t('rv.name')}</label>
                         <input
                           type="text"
                           value={form.client_name}
@@ -163,7 +165,7 @@ export default function ReviewsPage({ reviews }) {
                       </div>
 
                       <div>
-                        <label className="label-dark">Note *</label>
+                        <label className="label-dark">{t('rv.note')}</label>
                         <div className="flex items-center gap-2 py-1">
                           {[1, 2, 3, 4, 5].map(star => (
                             <button
@@ -190,12 +192,12 @@ export default function ReviewsPage({ reviews }) {
                       </div>
 
                       <div>
-                        <label className="label-dark">Votre commentaire *</label>
+                        <label className="label-dark">{t('rv.comment')}</label>
                         <textarea
                           value={form.comment}
                           onChange={e => setForm(f => ({ ...f, comment: e.target.value }))}
                           rows={4}
-                          placeholder="Partagez votre expérience de location..."
+                          placeholder={t('rv.comment_ph')}
                           className="input-dark resize-none"
                         />
                       </div>
@@ -208,7 +210,7 @@ export default function ReviewsPage({ reviews }) {
                         {submitting ? (
                           <><Loader2 size={16} className="animate-spin" /> Envoi...</>
                         ) : (
-                          <><Check size={15} /> Envoyer mon avis</>
+                          <><Check size={15} /> {t('rv.submit')}</>
                         )}
                       </button>
                     </div>
