@@ -21,41 +21,46 @@ const BENEFITS = [
 /* ── Benefits carousel ── */
 function BenefitsCarousel({ benefits }) {
   const [idx, setIdx] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const goTo = (i) => setIdx(i % benefits.length);
+  const pausedRef  = useRef(false);
+  const touchStart = useRef(0);
+  const touchMoved = useRef(false);
   const slide = benefits[idx];
 
-  // Autoplay: advance every 3s unless paused
-  useEffect(() => {
-    if (paused) return;
-    const timer = setInterval(() => setIdx(i => (i + 1) % benefits.length), 3000);
-    return () => clearInterval(timer);
-  }, [paused, benefits.length]);
+  const next = () => setIdx(i => (i + 1) % benefits.length);
+  const prev = () => setIdx(i => (i - 1 + benefits.length) % benefits.length);
+  const goTo = (i) => { setIdx(i); pausedRef.current = true; setTimeout(() => { pausedRef.current = false; }, 5000); };
 
-  // Swipe support
-  const [touchStart, setTouchStart] = useState(0);
-  const handleTouchStart = (e) => { setTouchStart(e.touches[0].clientX); setPaused(true); };
-  const handleTouchEnd = (e) => {
-    const diff = touchStart - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 50) { // swipe threshold
-      setIdx(i => diff > 0 ? (i + 1) % benefits.length : (i - 1 + benefits.length) % benefits.length);
-    }
-    setTimeout(() => setPaused(false), 100);
+  // Autoplay 4s — paused after manual interaction (ref = no re-render)
+  useEffect(() => {
+    const timer = setInterval(() => { if (!pausedRef.current) setIdx(i => (i + 1) % benefits.length); }, 4000);
+    return () => clearInterval(timer);
+  }, [benefits.length]);
+
+  const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; touchMoved.current = false; };
+  const onTouchMove  = (e) => { if (Math.abs(e.touches[0].clientX - touchStart.current) > 8) touchMoved.current = true; };
+  const onTouchEnd   = (e) => {
+    const diff = touchStart.current - e.changedTouches[0].clientX;
+    pausedRef.current = true; setTimeout(() => { pausedRef.current = false; }, 5000);
+    if (Math.abs(diff) > 35) { diff > 0 ? next() : prev(); }
+    else if (!touchMoved.current) next(); // tap = advance
   };
 
   return (
-    <div className="relative w-full" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-      <AnimatePresence mode="wait">
-        <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}>
-          <div className="flex items-center justify-center px-6 py-12">
+    <div className="relative w-full select-none"
+      onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
+      style={{ touchAction: 'pan-y' }}>
+      <AnimatePresence initial={false}>
+        <motion.div key={idx}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="absolute inset-0">
+          <div className="flex items-center justify-center px-6 py-12 h-full">
             <div className="max-w-lg text-center">
               <div className="w-[72px] h-[72px] bg-gold-500/[0.08] border border-gold-500/25 rounded-2xl flex items-center justify-center mx-auto mb-7">
                 <slide.icon size={30} className="text-gold-400" />
               </div>
               <p className="text-white/60 text-xs tracking-[0.3em] uppercase font-body mb-4">{slide.num} / 06</p>
-              <h2 className="font-display font-black text-white mb-5 leading-tight" style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>
-                {slide.title}
-              </h2>
+              <h2 className="font-display font-black text-white mb-5 leading-tight" style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>{slide.title}</h2>
               <p className="text-white/70 text-base md:text-xl font-body leading-relaxed">{slide.desc}</p>
               <div className="w-12 h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent mx-auto mt-7" />
             </div>
@@ -63,16 +68,29 @@ function BenefitsCarousel({ benefits }) {
         </motion.div>
       </AnimatePresence>
 
-      {/* Navigation dots */}
-      <div className="flex justify-center gap-2 mt-8">
+      {/* Spacer to give the absolute slide a height */}
+      <div className="invisible px-6 py-12" aria-hidden>
+        <div className="max-w-lg text-center mx-auto">
+          <div className="w-[72px] h-[72px] mb-7" />
+          <p className="text-xs mb-4">00 / 06</p>
+          <h2 className="font-display font-black mb-5" style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>Service personnalisé</h2>
+          <p className="text-base md:text-xl leading-relaxed">Chaque véhicule est nettoyé et contrôlé avant chaque location aucune surprise garantie.</p>
+          <div className="h-px mt-7" />
+        </div>
+      </div>
+
+      {/* Arrows desktop */}
+      <button onClick={prev} aria-label="Précédent" className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/[0.04] hover:bg-gold-500 hover:text-noir-950 border border-white/10 rounded-full items-center justify-center text-white/50 transition-all"><ChevronLeft size={18} /></button>
+      <button onClick={next} aria-label="Suivant" className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/[0.04] hover:bg-gold-500 hover:text-noir-950 border border-white/10 rounded-full items-center justify-center text-white/50 transition-all"><ChevronRight size={18} /></button>
+
+      {/* Dots */}
+      <div className="flex justify-center gap-2 mt-8 relative z-10">
         {benefits.map((_, i) => (
-          <button key={i} onClick={() => { goTo(i); setPaused(true); setTimeout(() => setPaused(false), 3000); }} className={`rounded-full transition-all ${i === idx ? 'w-8 h-2 bg-gold-500' : 'w-2 h-2 bg-white/20 hover:bg-white/40'}`} />
+          <button key={i} onClick={() => goTo(i)} aria-label={`Slide ${i + 1}`} className={`rounded-full transition-all ${i === idx ? 'w-8 h-2 bg-gold-500' : 'w-2 h-2 bg-white/20 hover:bg-white/40'}`} />
         ))}
       </div>
 
-      {/* Swipe hint */}
-      <div className="md:hidden mt-4 text-center text-white/25 text-xs">Swipe ou cliquez pour naviguer</div>
-      <div className="hidden md:block mt-6 text-center text-white/30 text-sm">Slide {idx + 1} / {benefits.length} (auto-advance 3s)</div>
+      <div className="md:hidden mt-4 text-center text-white/25 text-xs">Glissez ou touchez pour naviguer</div>
     </div>
   );
 }
