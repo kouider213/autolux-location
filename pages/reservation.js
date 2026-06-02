@@ -13,13 +13,16 @@ const DatePicker = dynamic(() => import('react-datepicker'), { ssr: false });
 
 const WHATSAPP = '32466311469';
 
+const sym = (c) => (c === 'EUR' ? '€' : 'DA');
+const fmt = (n) => Number(n).toLocaleString('fr-FR');
+
 function buildWhatsAppUrl(form, car, days, total, bookingId) {
   const lines = [
     `🚗 *Nouvelle Réservation — Fik Conciergerie*`,
     ``,
     `*Véhicule :* ${car.name}`,
     `*Catégorie :* ${car.category || '—'} · ${car.seats || '—'} places`,
-    `*Prix/jour :* ${car.resale_price}€`,
+    `*Prix/jour :* ${fmt(car.resale_price)} ${sym(car.currency)}`,
     ``,
     `*Client :* ${form.name}`,
     `*Téléphone :* ${form.phone}`,
@@ -30,7 +33,7 @@ function buildWhatsAppUrl(form, car, days, total, bookingId) {
     `*Départ :* ${form.startDate}`,
     `*Retour :* ${form.endDate}`,
     `*Durée :* ${days} jour${days > 1 ? 's' : ''}`,
-    `*Total estimé :* ${total}€`,
+    `*Total estimé :* ${fmt(total)} ${sym(car.currency)}`,
     form.notes ? `*Notes :* ${form.notes}` : null,
     ``,
     bookingId ? `🔗 Suivi: https://autolux-location.vercel.app/suivi/${bookingId}` : null,
@@ -232,7 +235,7 @@ export default function ReservationPage({ cars: initialCars }) {
                 ['Départ',   form.startDate],
                 ['Retour',   form.endDate],
                 ['Durée',    `${days} jour${days > 1 ? 's' : ''}`],
-                ['Total',    `${total}€`],
+                ['Total',    `${fmt(total)} ${sym(selectedCar?.currency)}`],
                 ['Client',   form.name],
                 ['Tél',      form.phone],
               ].map(([label, value]) => (
@@ -321,7 +324,7 @@ export default function ReservationPage({ cars: initialCars }) {
                           className="input-dark pl-10 appearance-none cursor-pointer">
                           <option value="">— Sélectionnez un véhicule —</option>
                           {cars.map(car => (
-                            <option key={car.id} value={car.id}>{car.name} — {car.resale_price}€/jour</option>
+                            <option key={car.id} value={car.id}>{car.name} — {fmt(car.resale_price)} {sym(car.currency)}/jour</option>
                           ))}
                         </select>
                       </div>
@@ -341,7 +344,7 @@ export default function ReservationPage({ cars: initialCars }) {
                           <p className="text-white/35 text-xs capitalize mt-0.5">{selectedCar.category} · {selectedCar.seats}p · {selectedCar.fuel}</p>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <div className="text-gold-400 font-bold">{selectedCar.resale_price}€</div>
+                          <div className="text-gold-400 font-bold">{fmt(selectedCar.resale_price)} {sym(selectedCar.currency)}</div>
                           <div className="text-white/25 text-xs">/jour</div>
                         </div>
                       </div>
@@ -418,7 +421,7 @@ export default function ReservationPage({ cars: initialCars }) {
                             {days > 0 && (
                               <div className="text-center">
                                 <p className="text-white/30 text-xs mb-0.5">Total</p>
-                                <p className="text-gold-400 font-bold text-sm">{total}€</p>
+                                <p className="text-gold-400 font-bold text-sm">{fmt(total)} {sym(selectedCar?.currency)}</p>
                               </div>
                             )}
                           </div>
@@ -535,7 +538,7 @@ export default function ReservationPage({ cars: initialCars }) {
                           ['Véhicule', selectedCar.name],
                           ['Dates',    `${form.startDate} → ${form.endDate}`],
                           ['Durée',    `${days} jour${days > 1 ? 's' : ''}`],
-                          ['Total',    `${total}€`],
+                          ['Total',    `${fmt(total)} ${sym(selectedCar?.currency)}`],
                         ].map(([l, v]) => (
                           <div key={l} className="flex justify-between text-sm">
                             <span className="text-white/35">{l}</span>

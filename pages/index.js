@@ -237,7 +237,7 @@ function CarCarousel({ cars }) {
                     <span className="text-white/30 text-xs tracking-widest uppercase font-body block mb-1">À partir de</span>
                     <span className="font-display font-black text-gold-gradient leading-none"
                       style={{ fontSize: 'clamp(32px, 4vw, 52px)' }}>
-                      {car.resale_price}€
+                      {Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}
                     </span>
                     <span className="text-white/30 text-sm font-body ml-1">/jour</span>
                   </div>
@@ -392,7 +392,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
                 <div className="hero-css-sub absolute bottom-6 right-5 text-right pointer-events-none">
                   <p className="text-white/20 text-[10px] tracking-widest uppercase font-body">{heroCar.category}</p>
                   <p className="text-white/55 font-display font-bold text-sm">{heroCar.name}</p>
-                  <p className="text-gold-400 font-display font-bold text-lg">{heroCar.resale_price}€<span className="text-white/25 text-xs font-body">/j</span></p>
+                  <p className="text-gold-400 font-display font-bold text-lg">{Number(heroCar.resale_price).toLocaleString('fr-FR')} {heroCar.currency === 'EUR' ? '€' : 'DA'}<span className="text-white/25 text-xs font-body">/j</span></p>
                 </div>
               )}
 

@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Car, Fuel, Users, SlidersHorizontal, Search, ArrowRight, X, Gauge } from 'lucide-react';
+import { Car, Fuel, Users, Search, ArrowRight, X, Gauge } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
 
@@ -9,7 +9,6 @@ const CATEGORIES = ['Tous', 'citadine', 'berline', 'SUV', 'familiale', 'utilitai
 
 export default function CarsPage({ cars }) {
   const [filter, setFilter]     = useState('Tous');
-  const [maxPrice, setMaxPrice] = useState(200);
   const [search, setSearch]     = useState('');
   const [bookedCarIds, setBookedCarIds] = useState({});
 
@@ -30,12 +29,11 @@ export default function CarsPage({ cars }) {
 
   const filtered = cars.filter(car => {
     const catMatch   = filter === 'Tous' || car.category === filter;
-    const priceMatch = car.resale_price <= maxPrice;
     const nameMatch  = car.name.toLowerCase().includes(search.toLowerCase());
-    return catMatch && priceMatch && nameMatch;
+    return catMatch && nameMatch;
   });
 
-  const hasFilters = filter !== 'Tous' || maxPrice < 200 || search;
+  const hasFilters = filter !== 'Tous' || search;
 
   return (
     <>
@@ -91,19 +89,6 @@ export default function CarsPage({ cars }) {
                     </button>
                   )}
                 </div>
-
-                <div className="flex items-center gap-3 bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-3 sm:w-60">
-                  <SlidersHorizontal size={13} className="text-gold-500 flex-shrink-0" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-white/30 text-xs">Prix max / jour</span>
-                      <span className="text-gold-400 font-bold text-sm tabular-nums">{maxPrice} €</span>
-                    </div>
-                    <input type="range" min="15" max="200" value={maxPrice}
-                      onChange={e => setMaxPrice(Number(e.target.value))}
-                      className="w-full h-1 accent-yellow-500 cursor-pointer" />
-                  </div>
-                </div>
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -116,7 +101,7 @@ export default function CarsPage({ cars }) {
                     }`}>{cat}</button>
                 ))}
                 {hasFilters && (
-                  <button onClick={() => { setFilter('Tous'); setMaxPrice(200); setSearch(''); }}
+                  <button onClick={() => { setFilter('Tous'); setSearch(''); }}
                     className="px-4 py-2 rounded-xl text-xs font-semibold border border-red-500/20 text-red-400/60 hover:text-red-400 hover:border-red-500/40 transition-all flex items-center gap-1.5">
                     <X size={11} /> Réinitialiser
                   </button>
@@ -136,7 +121,7 @@ export default function CarsPage({ cars }) {
                   <Search size={22} className="text-white/15" />
                 </div>
                 <p className="text-white/35 mb-4">Aucun véhicule ne correspond à vos critères.</p>
-                <button onClick={() => { setFilter('Tous'); setMaxPrice(200); setSearch(''); }}
+                <button onClick={() => { setFilter('Tous'); setSearch(''); }}
                   className="text-gold-500 text-sm hover:text-gold-400 transition-colors underline underline-offset-4">
                   Réinitialiser les filtres
                 </button>
@@ -242,9 +227,9 @@ function CarCard({ car, bookedUntil }) {
         <div>
           <div className="flex items-baseline gap-1">
             <span className="font-display font-black text-2xl text-gold-400 leading-none tabular-nums">
-              {car.resale_price}
+              {Number(car.resale_price).toLocaleString('fr-FR')}
             </span>
-            <span className="text-gold-500/50 text-sm">€</span>
+            <span className="text-gold-500/50 text-sm">{car.currency === 'EUR' ? '€' : 'DA'}</span>
             <span className="text-white/25 text-xs">/ jour</span>
           </div>
         </div>

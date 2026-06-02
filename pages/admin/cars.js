@@ -10,10 +10,11 @@ const FUELS        = ['essence', 'diesel', 'hybride', 'électrique'];
 const TRANSMISSIONS = ['manuelle', 'automatique'];
 
 const emptyForm = {
-  name: '', base_price: '', resale_price: '',
+  name: '', base_price: '', resale_price: '', currency: 'DZD',
   category: 'berline', seats: 5, fuel: 'essence',
   transmission: 'manuelle', description: '',
 };
+const sym = (c) => (c === 'EUR' ? '€' : 'DA');
 
 export default function AdminCarsPage() {
   const [cars, setCars]         = useState([]);
@@ -44,7 +45,7 @@ export default function AdminCarsPage() {
 
   const openEdit = (car) => {
     setForm({
-      name: car.name, base_price: car.base_price, resale_price: car.resale_price,
+      name: car.name, base_price: car.base_price, resale_price: car.resale_price, currency: car.currency || 'DZD',
       category: car.category, seats: car.seats, fuel: car.fuel,
       transmission: car.transmission, description: car.description || '',
     });
@@ -108,6 +109,7 @@ export default function AdminCarsPage() {
       name: form.name.trim(),
       base_price:    Number(form.base_price),
       resale_price:  Number(form.resale_price),
+      currency:      form.currency,
       category:      form.category,
       seats:         Number(form.seats),
       fuel:          form.fuel,
@@ -265,7 +267,7 @@ export default function AdminCarsPage() {
                           )}
                         </div>
                         <div className="text-right">
-                          <p className="text-gold-400 font-black text-base tabular-nums leading-tight">{car.resale_price} €</p>
+                          <p className="text-gold-400 font-black text-base tabular-nums leading-tight">{Number(car.resale_price).toLocaleString('fr-FR')} {sym(car.currency)}</p>
                           <p className="text-white/25 text-[10px]">/ jour client</p>
                         </div>
                       </div>
@@ -274,11 +276,11 @@ export default function AdminCarsPage() {
                       <div className="flex items-center justify-between mb-3 bg-white/[0.04] rounded-xl px-3 py-2">
                         <div className="text-center">
                           <p className="text-white/25 text-[9px] uppercase tracking-wide">Proprio</p>
-                          <p className="text-white/55 text-xs font-semibold tabular-nums">{car.base_price} €</p>
+                          <p className="text-white/55 text-xs font-semibold tabular-nums">{Number(car.base_price).toLocaleString('fr-FR')} {sym(car.currency)}</p>
                         </div>
                         <div className="text-center">
                           <p className="text-white/25 text-[9px] uppercase tracking-wide">Marge</p>
-                          <p className="text-emerald-400 text-xs font-bold tabular-nums">+{car.resale_price - car.base_price} €</p>
+                          <p className="text-emerald-400 text-xs font-bold tabular-nums">+{(car.resale_price - car.base_price).toLocaleString('fr-FR')} {sym(car.currency)}</p>
                         </div>
                         <div className="text-center">
                           <p className="text-white/25 text-[9px] uppercase tracking-wide">Photos</p>
@@ -343,16 +345,29 @@ export default function AdminCarsPage() {
                     className="input-dark text-sm" />
                 </div>
 
+                {/* Devise */}
+                <div>
+                  <label className="label-dark">Devise</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['DZD', 'EUR'].map(c => (
+                      <button key={c} type="button" onClick={() => setForm(f => ({ ...f, currency: c }))}
+                        className={`py-2.5 rounded-xl text-sm font-bold transition-all ${form.currency === c ? 'bg-gold-500 text-noir-950' : 'bg-white/[0.04] border border-white/[0.08] text-white/50'}`}>
+                        {c === 'DZD' ? 'Dinar (DA)' : 'Euro (€)'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Prix */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="label-dark">Prix proprio (€/j) *</label>
-                    <input type="number" value={form.base_price} onChange={up('base_price')} placeholder="44"
+                    <label className="label-dark">Prix proprio ({sym(form.currency)}/j) *</label>
+                    <input type="number" value={form.base_price} onChange={up('base_price')} placeholder={form.currency === 'DZD' ? '6000' : '44'}
                       className="input-dark text-sm" />
                   </div>
                   <div>
-                    <label className="label-dark">Prix client (€/j) *</label>
-                    <input type="number" value={form.resale_price} onChange={up('resale_price')} placeholder="55"
+                    <label className="label-dark">Prix client ({sym(form.currency)}/j) *</label>
+                    <input type="number" value={form.resale_price} onChange={up('resale_price')} placeholder={form.currency === 'DZD' ? '8000' : '55'}
                       className="input-dark text-sm" />
                   </div>
                 </div>
@@ -366,7 +381,7 @@ export default function AdminCarsPage() {
                   }`}>
                     <span className="text-white/50">Marge / jour</span>
                     <span className={`font-bold tabular-nums ${marge >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {marge >= 0 ? '+' : ''}{marge.toFixed(0)} €
+                      {marge >= 0 ? '+' : ''}{marge.toLocaleString('fr-FR')} {sym(form.currency)}
                     </span>
                   </div>
                 )}

@@ -41,7 +41,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
   }
 
   const whatsappMsg = encodeURIComponent(
-    `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par la location du véhicule :\n*${car.name}* - ${car.resale_price ? car.resale_price + '€/jour' : 'Prix sur demande'}\n\nMerci de me confirmer les disponibilités.`
+    `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par la location du véhicule :\n*${car.name}* - ${car.resale_price ? Number(car.resale_price).toLocaleString('fr-FR') + ' ' + (car.currency === 'EUR' ? '€' : 'DA') + '/jour' : 'Prix sur demande'}\n\nMerci de me confirmer les disponibilités.`
   );
   // Belgian number: +32 466 31 14 69
   const whatsappUrl = `https://wa.me/32466311469?text=${whatsappMsg}`;
@@ -65,7 +65,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
     <>
       <Head>
         <title>{car.name} — Fik Conciergerie</title>
-        <meta name="description" content={`Louez le ${car.name} à Oran. ${car.resale_price ? car.resale_price + '€/jour' : 'Prix sur demande'}. Sans caution.`} />
+        <meta name="description" content={`Louez le ${car.name} à Oran. ${car.resale_price ? Number(car.resale_price).toLocaleString('fr-FR') + ' ' + (car.currency === 'EUR' ? '€' : 'DA') + '/jour' : 'Prix sur demande'}. Sans caution.`} />
       </Head>
 
       <div className="grain min-h-screen bg-[#0e0e0e]">
@@ -85,7 +85,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
             <div>
               <p className="text-white/40 text-xs font-body">À partir de</p>
               <p className="font-display font-black text-gold-400 text-xl leading-none tabular-nums">
-                {car.resale_price}€<span className="text-sm font-body text-white/25 ml-1">/jour</span>
+                {Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}<span className="text-sm font-body text-white/25 ml-1">/jour</span>
               </p>
             </div>
             <div className="flex gap-2 flex-1 justify-end">
@@ -169,7 +169,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                     <>
                       <span className="font-display font-black text-gold-gradient leading-none"
                         style={{ fontSize: 'clamp(36px, 4vw, 52px)' }}>
-                        {car.resale_price}€
+                        {Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}
                       </span>
                       <span className="text-white/30 text-base font-body">/jour</span>
                     </>
