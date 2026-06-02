@@ -43,16 +43,48 @@ const emptyForm = {
 };
 
 export default function CommandeVehiculePage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [form, setForm]       = useState(emptyForm);
   const [accept, setAccept]   = useState(false);
   const [error, setError]     = useState('');
 
   const set = (f) => (e) => setForm(s => ({ ...s, [f]: e.target.value }));
   const cur = form.devise === 'DZD' ? 'DA' : '€';
+  const ar = lang === 'ar';
 
   const buildMessage = () => {
     const L = [];
+    if (ar) {
+      L.push('🚗 *طلب اقتناء / استيراد سيارة*');
+      L.push('— فيك كونسيرجري —');
+      L.push('');
+      L.push('*👤 الزبون*');
+      L.push(`الاسم : ${form.nom} ${form.prenom}`);
+      L.push(`واتساب : ${form.whatsapp}`);
+      if (form.ville) L.push(`المدينة/البلد : ${form.ville}`);
+      L.push('');
+      L.push('*🚘 السيارة المطلوبة*');
+      if (form.type)    L.push(`النوع : ${form.type}`);
+      if (form.marque)  L.push(`الماركة : ${form.marque}`);
+      if (form.modele)  L.push(`الموديل : ${form.modele}`);
+      if (form.annee_min) L.push(`أقدم سنة : ${form.annee_min}`);
+      if (form.km_max)  L.push(`أقصى كيلومتراج : ${form.km_max}`);
+      if (form.carburant) L.push(`الوقود : ${form.carburant}`);
+      if (form.boite)   L.push(`علبة السرعة : ${form.boite}`);
+      if (form.couleur) L.push(`اللون : ${form.couleur}`);
+      L.push(`الحالة : ${form.etat}`);
+      if (form.options) L.push(`خيارات : ${form.options}`);
+      L.push('');
+      L.push('*💰 الميزانية والشروط*');
+      if (form.budget)  L.push(`أقصى ميزانية : ${form.budget} ${cur}`);
+      if (form.origine) L.push(`بلد المنشأ المرغوب : ${form.origine}`);
+      if (form.delai)   L.push(`الأجل المرغوب : ${form.delai}`);
+      if (form.liens)   { L.push(''); L.push(`*🔗 أمثلة :* ${form.liens}`); }
+      if (form.message) { L.push(''); L.push(`*📝 رسالة :* ${form.message}`); }
+      L.push('');
+      L.push('_قرأتُ وأوافق على أن يُدرَس طلبي وألّا يُؤكَّد الطلب إلا بعد التأكيد الكتابي._');
+      return L.join('\n');
+    }
     L.push('🚗 *DEMANDE DE COMMANDE / IMPORTATION VÉHICULE*');
     L.push('— Fik Conciergerie —');
     L.push('');
@@ -85,10 +117,13 @@ export default function CommandeVehiculePage() {
   };
 
   const handleSubmit = () => {
-    if (!form.nom.trim() || !form.prenom.trim()) { setError('Nom et prénom obligatoires.'); return; }
-    if (!form.whatsapp.trim()) { setError('Numéro WhatsApp obligatoire.'); return; }
-    if (!form.marque.trim() && !form.type.trim()) { setError('Indiquez au moins le type ou la marque du véhicule.'); return; }
-    if (!accept) { setError('Vous devez accepter les conditions pour envoyer la demande.'); return; }
+    const E = ar
+      ? { name: 'الاسم واللقب إجباريان.', wa: 'رقم واتساب إجباري.', veh: 'حدّد على الأقل نوع أو ماركة السيارة.', acc: 'يجب الموافقة على الشروط لإرسال الطلب.' }
+      : { name: 'Nom et prénom obligatoires.', wa: 'Numéro WhatsApp obligatoire.', veh: 'Indiquez au moins le type ou la marque du véhicule.', acc: 'Vous devez accepter les conditions pour envoyer la demande.' };
+    if (!form.nom.trim() || !form.prenom.trim()) { setError(E.name); return; }
+    if (!form.whatsapp.trim()) { setError(E.wa); return; }
+    if (!form.marque.trim() && !form.type.trim()) { setError(E.veh); return; }
+    if (!accept) { setError(E.acc); return; }
     setError('');
     const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(buildMessage())}`;
     window.open(url, '_blank');

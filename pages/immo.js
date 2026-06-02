@@ -20,13 +20,16 @@ const STATUS_BADGE = {
 };
 
 function PropertyCard({ property: p }) {
+  const { t } = useLang();
   const photos = (p.property_photos || []).sort((a, b) => a.position - b.position).map(ph => ph.url);
   const photo = photos[0];
   const available = (p.status || 'disponible') === 'disponible';
+  const STB = { disponible: t('b.available'), loue: t('b.rented'), vendu: t('b.sold'), coming_soon: t('b.soon') };
   const st = STATUS_BADGE[p.status] || STATUS_BADGE.disponible;
+  const stLabel = STB[p.status] || STB.disponible;
   const isSale = (p.transaction || 'location') === 'vente';
 
-  const waMsg = encodeURIComponent(`Bonjour, je suis intéressé(e) par le bien : ${p.title}${p.price ? ' (' + Number(p.price).toLocaleString() + ' ' + cur(p.currency) + ')' : ''}. Pouvez-vous me donner plus d'informations ?`);
+  const waMsg = encodeURIComponent(`${t('wa.interested_property')} ${p.title}${p.price ? ' (' + Number(p.price).toLocaleString() + ' ' + cur(p.currency) + ')' : ''}. ${t('wa.more_info')}`);
 
   return (
     <div className="group relative bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-gold-500/25 hover:-translate-y-2 hover:shadow-[0_28px_60px_rgba(0,0,0,0.7)] transition-all duration-500">
@@ -39,10 +42,10 @@ function PropertyCard({ property: p }) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/40 to-transparent" />
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
           <div className="flex flex-col gap-1.5">
-            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-md w-fit ${isSale ? 'bg-purple-500/20 text-purple-300 border-purple-500/25' : 'bg-blue-500/20 text-blue-300 border-blue-500/25'}`}>{isSale ? 'À VENDRE' : 'À LOUER'}</span>
-            {p.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950 flex items-center gap-1 w-fit"><Star size={9} className="fill-current" /> EN AVANT</span>}
+            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-md w-fit ${isSale ? 'bg-purple-500/20 text-purple-300 border-purple-500/25' : 'bg-blue-500/20 text-blue-300 border-blue-500/25'}`}>{isSale ? t('b.forsale') : t('b.forrent')}</span>
+            {p.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950 flex items-center gap-1 w-fit"><Star size={9} className="fill-current" /> {t('b.featured')}</span>}
           </div>
-          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-md ${st.cls}`}>{st.label}</span>
+          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-md ${st.cls}`}>{stLabel}</span>
         </div>
         {!available && <div className="absolute inset-0 bg-[#0a0a0a]/55 backdrop-blur-[2px]" />}
         <div className="absolute inset-x-0 bottom-0 p-4">
@@ -61,9 +64,9 @@ function PropertyCard({ property: p }) {
             <div className="flex items-baseline gap-1">
               <span className="font-display font-black text-xl text-gold-400 leading-none tabular-nums">{Number(p.price).toLocaleString()}</span>
               <span className="text-gold-500/50 text-sm">{cur(p.currency)}</span>
-              {!isSale && <span className="text-white/25 text-[10px]">/mois</span>}
+              {!isSale && <span className="text-white/25 text-[10px]">{t('b.per_month')}</span>}
             </div>
-          ) : <span className="text-white/30 text-sm">Prix sur demande</span>}
+          ) : <span className="text-white/30 text-sm">{t('b.price_request')}</span>}
         </div>
         <div className="flex items-center gap-2">
           <Link href={`/immo/${p.id}`} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.05] hover:bg-white/10 text-white/30 hover:text-white transition-all"><ArrowRight size={14} /></Link>
@@ -75,10 +78,10 @@ function PropertyCard({ property: p }) {
 }
 
 const OWNER_OFFERS = [
-  { icon: Home,       title: 'Mise en ligne', desc: 'Votre bien publié sur notre site, visible par tous nos visiteurs.' },
-  { icon: Megaphone,  title: 'Mise en avant', desc: 'Votre bien apparaît en premier, plus visible, plus de contacts.' },
-  { icon: Briefcase,  title: 'Gestion complète', desc: 'On gère tout : annonce, photos, visites et contacts clients.' },
-  { icon: Calculator, title: 'Estimation gratuite', desc: 'On estime combien vous pouvez louer ou vendre votre bien.' },
+  { icon: Home,       tk: 'immo.o1_t', dk: 'immo.o1_d' },
+  { icon: Megaphone,  tk: 'immo.o2_t', dk: 'immo.o2_d' },
+  { icon: Briefcase,  tk: 'immo.o3_t', dk: 'immo.o3_d' },
+  { icon: Calculator, tk: 'immo.o4_t', dk: 'immo.o4_d' },
 ];
 
 export default function ImmoPage({ properties }) {
@@ -132,24 +135,24 @@ export default function ImmoPage({ properties }) {
                 <div className="bg-[#111]/80 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-5 mb-8 space-y-4">
                   <div className="relative">
                     <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
-                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher (titre, ville, quartier)..." className="w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl pl-10 pr-4 py-3 text-white text-sm placeholder-white/25 outline-none transition-colors" />
+                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('common.search')} className="w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl pl-10 pr-4 py-3 text-white text-sm placeholder-white/25 outline-none transition-colors" />
                     {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white"><X size={13} /></button>}
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {[{ k: 'Tous', l: 'Tous' }, { k: 'location', l: 'À louer' }, { k: 'vente', l: 'À vendre' }].map(t => (
-                      <button key={t.k} onClick={() => setTxn(t.k)} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${txn === t.k ? 'bg-gold-500 text-noir-950' : 'bg-white/[0.04] border border-white/[0.07] text-white/40 hover:text-white/70'}`}>{t.l}</button>
+                    {[{ k: 'Tous', l: t('immo.f_all') }, { k: 'location', l: t('immo.f_rent') }, { k: 'vente', l: t('immo.f_sale') }].map(f => (
+                      <button key={f.k} onClick={() => setTxn(f.k)} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${txn === f.k ? 'bg-gold-500 text-noir-950' : 'bg-white/[0.04] border border-white/[0.07] text-white/40 hover:text-white/70'}`}>{f.l}</button>
                     ))}
                     <div className="w-px bg-white/[0.08] mx-1" />
-                    {types.map(t => (
-                      <button key={t} onClick={() => setType(t)} className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize transition-all ${type === t ? 'bg-white/[0.12] text-white border border-white/15' : 'bg-white/[0.04] border border-white/[0.07] text-white/40 hover:text-white/70'}`}>{t}</button>
+                    {types.map(ty => (
+                      <button key={ty} onClick={() => setType(ty)} className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize transition-all ${type === ty ? 'bg-white/[0.12] text-white border border-white/15' : 'bg-white/[0.04] border border-white/[0.07] text-white/40 hover:text-white/70'}`}>{ty === 'Tous' ? t('immo.f_all') : ty}</button>
                     ))}
                   </div>
                 </div>
 
-                <p className="text-white/25 text-xs font-semibold uppercase tracking-widest mb-6">{filtered.length} bien{filtered.length !== 1 ? 's' : ''}</p>
+                <p className="text-white/25 text-xs font-semibold uppercase tracking-widest mb-6">{filtered.length} {t('immo.count')}</p>
 
                 {filtered.length === 0 ? (
-                  <div className="text-center py-24"><Search size={22} className="text-white/15 mx-auto mb-4" /><p className="text-white/35">Aucun bien ne correspond.</p></div>
+                  <div className="text-center py-24"><Search size={22} className="text-white/15 mx-auto mb-4" /><p className="text-white/35">{t('immo.none')}</p></div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {filtered.map(p => <PropertyCard key={p.id} property={p} />)}
@@ -177,8 +180,8 @@ export default function ImmoPage({ properties }) {
                 {OWNER_OFFERS.map((o, i) => (
                   <div key={i} className="bg-[#141414] border border-white/[0.06] rounded-2xl p-6 hover:border-gold-500/20 transition-all group">
                     <div className="w-12 h-12 bg-gold-500/10 border border-gold-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><o.icon size={20} className="text-gold-400" /></div>
-                    <h3 className="text-white font-bold text-base mb-2">{o.title}</h3>
-                    <p className="text-white/40 text-sm leading-relaxed">{o.desc}</p>
+                    <h3 className="text-white font-bold text-base mb-2">{t(o.tk)}</h3>
+                    <p className="text-white/40 text-sm leading-relaxed">{t(o.dk)}</p>
                   </div>
                 ))}
               </div>

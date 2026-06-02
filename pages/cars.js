@@ -105,7 +105,7 @@ export default function CarsPage({ cars }) {
                 {hasFilters && (
                   <button onClick={() => { setFilter('Tous'); setSearch(''); }}
                     className="px-4 py-2 rounded-xl text-xs font-semibold border border-red-500/20 text-red-400/60 hover:text-red-400 hover:border-red-500/40 transition-all flex items-center gap-1.5">
-                    <X size={11} /> Réinitialiser
+                    <X size={11} /> {t('b.reset')}
                   </button>
                 )}
               </div>
@@ -113,7 +113,7 @@ export default function CarsPage({ cars }) {
 
             {/* Count */}
             <p className="text-white/25 text-xs font-semibold uppercase tracking-widest mb-6">
-              <span className="text-white/50">{filtered.length}</span> véhicule{filtered.length !== 1 ? 's' : ''} trouvé{filtered.length !== 1 ? 's' : ''}
+              <span className="text-white/50">{filtered.length}</span> {t('cars.title2')} {t('b.found')}
             </p>
 
             {/* Grid */}
@@ -122,15 +122,15 @@ export default function CarsPage({ cars }) {
                 <div className="w-16 h-16 bg-white/[0.03] border border-white/[0.06] rounded-2xl flex items-center justify-center mx-auto mb-5">
                   <Search size={22} className="text-white/15" />
                 </div>
-                <p className="text-white/35 mb-4">Aucun véhicule ne correspond à vos critères.</p>
+                <p className="text-white/35 mb-4">{t('cars.none')}</p>
                 <button onClick={() => { setFilter('Tous'); setSearch(''); }}
                   className="text-gold-500 text-sm hover:text-gold-400 transition-colors underline underline-offset-4">
-                  Réinitialiser les filtres
+                  {t('b.reset')}
                 </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {filtered.map(car => <CarCard key={car.id} car={car} bookedUntil={bookedCarIds[car.id] || null} />)}
+                {filtered.map(car => <CarCard key={car.id} car={car} bookedUntil={bookedCarIds[car.id] || null} t={t} />)}
               </div>
             )}
 
@@ -142,13 +142,13 @@ export default function CarsPage({ cars }) {
                     <Gauge size={20} className="text-gold-400" />
                   </div>
                   <div>
-                    <p className="text-white font-bold text-lg mb-1">Vous ne trouvez pas votre véhicule ?</p>
-                    <p className="text-white/35 text-sm">Contactez-nous, nous avons peut-être ce qu'il vous faut.</p>
+                    <p className="text-white font-bold text-lg mb-1">{t('cars.help_title')}</p>
+                    <p className="text-white/35 text-sm">{t('cars.help_desc')}</p>
                   </div>
                   <a href="https://wa.me/32466311469?text=Bonjour%2C%20je%20cherche%20un%20v%C3%A9hicule%20sp%C3%A9cifique."
                     target="_blank" rel="noopener noreferrer"
                     className="btn-gold px-8 py-3 text-sm w-full justify-center">
-                    Nous contacter sur WhatsApp
+                    {t('common.contact_wa')}
                   </a>
                 </div>
               </div>
@@ -160,7 +160,7 @@ export default function CarsPage({ cars }) {
   );
 }
 
-function CarCard({ car, bookedUntil }) {
+function CarCard({ car, bookedUntil, t }) {
   const isBookedNow = !!bookedUntil;
   const available   = car.available && !isBookedNow;
 
@@ -189,15 +189,15 @@ function CarCard({ car, bookedUntil }) {
           </span>
           {available ? (
             <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 backdrop-blur-md">
-              ● Disponible
+              ● {t('b.available')}
             </span>
           ) : isBookedNow ? (
             <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/20 backdrop-blur-md">
-              Loué · {bookedUntil}
+              {t('b.rented')} · {bookedUntil}
             </span>
           ) : (
             <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 backdrop-blur-md">
-              Indisponible
+              {t('b.unavailable')}
             </span>
           )}
         </div>
@@ -215,7 +215,7 @@ function CarCard({ car, bookedUntil }) {
               <Fuel size={10} /> {car.fuel}
             </span>
             <span className="flex items-center gap-1 text-white/35 text-xs">
-              <Users size={10} /> {car.seats} places
+              <Users size={10} /> {car.seats} {t('b.places')}
             </span>
             {car.transmission && (
               <span className="text-white/35 text-xs capitalize">{car.transmission}</span>
@@ -232,7 +232,7 @@ function CarCard({ car, bookedUntil }) {
               {Number(car.resale_price).toLocaleString('fr-FR')}
             </span>
             <span className="text-gold-500/50 text-sm">{car.currency === 'EUR' ? '€' : 'DA'}</span>
-            <span className="text-white/25 text-xs">/ jour</span>
+            <span className="text-white/25 text-xs">{t('b.per_day')}</span>
           </div>
         </div>
 
@@ -247,7 +247,7 @@ function CarCard({ car, bookedUntil }) {
                 ? 'bg-gold-500 text-noir-950 hover:bg-gold-400 shadow-[0_4px_16px_rgba(226,182,20,0.3)] hover:shadow-[0_6px_20px_rgba(226,182,20,0.4)]'
                 : 'bg-white/[0.04] text-white/20 cursor-not-allowed'
             }`}>
-            {available ? 'Réserver' : 'Indispo.'}
+            {available ? t('common.book') : t('cars.indispo')}
           </Link>
         </div>
       </div>

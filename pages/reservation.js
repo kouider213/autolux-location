@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { Car, User, Check, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Phone, FileText, Loader2, Home, CalendarDays, Info } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
+import { useLang } from '../lib/i18n';
 import { format, isWithinInterval, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -16,8 +17,30 @@ const WHATSAPP = '32466311469';
 const sym = (c) => (c === 'EUR' ? '€' : 'DA');
 const fmt = (n) => Number(n).toLocaleString('fr-FR');
 
-function buildWhatsAppUrl(form, car, days, total, bookingId) {
-  const lines = [
+function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr') {
+  const ar = lang === 'ar';
+  const lines = ar ? [
+    `🚗 *حجز جديد — فيك كونسيرجري*`,
+    ``,
+    `*السيارة :* ${car.name}`,
+    `*الفئة :* ${car.category || '—'} · ${car.seats || '—'} مقاعد`,
+    `*السعر/يوم :* ${fmt(car.resale_price)} ${sym(car.currency)}`,
+    ``,
+    `*الزبون :* ${form.name}`,
+    `*الهاتف :* ${form.phone}`,
+    `*العمر :* ${form.age} سنة`,
+    form.email    ? `*البريد :* ${form.email}`            : null,
+    form.passport ? `*جواز/بطاقة :* ${form.passport}`    : null,
+    ``,
+    `*الانطلاق :* ${form.startDate}`,
+    `*العودة :* ${form.endDate}`,
+    `*المدة :* ${days} يوم`,
+    `*المجموع التقديري :* ${fmt(total)} ${sym(car.currency)}`,
+    form.notes ? `*ملاحظات :* ${form.notes}` : null,
+    ``,
+    bookingId ? `🔗 المتابعة: https://autolux-location.vercel.app/suivi/${bookingId}` : null,
+    `_طلب مُرسَل من موقع فيك كونسيرجري._`,
+  ] : [
     `🚗 *Nouvelle Réservation — Fik Conciergerie*`,
     ``,
     `*Véhicule :* ${car.name}`,
@@ -38,12 +61,13 @@ function buildWhatsAppUrl(form, car, days, total, bookingId) {
     ``,
     bookingId ? `🔗 Suivi: https://autolux-location.vercel.app/suivi/${bookingId}` : null,
     `_Demande envoyée depuis le site Fik Conciergerie._`,
-  ].filter(l => l !== null).join('\n');
+  ];
 
-  return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(lines)}`;
+  return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(lines.filter(l => l !== null).join('\n'))}`;
 }
 
 export default function ReservationPage({ cars: initialCars }) {
+  const { lang } = useLang();
   const router = useRouter();
   const { car: preselectedId } = router.query;
 
@@ -205,11 +229,11 @@ export default function ReservationPage({ cars: initialCars }) {
     } catch { /* non-blocking */ }
     setLoading(false);
     setDone(true);
-    const url = buildWhatsAppUrl(form, selectedCar, days, total);
+    const url = buildWhatsAppUrl(form, selectedCar, days, total, newBookingId, lang);
     if (typeof window !== 'undefined') setTimeout(() => window.open(url, '_blank'), 300);
   };
 
-  const whatsappUrl = selectedCar ? buildWhatsAppUrl(form, selectedCar, days, total) : '#';
+  const whatsappUrl = selectedCar ? buildWhatsAppUrl(form, selectedCar, days, total, null, lang) : '#';
 
   // ── DONE screen
   if (done && selectedCar) {

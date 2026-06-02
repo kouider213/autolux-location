@@ -18,11 +18,14 @@ const STATUS_BADGE = {
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
 function VehicleCard({ v }) {
+  const { t } = useLang();
   const photos = (v.vehicle_sale_photos || []).sort((a, b) => a.position - b.position).map(p => p.url);
   if (v.image_url && !photos.includes(v.image_url)) photos.unshift(v.image_url);
   const photo = photos[0];
   const available = v.status === 'disponible';
+  const STB = { disponible: '● ' + t('b.available'), reserve: t('b.reserved'), vendu: t('b.sold'), coming_soon: t('b.soon') };
   const st = STATUS_BADGE[v.status] || STATUS_BADGE.disponible;
+  const stLabel = STB[v.status] || STB.disponible;
 
   return (
     <div className="group relative bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-gold-500/25 hover:-translate-y-2 hover:shadow-[0_28px_60px_rgba(0,0,0,0.7)] transition-all duration-500">
@@ -34,8 +37,8 @@ function VehicleCard({ v }) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/40 to-transparent" />
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
-          {v.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950 flex items-center gap-1"><Star size={10} className="fill-current" /> EN AVANT</span>}
-          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-md ml-auto ${st.cls}`}>{st.label}</span>
+          {v.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950 flex items-center gap-1"><Star size={10} className="fill-current" /> {t('b.featured')}</span>}
+          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-md ml-auto ${st.cls}`}>{stLabel}</span>
         </div>
         {!available && <div className="absolute inset-0 bg-[#0a0a0a]/55 backdrop-blur-[2px]" />}
         <div className="absolute inset-x-0 bottom-0 p-4">
@@ -54,7 +57,7 @@ function VehicleCard({ v }) {
         </div>
         <div className="flex items-center gap-2">
           <Link href={`/vente-voitures/${v.id}`} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.05] hover:bg-white/10 text-white/30 hover:text-white transition-all"><ArrowRight size={14} /></Link>
-          <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Bonjour, je suis intéressé(e) par le véhicule à vendre : ${v.brand} ${v.model}${v.year ? ' (' + v.year + ')' : ''}. Est-il toujours disponible ?`)}`}
+          <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`${t('wa.interested_vehicle')} ${v.brand} ${v.model}${v.year ? ' (' + v.year + ')' : ''}. ${t('wa.still_available')}`)}`}
             target="_blank" rel="noopener noreferrer"
             className="px-4 py-2.5 rounded-xl text-sm font-bold bg-gold-500 text-noir-950 hover:bg-gold-400 shadow-[0_4px_16px_rgba(226,182,20,0.3)] transition-all">WhatsApp</a>
         </div>
@@ -127,7 +130,7 @@ export default function VenteVoituresPage({ vehicles }) {
                 <div className="bg-[#111]/80 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-5 mb-8 space-y-4">
                   <div className="relative">
                     <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
-                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher (marque, modèle, ville)..." className="w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl pl-10 pr-4 py-3 text-white text-sm placeholder-white/25 outline-none transition-colors" />
+                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('common.search')} className="w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl pl-10 pr-4 py-3 text-white text-sm placeholder-white/25 outline-none transition-colors" />
                     {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white"><X size={13} /></button>}
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -137,10 +140,10 @@ export default function VenteVoituresPage({ vehicles }) {
                   </div>
                 </div>
 
-                <p className="text-white/25 text-xs font-semibold uppercase tracking-widest mb-6">{filtered.length} véhicule{filtered.length !== 1 ? 's' : ''}</p>
+                <p className="text-white/25 text-xs font-semibold uppercase tracking-widest mb-6">{filtered.length} {t('sale.count')}</p>
 
                 {filtered.length === 0 ? (
-                  <div className="text-center py-24"><Search size={22} className="text-white/15 mx-auto mb-4" /><p className="text-white/35">Aucun véhicule ne correspond.</p></div>
+                  <div className="text-center py-24"><Search size={22} className="text-white/15 mx-auto mb-4" /><p className="text-white/35">{t('sale.none')}</p></div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {filtered.map(v => <VehicleCard key={v.id} v={v} />)}

@@ -414,9 +414,9 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
             style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.05) 0%,transparent 65%)' }} />
           <div className="relative max-w-3xl mx-auto">
             <div className="text-center mb-12">
-              <span className="section-badge mb-5 inline-block">Avantages</span>
+              <span className="section-badge mb-5 inline-block">{t('home.adv')}</span>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
-                Pourquoi <span className="text-gold-gradient italic">nous choisir</span>
+                {t('home.why1')} <span className="text-gold-gradient italic">{t('home.why2')}</span>
               </h2>
             </div>
             <BenefitsCarousel benefits={BENEFITS} />
@@ -476,11 +476,11 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
           <div className="relative max-w-5xl mx-auto">
             <div className="text-center mb-16">
-              <span className="section-badge mb-5 inline-block">Simple &amp; rapide</span>
+              <span className="section-badge mb-5 inline-block">{t('home.steps_badge')}</span>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
-                Réservez en <span className="text-gold-gradient italic">3 étapes</span>
+                {t('home.steps_t1')} <span className="text-gold-gradient italic">{t('home.steps_t2')}</span>
               </h2>
-              <p className="text-white/35 mt-4 max-w-md mx-auto font-body">De la sélection à la remise des clés, tout est pensé pour votre confort.</p>
+              <p className="text-white/35 mt-4 max-w-md mx-auto font-body">{t('home.steps_sub')}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
@@ -528,13 +528,13 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
             <motion.div className="mb-10"
               initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
               viewport={{ once:true }} transition={{ duration:0.7, ease }}>
-              <span className="section-badge mb-5 inline-block">Notre flotte</span>
+              <span className="section-badge mb-5 inline-block">{t('home.fleet_badge')}</span>
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-3">
                 <h2 className="font-display text-4xl md:text-5xl font-bold text-white">
-                  Choisissez votre <span className="text-gold-gradient italic">véhicule</span>
+                  {t('home.fleet_t1')} <span className="text-gold-gradient italic">{t('home.fleet_t2')}</span>
                 </h2>
                 <Link href="/cars" className="btn-outline text-sm py-2.5 self-start">
-                  Tous les véhicules <ArrowRight size={13} />
+                  {t('home.fleet_all')} <ArrowRight size={13} />
                 </Link>
               </div>
             </motion.div>
@@ -558,9 +558,9 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
             <motion.div className="text-center mb-16"
               initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
               viewport={{ once:true }} transition={{ duration:0.7 }}>
-              <span className="section-badge mb-5 inline-block">Fik Conciergerie en chiffres</span>
+              <span className="section-badge mb-5 inline-block">{t('home.stats_badge')}</span>
               <h2 className="font-display text-4xl md:text-6xl font-bold text-white mt-5">
-                Confiance & <span className="text-gold-gradient italic">Excellence</span>
+                {t('home.stats_t1')} <span className="text-gold-gradient italic">{t('home.stats_t2')}</span>
               </h2>
             </motion.div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
@@ -594,9 +594,9 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
               <motion.div className="text-center mb-14"
                 initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ duration:0.7 }}>
-                <span className="section-badge mb-5 inline-block">Témoignages</span>
+                <span className="section-badge mb-5 inline-block">{t('home.rev_badge')}</span>
                 <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
-                  Ils nous font <span className="text-gold-gradient italic">confiance</span>
+                  {t('home.rev_t1')} <span className="text-gold-gradient italic">{t('home.rev_t2')}</span>
                 </h2>
                 <div className="flex items-center justify-center gap-3 mt-5">
                   <div className="flex gap-0.5">
@@ -632,7 +632,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
               </div>
               <div className="text-center mt-10">
                 <Link href="/reviews" className="btn-ghost text-sm text-white/35 hover:text-white font-body">
-                  Voir tous les avis <ArrowRight size={13} />
+                  {t('home.rev_all')} <ArrowRight size={13} />
                 </Link>
               </div>
             </div>
@@ -652,13 +652,13 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
                 <Car size={32} className="text-gold-400" />
               </motion.div>
               <h2 className="font-display text-4xl md:text-7xl font-bold text-white mb-6 leading-[0.9]">
-                Prêt à prendre<br /><span className="text-gold-gradient italic">la route ?</span>
+                {t('home.cta_t1')}<br /><span className="text-gold-gradient italic">{t('home.cta_t2')}</span>
               </h2>
               <p className="text-white/35 text-lg md:text-xl mb-12 font-body leading-relaxed">
-                Réservez dès maintenant votre véhicule à Oran.<br />Simple, rapide, sans caution.
+                {t('home.cta_sub')}
               </p>
               <Link href="/reservation" className="btn-gold text-base md:text-lg px-10 md:px-14 py-4 md:py-5 animate-pulse-gold">
-                <CalendarCheck size={18} />Réserver maintenant
+                <CalendarCheck size={18} />{t('nav.book_now')}
               </Link>
             </motion.div>
           </div>
@@ -681,7 +681,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
                   </div>
                 </div>
                 <p className="text-white/30 text-sm font-body leading-relaxed mb-5">
-                  Agence de location de véhicules premium à Oran, Algérie. Sans caution. 7j/7.
+                  {t('foot.tagline')}
                 </p>
                 <a href="https://wa.me/32466311469" target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#25D366]/20 transition-colors">
@@ -692,15 +692,15 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
 
               {/* Navigation */}
               <div>
-                <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">Navigation</h3>
+                <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">{t('foot.nav')}</h3>
                 <ul className="space-y-3">
                   {[
-                    { h: '/', l: 'Accueil' },
-                    { h: '/cars', l: 'Location voiture' },
-                    { h: '/vente-voitures', l: 'Véhicules à vendre' },
-                    { h: '/reservation', l: 'Réserver' },
-                    { h: '/reviews', l: 'Avis clients' },
-                    { h: '/contact', l: 'Contact' },
+                    { h: '/', l: t('foot.f_home') },
+                    { h: '/cars', l: t('foot.f_rental') },
+                    { h: '/vente-voitures', l: t('foot.f_sale') },
+                    { h: '/reservation', l: t('foot.f_book') },
+                    { h: '/reviews', l: t('foot.f_reviews') },
+                    { h: '/contact', l: t('foot.f_contact') },
                   ].map(x => (
                     <li key={x.h}>
                       <Link href={x.h} className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors flex items-center gap-2 group">
@@ -714,12 +714,12 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
 
               {/* Informations */}
               <div>
-                <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">Informations</h3>
+                <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">{t('foot.info')}</h3>
                 <ul className="space-y-3">
                   {[
-                    { h: '/commande-vehicule', l: 'Commande sur mesure' },
-                    { h: '/conditions', l: 'Conditions de location' },
-                    { h: '/immo', l: 'Immobilier' },
+                    { h: '/commande-vehicule', l: t('foot.f_order') },
+                    { h: '/conditions', l: t('foot.f_cond') },
+                    { h: '/immo', l: t('foot.f_immo') },
                   ].map(x => (
                     <li key={x.h}>
                       <Link href={x.h} className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors flex items-center gap-2 group">
@@ -733,7 +733,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
 
               {/* Contact */}
               <div>
-                <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">Contact</h3>
+                <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">{t('foot.contact')}</h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
                     <MapPin size={13} className="text-gold-500 mt-0.5 flex-shrink-0" />
@@ -747,7 +747,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
                   </li>
                   <li className="flex items-center gap-3">
                     <Star size={13} className="text-gold-500 flex-shrink-0" />
-                    <span className="text-white/35 text-sm font-body">7j/7 · 24h/24</span>
+                    <span className="text-white/35 text-sm font-body">{t('foot.hours')}</span>
                   </li>
                 </ul>
               </div>
@@ -756,10 +756,10 @@ export default function Home({ cars: initialCars, reviews: initialReviews }) {
             {/* Bottom bar */}
             <div className="border-t border-white/[0.05] pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
               <p className="text-white/15 text-xs font-body">
-                © {new Date().getFullYear()} Fik Conciergerie — Tous droits réservés
+                © {new Date().getFullYear()} Fik Conciergerie — {t('foot.rights')}
               </p>
               <div className="flex items-center gap-4">
-                <span className="text-white/15 text-xs font-body">Kilométrage illimité · Assurance incluse · Sans caution</span>
+                <span className="text-white/15 text-xs font-body">{t('foot.perks')}</span>
               </div>
             </div>
           </div>
