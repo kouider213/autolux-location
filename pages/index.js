@@ -645,7 +645,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               <motion.div
                 initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ duration:0.7, delay:0.15, ease }}>
-                <CarCarousel cars={cars.filter(c => c.available !== false)} />
+                <CarCarousel cars={cars.filter(c => c.available !== false).slice().sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))} />
               </motion.div>
             )}
           </div>

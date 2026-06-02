@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Car, Plus, Edit2, Trash2, Eye, EyeOff, Camera, ImageIcon, Loader2, X, ChevronLeft, ChevronRight, GripVertical } from 'lucide-react';
+import { Car, Plus, Edit2, Trash2, Eye, EyeOff, Camera, ImageIcon, Loader2, X, ChevronLeft, ChevronRight, GripVertical, Star } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 
@@ -12,7 +12,7 @@ const TRANSMISSIONS = ['manuelle', 'automatique'];
 const emptyForm = {
   name: '', base_price: '', resale_price: '', currency: 'DZD',
   category: 'berline', seats: 5, fuel: 'essence',
-  transmission: 'manuelle', description: '',
+  transmission: 'manuelle', description: '', featured: false,
 };
 const sym = (c) => (c === 'EUR' ? '€' : 'DA');
 
@@ -45,7 +45,7 @@ export default function AdminCarsPage() {
 
   const openEdit = (car) => {
     setForm({
-      name: car.name, base_price: car.base_price, resale_price: car.resale_price, currency: car.currency || 'DZD',
+      name: car.name, base_price: car.base_price, resale_price: car.resale_price, currency: car.currency || 'DZD', featured: !!car.featured,
       category: car.category, seats: car.seats, fuel: car.fuel,
       transmission: car.transmission, description: car.description || '',
     });
@@ -110,6 +110,7 @@ export default function AdminCarsPage() {
       base_price:    Number(form.base_price),
       resale_price:  Number(form.resale_price),
       currency:      form.currency,
+      featured:      form.featured,
       category:      form.category,
       seats:         Number(form.seats),
       fuel:          form.fuel,
@@ -357,6 +358,13 @@ export default function AdminCarsPage() {
                     ))}
                   </div>
                 </div>
+
+                {/* Mise en avant */}
+                <button type="button" onClick={() => setForm(f => ({ ...f, featured: !f.featured }))}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all ${form.featured ? 'bg-gold-500/10 border-gold-500/30' : 'bg-white/[0.04] border-white/[0.08]'}`}>
+                  <span className="flex items-center gap-2 text-sm"><Star size={15} className={form.featured ? 'text-gold-400 fill-gold-400' : 'text-white/40'} /><span className={form.featured ? 'text-gold-400 font-semibold' : 'text-white/50'}>Mettre en avant (carousel accueil)</span></span>
+                  <span className={`text-xs ${form.featured ? 'text-gold-400' : 'text-white/30'}`}>{form.featured ? 'OUI' : 'Non'}</span>
+                </button>
 
                 {/* Prix */}
                 <div className="grid grid-cols-2 gap-3">
