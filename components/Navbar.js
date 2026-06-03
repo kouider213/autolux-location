@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Menu, X, LayoutDashboard, LogOut, LogIn, CalendarCheck } from 'lucide-react';
 import { useLang } from '../lib/i18n';
+import { useSettings } from '../lib/settings';
 
 export default function Navbar({ scrollContainerRef }) {
   const [scrolled, setScrolled]   = useState(false);
@@ -11,6 +12,8 @@ export default function Navbar({ scrollContainerRef }) {
   const [user, setUser]           = useState(null);
   const router = useRouter();
   const { lang, setLang, t } = useLang();
+  const settings = useSettings();
+  const logo = settings.logo_url || '/logo.png';
 
   useEffect(() => {
     const el = scrollContainerRef?.current || window;
@@ -71,7 +74,7 @@ export default function Navbar({ scrollContainerRef }) {
           <div className="relative w-10 h-10 flex-shrink-0">
             <div className="absolute inset-0 bg-gold-500/20 rounded-lg blur-md group-hover:opacity-60 transition-opacity" />
             <img
-              src="/logo.png"
+              src={logo}
               alt="Fik Conciergerie"
               className="relative w-10 h-10 object-contain drop-shadow-[0_2px_8px_rgba(226,182,20,0.5)] animate-float"
             />

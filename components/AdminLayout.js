@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
 import { supabase } from '../lib/supabase';
+import { useSettings } from '../lib/settings';
 import {
   LayoutDashboard, Car, CalendarCheck, Users, Star,
   BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag, Settings, FileText,
@@ -25,6 +26,7 @@ export default function AdminLayout({ children, title }) {
   const router = useRouter();
   const [profile, setProfile]     = useState(null);
   const [loading, setLoading]     = useState(true);
+  const settings = useSettings();
   const [sidebar, setSidebar]     = useState(false);
   const [pendingCount, setPending] = useState(0);
 
@@ -97,7 +99,7 @@ export default function AdminLayout({ children, title }) {
       {/* Logo */}
       <div className="px-6 py-5 border-b border-white/[0.05]">
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Fik Conciergerie" className="w-9 h-9 object-contain drop-shadow-[0_0_12px_rgba(226,182,20,0.4)]" />
+          <img src={settings.logo_url || '/logo.png'} alt="Fik Conciergerie" className="w-9 h-9 object-contain drop-shadow-[0_0_12px_rgba(226,182,20,0.4)]" />
           <div>
             <p className="text-white font-bold text-sm font-body">Fik Conciergerie</p>
             <p className="text-white/25 text-[10px] tracking-widest uppercase">Administration</p>

@@ -365,7 +365,8 @@ function ComingSoon({ icon, title, desc, cta, href }) {
 /* ── Main ── */
 export default function Home({ cars: initialCars, reviews: initialReviews, vehiclesSale: initialSale, properties: initialProps }) {
   const { t } = useLang();
-  const WHATSAPP = waNumber(useSettings());
+  const settings = useSettings();
+  const WHATSAPP = waNumber(settings);
   const statsRef    = useRef(null);
   const statsInView = useInView(statsRef, { once: true, amount: 0.4 });
   const benefitsRef = useRef(null);
@@ -464,7 +465,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 <div className="overflow-hidden">
                   <h1 className="hero-css-line1 font-display font-black text-hero-gradient leading-[0.88]"
                     style={{ fontSize: 'clamp(50px, 9vw, 116px)' }}>
-                    {t('hero.line1')}
+                    {settings.hero_title || t('hero.line1')}
                   </h1>
                 </div>
                 <div className="overflow-hidden">
@@ -478,7 +479,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               {/* Subtitle */}
               <div className="hero-css-sub absolute left-5 md:left-12 bottom-[20%] right-5 pointer-events-none">
                 <p className="text-white/60 text-base md:text-xl font-body max-w-md leading-relaxed">
-                  {t('hero.subtitle')}
+                  {settings.hero_subtitle || t('hero.subtitle')}
                   <span className="block text-white/35 text-sm md:text-base mt-0.5">{t('hero.tags')}</span>
                 </p>
               </div>
@@ -849,7 +850,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               {/* Brand */}
               <div className="md:col-span-1">
                 <div className="flex items-center gap-3 mb-4">
-                  <img src="/logo.png" alt="Fik Conciergerie" className="w-10 h-10 object-contain" />
+                  <img src={settings.logo_url || '/logo.png'} alt="Fik Conciergerie" className="w-10 h-10 object-contain" />
                   <div>
                     <span className="font-display font-bold text-white text-base block leading-tight">Fik <span className="text-gold-500">Conciergerie</span></span>
                     <span className="text-white/25 text-[10px] tracking-widest uppercase font-body">{t('foot.premium')}</span>
