@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { MessageCircle, MapPin, Clock, Shield, Star, Zap, Heart, Car, CheckCircle, ArrowRight, Phone, Instagram, Music2, Facebook } from 'lucide-react';
-import { getSettings } from '../lib/settings';
+import { getSettings, useSettings, waNumber } from '../lib/settings';
 import { useLang } from '../lib/i18n';
 
 function SocialSection() {
@@ -54,6 +54,8 @@ const STATS = [
 
 export default function ContactPage() {
   const { t } = useLang();
+  const settings = useSettings();
+  const WHATSAPP = waNumber(settings);
   return (
     <>
       <Head>
@@ -105,7 +107,7 @@ export default function ContactPage() {
             <div className="grid md:grid-cols-3 gap-5">
 
               {/* WhatsApp — principal */}
-              <a href="https://wa.me/32466311469" target="_blank" rel="noopener noreferrer"
+              <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer"
                 className="relative group bg-[#141414] border border-white/[0.06] hover:border-[#25D366]/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#25D366]/[0.03] to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="w-14 h-14 bg-[#25D366]/10 border border-[#25D366]/20 rounded-2xl flex items-center justify-center">
@@ -113,7 +115,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-white font-bold text-lg mb-1">WhatsApp</h3>
-                  <p className="text-[#25D366] font-semibold text-sm mb-2">+32 466 31 14 69</p>
+                  <p className="text-[#25D366] font-semibold text-sm mb-2">{settings.phone || `+${WHATSAPP}`}</p>
                   <p className="text-white/35 text-sm">{t('ct.wa_d')}</p>
                 </div>
                 <div className="flex items-center gap-1.5 text-[#25D366]/70 text-xs font-medium mt-auto">
@@ -156,6 +158,22 @@ export default function ContactPage() {
                 </div>
               </div>
             </div>
+
+            {/* Numéros associés (optionnels) */}
+            {[settings.whatsapp2, settings.whatsapp3].some(Boolean) && (
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                <span className="text-white/35 text-sm">{t('ct.more_wa')}</span>
+                {[settings.whatsapp2, settings.whatsapp3].filter(Boolean).map((num, i) => {
+                  const clean = String(num).replace(/\D/g, '');
+                  return (
+                    <a key={i} href={`https://wa.me/${clean}`} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#25D366]/20 transition-colors">
+                      <MessageCircle size={14} /> +{clean}
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
@@ -226,7 +244,7 @@ export default function ContactPage() {
                   {t('ct.ready_d')}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <a href="https://wa.me/32466311469" target="_blank" rel="noopener noreferrer"
+                  <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white font-bold py-4 px-8 rounded-xl transition-all shadow-[0_4px_20px_rgba(37,211,102,0.3)] hover:shadow-[0_8px_30px_rgba(37,211,102,0.4)]">
                     <MessageCircle size={18} />{t('ct.contact_us')}
                   </a>

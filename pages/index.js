@@ -8,7 +8,7 @@ import {
   Instagram, Music2, Facebook, Gauge,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
-import { getSettings } from '../lib/settings';
+import { getSettings, useSettings, waNumber } from '../lib/settings';
 import { useLang } from '../lib/i18n';
 
 /* ── Social icons (footer) — lit les réseaux depuis les paramètres ── */
@@ -365,6 +365,7 @@ function ComingSoon({ icon, title, desc, cta, href }) {
 /* ── Main ── */
 export default function Home({ cars: initialCars, reviews: initialReviews, vehiclesSale: initialSale, properties: initialProps }) {
   const { t } = useLang();
+  const WHATSAPP = waNumber(useSettings());
   const statsRef    = useRef(null);
   const statsInView = useInView(statsRef, { once: true, amount: 0.4 });
   const benefitsRef = useRef(null);
@@ -857,7 +858,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 <p className="text-white/30 text-sm font-body leading-relaxed mb-5">
                   {t('foot.tagline')}
                 </p>
-                <a href="https://wa.me/32466311469" target="_blank" rel="noopener noreferrer"
+                <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#25D366]/20 transition-colors">
                   <MessageCircle size={14} />WhatsApp
                 </a>
@@ -915,8 +916,8 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   </li>
                   <li className="flex items-center gap-3">
                     <MessageCircle size={13} className="text-gold-500 flex-shrink-0" />
-                    <a href="https://wa.me/32466311469" className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors">
-                      +32 466 31 14 69
+                    <a href={`https://wa.me/${WHATSAPP}`} className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors">
+                      +{WHATSAPP}
                     </a>
                   </li>
                   <li className="flex items-center gap-3">

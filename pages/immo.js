@@ -8,8 +8,8 @@ import {
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
+import { useSettings, waNumber } from '../lib/settings';
 
-const WHATSAPP = '32466311469';
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
 const STATUS_BADGE = {
@@ -21,6 +21,7 @@ const STATUS_BADGE = {
 
 function PropertyCard({ property: p }) {
   const { t } = useLang();
+  const WHATSAPP = waNumber(useSettings());
   const photos = (p.property_photos || []).sort((a, b) => a.position - b.position).map(ph => ph.url);
   const photo = photos[0];
   const available = (p.status || 'disponible') === 'disponible';
@@ -85,6 +86,7 @@ const OWNER_OFFERS = [
 ];
 
 export default function ImmoPage({ properties }) {
+  const WHATSAPP = waNumber(useSettings());
   const { t } = useLang();
   const [search, setSearch]   = useState('');
   const [txn, setTxn]         = useState('Tous');   // Tous | location | vente

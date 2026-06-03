@@ -5,11 +5,13 @@ import { Car, Fuel, Users, Search, ArrowRight, X, Gauge } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
+import { useSettings, waNumber } from '../lib/settings';
 
 const CATEGORIES = ['Tous', 'citadine', 'berline', 'SUV', 'familiale', 'utilitaire', 'premium'];
 
 export default function CarsPage({ cars }) {
   const { t } = useLang();
+  const WHATSAPP = waNumber(useSettings());
   const [filter, setFilter]     = useState('Tous');
   const [search, setSearch]     = useState('');
   const [bookedCarIds, setBookedCarIds] = useState({});
@@ -145,7 +147,7 @@ export default function CarsPage({ cars }) {
                     <p className="text-white font-bold text-lg mb-1">{t('cars.help_title')}</p>
                     <p className="text-white/35 text-sm">{t('cars.help_desc')}</p>
                   </div>
-                  <a href="https://wa.me/32466311469?text=Bonjour%2C%20je%20cherche%20un%20v%C3%A9hicule%20sp%C3%A9cifique."
+                  <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Bonjour, je cherche un véhicule spécifique.')}`}
                     target="_blank" rel="noopener noreferrer"
                     className="btn-gold px-8 py-3 text-sm w-full justify-center">
                     {t('common.contact_wa')}

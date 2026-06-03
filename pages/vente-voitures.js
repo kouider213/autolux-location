@@ -5,8 +5,7 @@ import { Tag, Fuel, Gauge, Calendar, MapPin, Search, X, ArrowRight, Star, Messag
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
-
-const WHATSAPP = '32466311469';
+import { useSettings, waNumber } from '../lib/settings';
 
 const STATUS_BADGE = {
   disponible:  { label: '● Disponible', cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/25' },
@@ -19,6 +18,7 @@ const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
 function VehicleCard({ v }) {
   const { t } = useLang();
+  const WHATSAPP = waNumber(useSettings());
   const photos = (v.vehicle_sale_photos || []).sort((a, b) => a.position - b.position).map(p => p.url);
   if (v.image_url && !photos.includes(v.image_url)) photos.unshift(v.image_url);
   const photo = photos[0];
@@ -68,6 +68,7 @@ function VehicleCard({ v }) {
 
 export default function VenteVoituresPage({ vehicles }) {
   const { t } = useLang();
+  const WHATSAPP = waNumber(useSettings());
   const [search, setSearch]   = useState('');
   const [fuel, setFuel]       = useState('Tous');
   const hasListings = vehicles && vehicles.length > 0;

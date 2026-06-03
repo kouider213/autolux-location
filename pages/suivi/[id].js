@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { Car, Calendar, Check, Clock, X, MessageCircle, Home, Phone } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import { supabase } from '../../lib/supabase';
+import { useSettings, waNumber } from '../../lib/settings';
 
 const STEPS = [
   { key: 'PENDING',   label: 'Demande reçue',   icon: Clock },
@@ -24,6 +25,7 @@ const STATUS_INFO = {
 
 export default function SuiviPage() {
   const router   = useRouter();
+  const WHATSAPP = waNumber(useSettings());
   const { id }   = router.query;
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -161,7 +163,7 @@ export default function SuiviPage() {
           </div>
 
           {/* Contact */}
-          <a href={`https://wa.me/32466311469?text=${encodeURIComponent(whatsappMsg)}`}
+          <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(whatsappMsg)}`}
             target="_blank" rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#1ebe5a] text-white font-semibold py-3.5 rounded-xl transition-colors shadow-[0_4px_16px_rgba(37,211,102,0.25)]">
             <MessageCircle size={17} />Contacter Fik Conciergerie

@@ -6,9 +6,11 @@ import { Car, Fuel, Users, Settings, ArrowLeft, CalendarCheck, MessageCircle, Wi
 import Navbar from '../../components/Navbar';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
+import { useSettings, waNumber } from '../../lib/settings';
 
 export default function CarDetail({ car, photos: initialPhotos }) {
   const { t } = useLang();
+  const WHATSAPP = waNumber(useSettings());
   const [photos, setPhotos]       = useState(initialPhotos || []);
   const [activePhoto, setActive]  = useState(0);
 
@@ -45,8 +47,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
   const whatsappMsg = encodeURIComponent(
     `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par la location du véhicule :\n*${car.name}* - ${car.resale_price ? Number(car.resale_price).toLocaleString('fr-FR') + ' ' + (car.currency === 'EUR' ? '€' : 'DA') + '/jour' : 'Prix sur demande'}\n\nMerci de me confirmer les disponibilités.`
   );
-  // Belgian number: +32 466 31 14 69
-  const whatsappUrl = `https://wa.me/32466311469?text=${whatsappMsg}`;
+  const whatsappUrl = `https://wa.me/${WHATSAPP}?text=${whatsappMsg}`;
 
   const specs = [
     { icon: Fuel,     label: t('d.fuel'),         value: car.fuel || 'Essence' },

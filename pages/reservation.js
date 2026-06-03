@@ -7,17 +7,18 @@ import { Car, User, Check, MessageCircle, ChevronLeft, ChevronRight, AlertCircle
 import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
+import { useSettings, waNumber } from '../lib/settings';
 import { format, isWithinInterval, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 const DatePicker = dynamic(() => import('react-datepicker'), { ssr: false });
 
-const WHATSAPP = '32466311469';
+const WHATSAPP_FALLBACK = '32466311469';
 
 const sym = (c) => (c === 'EUR' ? '€' : 'DA');
 const fmt = (n) => Number(n).toLocaleString('fr-FR');
 
-function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr') {
+function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = WHATSAPP_FALLBACK) {
   const ar = lang === 'ar';
   const lines = ar ? [
     `🚗 *حجز جديد — فيك كونسيرجري*`,
@@ -63,11 +64,13 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr') {
     `_Demande envoyée depuis le site Fik Conciergerie._`,
   ];
 
-  return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(lines.filter(l => l !== null).join('\n'))}`;
+  return `https://wa.me/${wa}?text=${encodeURIComponent(lines.filter(l => l !== null).join('\n'))}`;
 }
 
 export default function ReservationPage({ cars: initialCars }) {
   const { lang, t } = useLang();
+  const settings = useSettings();
+  const wa = waNumber(settings);
   const router = useRouter();
   const { car: preselectedId } = router.query;
 
@@ -236,11 +239,11 @@ export default function ReservationPage({ cars: initialCars }) {
     } catch { /* non-blocking */ }
     setLoading(false);
     setDone(true);
-    const url = buildWhatsAppUrl(form, selectedCar, days, total, newBookingId, lang);
+    const url = buildWhatsAppUrl(form, selectedCar, days, total, newBookingId, lang, wa);
     if (typeof window !== 'undefined') setTimeout(() => window.open(url, '_blank'), 300);
   };
 
-  const whatsappUrl = selectedCar ? buildWhatsAppUrl(form, selectedCar, days, total, null, lang) : '#';
+  const whatsappUrl = selectedCar ? buildWhatsAppUrl(form, selectedCar, days, total, null, lang, wa) : '#';
 
   // ── DONE screen
   if (done && selectedCar) {

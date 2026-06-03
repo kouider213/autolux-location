@@ -6,6 +6,10 @@
 -- est caché, seul le propriétaire se connecte). USING + WITH CHECK => INSERT + UPDATE OK.
 -- Exécuter dans Supabase > SQL Editor (non destructif). À coller en entier.
 
+-- 0) Colonnes numéros WhatsApp associés (optionnels)
+ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS whatsapp2 TEXT;
+ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS whatsapp3 TEXT;
+
 -- 1) site_settings (Paramètres : numéro WhatsApp, contact, réseaux, hero...)
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "settings: admin write" ON site_settings;

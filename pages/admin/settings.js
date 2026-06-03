@@ -6,6 +6,20 @@ import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import { DEFAULT_SETTINGS } from '../../lib/settings';
 
+const inputCls = "w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 outline-none transition-colors";
+
+// Field défini hors du composant : sinon il est recréé à chaque frappe
+// → React remonte l'input → le focus (et le clavier mobile) se ferme.
+function Field({ label, icon: Icon, children, hint }) {
+  return (
+    <div>
+      <label className="flex items-center gap-1.5 text-white/40 text-xs font-semibold mb-1.5">{Icon && <Icon size={12} className="text-gold-500/70" />}{label}</label>
+      {children}
+      {hint && <p className="text-white/20 text-[11px] mt-1">{hint}</p>}
+    </div>
+  );
+}
+
 export default function AdminSettingsPage() {
   const [form, setForm]     = useState(DEFAULT_SETTINGS);
   const [loading, setLoad]  = useState(true);
@@ -23,7 +37,8 @@ export default function AdminSettingsPage() {
     setSaving(true);
     const payload = {
       id: 1,
-      whatsapp: form.whatsapp, email: form.email, phone: form.phone, address: form.address,
+      whatsapp: form.whatsapp, whatsapp2: form.whatsapp2, whatsapp3: form.whatsapp3,
+      email: form.email, phone: form.phone, address: form.address,
       maps_url: form.maps_url, instagram: form.instagram, tiktok: form.tiktok, facebook: form.facebook,
       acompte_pct: form.acompte_pct ? Number(form.acompte_pct) : 50,
       hero_title: form.hero_title, hero_subtitle: form.hero_subtitle, announcement: form.announcement,
@@ -34,16 +49,6 @@ export default function AdminSettingsPage() {
     if (error) { toast.error('Erreur: ' + error.message); return; }
     toast.success('Paramètres enregistrés');
   };
-
-  const inputCls = "w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 outline-none transition-colors";
-
-  const Field = ({ label, icon: Icon, children, hint }) => (
-    <div>
-      <label className="flex items-center gap-1.5 text-white/40 text-xs font-semibold mb-1.5">{Icon && <Icon size={12} className="text-gold-500/70" />}{label}</label>
-      {children}
-      {hint && <p className="text-white/20 text-[11px] mt-1">{hint}</p>}
-    </div>
-  );
 
   return (
     <>
@@ -58,8 +63,10 @@ export default function AdminSettingsPage() {
             <section className="bg-[#141414] border border-white/[0.07] rounded-2xl p-6">
               <h2 className="text-white font-bold text-sm mb-5 flex items-center gap-2"><MessageCircle size={15} className="text-gold-400" /> Contact</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="WhatsApp (sans +, sans espaces)" icon={MessageCircle} hint="Ex: 32466311469"><input value={form.whatsapp} onChange={up('whatsapp')} className={inputCls} /></Field>
+                <Field label="WhatsApp principal (sans +, sans espaces)" icon={MessageCircle} hint="Numéro utilisé partout sur le site. Ex: 213699112233"><input value={form.whatsapp} onChange={up('whatsapp')} inputMode="numeric" className={inputCls} /></Field>
                 <Field label="Téléphone affiché" icon={Phone}><input value={form.phone || ''} onChange={up('phone')} placeholder="+213 ..." className={inputCls} /></Field>
+                <Field label="WhatsApp associé 1 (optionnel)" icon={MessageCircle} hint="Affiché sur la page Contact. Vide = masqué."><input value={form.whatsapp2 || ''} onChange={up('whatsapp2')} inputMode="numeric" placeholder="213..." className={inputCls} /></Field>
+                <Field label="WhatsApp associé 2 (optionnel)" icon={MessageCircle} hint="Affiché sur la page Contact. Vide = masqué."><input value={form.whatsapp3 || ''} onChange={up('whatsapp3')} inputMode="numeric" placeholder="213..." className={inputCls} /></Field>
                 <Field label="Email" icon={Mail}><input value={form.email || ''} onChange={up('email')} placeholder="contact@..." className={inputCls} /></Field>
                 <Field label="Adresse" icon={MapPin}><input value={form.address || ''} onChange={up('address')} className={inputCls} /></Field>
                 <div className="sm:col-span-2"><Field label="Lien Google Maps" icon={MapPin} hint="Colle le lien de partage Google Maps de ton agence"><input value={form.maps_url || ''} onChange={up('maps_url')} className={inputCls} /></Field></div>

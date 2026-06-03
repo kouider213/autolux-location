@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { MapPin, Maximize, BedDouble, Bath, Building2, ArrowLeft, MessageCircle, ChevronLeft, ChevronRight, Home, Layers, Wallet, KeyRound, CalendarClock } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import { useLang } from '../../lib/i18n';
+import { useSettings, waNumber } from '../../lib/settings';
 
 const supabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -21,6 +22,7 @@ const STATUS_BADGE = {
 
 export default function PropertyDetail({ property, photos }) {
   const { t } = useLang();
+  const WHATSAPP = waNumber(useSettings());
   const [active, setActive] = useState(0);
   const STB = { disponible: t('b.available'), loue: t('b.rented'), vendu: t('b.sold'), coming_soon: t('b.soon') };
 
@@ -44,7 +46,7 @@ export default function PropertyDetail({ property, photos }) {
   const priceTxt = property.price ? `${Number(property.price).toLocaleString()} ${cur(property.currency)}${isSale ? '' : '/mois'}` : 'Prix sur demande';
 
   const whatsappMsg = `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par le bien :\n*${property.title}*\n${property.price ? `Prix: ${priceTxt}` : 'Prix sur demande'}\n\nMerci de me contacter.`;
-  const whatsappUrl = `https://wa.me/32466311469?text=${encodeURIComponent(whatsappMsg)}`;
+  const whatsappUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(whatsappMsg)}`;
 
   const specs = [
     property.surface && { icon: Maximize, label: t('d.surface'), value: `${property.surface} m²` },

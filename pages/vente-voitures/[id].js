@@ -6,8 +6,8 @@ import { Tag, Fuel, Gauge, Calendar, Settings, MapPin, ArrowLeft, MessageCircle,
 import Navbar from '../../components/Navbar';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
+import { useSettings, waNumber } from '../../lib/settings';
 
-const WHATSAPP = '32466311469';
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
 const STATUS_BADGE = {
@@ -19,6 +19,7 @@ const STATUS_BADGE = {
 
 export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
   const { t } = useLang();
+  const WHATSAPP = waNumber(useSettings());
   const [photos, setPhotos] = useState(initialPhotos || []);
   const [active, setActive] = useState(0);
   const STB = { disponible: t('b.available'), reserve: t('b.reserved'), vendu: t('b.sold'), coming_soon: t('b.soon') };

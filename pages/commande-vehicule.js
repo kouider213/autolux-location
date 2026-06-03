@@ -6,8 +6,8 @@ import {
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { useLang } from '../lib/i18n';
+import { useSettings, waNumber } from '../lib/settings';
 
-const WHATSAPP = '32466311469';
 const ACOMPTE_PCT = 50; // % acompte affiché
 
 const STEP_ICONS = [FileCheck, Search, Wallet, ShieldCheck, Globe, Truck, CheckCircle2];
@@ -23,6 +23,7 @@ const emptyForm = {
 
 export default function CommandeVehiculePage() {
   const { t, lang } = useLang();
+  const WHATSAPP = waNumber(useSettings());
   const [form, setForm]       = useState(emptyForm);
   const [accept, setAccept]   = useState(false);
   const [error, setError]     = useState('');
