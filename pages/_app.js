@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { trackPageView } from '../lib/tracker';
 import { LangProvider } from '../lib/i18n';
 import AnnouncementBanner from '../components/AnnouncementBanner';
+import { getSettings } from '../lib/settings';
 
 const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { ssr: false });
 
@@ -25,18 +26,26 @@ export default function App({ Component, pageProps }) {
   useEffect(() => {
     // Don't load widget on admin pages
     if (router.pathname.startsWith('/admin')) return;
-    if (document.getElementById('ibr-widget-script')) return;
-    const s = document.createElement('script');
-    s.id = 'ibr-widget-script';
-    s.src = 'https://ibrahim-backend-production.up.railway.app/api/widget/embed.js';
-    s.async = true;
-    document.body.appendChild(s);
+    // Chargement conditionnel : seulement si le chatbot est activé dans l'admin
+    getSettings().then(s => {
+      if (s.chatbot_enabled === false) return; // désactivé → on ne charge rien
+      if (document.getElementById('ibr-widget-script')) return;
+      const el = document.createElement('script');
+      el.id = 'ibr-widget-script';
+      el.src = 'https://ibrahim-backend-production.up.railway.app/api/widget/embed.js';
+      el.async = true;
+      document.body.appendChild(el);
+    });
   }, [router.pathname]);
 
-  // Hide widget on admin pages (handles navigation after initial load)
+  // Masque le widget sur l'admin OU si désactivé dans les paramètres
   useEffect(() => {
-    const widget = document.getElementById('ibr-widget-root') || document.querySelector('[id^="ibr-"]');
-    if (widget) widget.style.display = router.pathname.startsWith('/admin') ? 'none' : '';
+    const apply = (disabled) => {
+      const widget = document.getElementById('ibr-widget-root') || document.querySelector('[id^="ibr-"]');
+      if (widget) widget.style.display = (router.pathname.startsWith('/admin') || disabled) ? 'none' : '';
+    };
+    apply(false);
+    getSettings().then(s => apply(s.chatbot_enabled === false));
   }, [router.pathname]);
 
     return (
