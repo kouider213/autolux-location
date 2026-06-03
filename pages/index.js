@@ -117,7 +117,7 @@ function BenefitsCarousel({ benefits }) {
         ))}
       </div>
 
-      <div className="md:hidden mt-4 text-center text-white/25 text-xs">Glissez ou touchez pour naviguer</div>
+      <div className="md:hidden mt-4 text-center text-white/25 text-xs">{t('cc.swipe')}</div>
     </div>
   );
 }
@@ -142,6 +142,7 @@ function AnimCounter({ to, suffix }) {
 
 /* ── Interactive car carousel ── */
 function CarCarousel({ cars }) {
+  const { t } = useLang();
   const [idx, setIdx] = useState(0);
   const [dir, setDir] = useState(1);
   const total = cars.length;
@@ -225,7 +226,7 @@ function CarCarousel({ cars }) {
                   </span>
                   <span className="text-white/20">·</span>
                   <span className="flex items-center gap-1.5 text-white/50 text-sm font-body">
-                    <Users size={12} className="text-gold-500/60" />{car.seats} places
+                    <Users size={12} className="text-gold-500/60" />{car.seats} {t("b.places")}
                   </span>
                   {car.transmission && (
                     <><span className="text-white/20">·</span>
@@ -236,12 +237,12 @@ function CarCarousel({ cars }) {
                 {/* Price + CTA */}
                 <div className="flex items-end justify-between gap-4">
                   <div>
-                    <span className="text-white/30 text-xs tracking-widest uppercase font-body block mb-1">À partir de</span>
+                    <span className="text-white/30 text-xs tracking-widest uppercase font-body block mb-1">{t("cc.from")}</span>
                     <span className="font-display font-black text-gold-gradient leading-none"
                       style={{ fontSize: 'clamp(32px, 4vw, 52px)' }}>
                       {Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}
                     </span>
-                    <span className="text-white/30 text-sm font-body ml-1">/jour</span>
+                    <span className="text-white/30 text-sm font-body ml-1">{t("cc.perday")}</span>
                   </div>
                   <Link
                     href={`/reservation?car=${car.id}`}
@@ -590,9 +591,9 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               <div className="hidden md:block absolute top-14 left-1/3 right-1/3 h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
 
               {[
-                { num: '01', title: 'Choisissez', desc: 'Parcourez notre flotte de 15 véhicules et sélectionnez celui qui vous correspond.', icon: Car, link: '/cars', cta: 'Voir les véhicules' },
-                { num: '02', title: 'Réservez', desc: 'Remplissez le formulaire rapide en 2 minutes. Acompte de 3 jours pour confirmer.', icon: CalendarCheck, link: '/reservation', cta: 'Réserver maintenant' },
-                { num: '03', title: 'Récupérez', desc: 'Confirmation WhatsApp sous 1h. Récupérez votre véhicule à Hay Badr ou livraison aéroport.', icon: MapPin, link: null, cta: null },
+                { num: '01', tk: 'stp1t', dk: 'stp1d', icon: Car, link: '/cars', ck: 'stp1c' },
+                { num: '02', tk: 'stp2t', dk: 'stp2d', icon: CalendarCheck, link: '/reservation', ck: 'nav.book_now' },
+                { num: '03', tk: 'stp3t', dk: 'stp3d', icon: MapPin, link: null, ck: null },
               ].map((step, i) => (
                 <motion.div key={i}
                   className="relative flex flex-col items-center text-center p-8 bg-[#0f0f0f] border border-white/[0.06] rounded-2xl hover:border-gold-500/20 transition-all duration-300 group"
@@ -609,12 +610,12 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                     </div>
                   </div>
 
-                  <h3 className="font-display font-bold text-white text-xl mb-3">{step.title}</h3>
-                  <p className="text-white/40 text-sm leading-relaxed font-body mb-5 flex-1">{step.desc}</p>
+                  <h3 className="font-display font-bold text-white text-xl mb-3">{t(step.tk)}</h3>
+                  <p className="text-white/40 text-sm leading-relaxed font-body mb-5 flex-1">{t(step.dk)}</p>
 
-                  {step.link && (
+                  {step.link && step.ck && (
                     <Link href={step.link} className="text-gold-500 text-xs font-semibold hover:text-gold-400 transition-colors flex items-center gap-1 group/link">
-                      {step.cta} <ArrowRight size={11} className="group-hover/link:translate-x-1 transition-transform" />
+                      {t(step.ck)} <ArrowRight size={11} className="group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                   )}
                 </motion.div>
@@ -738,10 +739,10 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
             </motion.div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
               {[
-                { val:cars?.length||14, suffix:'',  label:'Véhicules',         desc:'dans notre flotte' },
-                { val:500,             suffix:'+', label:'Clients satisfaits',  desc:"depuis l'ouverture" },
-                { val:0,               suffix:'€', label:'Caution',             desc:'confiance totale' },
-                { val:98,              suffix:'%', label:'Satisfaction',        desc:'avis vérifiés' },
+                { val:cars?.length||14, suffix:'',  label:t('st.veh'), desc:t('st.veh_d') },
+                { val:500,             suffix:'+', label:t('st.cli'), desc:t('st.cli_d') },
+                { val:0,               suffix:'€', label:t('st.cau'), desc:t('st.cau_d') },
+                { val:98,              suffix:'%', label:t('st.sat'), desc:t('st.sat_d') },
               ].map((s, i) => (
                 <motion.div key={i} className="text-center"
                   initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
@@ -777,7 +778,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                       <Star key={i} size={14} className={i < Math.round(avgRating) ? 'text-gold-500 fill-gold-500':'text-white/15'} />
                     ))}
                   </div>
-                  <span className="text-white/35 text-sm font-body">{avgRating}/5 · {reviews.length} avis</span>
+                  <span className="text-white/35 text-sm font-body">{avgRating}{t("rv.outof")} · {reviews.length} {t("rv.word")}</span>
                 </div>
               </motion.div>
 
