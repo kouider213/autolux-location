@@ -63,14 +63,16 @@ export default function App({ Component, pageProps }) {
               <meta property="og:title"       content="Fik Conciergerie — Location, Vente & Immobilier à Oran" />
               <meta property="og:description" content="Location de voitures sans caution, véhicules à vendre et immobilier à Oran. Kilométrage illimité, 7j/7. Réservez par WhatsApp." />
               <meta property="og:url"         content="https://autolux-location.vercel.app" />
-              <meta property="og:image"       content="https://autolux-location.vercel.app/logo.png" />
+              <meta property="og:image"       content="https://autolux-location.vercel.app/api/og" />
+              <meta property="og:image:width"  content="1200" />
+              <meta property="og:image:height" content="630" />
               <meta property="og:locale"      content="fr_FR" />
               <meta property="og:locale:alternate" content="ar_DZ" />
               {/* Twitter Card */}
               <meta name="twitter:card"        content="summary_large_image" />
               <meta name="twitter:title"       content="Fik Conciergerie — Location Premium Oran" />
               <meta name="twitter:description" content="Location de voitures premium à Oran. Sans caution. 7j/7." />
-              <meta name="twitter:image"       content="https://autolux-location.vercel.app/logo.png" />
+              <meta name="twitter:image"       content="https://autolux-location.vercel.app/api/og" />
               {/* JSON-LD — Google comprend que c'est une entreprise locale */}
               <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
                 '@context': 'https://schema.org',

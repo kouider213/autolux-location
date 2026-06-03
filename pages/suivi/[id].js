@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Car, Calendar, Check, Clock, X, MessageCircle, Home, Phone } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import { supabase } from '../../lib/supabase';
 import { useSettings, waNumber } from '../../lib/settings';
 
@@ -174,6 +175,7 @@ export default function SuiviPage() {
           </p>
         </div>
       </div>
+      <Footer />
     </>
   );
 }
