@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 import { format, isWithinInterval, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, arDZ } from 'date-fns/locale';
 
 const DatePicker = dynamic(() => import('react-datepicker'), { ssr: false });
 
@@ -428,7 +428,7 @@ export default function ReservationPage({ cars: initialCars }) {
                             filterDate={filterDate}
                             dayClassName={getDayClass}
                             minDate={today}
-                            locale={fr}
+                            locale={lang === 'ar' ? arDZ : fr}
                             inline
                             calendarStartDay={1}
                           />

@@ -79,6 +79,7 @@ export default function AdminSettingsPage() {
       email: (form.email || '').trim(), phone: (form.phone || '').trim(), address: (form.address || '').trim(),
       maps_url: cleanUrl(form.maps_url), instagram: cleanUrl(form.instagram), tiktok: cleanUrl(form.tiktok), facebook: cleanUrl(form.facebook),
       acompte_pct: form.acompte_pct ? Number(form.acompte_pct) : 50,
+      stat_clients: (form.stat_clients || '').toString().replace(/\D/g, ''), stat_satisfaction: (form.stat_satisfaction || '').toString().replace(/\D/g, ''),
       hero_title: (form.hero_title || '').trim(), hero_subtitle: (form.hero_subtitle || '').trim(), announcement: (form.announcement || '').trim(),
       updated_at: new Date().toISOString(),
     };
@@ -147,6 +148,10 @@ export default function AdminSettingsPage() {
                 <Field label="Sous-titre accueil (optionnel)" icon={Megaphone} hint="Phrase sous le titre. Vide = texte par défaut."><input value={form.hero_subtitle || ''} onChange={up('hero_subtitle')} placeholder="Ex: Location, vente & immobilier premium à Oran." className={inputCls} /></Field>
                 <Field label="Bandeau d'annonce (optionnel)" icon={Megaphone} hint="Affiché en haut du site. Laisse vide pour masquer."><input value={form.announcement || ''} onChange={up('announcement')} placeholder="Ex: -10% sur les locations longue durée ce mois !" className={inputCls} /></Field>
                 <Field label="Acompte commande véhicule (%)" icon={Percent} hint="Affiché sur la page commande sur mesure"><input type="number" value={form.acompte_pct} onChange={up('acompte_pct')} className={inputCls} /></Field>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Clients satisfaits (accueil)" icon={Percent} hint="Nombre affiché (ex: 500). Vide = 500."><input type="number" inputMode="numeric" value={form.stat_clients || ''} onChange={up('stat_clients')} placeholder="500" className={inputCls} /></Field>
+                  <Field label="Satisfaction % (accueil)" icon={Percent} hint="Ex: 98. Vide = 98."><input type="number" inputMode="numeric" value={form.stat_satisfaction || ''} onChange={up('stat_satisfaction')} placeholder="98" className={inputCls} /></Field>
+                </div>
               </div>
             </section>
 

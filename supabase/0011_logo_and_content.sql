@@ -4,6 +4,10 @@
 -- 1) Logo du site (uploadé depuis l'admin Paramètres)
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS logo_url TEXT;
 
+-- 1b) Statistiques de confiance éditables (accueil)
+ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS stat_clients      TEXT;
+ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS stat_satisfaction TEXT;
+
 -- 2) FAQ éditable (bilingue FR/AR)
 CREATE TABLE IF NOT EXISTS site_faq (
   id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

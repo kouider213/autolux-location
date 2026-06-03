@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, MessageCircle } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+import ShareButtons from '../../components/ShareButtons';
 import { useLang } from '../../lib/i18n';
 import { useSettings, waNumber } from '../../lib/settings';
 import { getPublishedPosts, getPostBySlug, pickTitle, pickBody, pickExcerpt } from '../../lib/blog';
@@ -63,7 +64,9 @@ export default function BlogPost({ post }) {
 
             {post.created_at && <span className="flex items-center gap-1.5 text-white/30 text-xs mb-3"><Calendar size={12} /> {new Date(post.created_at).toLocaleDateString(lang === 'ar' ? 'ar-DZ' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>}
 
-            <h1 className="font-display text-3xl md:text-4xl font-bold text-white leading-tight mb-6">{title}</h1>
+            <h1 className="font-display text-3xl md:text-4xl font-bold text-white leading-tight mb-4">{title}</h1>
+
+            <div className="mb-6"><ShareButtons url={`${BASE}/blog/${post.slug}`} title={title} /></div>
 
             {post.cover_url && (
               <div className="rounded-2xl overflow-hidden mb-8 border border-white/[0.06]">

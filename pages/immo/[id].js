@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { MapPin, Maximize, BedDouble, Bath, Building2, ArrowLeft, MessageCircle, ChevronLeft, ChevronRight, Home, Layers, Wallet, KeyRound, CalendarClock } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+import ShareButtons from '../../components/ShareButtons';
 import { useLang } from '../../lib/i18n';
 import { useSettings, waNumber } from '../../lib/settings';
 
@@ -147,6 +148,7 @@ export default function PropertyDetail({ property, photos }) {
                   {property.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950">EN AVANT</span>}
                 </div>
                 <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">{property.title}</h1>
+                <div className="mb-3"><ShareButtons title={property.title} /></div>
                 {(property.district || property.city) && (
                   <p className="flex items-center gap-1.5 text-white/40 text-sm mb-4">
                     <MapPin size={14} />{[property.district, property.city].filter(Boolean).join(', ')}

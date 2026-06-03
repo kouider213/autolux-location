@@ -741,10 +741,10 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
             </motion.div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
               {[
-                { val:cars?.length||14, suffix:'',  label:t('st.veh'), desc:t('st.veh_d') },
-                { val:500,             suffix:'+', label:t('st.cli'), desc:t('st.cli_d') },
-                { val:0,               suffix:'€', label:t('st.cau'), desc:t('st.cau_d') },
-                { val:98,              suffix:'%', label:t('st.sat'), desc:t('st.sat_d') },
+                { val:cars?.length||14,                        suffix:'',  label:t('st.veh'), desc:t('st.veh_d') },
+                { val:Number(settings.stat_clients)||500,      suffix:'+', label:t('st.cli'), desc:t('st.cli_d') },
+                { val:0,                                       suffix:'€', label:t('st.cau'), desc:t('st.cau_d') },
+                { val:Number(settings.stat_satisfaction)||98,  suffix:'%', label:t('st.sat'), desc:t('st.sat_d') },
               ].map((s, i) => (
                 <motion.div key={i} className="text-center"
                   initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}

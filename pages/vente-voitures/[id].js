@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Tag, Fuel, Gauge, Calendar, Settings, MapPin, ArrowLeft, MessageCircle, CheckCircle, Car } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+import ShareButtons from '../../components/ShareButtons';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
 import { useSettings, waNumber } from '../../lib/settings';
@@ -120,7 +121,8 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
             <div className="flex flex-col gap-6">
               <div>
                 <p className="text-white/30 text-xs tracking-widest uppercase mb-2">{t('sale.badge')} · {vehicle.city || 'Oran'}</p>
-                <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">{vehicle.brand} {vehicle.model}</h1>
+                <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 leading-tight">{vehicle.brand} {vehicle.model}</h1>
+                <div className="mb-4"><ShareButtons title={`${vehicle.brand} ${vehicle.model}`} /></div>
                 <div className="flex items-baseline gap-2">
                   {vehicle.price ? (
                     <><span className="font-display font-black text-gold-gradient leading-none" style={{ fontSize: 'clamp(36px, 4vw, 52px)' }}>{Number(vehicle.price).toLocaleString()} {cur(vehicle.currency)}</span></>
