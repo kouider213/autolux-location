@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Settings as SettingsIcon, MessageCircle, Mail, Phone, MapPin, Instagram, Music2, Facebook, Percent, Save, Megaphone, ImageIcon, Loader2, Bot } from 'lucide-react';
+import { Settings as SettingsIcon, MessageCircle, Mail, Phone, MapPin, Instagram, Music2, Facebook, Percent, Save, Megaphone, ImageIcon, Loader2 } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import { DEFAULT_SETTINGS } from '../../lib/settings';
@@ -81,7 +81,6 @@ export default function AdminSettingsPage() {
       acompte_pct: form.acompte_pct ? Number(form.acompte_pct) : 50,
       stat_clients: (form.stat_clients || '').toString().replace(/\D/g, ''), stat_satisfaction: (form.stat_satisfaction || '').toString().replace(/\D/g, ''),
       hero_title: (form.hero_title || '').trim(), hero_subtitle: (form.hero_subtitle || '').trim(), announcement: (form.announcement || '').trim(),
-      chatbot_enabled: form.chatbot_enabled !== false,
       updated_at: new Date().toISOString(),
     };
     const { error } = await supabase.from('site_settings').upsert(payload, { onConflict: 'id' });
@@ -153,12 +152,6 @@ export default function AdminSettingsPage() {
                   <Field label="Clients satisfaits (accueil)" icon={Percent} hint="Nombre affiché (ex: 500). Vide = 500."><input type="number" inputMode="numeric" value={form.stat_clients || ''} onChange={up('stat_clients')} placeholder="500" className={inputCls} /></Field>
                   <Field label="Satisfaction % (accueil)" icon={Percent} hint="Ex: 98. Vide = 98."><input type="number" inputMode="numeric" value={form.stat_satisfaction || ''} onChange={up('stat_satisfaction')} placeholder="98" className={inputCls} /></Field>
                 </div>
-                <button type="button" onClick={() => setForm(s => ({ ...s, chatbot_enabled: !(s.chatbot_enabled !== false) }))}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm transition-all ${form.chatbot_enabled !== false ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-white/[0.04] border-white/[0.08] text-white/50'}`}>
-                  <span className="flex items-center gap-2"><Bot size={15} /> Chatbot (bulle d'assistance)</span>
-                  <span>{form.chatbot_enabled !== false ? 'ACTIVÉ' : 'Désactivé'}</span>
-                </button>
-                <p className="text-white/20 text-[11px] -mt-2">Désactive-le s'il dérange les clients. Réactivation immédiate.</p>
               </div>
             </section>
 

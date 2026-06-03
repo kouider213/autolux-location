@@ -7,7 +7,6 @@ import { useRouter } from 'next/router';
 import { trackPageView } from '../lib/tracker';
 import { LangProvider } from '../lib/i18n';
 import AnnouncementBanner from '../components/AnnouncementBanner';
-import { getSettings } from '../lib/settings';
 
 const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { ssr: false });
 
@@ -23,29 +22,14 @@ export default function App({ Component, pageProps }) {
     return () => router.events.off('routeChangeComplete', handleRouteChange);
   }, []);
 
+  // Chatbot retiré : le site présente déjà toutes les infos (location, vente,
+  // immo, conditions, FAQ, contact WhatsApp). Plus de bulle d'assistance.
+  // Si on veut le réactiver un jour : recharger le script du widget ici.
   useEffect(() => {
-    // Don't load widget on admin pages
-    if (router.pathname.startsWith('/admin')) return;
-    // Chargement conditionnel : seulement si le chatbot est activé dans l'admin
-    getSettings().then(s => {
-      if (s.chatbot_enabled === false) return; // désactivé → on ne charge rien
-      if (document.getElementById('ibr-widget-script')) return;
-      const el = document.createElement('script');
-      el.id = 'ibr-widget-script';
-      el.src = 'https://ibrahim-backend-production.up.railway.app/api/widget/embed.js';
-      el.async = true;
-      document.body.appendChild(el);
-    });
-  }, [router.pathname]);
-
-  // Masque le widget sur l'admin OU si désactivé dans les paramètres
-  useEffect(() => {
-    const apply = (disabled) => {
-      const widget = document.getElementById('ibr-widget-root') || document.querySelector('[id^="ibr-"]');
-      if (widget) widget.style.display = (router.pathname.startsWith('/admin') || disabled) ? 'none' : '';
-    };
-    apply(false);
-    getSettings().then(s => apply(s.chatbot_enabled === false));
+    const widget = document.getElementById('ibr-widget-root') || document.querySelector('[id^="ibr-"]');
+    if (widget) widget.remove();
+    const script = document.getElementById('ibr-widget-script');
+    if (script) script.remove();
   }, [router.pathname]);
 
     return (
