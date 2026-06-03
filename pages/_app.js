@@ -47,6 +47,7 @@ export default function App({ Component, pageProps }) {
               <meta name="keywords" content="location voiture Oran, louer voiture Algérie, vente voiture Oran, immobilier Oran, location auto Oran, Fik Conciergerie, voiture occasion Algérie, importer voiture Algérie" />
               <meta name="author" content="Fik Conciergerie" />
               <meta name="robots" content="index, follow" />
+              <meta name="google-site-verification" content="L2kJSkOT3PzBoRuGg8ZnP0iLPZf1Qa-lxPMR2aiEMrk" />
               <link rel="canonical" href={`https://fikconciergerie.com${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
               {/* hreflang FR/AR — même URL, langue bascule côté client */}
               <link rel="alternate" hrefLang="fr" href={`https://fikconciergerie.com${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
