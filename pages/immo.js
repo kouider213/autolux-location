@@ -162,9 +162,9 @@ export default function ImmoPage({ properties }) {
             ) : (
               <div className="text-center py-16 max-w-lg mx-auto mb-8">
                 <div className="w-20 h-20 bg-gold-500/[0.08] border border-gold-500/20 rounded-3xl flex items-center justify-center mx-auto mb-7"><Building2 size={32} className="text-gold-400" /></div>
-                <h2 className="font-display text-3xl font-bold text-white mb-3">Biens bientôt disponibles</h2>
-                <p className="text-white/40 leading-relaxed mb-8">Nos premiers biens immobiliers arrivent prochainement. Vous cherchez à louer/acheter, ou vous êtes propriétaire ? Contactez-nous.</p>
-                <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Bonjour, je suis intéressé(e) par vos biens immobiliers.')}`} target="_blank" rel="noopener noreferrer" className="btn-gold px-8 py-3.5 text-sm inline-flex items-center gap-2"><MessageCircle size={15} /> Nous contacter</a>
+                <h2 className="font-display text-3xl font-bold text-white mb-3">{t('immo.cs_t')}</h2>
+                <p className="text-white/40 leading-relaxed mb-8">{t('immo.cs_d')}</p>
+                <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(t('immo.cs_wa'))}`} target="_blank" rel="noopener noreferrer" className="btn-gold px-8 py-3.5 text-sm inline-flex items-center gap-2"><MessageCircle size={15} /> {t('immo.contact')}</a>
               </div>
             )}
 

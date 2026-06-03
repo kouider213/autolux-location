@@ -311,14 +311,14 @@ export default function ReservationPage({ cars: initialCars }) {
 
             {/* Header */}
             <div className="text-center mb-8">
-              <span className="section-badge mb-4 inline-block">Location</span>
-              <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">Réservation</h1>
-              <p className="text-white/35 text-sm">Choisissez votre véhicule et vos dates disponibles</p>
+              <span className="section-badge mb-4 inline-block">{t('res.badge')}</span>
+              <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">{t('res.title')}</h1>
+              <p className="text-white/35 text-sm">{t('res.subtitle')}</p>
             </div>
 
             {/* Step pills */}
             <div className="flex items-center justify-center gap-2 mb-8">
-              {[{n:1,l:'Véhicule & dates'},{n:2,l:'Vos infos'}].map((s, i) => (
+              {[{n:1,l:t('res.step1')},{n:2,l:t('res.step2')}].map((s, i) => (
                 <div key={s.n} className="flex items-center gap-2">
                   <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                     step === s.n ? 'bg-gold-500/20 border border-gold-500/40 text-gold-400' :
@@ -355,7 +355,7 @@ export default function ReservationPage({ cars: initialCars }) {
                           className="input-dark pl-10 appearance-none cursor-pointer">
                           <option value="">{t("res.select")}</option>
                           {cars.map(car => (
-                            <option key={car.id} value={car.id}>{car.name} — {fmt(car.resale_price)} {sym(car.currency)}/jour</option>
+                            <option key={car.id} value={car.id}>{car.name} — {fmt(car.resale_price)} {sym(car.currency)}{t('res.perday')}</option>
                           ))}
                         </select>
                       </div>
@@ -376,7 +376,7 @@ export default function ReservationPage({ cars: initialCars }) {
                         </div>
                         <div className="text-right flex-shrink-0">
                           <div className="text-gold-400 font-bold">{fmt(selectedCar.resale_price)} {sym(selectedCar.currency)}</div>
-                          <div className="text-white/25 text-xs">/jour</div>
+                          <div className="text-white/25 text-xs">{t('res.perday')}</div>
                         </div>
                       </div>
                     )}
@@ -388,7 +388,7 @@ export default function ReservationPage({ cars: initialCars }) {
                           <label className="label-dark mb-0 flex items-center gap-2">
                             <CalendarDays size={13} />{t("res.dates")}
                           </label>
-                          {loadingCal && <span className="text-white/30 text-xs animate-pulse">Chargement...</span>}
+                          {loadingCal && <span className="text-white/30 text-xs animate-pulse">{t('res.loading')}</span>}
                         </div>
 
                         {/* Legend */}
@@ -461,7 +461,7 @@ export default function ReservationPage({ cars: initialCars }) {
                         {rangeHasConflict() && (
                           <div className="mt-3 flex items-start gap-2 bg-red-500/[0.07] border border-red-500/20 rounded-xl p-3">
                             <AlertCircle size={14} className="text-red-400 flex-shrink-0 mt-0.5" />
-                            <p className="text-red-400/80 text-sm">Ce véhicule est déjà réservé sur une partie de ces dates. Veuillez choisir d'autres dates.</p>
+                            <p className="text-red-400/80 text-sm">{t('res.conflict')}</p>
                           </div>
                         )}
                       </div>
@@ -498,7 +498,7 @@ export default function ReservationPage({ cars: initialCars }) {
                       </button>
                       <div>
                         <h2 className="text-white font-semibold text-lg leading-tight">{t("res.s2t")}</h2>
-                        <p className="text-white/30 text-xs">Champs * obligatoires</p>
+                        <p className="text-white/30 text-xs">{t('res.required')}</p>
                       </div>
                     </div>
 
@@ -533,7 +533,7 @@ export default function ReservationPage({ cars: initialCars }) {
                         <div>
                           <p className="text-red-400 font-semibold text-sm mb-1.5">{t("res.agemin")}</p>
                           <p className="text-red-400/70 text-xs leading-relaxed">
-                            En raison de nos contrats d'assurance, nous ne sommes pas autorisés à louer nos véhicules aux personnes de moins de 35 ans. Cette règle nous permet de protéger nos clients et notre société en cas de contrôle, d'accident ou de litige avec les assurances.
+                            {t('res.age_expl')}
                           </p>
                           <p className="text-red-400/45 text-xs mt-2">{t("res.agemin_d")}</p>
                         </div>
@@ -566,10 +566,10 @@ export default function ReservationPage({ cars: initialCars }) {
                       <div className="bg-[#1a1a1a] border border-white/[0.06] rounded-xl p-4 space-y-2">
                         <p className="text-white/25 text-xs uppercase tracking-widest font-medium mb-2">{t("res.recap")}</p>
                         {[
-                          ['Véhicule', selectedCar.name],
-                          ['Dates',    `${form.startDate} → ${form.endDate}`],
-                          ['Durée',    `${days} jour${days > 1 ? 's' : ''}`],
-                          ['Total',    `${fmt(total)} ${sym(selectedCar?.currency)}`],
+                          [t('res.vehicle'), selectedCar.name],
+                          [t('res.dates'),   `${form.startDate} → ${form.endDate}`],
+                          [t('res.duree'),   `${days} ${t('res.days')}`],
+                          [t('res.total'),   `${fmt(total)} ${sym(selectedCar?.currency)}`],
                         ].map(([l, v]) => (
                           <div key={l} className="flex justify-between text-sm">
                             <span className="text-white/35">{l}</span>
@@ -589,12 +589,12 @@ export default function ReservationPage({ cars: initialCars }) {
                     <button onClick={handleSubmit} disabled={loading || ageTooYoung}
                       className="btn-gold w-full py-4 text-base disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0">
                       {loading
-                        ? <><Loader2 size={16} className="animate-spin" />Envoi...</>
+                        ? <><Loader2 size={16} className="animate-spin" />{t('res.sending')}</>
                         : <><MessageCircle size={17} />{t("res.send_wa")}</>
                       }
                     </button>
                     <p className="text-center text-white/20 text-xs">
-                      WhatsApp s'ouvrira automatiquement avec toutes vos informations.
+                      {t('res.wa_auto')}
                     </p>
                   </div>
                 )}

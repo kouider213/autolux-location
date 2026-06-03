@@ -21,7 +21,7 @@ function SocialSection() {
     <div className="px-5 mb-20">
       <div className="max-w-4xl mx-auto text-center">
         <span className="section-badge mb-4 inline-block">{t('contact.follow')}</span>
-        <h2 className="font-display text-3xl font-bold text-white mb-8">Rejoignez la communauté</h2>
+        <h2 className="font-display text-3xl font-bold text-white mb-8">{t('contact.community')}</h2>
         <div className="flex flex-wrap justify-center gap-4">
           {socials.map(soc => (
             <a key={soc.label} href={soc.href} target="_blank" rel="noopener noreferrer"
@@ -37,55 +37,19 @@ function SocialSection() {
 }
 
 const WHY_US = [
-  {
-    icon: Shield,
-    title: 'Sans caution',
-    desc: 'Contrairement à d\'autres agences, nous ne bloquons pas d\'argent sur votre compte. Zéro dépôt requis.',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10 border-emerald-500/20',
-  },
-  {
-    icon: Zap,
-    title: 'Confirmation en 1h',
-    desc: 'Votre réservation est confirmée par WhatsApp en moins d\'1 heure. Pas d\'attente interminable.',
-    color: 'text-gold-400',
-    bg: 'bg-gold-500/10 border-gold-500/20',
-  },
-  {
-    icon: Clock,
-    title: '7j/7 · 24h/24',
-    desc: 'Disponibles à toute heure, tous les jours. Besoin d\'un véhicule à 23h ? On est là.',
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10 border-blue-500/20',
-  },
-  {
-    icon: Heart,
-    title: 'Service personnalisé',
-    desc: 'Chaque client est unique. Livraison, mariage, déplacement pro — on adapte l\'offre à vos besoins.',
-    color: 'text-pink-400',
-    bg: 'bg-pink-500/10 border-pink-500/20',
-  },
-  {
-    icon: Car,
-    title: 'Flotte entretenue',
-    desc: 'Chaque véhicule est nettoyé, révisé et vérifié avant chaque location. Aucune mauvaise surprise.',
-    color: 'text-purple-400',
-    bg: 'bg-purple-500/10 border-purple-500/20',
-  },
-  {
-    icon: Star,
-    title: 'Confiance locale',
-    desc: 'Agence oranaise locale. Vous parlez directement avec le propriétaire, pas un call center.',
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/10 border-amber-500/20',
-  },
+  { icon: Shield, tk: 'wu1t', dk: 'wu1d', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  { icon: Zap,    tk: 'wu2t', dk: 'wu2d', color: 'text-gold-400',    bg: 'bg-gold-500/10 border-gold-500/20' },
+  { icon: Clock,  tk: 'wu3t', dk: 'wu3d', color: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/20' },
+  { icon: Heart,  tk: 'wu4t', dk: 'wu4d', color: 'text-pink-400',    bg: 'bg-pink-500/10 border-pink-500/20' },
+  { icon: Car,    tk: 'wu5t', dk: 'wu5d', color: 'text-purple-400',  bg: 'bg-purple-500/10 border-purple-500/20' },
+  { icon: Star,   tk: 'wu6t', dk: 'wu6d', color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20' },
 ];
 
 const STATS = [
-  { value: '150+', label: 'Clients satisfaits' },
-  { value: '15+',  label: 'Véhicules disponibles' },
-  { value: '4.9',  label: 'Note moyenne' },
-  { value: '3 ans', label: 'D\'expérience à Oran' },
+  { vk: 'ct.s1v', lk: 'ct.s1' },
+  { vk: 'ct.s2v', lk: 'ct.s2' },
+  { vk: 'ct.s3v', lk: 'ct.s3' },
+  { vk: 'ct.s4v', lk: 'ct.s4' },
 ];
 
 export default function ContactPage() {
@@ -114,8 +78,7 @@ export default function ContactPage() {
               <span className="text-gold-gradient italic">{t('contact.title2')}</span>
             </h1>
             <p className="text-white/40 text-lg max-w-xl mx-auto leading-relaxed">
-              Notre équipe est disponible 24h/24 pour répondre à toutes vos demandes.
-              Réservation, devis, questions — on répond vite.
+              {t('ct.sub')}
             </p>
           </div>
         </div>
@@ -124,9 +87,9 @@ export default function ContactPage() {
         <div className="px-5 mb-20">
           <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
             {STATS.map(s => (
-              <div key={s.label} className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5 text-center">
-                <div className="font-display font-black text-3xl text-gold-400 mb-1">{s.value}</div>
-                <div className="text-white/35 text-xs">{s.label}</div>
+              <div key={s.lk} className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5 text-center">
+                <div className="font-display font-black text-3xl text-gold-400 mb-1">{t(s.vk)}</div>
+                <div className="text-white/35 text-xs">{t(s.lk)}</div>
               </div>
             ))}
           </div>
@@ -136,8 +99,8 @@ export default function ContactPage() {
         <div className="px-5 mb-20">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-10">
-              <span className="section-badge mb-4 inline-block">Nous joindre</span>
-              <h2 className="font-display text-3xl font-bold text-white">Contactez-nous</h2>
+              <span className="section-badge mb-4 inline-block">{t('ct.join')}</span>
+              <h2 className="font-display text-3xl font-bold text-white">{t('ct.contact')}</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-5">
 
@@ -151,10 +114,10 @@ export default function ContactPage() {
                 <div>
                   <h3 className="text-white font-bold text-lg mb-1">WhatsApp</h3>
                   <p className="text-[#25D366] font-semibold text-sm mb-2">+32 466 31 14 69</p>
-                  <p className="text-white/35 text-sm">Réponse immédiate · Message direct avec le gérant</p>
+                  <p className="text-white/35 text-sm">{t('ct.wa_d')}</p>
                 </div>
                 <div className="flex items-center gap-1.5 text-[#25D366]/70 text-xs font-medium mt-auto">
-                  Ouvrir WhatsApp <ArrowRight size={12} />
+                  {t('ct.open_wa')} <ArrowRight size={12} />
                 </div>
               </a>
 
@@ -165,12 +128,12 @@ export default function ContactPage() {
                   <MapPin size={24} className="text-gold-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg mb-1">Localisation</h3>
-                  <p className="text-gold-400 font-semibold text-sm mb-2">Oran, Algérie</p>
-                  <p className="text-white/35 text-sm">Livraison à l'aéroport · Récupération en magasin</p>
+                  <h3 className="text-white font-bold text-lg mb-1">{t('ct.loc')}</h3>
+                  <p className="text-gold-400 font-semibold text-sm mb-2">{t('ct.loc_v')}</p>
+                  <p className="text-white/35 text-sm">{t('ct.loc_d')}</p>
                 </div>
                 <div className="flex items-center gap-1.5 text-gold-400/70 text-xs font-medium mt-auto">
-                  Voir sur Maps <ArrowRight size={12} />
+                  {t('ct.see_maps')} <ArrowRight size={12} />
                 </div>
               </a>
 
@@ -180,12 +143,12 @@ export default function ContactPage() {
                   <Clock size={24} className="text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg mb-1">Disponibilité</h3>
-                  <p className="text-blue-400 font-semibold text-sm mb-2">24h/24 · 7j/7</p>
-                  <p className="text-white/35 text-sm">Y compris jours fériés · Réponse garantie</p>
+                  <h3 className="text-white font-bold text-lg mb-1">{t('ct.dispo')}</h3>
+                  <p className="text-blue-400 font-semibold text-sm mb-2">{t('ct.dispo_v')}</p>
+                  <p className="text-white/35 text-sm">{t('ct.dispo_d')}</p>
                 </div>
                 <div className="mt-auto flex flex-col gap-1.5">
-                  {['Lun–Dim: 07h00 – 23h00', 'WhatsApp: 24h/24'].map(h => (
+                  {[t('ct.h1'), t('ct.h2')].map(h => (
                     <div key={h} className="flex items-center gap-2 text-white/40 text-xs">
                       <CheckCircle size={10} className="text-blue-400 flex-shrink-0" />{h}
                     </div>
@@ -201,10 +164,10 @@ export default function ContactPage() {
           <div className="max-w-4xl mx-auto">
             <div className="bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden">
               <div className="p-5 border-b border-white/[0.05] flex items-center justify-between">
-                <h2 className="text-white font-semibold">Notre zone de service</h2>
+                <h2 className="text-white font-semibold">{t('ct.zone')}</h2>
                 <a href="https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria" target="_blank" rel="noopener noreferrer"
                   className="btn-gold text-xs py-2 px-4">
-                  Ouvrir GPS
+                  {t('ct.open_gps')}
                 </a>
               </div>
               <div style={{ height: '320px' }}>
@@ -222,24 +185,24 @@ export default function ContactPage() {
         <div className="px-5 mb-20">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <span className="section-badge mb-4 inline-block">Notre différence</span>
+              <span className="section-badge mb-4 inline-block">{t('ct.diff')}</span>
               <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
-                Pourquoi choisir <span className="text-gold-gradient italic">Fik Conciergerie</span> ?
+                {t('ct.why1')} <span className="text-gold-gradient italic">{t('ct.why2')}</span> ?
               </h2>
               <p className="text-white/35 max-w-xl mx-auto">
-                Nous ne sommes pas une agence de location comme les autres. Voici pourquoi nos clients reviennent.
+                {t('ct.why_sub')}
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {WHY_US.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.title} className={`bg-[#141414] border ${item.bg} rounded-2xl p-6 group hover:scale-[1.02] transition-transform duration-300`}>
+                  <div key={item.tk} className={`bg-[#141414] border ${item.bg} rounded-2xl p-6 group hover:scale-[1.02] transition-transform duration-300`}>
                     <div className={`w-12 h-12 ${item.bg} border rounded-2xl flex items-center justify-center mb-4`}>
                       <Icon size={22} className={item.color} />
                     </div>
-                    <h3 className="text-white font-bold text-base mb-2">{item.title}</h3>
-                    <p className="text-white/40 text-sm leading-relaxed">{item.desc}</p>
+                    <h3 className="text-white font-bold text-base mb-2">{t(item.tk)}</h3>
+                    <p className="text-white/40 text-sm leading-relaxed">{t(item.dk)}</p>
                   </div>
                 );
               })}
@@ -257,18 +220,18 @@ export default function ContactPage() {
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(226,182,20,0.06),transparent_70%)]" />
               <div className="relative">
                 <h2 className="font-display text-3xl font-bold text-white mb-3">
-                  Prêt à réserver ?
+                  {t('ct.ready')}
                 </h2>
                 <p className="text-white/40 mb-8">
-                  Un message WhatsApp suffit. On s'occupe du reste.
+                  {t('ct.ready_d')}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <a href="https://wa.me/32466311469" target="_blank" rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white font-bold py-4 px-8 rounded-xl transition-all shadow-[0_4px_20px_rgba(37,211,102,0.3)] hover:shadow-[0_8px_30px_rgba(37,211,102,0.4)]">
-                    <MessageCircle size={18} />Nous contacter
+                    <MessageCircle size={18} />{t('ct.contact_us')}
                   </a>
                   <Link href="/reservation" className="btn-gold py-4 px-8">
-                    Réserver en ligne
+                    {t('ct.book_online')}
                   </Link>
                 </div>
               </div>

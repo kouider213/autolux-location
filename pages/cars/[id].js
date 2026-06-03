@@ -168,10 +168,10 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                         style={{ fontSize: 'clamp(36px, 4vw, 52px)' }}>
                         {Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}
                       </span>
-                      <span className="text-white/30 text-base font-body">/jour</span>
+                      <span className="text-white/30 text-base font-body">{t('d.perday')}</span>
                     </>
                   ) : (
-                    <span className="font-display font-black text-gold-gradient text-3xl">Sur demande</span>
+                    <span className="font-display font-black text-gold-gradient text-3xl">{t('d.on_demand')}</span>
                   )}
                 </div>
               </div>

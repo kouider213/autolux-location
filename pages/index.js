@@ -503,7 +503,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
 
               {/* Scroll hint */}
               <div className="hero-css-hint absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-white/25 pointer-events-none">
-                <span className="text-[8px] tracking-[0.3em] uppercase font-body">Défiler</span>
+                <span className="text-[8px] tracking-[0.3em] uppercase font-body">{t('home.scroll')}</span>
                 <ChevronDown size={12} className="animate-bounce" />
               </div>
             </div>
@@ -851,7 +851,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   <img src="/logo.png" alt="Fik Conciergerie" className="w-10 h-10 object-contain" />
                   <div>
                     <span className="font-display font-bold text-white text-base block leading-tight">Fik <span className="text-gold-500">Conciergerie</span></span>
-                    <span className="text-white/25 text-[10px] tracking-widest uppercase font-body">Conciergerie Premium</span>
+                    <span className="text-white/25 text-[10px] tracking-widest uppercase font-body">{t('foot.premium')}</span>
                   </div>
                 </div>
                 <p className="text-white/30 text-sm font-body leading-relaxed mb-5">
@@ -911,7 +911,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
                     <MapPin size={13} className="text-gold-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-white/35 text-sm font-body leading-relaxed">Hay Badr, Oran, Algérie</span>
+                    <span className="text-white/35 text-sm font-body leading-relaxed">{t('foot.addr')}</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <MessageCircle size={13} className="text-gold-500 flex-shrink-0" />
