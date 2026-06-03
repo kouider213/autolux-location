@@ -47,6 +47,7 @@ export default function Navbar({ scrollContainerRef }) {
     { href: '/commande-vehicule', label: t('nav.order') },
     { href: '/immo',              label: t('nav.immo') },
     { href: '/reviews',           label: t('nav.reviews') },
+    { href: '/faq',               label: t('nav.faq') },
     { href: '/contact',           label: t('nav.contact') },
   ];
 

@@ -895,6 +895,8 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   {[
                     { h: '/commande-vehicule', l: t('foot.f_order') },
                     { h: '/conditions', l: t('foot.f_cond') },
+                    { h: '/faq', l: t('nav.faq') },
+                    { h: '/blog', l: t('nav.blog') },
                     { h: '/immo', l: t('foot.f_immo') },
                   ].map(x => (
                     <li key={x.h}>

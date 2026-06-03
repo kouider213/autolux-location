@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import { useSettings } from '../lib/settings';
 import {
   LayoutDashboard, Car, CalendarCheck, Users, Star,
-  BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag, Settings, FileText,
+  BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag, Settings, FileText, HelpCircle, Newspaper,
 } from 'lucide-react';
 
 const NAV = [
@@ -19,6 +19,8 @@ const NAV = [
   { href: '/admin/immo',        label: 'Immobilier',         icon: Building2 },
   { href: '/admin/reviews',     label: 'Avis',               icon: Star },
   { href: '/admin/conditions',  label: 'Conditions',         icon: FileText },
+  { href: '/admin/faq',         label: 'FAQ',                icon: HelpCircle },
+  { href: '/admin/blog',        label: 'Blog',               icon: Newspaper },
   { href: '/admin/settings',    label: 'Paramètres',         icon: Settings },
 ];
 
