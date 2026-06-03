@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { Newspaper, ArrowRight, Calendar } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
 import { getPublishedPosts, pickTitle, pickExcerpt } from '../lib/blog';
 
@@ -62,6 +63,7 @@ export default function BlogPage({ posts }) {
             )}
           </div>
         </div>
+        <Footer />
       </div>
     </>
   );

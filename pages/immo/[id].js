@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { MapPin, Maximize, BedDouble, Bath, Building2, ArrowLeft, MessageCircle, ChevronLeft, ChevronRight, Home, Layers, Wallet, KeyRound, CalendarClock } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import ShareButtons from '../../components/ShareButtons';
 import { useLang } from '../../lib/i18n';
 import { useSettings, waNumber } from '../../lib/settings';
@@ -209,6 +210,7 @@ export default function PropertyDetail({ property, photos }) {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

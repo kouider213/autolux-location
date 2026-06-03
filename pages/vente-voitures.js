@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Tag, Fuel, Gauge, Calendar, MapPin, Search, X, ArrowRight, Star, MessageCircle } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
@@ -162,6 +163,7 @@ export default function VenteVoituresPage({ vehicles }) {
             )}
           </div>
         </div>
+        <Footer />
       </div>
     </>
   );

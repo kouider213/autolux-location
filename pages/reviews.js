@@ -3,6 +3,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Star, MessageSquarePlus, Check, Loader2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 
@@ -220,6 +221,7 @@ export default function ReviewsPage({ reviews }) {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     </>
   );

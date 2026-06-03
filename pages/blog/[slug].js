@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, MessageCircle } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import ShareButtons from '../../components/ShareButtons';
 import { useLang } from '../../lib/i18n';
 import { useSettings, waNumber } from '../../lib/settings';
@@ -90,6 +91,7 @@ export default function BlogPost({ post }) {
             </div>
           </div>
         </article>
+        <Footer />
       </div>
     </>
   );

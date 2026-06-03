@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Tag, Fuel, Gauge, Calendar, Settings, MapPin, ArrowLeft, MessageCircle, CheckCircle, Car } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import ShareButtons from '../../components/ShareButtons';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
@@ -159,6 +160,7 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

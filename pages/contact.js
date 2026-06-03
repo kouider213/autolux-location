@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { MessageCircle, MapPin, Clock, Shield, Star, Zap, Heart, Car, CheckCircle, ArrowRight, Phone, Instagram, Music2, Facebook } from 'lucide-react';
 import { getSettings, useSettings, waNumber } from '../lib/settings';
 import { useLang } from '../lib/i18n';
@@ -256,6 +257,7 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     </>
   );

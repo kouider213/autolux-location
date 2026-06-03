@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Car, Fuel, Users, Settings, ArrowLeft, CalendarCheck, MessageCircle, Wind, Star, CheckCircle } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
 import { useSettings, waNumber } from '../../lib/settings';
@@ -235,6 +236,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Car, Fuel, Users, Search, ArrowRight, X, Gauge } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
@@ -157,6 +158,7 @@ export default function CarsPage({ cars }) {
             )}
           </div>
         </div>
+        <Footer />
       </div>
     </>
   );

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ChevronDown, MessageCircle, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 import { getFaq, DEFAULT_FAQ } from '../lib/faq';
@@ -75,6 +76,7 @@ export default function FaqPage() {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     </>
   );

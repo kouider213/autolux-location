@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { trackPageView } from '../lib/tracker';
 import { LangProvider } from '../lib/i18n';
 import AnnouncementBanner from '../components/AnnouncementBanner';
+import CookieBanner from '../components/CookieBanner';
 
 const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { ssr: false });
 
@@ -92,6 +93,7 @@ export default function App({ Component, pageProps }) {
         <LangProvider>
           {!router.pathname.startsWith('/admin') && <AnnouncementBanner />}
           <Component {...pageProps} />
+          {!router.pathname.startsWith('/admin') && <CookieBanner />}
         </LangProvider>
         <Toaster
           position="top-right"

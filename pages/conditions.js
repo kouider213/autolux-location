@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { AlertTriangle, ArrowRight, MessageCircle } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
 import { getConditions, DEFAULT_CONDITIONS } from '../lib/conditions';
 
@@ -115,6 +116,7 @@ export default function ConditionsPage() {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     </>
   );

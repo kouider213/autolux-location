@@ -5,6 +5,7 @@ import {
   Send, Car, MapPin, Gauge, Fuel, Settings, Calendar, Palette, MessageCircle, CheckCircle2,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 
@@ -269,6 +270,7 @@ export default function CommandeVehiculePage() {
             </div>
           </section>
         </div>
+        <Footer />
       </div>
     </>
   );

@@ -6,6 +6,7 @@ import {
   Star, MessageCircle, Home, Key, TrendingUp, Megaphone, Briefcase, Calculator,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
@@ -200,6 +201,7 @@ export default function ImmoPage({ properties }) {
             </section>
           </div>
         </div>
+        <Footer />
       </div>
     </>
   );
