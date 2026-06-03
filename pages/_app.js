@@ -53,7 +53,11 @@ export default function App({ Component, pageProps }) {
               <meta name="keywords" content="location voiture Oran, louer voiture Algérie, vente voiture Oran, immobilier Oran, location auto Oran, Fik Conciergerie, voiture occasion Algérie, importer voiture Algérie" />
               <meta name="author" content="Fik Conciergerie" />
               <meta name="robots" content="index, follow" />
-              <link rel="canonical" href="https://autolux-location.vercel.app" />
+              <link rel="canonical" href={`https://autolux-location.vercel.app${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
+              {/* hreflang FR/AR — même URL, langue bascule côté client */}
+              <link rel="alternate" hrefLang="fr" href={`https://autolux-location.vercel.app${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
+              <link rel="alternate" hrefLang="ar" href={`https://autolux-location.vercel.app${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
+              <link rel="alternate" hrefLang="x-default" href={`https://autolux-location.vercel.app${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
               {/* Géolocalisation Oran (SEO local) */}
               <meta name="geo.region" content="DZ-31" />
               <meta name="geo.placename" content="Oran" />
