@@ -48,6 +48,7 @@ export default function Navbar({ scrollContainerRef }) {
     { href: '/immo',              label: t('nav.immo') },
     { href: '/reviews',           label: t('nav.reviews') },
     { href: '/faq',               label: t('nav.faq') },
+    { href: '/conditions',        label: t('nav.conditions') },
     { href: '/contact',           label: t('nav.contact') },
   ];
 
