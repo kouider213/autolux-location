@@ -40,7 +40,7 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = W
     `*المجموع التقديري :* ${fmt(total)} ${sym(car.currency)}`,
     form.notes ? `*ملاحظات :* ${form.notes}` : null,
     ``,
-    bookingId ? `🔗 المتابعة: https://autolux-location.vercel.app/suivi/${bookingId}` : null,
+    bookingId ? `🔗 المتابعة: https://fikconciergerie.com/suivi/${bookingId}` : null,
     `_طلب مُرسَل من موقع فيك كونسيرجري._`,
   ] : [
     `🚗 *Nouvelle Réservation — Fik Conciergerie*`,
@@ -61,7 +61,7 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = W
     `*Total estimé :* ${fmt(total)} ${sym(car.currency)}`,
     form.notes ? `*Notes :* ${form.notes}` : null,
     ``,
-    bookingId ? `🔗 Suivi: https://autolux-location.vercel.app/suivi/${bookingId}` : null,
+    bookingId ? `🔗 Suivi: https://fikconciergerie.com/suivi/${bookingId}` : null,
     `_Demande envoyée depuis le site Fik Conciergerie._`,
   ];
 

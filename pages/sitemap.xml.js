@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase';
 
-const BASE = 'https://autolux-location.vercel.app';
+const BASE = 'https://fikconciergerie.com';
 
 function SitemapXML() { return null; }
 

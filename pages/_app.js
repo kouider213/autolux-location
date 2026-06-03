@@ -47,11 +47,11 @@ export default function App({ Component, pageProps }) {
               <meta name="keywords" content="location voiture Oran, louer voiture Algérie, vente voiture Oran, immobilier Oran, location auto Oran, Fik Conciergerie, voiture occasion Algérie, importer voiture Algérie" />
               <meta name="author" content="Fik Conciergerie" />
               <meta name="robots" content="index, follow" />
-              <link rel="canonical" href={`https://autolux-location.vercel.app${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
+              <link rel="canonical" href={`https://fikconciergerie.com${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
               {/* hreflang FR/AR — même URL, langue bascule côté client */}
-              <link rel="alternate" hrefLang="fr" href={`https://autolux-location.vercel.app${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
-              <link rel="alternate" hrefLang="ar" href={`https://autolux-location.vercel.app${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
-              <link rel="alternate" hrefLang="x-default" href={`https://autolux-location.vercel.app${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
+              <link rel="alternate" hrefLang="fr" href={`https://fikconciergerie.com${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
+              <link rel="alternate" hrefLang="ar" href={`https://fikconciergerie.com${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
+              <link rel="alternate" hrefLang="x-default" href={`https://fikconciergerie.com${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
               {/* Géolocalisation Oran (SEO local) */}
               <meta name="geo.region" content="DZ-31" />
               <meta name="geo.placename" content="Oran" />
@@ -62,8 +62,8 @@ export default function App({ Component, pageProps }) {
               <meta property="og:site_name"   content="Fik Conciergerie" />
               <meta property="og:title"       content="Fik Conciergerie — Location, Vente & Immobilier à Oran" />
               <meta property="og:description" content="Location de voitures sans caution, véhicules à vendre et immobilier à Oran. Kilométrage illimité, 7j/7. Réservez par WhatsApp." />
-              <meta property="og:url"         content="https://autolux-location.vercel.app" />
-              <meta property="og:image"       content="https://autolux-location.vercel.app/api/og" />
+              <meta property="og:url"         content="https://fikconciergerie.com" />
+              <meta property="og:image"       content="https://fikconciergerie.com/api/og" />
               <meta property="og:image:width"  content="1200" />
               <meta property="og:image:height" content="630" />
               <meta property="og:locale"      content="fr_FR" />
@@ -72,16 +72,16 @@ export default function App({ Component, pageProps }) {
               <meta name="twitter:card"        content="summary_large_image" />
               <meta name="twitter:title"       content="Fik Conciergerie — Location Premium Oran" />
               <meta name="twitter:description" content="Location de voitures premium à Oran. Sans caution. 7j/7." />
-              <meta name="twitter:image"       content="https://autolux-location.vercel.app/api/og" />
+              <meta name="twitter:image"       content="https://fikconciergerie.com/api/og" />
               {/* JSON-LD — Google comprend que c'est une entreprise locale */}
               <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
                 '@context': 'https://schema.org',
                 '@type': 'AutoRental',
                 name: 'Fik Conciergerie',
                 description: 'Location de voitures, vente de véhicules et immobilier à Oran, Algérie.',
-                url: 'https://autolux-location.vercel.app',
-                logo: 'https://autolux-location.vercel.app/logo.png',
-                image: 'https://autolux-location.vercel.app/logo.png',
+                url: 'https://fikconciergerie.com',
+                logo: 'https://fikconciergerie.com/logo.png',
+                image: 'https://fikconciergerie.com/logo.png',
                 telephone: '+32466311469',
                 priceRange: '€€',
                 address: { '@type': 'PostalAddress', addressLocality: 'Oran', addressRegion: 'Oran', addressCountry: 'DZ', streetAddress: 'Hay Badr' },

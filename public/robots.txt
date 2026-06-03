@@ -4,4 +4,4 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /login
 
-Sitemap: https://autolux-location.vercel.app/sitemap.xml
+Sitemap: https://fikconciergerie.com/sitemap.xml

@@ -8,7 +8,7 @@ import { useLang } from '../../lib/i18n';
 import { useSettings, waNumber } from '../../lib/settings';
 import { getPublishedPosts, getPostBySlug, pickTitle, pickBody, pickExcerpt } from '../../lib/blog';
 
-const BASE = 'https://autolux-location.vercel.app';
+const BASE = 'https://fikconciergerie.com';
 
 export default function BlogPost({ post }) {
   const { t, lang } = useLang();
