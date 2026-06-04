@@ -92,16 +92,29 @@ export default function ImmoPage({ properties }) {
   const [search, setSearch]   = useState('');
   const [txn, setTxn]         = useState('Tous');   // Tous | location | vente
   const [type, setType]       = useState('Tous');
+  const [city, setCity]       = useState('Toutes');
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+  const [sort, setSort]       = useState('recent'); // recent | price_asc | price_desc
   const hasListings = properties && properties.length > 0;
 
-  const types = ['Tous', ...Array.from(new Set((properties || []).map(p => p.type).filter(Boolean)))];
+  const types  = ['Tous', ...Array.from(new Set((properties || []).map(p => p.type).filter(Boolean)))];
+  const cities = ['Toutes', ...Array.from(new Set((properties || []).map(p => p.city).filter(Boolean)))];
 
   const filtered = (properties || []).filter(p => {
     const txt = `${p.title} ${p.city || ''} ${p.district || ''}`.toLowerCase();
     const matchSearch = txt.includes(search.toLowerCase());
     const matchTxn = txn === 'Tous' || (p.transaction || 'location') === txn;
     const matchType = type === 'Tous' || p.type === type;
-    return matchSearch && matchTxn && matchType;
+    const matchCity = city === 'Toutes' || p.city === city;
+    const pr = Number(p.price) || 0;
+    const matchMin = !priceMin || pr >= Number(priceMin);
+    const matchMax = !priceMax || (pr > 0 && pr <= Number(priceMax));
+    return matchSearch && matchTxn && matchType && matchCity && matchMin && matchMax;
+  }).sort((a, b) => {
+    if (sort === 'price_asc')  return (Number(a.price) || Infinity) - (Number(b.price) || Infinity);
+    if (sort === 'price_desc') return (Number(b.price) || 0) - (Number(a.price) || 0);
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
   });
 
   const ownerMsg = encodeURIComponent("Bonjour Fik Conciergerie, je suis propriétaire et je souhaite mettre mon bien en location ou en vente via vous. Pouvez-vous m'expliquer les offres ?");
@@ -149,6 +162,22 @@ export default function ImmoPage({ properties }) {
                     {types.map(ty => (
                       <button key={ty} onClick={() => setType(ty)} className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize transition-all ${type === ty ? 'bg-white/[0.12] text-white border border-white/15' : 'bg-white/[0.04] border border-white/[0.07] text-white/40 hover:text-white/70'}`}>{ty === 'Tous' ? t('immo.f_all') : ty}</button>
                     ))}
+                  </div>
+                  {/* Ville + prix + tri */}
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <select value={city} onChange={e => setCity(e.target.value)} className="bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white/80 text-sm outline-none capitalize">
+                      {cities.map(c => <option key={c} value={c} className="bg-[#111]">{c === 'Toutes' ? '📍 Toutes villes' : c}</option>)}
+                    </select>
+                    <input value={priceMin} onChange={e => setPriceMin(e.target.value)} type="number" inputMode="numeric" placeholder="Prix min" className="w-28 bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none" />
+                    <input value={priceMax} onChange={e => setPriceMax(e.target.value)} type="number" inputMode="numeric" placeholder="Prix max" className="w-28 bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none" />
+                    <select value={sort} onChange={e => setSort(e.target.value)} className="bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white/80 text-sm outline-none ml-auto">
+                      <option value="recent" className="bg-[#111]">Plus récents</option>
+                      <option value="price_asc" className="bg-[#111]">Prix croissant</option>
+                      <option value="price_desc" className="bg-[#111]">Prix décroissant</option>
+                    </select>
+                    {(city !== 'Toutes' || priceMin || priceMax) && (
+                      <button onClick={() => { setCity('Toutes'); setPriceMin(''); setPriceMax(''); }} className="text-white/40 hover:text-white text-xs px-3 py-2.5 border border-white/[0.07] rounded-xl">✕ Réinit.</button>
+                    )}
                   </div>
                 </div>
 
