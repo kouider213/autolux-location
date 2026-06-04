@@ -72,6 +72,23 @@ export default function CarDetail({ car, photos: initialPhotos }) {
         {((photos && photos[0]) || car.image_url) && <meta name="twitter:image" key="tw-image" content={(photos && photos[0]) || car.image_url} />}
         <meta property="og:title" content={`${car.name} — Location à Oran`} />
         <meta property="og:description" content={`${car.resale_price ? Number(car.resale_price).toLocaleString('fr-FR') + ' ' + (car.currency === 'EUR' ? '€' : 'DA') + '/jour' : 'Prix sur demande'} · Sans caution · Fik Conciergerie`} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: car.name,
+          description: `Location ${car.name} à Oran${car.category ? ` (${car.category})` : ''}. Sans caution, kilométrage illimité.`,
+          ...((photos && photos[0]) || car.image_url ? { image: (photos && photos[0]) || car.image_url } : {}),
+          category: 'Location de voiture',
+          brand: { '@type': 'Brand', name: 'Fik Conciergerie' },
+          ...(car.resale_price ? { offers: {
+            '@type': 'Offer',
+            price: Number(car.resale_price),
+            priceCurrency: car.currency === 'EUR' ? 'EUR' : 'DZD',
+            availability: car.available === false ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+            url: `https://fikconciergerie.com/cars/${car.id}`,
+            description: 'Prix par jour',
+          } } : {}),
+        }) }} />
       </Head>
 
       <div className="grain min-h-screen bg-[#0e0e0e]">

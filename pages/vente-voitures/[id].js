@@ -81,6 +81,24 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
         {(allPhotos[0] || vehicle.image_url) && <meta name="twitter:image" key="tw-image" content={allPhotos[0] || vehicle.image_url} />}
         <meta property="og:title" content={`${vehicle.brand} ${vehicle.model} — À vendre`} />
         <meta property="og:description" content={`${vehicle.price ? Number(vehicle.price).toLocaleString() + ' ' + cur(vehicle.currency) : 'Prix sur demande'} · Fik Conciergerie Oran`} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Car',
+          name: `${vehicle.brand} ${vehicle.model}`,
+          brand: { '@type': 'Brand', name: vehicle.brand },
+          model: vehicle.model,
+          ...(vehicle.year ? { vehicleModelDate: String(vehicle.year), productionDate: String(vehicle.year) } : {}),
+          ...(vehicle.mileage ? { mileageFromOdometer: { '@type': 'QuantitativeValue', value: Number(vehicle.mileage), unitCode: 'KMT' } } : {}),
+          ...(allPhotos[0] || vehicle.image_url ? { image: allPhotos[0] || vehicle.image_url } : {}),
+          ...(vehicle.price ? { offers: {
+            '@type': 'Offer',
+            price: Number(vehicle.price),
+            priceCurrency: vehicle.currency === 'EUR' ? 'EUR' : 'DZD',
+            availability: (vehicle.status || 'disponible') === 'disponible' ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut',
+            url: `https://fikconciergerie.com/vente-voitures/${vehicle.id}`,
+            seller: { '@type': 'Organization', name: 'Fik Conciergerie' },
+          } } : {}),
+        }) }} />
       </Head>
 
       <div className="grain min-h-screen bg-[#0a0a0a]">

@@ -76,6 +76,22 @@ export default function PropertyDetail({ property, photos }) {
         {(allPhotos[0] || property.image_url) && <meta name="twitter:image" key="tw-image" content={allPhotos[0] || property.image_url} />}
         <meta property="og:title" content={`${property.title} — ${isSale ? 'À vendre' : 'À louer'} à ${property.city}`} />
         <meta property="og:description" content={`${priceTxt} · Fik Conciergerie Oran`} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: property.title,
+          description: property.description || `${property.type || 'Bien'} ${isSale ? 'à vendre' : 'à louer'} à ${[property.district, property.city].filter(Boolean).join(', ')}.`,
+          ...(allPhotos[0] || property.image_url ? { image: allPhotos[0] || property.image_url } : {}),
+          category: isSale ? 'Immobilier à vendre' : 'Immobilier à louer',
+          brand: { '@type': 'Brand', name: 'Fik Conciergerie' },
+          ...(property.price ? { offers: {
+            '@type': 'Offer',
+            price: Number(property.price),
+            priceCurrency: property.currency === 'EUR' ? 'EUR' : 'DZD',
+            availability: (property.status || 'disponible') === 'disponible' ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut',
+            url: `https://fikconciergerie.com/immo/${property.id}`,
+          } } : {}),
+        }) }} />
       </Head>
       <div className="grain min-h-screen bg-[#0e0e0e]">
         <Navbar />
