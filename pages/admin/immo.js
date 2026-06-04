@@ -113,7 +113,6 @@ export default function AdminImmoPage() {
         deposit: num(form.deposit), min_duration: form.min_duration || null,
         status: form.status, featured: form.featured,
         description: form.description || null, conditions: form.conditions || null,
-        available: form.status === 'disponible', // compat ancien champ
       };
 
       if (editProp) {
