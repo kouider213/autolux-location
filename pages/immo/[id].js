@@ -210,6 +210,36 @@ export default function PropertyDetail({ property, photos }) {
               </div>
             </div>
           </div>
+
+          {/* Carte Google Maps — emplacement du bien */}
+          {(() => {
+            const loc = (property.address && property.address.trim())
+              || [property.district, property.city].filter(Boolean).join(', ');
+            if (!loc) return null;
+            const q = encodeURIComponent(`${loc}, Algérie`);
+            return (
+              <div className="mt-10">
+                <p className="flex items-center gap-1.5 text-white/25 text-xs uppercase tracking-widest mb-3">
+                  <MapPin size={13} /> {t('d.location') || 'Emplacement'}
+                </p>
+                {property.address && (
+                  <p className="text-white/55 text-sm mb-3">{property.address}</p>
+                )}
+                <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-[#141414]" style={{ aspectRatio: '16/9' }}>
+                  <iframe
+                    title="Carte"
+                    src={`https://www.google.com/maps?q=${q}&hl=fr&z=15&output=embed`}
+                    width="100%" height="100%" style={{ border: 0 }}
+                    loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+                <a href={`https://www.google.com/maps/search/?api=1&query=${q}`} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-gold-400 hover:text-gold-300 text-sm mt-3">
+                  <MapPin size={13} /> {t('d.open_maps') || 'Ouvrir dans Google Maps'}
+                </a>
+              </div>
+            );
+          })()}
         </div>
       </div>
       <Footer />
