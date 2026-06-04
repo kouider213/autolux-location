@@ -40,10 +40,13 @@ export default function App({ Component, pageProps }) {
               <meta name="viewport" content="width=device-width, initial-scale=1" />
               <meta name="theme-color" content="#080808" />
               <link rel="manifest" href="/manifest.json" />
-              {/* Favicon — logo Fik (remplace le globe par défaut dans l'onglet + Google) */}
-              <link rel="icon" type="image/png" href="/logo.png" />
-              <link rel="shortcut icon" href="/logo.png" />
-              <link rel="apple-touch-icon" href="/logo.png" />
+              {/* Favicon carré (Google exige carré) — logo Fik sur fond sombre */}
+              <link rel="icon" href="/favicon.ico" sizes="48x48" />
+              <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+              <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+              <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
+              <link rel="shortcut icon" href="/favicon.ico" />
+              <link rel="apple-touch-icon" href="/favicon.png" />
               <meta name="apple-mobile-web-app-capable" content="yes" />
               <meta name="apple-mobile-web-app-status-bar-style" content="default" />
               {/* SEO de base */}
