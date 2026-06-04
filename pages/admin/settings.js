@@ -92,6 +92,19 @@ export default function AdminSettingsPage() {
     }
   };
 
+  const toggleAvailMode = async () => {
+    const next = !(form.availability_mode !== false);
+    setForm(s => ({ ...s, availability_mode: next }));
+    try {
+      const { error } = await supabase.from('site_settings').update({ availability_mode: next }).eq('id', 1);
+      if (error) throw new Error(error.message + ' — lance la migration 0017_availability_mode.sql');
+      toast.success(next ? 'Mode "à confirmer" activé' : 'Dispos réelles activées');
+    } catch (err) {
+      setForm(s => ({ ...s, availability_mode: !next })); // rollback visuel
+      toast.error('Erreur: ' + err.message);
+    }
+  };
+
   const resetHero = async () => {
     setForm(s => ({ ...s, hero_media_url: '' }));
     try {
@@ -192,6 +205,15 @@ export default function AdminSettingsPage() {
             <section className="bg-[#141414] border border-white/[0.07] rounded-2xl p-6">
               <h2 className="text-white font-bold text-sm mb-5 flex items-center gap-2"><Megaphone size={15} className="text-gold-400" /> Textes &amp; commande</h2>
               <div className="space-y-4">
+                <div className="sm:col-span-2">
+                  <Field label="Disponibilité des voitures" icon={Megaphone} hint={`Mode « à confirmer » : les cartes affichent « Sur demande » et le bouton devient « Vérifier la disponibilité » (WhatsApp). Active-le tant que tu n'as pas les vraies dispos. Coupe-le quand tu gères les dispos réelles.`}>
+                    <button type="button" onClick={toggleAvailMode}
+                      className={`flex items-center justify-between w-full px-4 py-3 rounded-xl border text-sm transition-all ${form.availability_mode !== false ? 'bg-gold-500/10 border-gold-500/30 text-gold-400' : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'}`}>
+                      <span>{form.availability_mode !== false ? '🟡 Mode « à confirmer » (sur demande)' : '🟢 Dispos réelles (Réserver direct)'}</span>
+                      <span className="text-xs opacity-60">{form.availability_mode !== false ? 'Cliquer pour passer en réel' : 'Cliquer pour repasser en à confirmer'}</span>
+                    </button>
+                  </Field>
+                </div>
                 <div className="sm:col-span-2">
                   <Field label="Média du hero (photo OU vidéo pub)" icon={Megaphone} hint="Remplace la grande image d'accueil. Image (.jpg/.png) ou vidéo (.mp4) en fond. Vide = photo auto de la voiture en avant.">
                     <div className="flex items-center gap-3">

@@ -12,7 +12,9 @@ const CATEGORIES = ['Tous', 'citadine', 'berline', 'SUV', 'familiale', 'utilitai
 
 export default function CarsPage({ cars }) {
   const { t } = useLang();
-  const WHATSAPP = waNumber(useSettings());
+  const settings = useSettings();
+  const WHATSAPP = waNumber(settings);
+  const availMode = settings.availability_mode !== false; // ON par défaut (safe)
   const [filter, setFilter]     = useState('Tous');
   const [search, setSearch]     = useState('');
   const [bookedCarIds, setBookedCarIds] = useState({});
@@ -133,7 +135,7 @@ export default function CarsPage({ cars }) {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {filtered.map(car => <CarCard key={car.id} car={car} bookedUntil={bookedCarIds[car.id] || null} t={t} />)}
+                {filtered.map(car => <CarCard key={car.id} car={car} bookedUntil={bookedCarIds[car.id] || null} t={t} availMode={availMode} wa={WHATSAPP} />)}
               </div>
             )}
 
@@ -164,9 +166,10 @@ export default function CarsPage({ cars }) {
   );
 }
 
-function CarCard({ car, bookedUntil, t }) {
+function CarCard({ car, bookedUntil, t, availMode, wa }) {
   const isBookedNow = !!bookedUntil;
   const available   = car.available && !isBookedNow;
+  const checkUrl = `https://wa.me/${wa}?text=${encodeURIComponent(`Bonjour Fik Conciergerie, je voudrais vérifier la disponibilité de la ${car.name}. Pour quelles dates est-elle libre ?`)}`;
 
   return (
     <div className="group relative bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-gold-500/25 hover:-translate-y-2 hover:shadow-[0_28px_60px_rgba(0,0,0,0.7)] transition-all duration-500">
@@ -191,7 +194,11 @@ function CarCard({ car, bookedUntil, t }) {
           <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-black/50 backdrop-blur-md border border-white/[0.08] text-white/50 capitalize">
             {car.category}
           </span>
-          {available ? (
+          {availMode ? (
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500/20 text-gold-300 border border-gold-500/25 backdrop-blur-md">
+              Sur demande
+            </span>
+          ) : available ? (
             <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 backdrop-blur-md">
               ● {t('b.available')}
             </span>
@@ -206,8 +213,8 @@ function CarCard({ car, bookedUntil, t }) {
           )}
         </div>
 
-        {/* Overlay dimming if unavailable */}
-        {!available && (
+        {/* Overlay dimming if unavailable (jamais en mode "sur demande") */}
+        {!availMode && !available && (
           <div className="absolute inset-0 bg-[#0a0a0a]/60 backdrop-blur-[2px]" />
         )}
 
@@ -245,14 +252,21 @@ function CarCard({ car, bookedUntil, t }) {
             className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.05] hover:bg-white/10 text-white/30 hover:text-white transition-all">
             <ArrowRight size={14} />
           </Link>
-          <Link href={available ? `/reservation?car=${car.id}` : '#'}
-            className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
-              available
-                ? 'bg-gold-500 text-noir-950 hover:bg-gold-400 shadow-[0_4px_16px_rgba(226,182,20,0.3)] hover:shadow-[0_6px_20px_rgba(226,182,20,0.4)]'
-                : 'bg-white/[0.04] text-white/20 cursor-not-allowed'
-            }`}>
-            {available ? t('common.book') : t('cars.indispo')}
-          </Link>
+          {availMode ? (
+            <a href={checkUrl} target="_blank" rel="noopener noreferrer"
+              className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-gold-500 text-noir-950 hover:bg-gold-400 shadow-[0_4px_16px_rgba(226,182,20,0.3)] transition-all whitespace-nowrap">
+              Vérifier la dispo
+            </a>
+          ) : (
+            <Link href={available ? `/reservation?car=${car.id}` : '#'}
+              className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
+                available
+                  ? 'bg-gold-500 text-noir-950 hover:bg-gold-400 shadow-[0_4px_16px_rgba(226,182,20,0.3)] hover:shadow-[0_6px_20px_rgba(226,182,20,0.4)]'
+                  : 'bg-white/[0.04] text-white/20 cursor-not-allowed'
+              }`}>
+              {available ? t('common.book') : t('cars.indispo')}
+            </Link>
+          )}
         </div>
       </div>
     </div>

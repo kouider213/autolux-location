@@ -13,7 +13,10 @@ import { useSettings, waNumber } from '../../lib/settings';
 
 export default function CarDetail({ car, photos: initialPhotos }) {
   const { t } = useLang();
-  const WHATSAPP = waNumber(useSettings());
+  const settings = useSettings();
+  const WHATSAPP = waNumber(settings);
+  const availMode = settings.availability_mode !== false; // ON par défaut (safe)
+  const checkUrl = car ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Bonjour Fik Conciergerie, je voudrais vérifier la disponibilité de la ${car.name}. Pour quelles dates est-elle libre ?`)}` : '#';
   const [photos, setPhotos]       = useState(initialPhotos || []);
   const [activePhoto, setActive]  = useState(0);
   const [lb, setLb] = useState(false);
@@ -116,10 +119,17 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                 className="w-11 h-11 flex items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.05] hover:bg-white/10 text-white/50 hover:text-white transition-all flex-shrink-0">
                 <MessageCircle size={18} />
               </a>
-              <Link href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
-                className="btn-gold py-3 px-6 text-sm flex-1 justify-center max-w-[160px]">
-                <CalendarCheck size={15} />{t("common.book")}
-              </Link>
+              {availMode ? (
+                <a href={checkUrl} target="_blank" rel="noopener noreferrer"
+                  className="btn-gold py-3 px-5 text-sm flex-1 justify-center max-w-[200px]">
+                  <CalendarCheck size={15} />Vérifier la dispo
+                </a>
+              ) : (
+                <Link href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
+                  className="btn-gold py-3 px-6 text-sm flex-1 justify-center max-w-[160px]">
+                  <CalendarCheck size={15} />{t("common.book")}
+                </Link>
+              )}
             </div>
           </div>
         )}
@@ -148,7 +158,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                         </div>
                       )}
                       <span className="absolute top-4 left-4 tag-category capitalize">{car.category}</span>
-                      {car.available === false && (
+                      {!availMode && car.available === false && (
                         <div className="absolute inset-0 bg-[#0e0e0e]/75 backdrop-blur-sm flex items-center justify-center">
                           <span className="text-white/60 text-xs font-medium tracking-widest uppercase border border-white/20 rounded-full px-4 py-2">{t("b.unavailable")}</span>
                         </div>
@@ -239,7 +249,12 @@ export default function CarDetail({ car, photos: initialPhotos }) {
 
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row gap-3 mt-auto pt-2">
-                {car.available !== false ? (
+                {availMode ? (
+                  <a href={checkUrl} target="_blank" rel="noopener noreferrer"
+                    className="btn-gold flex-1 py-4 text-base justify-center">
+                    <CalendarCheck size={18} />Vérifier la disponibilité
+                  </a>
+                ) : car.available !== false ? (
                   <Link
                     href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
                     className="btn-gold flex-1 py-4 text-base justify-center">
