@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Share2, Check, MessageCircle, Facebook, Link2 } from 'lucide-react';
+import { Share2, Check, MessageCircle, Facebook, Link2, Send } from 'lucide-react';
 
 // Boutons de partage : WhatsApp, Facebook, copier le lien + partage natif mobile.
 export default function ShareButtons({ url, title = '', label = 'Partager' }) {
@@ -26,6 +26,8 @@ export default function ShareButtons({ url, title = '', label = 'Partager' }) {
         className={`${btn} bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20`}><MessageCircle size={15} /></a>
       <a href={`https://www.facebook.com/sharer/sharer.php?u=${enc}`} target="_blank" rel="noopener noreferrer" aria-label="Facebook"
         className={`${btn} bg-blue-500/10 text-blue-400 hover:bg-blue-500/20`}><Facebook size={15} /></a>
+      <a href={`fb-messenger://share/?link=${enc}`} aria-label="Messenger"
+        className={`${btn} bg-[#0084FF]/10 text-[#0084FF] hover:bg-[#0084FF]/20`}><Send size={15} /></a>
       <button onClick={copy} aria-label="Copier le lien" className={`${btn} bg-white/[0.05] text-white/50 hover:bg-white/10 hover:text-white`}>
         {copied ? <Check size={15} className="text-emerald-400" /> : <Link2 size={15} />}
       </button>

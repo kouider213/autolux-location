@@ -6,6 +6,7 @@ import { Car, Fuel, Users, Settings, ArrowLeft, CalendarCheck, MessageCircle, Wi
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import Lightbox from '../../components/Lightbox';
+import ShareButtons from '../../components/ShareButtons';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
 import { useSettings, waNumber } from '../../lib/settings';
@@ -167,9 +168,10 @@ export default function CarDetail({ car, photos: initialPhotos }) {
               {/* Name + price */}
               <div>
                 <p className="text-white/30 text-xs tracking-widest uppercase font-body mb-2">{car.category}</p>
-                <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+                <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 leading-tight">
                   {car.name}
                 </h1>
+                <div className="mb-4"><ShareButtons title={car.name} /></div>
                 <div className="flex items-baseline gap-2">
                   {car.resale_price ? (
                     <>
