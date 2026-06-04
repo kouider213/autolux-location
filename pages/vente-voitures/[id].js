@@ -6,6 +6,7 @@ import { Tag, Fuel, Gauge, Calendar, Settings, MapPin, ArrowLeft, MessageCircle,
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ShareButtons from '../../components/ShareButtons';
+import Lightbox from '../../components/Lightbox';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
 import { useSettings, waNumber } from '../../lib/settings';
@@ -24,6 +25,7 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
   const WHATSAPP = waNumber(useSettings());
   const [photos, setPhotos] = useState(initialPhotos || []);
   const [active, setActive] = useState(0);
+  const [lb, setLb] = useState(false);
   const STB = { disponible: t('b.available'), reserve: t('b.reserved'), vendu: t('b.sold'), coming_soon: t('b.soon') };
 
   useEffect(() => {
@@ -103,7 +105,7 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
             {/* Gallery */}
             <div className="space-y-3">
               <div className="relative rounded-2xl overflow-hidden bg-[#141414] border border-white/[0.06]" style={{ aspectRatio: '4/3' }}>
-                {src ? <img src={src} alt={vehicle.model} className="w-full h-full object-cover" loading="eager" /> : <div className="w-full h-full flex items-center justify-center"><Tag size={56} className="text-white/[0.07]" /></div>}
+                {src ? <img src={src} alt={vehicle.model} onClick={() => setLb(true)} className="w-full h-full object-cover cursor-zoom-in" loading="eager" /> : <div className="w-full h-full flex items-center justify-center"><Tag size={56} className="text-white/[0.07]" /></div>}
                 <span className={`absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-lg border ${st.cls}`}>{stLabel}</span>
                 {vehicle.featured && <span className="absolute top-4 right-4 text-xs font-bold px-3 py-1.5 rounded-lg bg-gold-500 text-noir-950">{t('b.featured')}</span>}
               </div>
@@ -161,6 +163,7 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
         </div>
       </div>
       <Footer />
+      {lb && <Lightbox photos={allPhotos} startIndex={active} onClose={() => setLb(false)} />}
     </>
   );
 }

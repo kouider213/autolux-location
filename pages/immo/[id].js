@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { MapPin, Maximize, BedDouble, Bath, Building2, ArrowLeft, MessageCircle, ChevronLeft, ChevronRight, Home, Layers, Wallet, KeyRound, CalendarClock } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import Lightbox from '../../components/Lightbox';
 import ShareButtons from '../../components/ShareButtons';
 import { useLang } from '../../lib/i18n';
 import { useSettings, waNumber } from '../../lib/settings';
@@ -26,6 +27,7 @@ export default function PropertyDetail({ property, photos }) {
   const { t } = useLang();
   const WHATSAPP = waNumber(useSettings());
   const [active, setActive] = useState(0);
+  const [lb, setLb] = useState(false);
   const STB = { disponible: t('b.available'), loue: t('b.rented'), vendu: t('b.sold'), coming_soon: t('b.soon') };
 
   if (!property) return (
@@ -96,7 +98,7 @@ export default function PropertyDetail({ property, photos }) {
               <div className="relative rounded-2xl overflow-hidden bg-[#141414] border border-white/[0.06]" style={{ aspectRatio: '4/3' }}>
                 {allPhotos.length > 0 ? (
                   <>
-                    <img src={allPhotos[active]} alt={`${property.title} ${active+1}`} className="w-full h-full object-cover" />
+                    <img src={allPhotos[active]} alt={`${property.title} ${active+1}`} onClick={() => setLb(true)} className="w-full h-full object-cover cursor-zoom-in" />
                     {allPhotos.length > 1 && (
                       <>
                         <button onClick={() => setActive(i => (i - 1 + allPhotos.length) % allPhotos.length)}
@@ -211,6 +213,7 @@ export default function PropertyDetail({ property, photos }) {
         </div>
       </div>
       <Footer />
+      {lb && <Lightbox photos={allPhotos} startIndex={active} onClose={() => setLb(false)} />}
     </>
   );
 }

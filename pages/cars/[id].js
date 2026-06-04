@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Car, Fuel, Users, Settings, ArrowLeft, CalendarCheck, MessageCircle, Wind, Star, CheckCircle } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import Lightbox from '../../components/Lightbox';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
 import { useSettings, waNumber } from '../../lib/settings';
@@ -14,6 +15,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
   const WHATSAPP = waNumber(useSettings());
   const [photos, setPhotos]       = useState(initialPhotos || []);
   const [activePhoto, setActive]  = useState(0);
+  const [lb, setLb] = useState(false);
 
   useEffect(() => {
     if (car?.id) trackPageView(`/cars/${car.id}`, car.id);
@@ -114,7 +116,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                   <>
                     <div className="relative rounded-2xl overflow-hidden bg-[#141414] border border-white/[0.06]" style={{ aspectRatio: '16/10' }}>
                       {src ? (
-                        <img src={src} alt={car.name} className="w-full h-full object-cover object-center" loading="eager" />
+                        <img src={src} alt={car.name} onClick={() => setLb(true)} className="w-full h-full object-cover object-center cursor-zoom-in" loading="eager" />
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center gap-3">
                           <Car size={56} className="text-white/[0.07]" />
@@ -139,6 +141,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                         ))}
                       </div>
                     )}
+                    {lb && <Lightbox photos={allPhotos} startIndex={activePhoto} onClose={() => setLb(false)} />}
                   </>
                 );
               })()}
