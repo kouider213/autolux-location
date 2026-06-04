@@ -16,6 +16,7 @@ const supabaseClient = createClient(
 );
 
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
+const isVideo = (url) => typeof url === 'string' && /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url);
 const STATUS_BADGE = {
   disponible:  { cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' },
   loue:        { cls: 'bg-amber-500/15 text-amber-400 border-amber-500/20' },
@@ -98,7 +99,11 @@ export default function PropertyDetail({ property, photos }) {
               <div className="relative rounded-2xl overflow-hidden bg-[#141414] border border-white/[0.06]" style={{ aspectRatio: '4/3' }}>
                 {allPhotos.length > 0 ? (
                   <>
-                    <img src={allPhotos[active]} alt={`${property.title} ${active+1}`} onClick={() => setLb(true)} className="w-full h-full object-cover cursor-zoom-in" />
+                    {isVideo(allPhotos[active]) ? (
+                      <video src={allPhotos[active]} controls playsInline className="w-full h-full object-cover bg-black" />
+                    ) : (
+                      <img src={allPhotos[active]} alt={`${property.title} ${active+1}`} onClick={() => setLb(true)} className="w-full h-full object-cover cursor-zoom-in" />
+                    )}
                     {allPhotos.length > 1 && (
                       <>
                         <button onClick={() => setActive(i => (i - 1 + allPhotos.length) % allPhotos.length)}
@@ -134,8 +139,15 @@ export default function PropertyDetail({ property, photos }) {
                 <div className="flex gap-2 overflow-x-auto pb-1">
                   {allPhotos.map((src, i) => (
                     <button key={i} onClick={() => setActive(i)}
-                      className={`flex-shrink-0 w-16 h-12 rounded-xl overflow-hidden border-2 transition-all ${i === active ? 'border-gold-500' : 'border-white/[0.06] opacity-50 hover:opacity-100'}`}>
-                      <img src={src} alt={`${i+1}`} className="w-full h-full object-cover" />
+                      className={`relative flex-shrink-0 w-16 h-12 rounded-xl overflow-hidden border-2 transition-all ${i === active ? 'border-gold-500' : 'border-white/[0.06] opacity-50 hover:opacity-100'}`}>
+                      {isVideo(src) ? (
+                        <>
+                          <video src={src} muted className="w-full h-full object-cover" />
+                          <span className="absolute inset-0 flex items-center justify-center text-white text-lg">▶</span>
+                        </>
+                      ) : (
+                        <img src={src} alt={`${i+1}`} className="w-full h-full object-cover" />
+                      )}
                     </button>
                   ))}
                 </div>

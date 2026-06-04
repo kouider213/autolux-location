@@ -88,6 +88,28 @@ export default function AdminImmoPage() {
     }
   };
 
+  const videoInputRef = useRef(null);
+  const uploadVideo = async (file) => {
+    if (!file) return;
+    if (file.size > 80 * 1024 * 1024) { toast.error('Vidéo trop lourde (max 80MB)'); return; }
+    setUploading(true);
+    try {
+      const ext = (file.name.split('.').pop() || 'mp4').toLowerCase();
+      const path = `immo/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from('videos').upload(path, file, { contentType: file.type || 'video/mp4', upsert: false });
+      if (error) throw error;
+      const { data } = supabase.storage.from('videos').getPublicUrl(path);
+      setPhotos(prev => [...prev, { url: data.publicUrl }]);
+      toast.success('Vidéo ajoutée');
+    } catch (err) {
+      toast.error('Erreur vidéo: ' + err.message);
+    } finally {
+      setUploading(false);
+      if (videoInputRef.current) videoInputRef.current.value = '';
+    }
+  };
+
+  const isVid = (u) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u || '');
   const removePhoto = (idx) => setPhotos(prev => prev.filter((_, i) => i !== idx));
   const movePhoto = (idx, dir) => setPhotos(prev => {
     const next = [...prev]; const to = idx + dir;
@@ -293,11 +315,16 @@ export default function AdminImmoPage() {
                 {/* Photos */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <label className="label-dark mb-0">Photos ({photos.length}/{MAX_PHOTOS})</label>
-                    {photos.length > 0 && <span className="text-white/25 text-[10px]">1ère = principale</span>}
+                    <label className="label-dark mb-0">Photos & vidéos ({photos.length}/{MAX_PHOTOS})</label>
+                    <div className="flex items-center gap-2">
+                      {photos.length > 0 && <span className="text-white/25 text-[10px]">1ère = principale</span>}
+                      <button type="button" onClick={() => videoInputRef.current?.click()} className="text-[10px] text-gold-400 hover:text-gold-300 border border-gold-500/30 rounded-lg px-2 py-1">+ Vidéo</button>
+                    </div>
                   </div>
                   <input ref={fileInputRef} type="file" accept="image/*" multiple style={{ display: 'none' }}
                     onChange={async e => { const files = Array.from(e.target.files || []); for (const f of files.slice(0, MAX_PHOTOS - photos.length)) await uploadPhoto(f); }} />
+                  <input ref={videoInputRef} type="file" accept="video/*" style={{ display: 'none' }}
+                    onChange={async e => { const f = e.target.files?.[0]; if (f) await uploadVideo(f); }} />
                   {photos.length === 0 ? (
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full aspect-video bg-white/[0.03] border-2 border-dashed border-white/[0.08] rounded-xl flex flex-col items-center justify-center gap-2 hover:border-gold-500/30 transition-colors">
                       <ImageIcon size={24} className="text-white/20" />
@@ -308,8 +335,12 @@ export default function AdminImmoPage() {
                     <div className="grid grid-cols-4 gap-2">
                       {photos.map((ph, i) => (
                         <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-[#0e0e0e] group">
-                          <img src={ph.url} alt={`p${i}`} className="w-full h-full object-cover" />
-                          {i === 0 && <div className="absolute top-1 left-1 bg-gold-500 text-noir-950 text-[7px] font-black px-1.5 py-0.5 rounded">PRINCIPALE</div>}
+                          {isVid(ph.url) ? (
+                            <><video src={ph.url} muted className="w-full h-full object-cover" /><span className="absolute inset-0 flex items-center justify-center text-white text-xl pointer-events-none">▶</span></>
+                          ) : (
+                            <img src={ph.url} alt={`p${i}`} className="w-full h-full object-cover" />
+                          )}
+                          {i === 0 && <div className="absolute top-1 left-1 bg-gold-500 text-noir-950 text-[7px] font-black px-1.5 py-0.5 rounded">{isVid(ph.url) ? 'VIDÉO' : 'PRINCIPALE'}</div>}
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
                             {i > 0 && <button onClick={() => movePhoto(i, -1)} className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center"><ChevronLeft size={11} className="text-white" /></button>}
                             <button onClick={() => removePhoto(i)} className="w-6 h-6 bg-red-500/80 rounded-full flex items-center justify-center"><X size={10} className="text-white" /></button>
