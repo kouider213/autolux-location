@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import { uploadImageFile } from '../../lib/photoUpload';
 import { Plus, Edit2, Trash2, X, Image as ImageIcon, Building2, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const MAX_PHOTOS = 20;
@@ -76,19 +77,8 @@ export default function AdminImmoPage() {
     if (file.size > 15 * 1024 * 1024) { toast.error('Photo trop lourde (max 15MB)'); return; }
     setUploading(true);
     try {
-      const reader = new FileReader();
-      const base64 = await new Promise((res, rej) => {
-        reader.onload = () => res(reader.result.split(',')[1]);
-        reader.onerror = rej; reader.readAsDataURL(file);
-      });
-      // API attend { base64, fileName, mimeType }
-      const response = await fetch('/api/upload-car-image', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ base64, fileName: `immo_${Date.now()}_${file.name}`, mimeType: file.type }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Erreur upload');
-      setPhotos(prev => [...prev, { url: data.url }]);
+      const url = await uploadImageFile(file);  // convertit HEIC→JPEG + compresse + upload
+      setPhotos(prev => [...prev, { url }]);
       toast.success('Photo ajoutée');
     } catch (err) {
       toast.error('Erreur: ' + err.message);

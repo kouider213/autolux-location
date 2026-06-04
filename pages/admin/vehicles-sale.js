@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { Tag, Plus, Edit2, Trash2, Camera, ImageIcon, Loader2, X, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import { uploadImageFile } from '../../lib/photoUpload';
 
 const FUELS        = ['essence', 'diesel', 'hybride', 'électrique'];
 const TRANSMISSIONS = ['manuelle', 'automatique'];
@@ -62,32 +63,27 @@ export default function AdminVehiclesSalePage() {
     setShowForm(true);
   };
 
-  const uploadPhoto = async (file) => {
-    if (!file) return;
-    if (photos.length >= 12) { toast.error('Maximum 12 photos'); return; }
-    if (file.size > 15 * 1024 * 1024) { toast.error('Photo trop lourde (max 15MB)'); return; }
+  const uploadPhotos = async (fileList) => {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
     setUploading(true);
-    try {
-      const reader = new FileReader();
-      const base64 = await new Promise((res, rej) => {
-        reader.onload = () => res(reader.result.split(',')[1]);
-        reader.onerror = rej; reader.readAsDataURL(file);
-      });
-      const r = await fetch('/api/upload-car-image', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type }),
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'Erreur serveur');
-      setPhotos(prev => [...prev, { url: data.url }]);
-      toast.success('Photo ajoutée');
-    } catch (err) {
-      toast.error('Erreur: ' + err.message);
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = '';
-      if (camRef.current) camRef.current.value = '';
+    let added = 0, errors = 0;
+    for (const file of files) {
+      if (photos.length + added >= 12) { toast.error('Maximum 12 photos'); break; }
+      try {
+        const url = await uploadImageFile(file);  // convertit HEIC→JPEG + compresse + upload
+        setPhotos(prev => [...prev, { url }]);
+        added++;
+      } catch (err) {
+        errors++;
+        console.error('[upload]', err);
+      }
     }
+    setUploading(false);
+    if (fileRef.current) fileRef.current.value = '';
+    if (camRef.current) camRef.current.value = '';
+    if (added) toast.success(`${added} photo${added > 1 ? 's' : ''} ajoutée${added > 1 ? 's' : ''}`);
+    if (errors) toast.error(`${errors} photo${errors > 1 ? 's' : ''} en échec`);
   };
 
   const removePhoto = (i) => setPhotos(prev => prev.filter((_, idx) => idx !== i));
@@ -150,8 +146,8 @@ export default function AdminVehiclesSalePage() {
   return (
     <>
       <Head><title>Véhicules à vendre — Fik Admin</title></Head>
-      <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => uploadPhoto(e.target.files?.[0])} />
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => uploadPhoto(e.target.files?.[0])} />
+      <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => uploadPhotos(e.target.files)} />
+      <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={e => uploadPhotos(e.target.files)} />
 
       <AdminLayout title="Véhicules à vendre">
         <div className="space-y-5">
