@@ -430,9 +430,19 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
         {/* ══ HERO — CSS animated, instant ══ */}
         <div className="relative min-h-screen overflow-hidden">
 
-            {/* Background image */}
+            {/* Background image/video — settings.hero_media_url override, sinon heroCar */}
             <div className="absolute inset-0 bg-[#0a0a0a]">
-              {heroCar?.image_url && (
+              {settings.hero_media_url ? (
+                /\.(mp4|webm|mov|m4v)(\?|$)/i.test(settings.hero_media_url) ? (
+                  <video src={settings.hero_media_url}
+                    className="absolute inset-0 w-full h-full object-cover object-center"
+                    autoPlay muted loop playsInline />
+                ) : (
+                  <img src={settings.hero_media_url} alt="Fik Conciergerie"
+                    className="absolute inset-0 w-full h-full object-cover object-center"
+                    loading="eager" style={{ display: 'block' }} />
+                )
+              ) : heroCar?.image_url && (
                 <img src={heroCar.image_url} alt={heroCar.name}
                   className="absolute inset-0 w-full h-full object-cover object-center"
                   loading="eager"

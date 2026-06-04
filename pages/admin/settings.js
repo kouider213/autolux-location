@@ -25,6 +25,7 @@ export default function AdminSettingsPage() {
   const [loading, setLoad]  = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingHero, setUploadingHero] = useState(false);
 
   const onLogoFile = async (e) => {
     const file = e.target.files?.[0];
@@ -50,6 +51,53 @@ export default function AdminSettingsPage() {
     } finally {
       setUploadingLogo(false);
     }
+  };
+
+  const onHeroFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingHero(true);
+    try {
+      let url;
+      if (file.type.startsWith('video/')) {
+        if (file.size > 80 * 1024 * 1024) throw new Error('Vidéo trop lourde (max 80MB)');
+        const ext = (file.name.split('.').pop() || 'mp4').toLowerCase();
+        const path = `hero/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error } = await supabase.storage.from('videos').upload(path, file, { contentType: file.type || 'video/mp4', upsert: false });
+        if (error) throw error;
+        url = supabase.storage.from('videos').getPublicUrl(path).data.publicUrl;
+      } else {
+        const base64 = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(String(r.result).split(',')[1]);
+          r.onerror = rej; r.readAsDataURL(file);
+        });
+        const resp = await fetch('/api/upload-car-image', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type }),
+        });
+        const json = await resp.json();
+        if (!resp.ok) throw new Error(json.error || 'Upload échoué');
+        url = json.url;
+      }
+      setForm(s => ({ ...s, hero_media_url: url }));
+      // Sauvegarde isolée (ne casse pas les autres réglages si la colonne manque)
+      const { error: upErr } = await supabase.from('site_settings').update({ hero_media_url: url }).eq('id', 1);
+      if (upErr) throw new Error(upErr.message + ' — lance la migration 0015_hero_media.sql');
+      toast.success('Hero mis à jour ✓');
+    } catch (err) {
+      toast.error('Erreur hero: ' + err.message);
+    } finally {
+      setUploadingHero(false);
+    }
+  };
+
+  const resetHero = async () => {
+    setForm(s => ({ ...s, hero_media_url: '' }));
+    try {
+      await supabase.from('site_settings').update({ hero_media_url: '' }).eq('id', 1);
+      toast.success('Hero réinitialisé (photo auto)');
+    } catch (err) { toast.error('Erreur: ' + err.message); }
   };
 
   useEffect(() => {
@@ -144,6 +192,26 @@ export default function AdminSettingsPage() {
             <section className="bg-[#141414] border border-white/[0.07] rounded-2xl p-6">
               <h2 className="text-white font-bold text-sm mb-5 flex items-center gap-2"><Megaphone size={15} className="text-gold-400" /> Textes &amp; commande</h2>
               <div className="space-y-4">
+                <div className="sm:col-span-2">
+                  <Field label="Média du hero (photo OU vidéo pub)" icon={Megaphone} hint="Remplace la grande image d'accueil. Image (.jpg/.png) ou vidéo (.mp4) en fond. Vide = photo auto de la voiture en avant.">
+                    <div className="flex items-center gap-3">
+                      <div className="w-28 h-16 rounded-lg overflow-hidden bg-black/40 border border-white/10 flex items-center justify-center flex-shrink-0">
+                        {form.hero_media_url
+                          ? (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(form.hero_media_url)
+                              ? <video src={form.hero_media_url} muted className="w-full h-full object-cover" />
+                              : <img src={form.hero_media_url} alt="hero" className="w-full h-full object-cover" />)
+                          : <span className="text-white/25 text-[10px] text-center px-1">photo auto</span>}
+                      </div>
+                      <div>
+                        <label className="btn-gold text-xs px-3 py-2 cursor-pointer inline-block">
+                          {uploadingHero ? 'Upload…' : 'Choisir photo/vidéo'}
+                          <input type="file" accept="image/*,video/*" onChange={onHeroFile} disabled={uploadingHero} className="hidden" />
+                        </label>
+                        {form.hero_media_url && <button onClick={resetHero} className="text-red-400/60 hover:text-red-400 text-[11px] mt-1 block">Réinitialiser (photo auto)</button>}
+                      </div>
+                    </div>
+                  </Field>
+                </div>
                 <Field label="Titre accueil (1ère ligne — optionnel)" icon={Megaphone} hint="Remplace le grand titre de l'accueil. Vide = titre par défaut."><input value={form.hero_title || ''} onChange={up('hero_title')} placeholder="Ex: Tout Oran, Sous Une Clé" className={inputCls} /></Field>
                 <Field label="Sous-titre accueil (optionnel)" icon={Megaphone} hint="Phrase sous le titre. Vide = texte par défaut."><input value={form.hero_subtitle || ''} onChange={up('hero_subtitle')} placeholder="Ex: Location, vente & immobilier premium à Oran." className={inputCls} /></Field>
                 <Field label="Bandeau d'annonce (optionnel)" icon={Megaphone} hint="Affiché en haut du site. Laisse vide pour masquer."><input value={form.announcement || ''} onChange={up('announcement')} placeholder="Ex: -10% sur les locations longue durée ce mois !" className={inputCls} /></Field>

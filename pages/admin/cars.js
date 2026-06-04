@@ -79,6 +79,24 @@ export default function AdminCarsPage() {
     if (errors) toast.error(`${errors} photo${errors > 1 ? 's' : ''} en échec`);
   };
 
+  const videoInputRef = useRef(null);
+  const isVid = (u) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u || '');
+  const uploadVideo = async (file) => {
+    if (!file) return;
+    if (file.size > 80 * 1024 * 1024) { toast.error('Vidéo trop lourde (max 80MB)'); return; }
+    setUploading(true);
+    try {
+      const ext = (file.name.split('.').pop() || 'mp4').toLowerCase();
+      const path = `cars/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from('videos').upload(path, file, { contentType: file.type || 'video/mp4', upsert: false });
+      if (error) throw error;
+      const { data } = supabase.storage.from('videos').getPublicUrl(path);
+      setPhotos(prev => [...prev, { url: data.publicUrl }]);
+      toast.success('Vidéo ajoutée');
+    } catch (err) { toast.error('Erreur vidéo: ' + err.message); }
+    finally { setUploading(false); if (videoInputRef.current) videoInputRef.current.value = ''; }
+  };
+
   const removePhoto = (idx) => setPhotos(prev => prev.filter((_, i) => i !== idx));
   const movePhoto = (idx, dir) => {
     setPhotos(prev => {
@@ -165,6 +183,8 @@ export default function AdminCarsPage() {
         className="hidden" onChange={e => uploadPhotos(e.target.files)} />
       <input ref={fileInputRef} type="file" accept="image/*" multiple
         className="hidden" onChange={e => uploadPhotos(e.target.files)} />
+      <input ref={videoInputRef} type="file" accept="video/*"
+        className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) uploadVideo(f); }} />
 
       <AdminLayout title="Véhicules">
         <div className="space-y-5">
@@ -423,10 +443,11 @@ export default function AdminCarsPage() {
                 {/* Photos multiples */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <label className="label-dark mb-0">Photos ({photos.length}/10)</label>
-                    {photos.length > 0 && (
-                      <span className="text-white/25 text-[10px]">La 1ère = photo principale</span>
-                    )}
+                    <label className="label-dark mb-0">Photos & vidéos ({photos.length}/10)</label>
+                    <div className="flex items-center gap-2">
+                      {photos.length > 0 && <span className="text-white/25 text-[10px]">1ère = principale</span>}
+                      <button type="button" onClick={() => videoInputRef.current?.click()} className="text-[10px] text-gold-400 hover:text-gold-300 border border-gold-500/30 rounded-lg px-2 py-1">+ Vidéo</button>
+                    </div>
                   </div>
 
                   {/* Grid photos existantes */}
@@ -434,11 +455,13 @@ export default function AdminCarsPage() {
                     <div className="grid grid-cols-3 gap-2 mb-3">
                       {photos.map((ph, i) => (
                         <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-[#0e0e0e] group">
-                          <img src={ph.url} alt={`photo ${i+1}`} className="w-full h-full object-cover" />
+                          {isVid(ph.url)
+                            ? <><video src={ph.url} muted className="w-full h-full object-cover" /><span className="absolute inset-0 flex items-center justify-center text-white text-xl pointer-events-none">▶</span></>
+                            : <img src={ph.url} alt={`photo ${i+1}`} className="w-full h-full object-cover" />}
                           {/* Badge principale */}
                           {i === 0 && (
                             <div className="absolute top-1 left-1 bg-gold-500 text-noir-950 text-[8px] font-black px-1.5 py-0.5 rounded-md">
-                              PRINCIPALE
+                              {isVid(ph.url) ? 'VIDÉO' : 'PRINCIPALE'}
                             </div>
                           )}
                           {/* Actions overlay */}

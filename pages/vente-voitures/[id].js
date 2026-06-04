@@ -105,15 +105,21 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
             {/* Gallery */}
             <div className="space-y-3">
               <div className="relative rounded-2xl overflow-hidden bg-[#141414] border border-white/[0.06]" style={{ aspectRatio: '4/3' }}>
-                {src ? <img src={src} alt={vehicle.model} onClick={() => setLb(true)} className="w-full h-full object-cover cursor-zoom-in" loading="eager" /> : <div className="w-full h-full flex items-center justify-center"><Tag size={56} className="text-white/[0.07]" /></div>}
+                {src ? (
+                  /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src)
+                    ? <video src={src} controls playsInline className="w-full h-full object-cover bg-black" />
+                    : <img src={src} alt={vehicle.model} onClick={() => setLb(true)} className="w-full h-full object-cover cursor-zoom-in" loading="eager" />
+                ) : <div className="w-full h-full flex items-center justify-center"><Tag size={56} className="text-white/[0.07]" /></div>}
                 <span className={`absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-lg border ${st.cls}`}>{stLabel}</span>
                 {vehicle.featured && <span className="absolute top-4 right-4 text-xs font-bold px-3 py-1.5 rounded-lg bg-gold-500 text-noir-950">{t('b.featured')}</span>}
               </div>
               {allPhotos.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto pb-1">
                   {allPhotos.map((s, i) => (
-                    <button key={i} onClick={() => setActive(i)} className={`flex-shrink-0 w-16 h-12 rounded-xl overflow-hidden border-2 transition-all ${i === active ? 'border-gold-500' : 'border-white/[0.06] opacity-60 hover:opacity-100'}`}>
-                      <img src={s} alt={`${vehicle.model} ${i + 1}`} className="w-full h-full object-cover" />
+                    <button key={i} onClick={() => setActive(i)} className={`relative flex-shrink-0 w-16 h-12 rounded-xl overflow-hidden border-2 transition-all ${i === active ? 'border-gold-500' : 'border-white/[0.06] opacity-60 hover:opacity-100'}`}>
+                      {/\.(mp4|webm|mov|m4v)(\?|$)/i.test(s)
+                        ? <><video src={s} muted className="w-full h-full object-cover" /><span className="absolute inset-0 flex items-center justify-center text-white text-lg">▶</span></>
+                        : <img src={s} alt={`${vehicle.model} ${i + 1}`} className="w-full h-full object-cover" />}
                     </button>
                   ))}
                 </div>

@@ -86,6 +86,24 @@ export default function AdminVehiclesSalePage() {
     if (errors) toast.error(`${errors} photo${errors > 1 ? 's' : ''} en échec`);
   };
 
+  const videoRef = useRef(null);
+  const isVid = (u) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u || '');
+  const uploadVideo = async (file) => {
+    if (!file) return;
+    if (file.size > 80 * 1024 * 1024) { toast.error('Vidéo trop lourde (max 80MB)'); return; }
+    setUploading(true);
+    try {
+      const ext = (file.name.split('.').pop() || 'mp4').toLowerCase();
+      const path = `vente/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from('videos').upload(path, file, { contentType: file.type || 'video/mp4', upsert: false });
+      if (error) throw error;
+      const { data } = supabase.storage.from('videos').getPublicUrl(path);
+      setPhotos(prev => [...prev, { url: data.publicUrl }]);
+      toast.success('Vidéo ajoutée');
+    } catch (err) { toast.error('Erreur vidéo: ' + err.message); }
+    finally { setUploading(false); if (videoRef.current) videoRef.current.value = ''; }
+  };
+
   const removePhoto = (i) => setPhotos(prev => prev.filter((_, idx) => idx !== i));
   const movePhoto = (i, dir) => setPhotos(prev => {
     const next = [...prev]; const to = i + dir;
@@ -148,6 +166,7 @@ export default function AdminVehiclesSalePage() {
       <Head><title>Véhicules à vendre — Fik Admin</title></Head>
       <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => uploadPhotos(e.target.files)} />
       <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={e => uploadPhotos(e.target.files)} />
+      <input ref={videoRef} type="file" accept="video/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) uploadVideo(f); }} />
 
       <AdminLayout title="Véhicules à vendre">
         <div className="space-y-5">
@@ -260,15 +279,20 @@ export default function AdminVehiclesSalePage() {
                 {/* Photos */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <label className="label-dark mb-0">Photos ({photos.length}/12)</label>
-                    {photos.length > 0 && <span className="text-white/25 text-[10px]">1ère = principale</span>}
+                    <label className="label-dark mb-0">Photos & vidéos ({photos.length}/12)</label>
+                    <div className="flex items-center gap-2">
+                      {photos.length > 0 && <span className="text-white/25 text-[10px]">1ère = principale</span>}
+                      <button type="button" onClick={() => videoRef.current?.click()} className="text-[10px] text-gold-400 hover:text-gold-300 border border-gold-500/30 rounded-lg px-2 py-1">+ Vidéo</button>
+                    </div>
                   </div>
                   {photos.length > 0 && (
                     <div className="grid grid-cols-3 gap-2 mb-3">
                       {photos.map((ph, i) => (
                         <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-[#0e0e0e] group">
-                          <img src={ph.url} alt={`p${i}`} className="w-full h-full object-cover" />
-                          {i === 0 && <div className="absolute top-1 left-1 bg-gold-500 text-noir-950 text-[8px] font-black px-1.5 py-0.5 rounded-md">PRINCIPALE</div>}
+                          {isVid(ph.url)
+                            ? <><video src={ph.url} muted className="w-full h-full object-cover" /><span className="absolute inset-0 flex items-center justify-center text-white text-xl pointer-events-none">▶</span></>
+                            : <img src={ph.url} alt={`p${i}`} className="w-full h-full object-cover" />}
+                          {i === 0 && <div className="absolute top-1 left-1 bg-gold-500 text-noir-950 text-[8px] font-black px-1.5 py-0.5 rounded-md">{isVid(ph.url) ? 'VIDÉO' : 'PRINCIPALE'}</div>}
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                             {i > 0 && <button onClick={() => movePhoto(i, -1)} className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center"><ChevronLeft size={12} className="text-white" /></button>}
                             <button onClick={() => removePhoto(i)} className="w-7 h-7 bg-red-500/80 rounded-full flex items-center justify-center"><Trash2 size={11} className="text-white" /></button>

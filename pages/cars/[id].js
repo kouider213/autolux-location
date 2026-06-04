@@ -116,7 +116,9 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                   <>
                     <div className="relative rounded-2xl overflow-hidden bg-[#141414] border border-white/[0.06]" style={{ aspectRatio: '16/10' }}>
                       {src ? (
-                        <img src={src} alt={car.name} onClick={() => setLb(true)} className="w-full h-full object-cover object-center cursor-zoom-in" loading="eager" />
+                        /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src)
+                          ? <video src={src} controls playsInline className="w-full h-full object-cover object-center bg-black" />
+                          : <img src={src} alt={car.name} onClick={() => setLb(true)} className="w-full h-full object-cover object-center cursor-zoom-in" loading="eager" />
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center gap-3">
                           <Car size={56} className="text-white/[0.07]" />
@@ -135,8 +137,10 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                       <div className="flex gap-2 overflow-x-auto pb-1">
                         {allPhotos.map((s, i) => (
                           <button key={i} onClick={() => setActive(i)}
-                            className={`flex-shrink-0 w-16 h-12 rounded-xl overflow-hidden border-2 transition-all ${i === activePhoto ? 'border-gold-500' : 'border-white/[0.06] opacity-60 hover:opacity-100'}`}>
-                            <img src={s} alt={`${car.name} ${i+1}`} className="w-full h-full object-cover" />
+                            className={`relative flex-shrink-0 w-16 h-12 rounded-xl overflow-hidden border-2 transition-all ${i === activePhoto ? 'border-gold-500' : 'border-white/[0.06] opacity-60 hover:opacity-100'}`}>
+                            {/\.(mp4|webm|mov|m4v)(\?|$)/i.test(s)
+                              ? <><video src={s} muted className="w-full h-full object-cover" /><span className="absolute inset-0 flex items-center justify-center text-white text-lg">▶</span></>
+                              : <img src={s} alt={`${car.name} ${i+1}`} className="w-full h-full object-cover" />}
                           </button>
                         ))}
                       </div>
