@@ -356,7 +356,7 @@ export default function ReservationPage({ cars: initialCars }) {
                       <div className="relative">
                         <Car size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
                         <select value={form.carId} onChange={e => { set('carId')(e); setDateRange([null, null]); setForm(f => ({ ...f, carId: e.target.value, startDate: '', endDate: '' })); }}
-                          className="input-dark pl-10 appearance-none cursor-pointer">
+                          className="input-dark appearance-none cursor-pointer" style={{ paddingLeft: '2.75rem' }}>
                           <option value="">{t("res.select")}</option>
                           {cars.map(car => (
                             <option key={car.id} value={car.id}>{car.name} — {fmt(car.resale_price)} {sym(car.currency)}{t('res.perday')}</option>
@@ -511,7 +511,7 @@ export default function ReservationPage({ cars: initialCars }) {
                       <div className="relative">
                         <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
                         <input type="text" value={form.name} onChange={set('name')}
-                          placeholder={t("res.ph_name")} className="input-dark pl-10" autoComplete="name" />
+                          placeholder={t("res.ph_name")} className="input-dark" style={{ paddingLeft: '2.75rem' }} autoComplete="name" />
                       </div>
                     </div>
 
@@ -521,7 +521,7 @@ export default function ReservationPage({ cars: initialCars }) {
                         <div className="relative">
                           <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
                           <input type="tel" value={form.phone} onChange={set('phone')}
-                            placeholder={t("res.ph_phone")} className="input-dark pl-10" autoComplete="tel" />
+                            placeholder={t("res.ph_phone")} className="input-dark" style={{ paddingLeft: '2.75rem' }} autoComplete="tel" />
                         </div>
                       </div>
                       <div>
@@ -555,7 +555,7 @@ export default function ReservationPage({ cars: initialCars }) {
                       <div className="relative">
                         <FileText size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
                         <input type="text" value={form.passport} onChange={set('passport')}
-                          placeholder={t("res.ph_passport")} className="input-dark pl-10" />
+                          placeholder={t("res.ph_passport")} className="input-dark" style={{ paddingLeft: '2.75rem' }} />
                       </div>
                     </div>
 
