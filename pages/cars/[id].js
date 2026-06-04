@@ -68,6 +68,10 @@ export default function CarDetail({ car, photos: initialPhotos }) {
       <Head>
         <title>{car.name} — Fik Conciergerie</title>
         <meta name="description" content={`Louez le ${car.name} à Oran. ${car.resale_price ? Number(car.resale_price).toLocaleString('fr-FR') + ' ' + (car.currency === 'EUR' ? '€' : 'DA') + '/jour' : 'Prix sur demande'}. Sans caution.`} />
+        {((photos && photos[0]) || car.image_url) && <meta property="og:image" key="og-image" content={(photos && photos[0]) || car.image_url} />}
+        {((photos && photos[0]) || car.image_url) && <meta name="twitter:image" key="tw-image" content={(photos && photos[0]) || car.image_url} />}
+        <meta property="og:title" content={`${car.name} — Location à Oran`} />
+        <meta property="og:description" content={`${car.resale_price ? Number(car.resale_price).toLocaleString('fr-FR') + ' ' + (car.currency === 'EUR' ? '€' : 'DA') + '/jour' : 'Prix sur demande'} · Sans caution · Fik Conciergerie`} />
       </Head>
 
       <div className="grain min-h-screen bg-[#0e0e0e]">

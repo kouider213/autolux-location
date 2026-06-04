@@ -8,6 +8,7 @@ import { trackPageView } from '../lib/tracker';
 import { LangProvider } from '../lib/i18n';
 import AnnouncementBanner from '../components/AnnouncementBanner';
 import CookieBanner from '../components/CookieBanner';
+import FloatingWhatsApp from '../components/FloatingWhatsApp';
 
 const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { ssr: false });
 
@@ -39,7 +40,10 @@ export default function App({ Component, pageProps }) {
               <meta name="viewport" content="width=device-width, initial-scale=1" />
               <meta name="theme-color" content="#080808" />
               <link rel="manifest" href="/manifest.json" />
-              <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+              {/* Favicon — logo Fik (remplace le globe par défaut dans l'onglet + Google) */}
+              <link rel="icon" type="image/png" href="/logo.png" />
+              <link rel="shortcut icon" href="/logo.png" />
+              <link rel="apple-touch-icon" href="/logo.png" />
               <meta name="apple-mobile-web-app-capable" content="yes" />
               <meta name="apple-mobile-web-app-status-bar-style" content="default" />
               {/* SEO de base */}
@@ -64,7 +68,7 @@ export default function App({ Component, pageProps }) {
               <meta property="og:title"       content="Fik Conciergerie — Location, Vente & Immobilier à Oran" />
               <meta property="og:description" content="Location de voitures sans caution, véhicules à vendre et immobilier à Oran. Kilométrage illimité, 7j/7. Réservez par WhatsApp." />
               <meta property="og:url"         content="https://fikconciergerie.com" />
-              <meta property="og:image"       content="https://fikconciergerie.com/api/og" />
+              <meta property="og:image"       content="https://fikconciergerie.com/api/og" key="og-image" />
               <meta property="og:image:width"  content="1200" />
               <meta property="og:image:height" content="630" />
               <meta property="og:locale"      content="fr_FR" />
@@ -73,7 +77,7 @@ export default function App({ Component, pageProps }) {
               <meta name="twitter:card"        content="summary_large_image" />
               <meta name="twitter:title"       content="Fik Conciergerie — Location Premium Oran" />
               <meta name="twitter:description" content="Location de voitures premium à Oran. Sans caution. 7j/7." />
-              <meta name="twitter:image"       content="https://fikconciergerie.com/api/og" />
+              <meta name="twitter:image"       content="https://fikconciergerie.com/api/og" key="tw-image" />
               {/* JSON-LD — Google comprend que c'est une entreprise locale */}
               <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
                 '@context': 'https://schema.org',
@@ -97,6 +101,7 @@ export default function App({ Component, pageProps }) {
           {!router.pathname.startsWith('/admin') && <AnnouncementBanner />}
           <Component {...pageProps} />
           {!router.pathname.startsWith('/admin') && <CookieBanner />}
+          {!router.pathname.startsWith('/admin') && <FloatingWhatsApp />}
         </LangProvider>
         <Toaster
           position="top-right"

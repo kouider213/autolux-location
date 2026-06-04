@@ -71,7 +71,11 @@ export default function PropertyDetail({ property, photos }) {
     <>
       <Head>
         <title>{property.title} — Fik Conciergerie Immobilier</title>
-        <meta name="description" content={`${property.title} à ${property.city}. ${property.price ? Number(property.price).toLocaleString() + '€' : 'Prix sur demande'}. Fik Conciergerie.`} />
+        <meta name="description" content={`${property.title} à ${property.city}. ${property.price ? Number(property.price).toLocaleString() + ' ' + cur(property.currency) : 'Prix sur demande'}. Fik Conciergerie.`} />
+        {(allPhotos[0] || property.image_url) && <meta property="og:image" key="og-image" content={allPhotos[0] || property.image_url} />}
+        {(allPhotos[0] || property.image_url) && <meta name="twitter:image" key="tw-image" content={allPhotos[0] || property.image_url} />}
+        <meta property="og:title" content={`${property.title} — ${isSale ? 'À vendre' : 'À louer'} à ${property.city}`} />
+        <meta property="og:description" content={`${priceTxt} · Fik Conciergerie Oran`} />
       </Head>
       <div className="grain min-h-screen bg-[#0e0e0e]">
         <Navbar />
