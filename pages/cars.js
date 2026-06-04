@@ -169,7 +169,6 @@ export default function CarsPage({ cars }) {
 function CarCard({ car, bookedUntil, t, availMode, wa }) {
   const isBookedNow = !!bookedUntil;
   const available   = car.available && !isBookedNow;
-  const checkUrl = `https://wa.me/${wa}?text=${encodeURIComponent(`Bonjour Fik Conciergerie, je voudrais vérifier la disponibilité de la ${car.name}. Pour quelles dates est-elle libre ?`)}`;
 
   return (
     <div className="group relative bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-gold-500/25 hover:-translate-y-2 hover:shadow-[0_28px_60px_rgba(0,0,0,0.7)] transition-all duration-500">
@@ -253,10 +252,10 @@ function CarCard({ car, bookedUntil, t, availMode, wa }) {
             <ArrowRight size={14} />
           </Link>
           {availMode ? (
-            <a href={checkUrl} target="_blank" rel="noopener noreferrer"
+            <Link href={`/reservation?car=${car.id}`}
               className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-gold-500 text-noir-950 hover:bg-gold-400 shadow-[0_4px_16px_rgba(226,182,20,0.3)] transition-all whitespace-nowrap">
               Vérifier la dispo
-            </a>
+            </Link>
           ) : (
             <Link href={available ? `/reservation?car=${car.id}` : '#'}
               className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
