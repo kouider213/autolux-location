@@ -4,43 +4,59 @@ import { Search, Users, Repeat2, TrendingUp, Phone, X, CheckCircle2 } from 'luci
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 
+// Libellés + couleurs des types d'opération client
+const DEAL_LABEL = {
+  location_voiture:  { txt: '🚗 Loc. voiture',  cls: 'text-gold-400 bg-gold-500/10 border-gold-500/20' },
+  vente_voiture:     { txt: '💰 Achat voiture', cls: 'text-purple-400 bg-purple-500/10 border-purple-500/20' },
+  location_immo:     { txt: '🏠 Loc. bien',     cls: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
+  vente_immo:        { txt: '🏠 Achat bien',    cls: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+  commande_vehicule: { txt: '📦 Commande',      cls: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
+};
+
 export default function ClientsPage() {
   const [allBookings, setAllBookings] = useState([]);
+  const [allDeals, setAllDeals]       = useState([]);
   const [loading, setLoading]         = useState(true);
   const [search, setSearch]           = useState('');
   const [selected, setSelected]       = useState(null);
 
   useEffect(() => {
     if (!supabase) { setLoading(false); return; }
-    supabase.from('bookings')
-      .select('*, cars(name, resale_price, image_url)')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => { setAllBookings(data || []); setLoading(false); })
-      .catch(() => setLoading(false));
+    Promise.all([
+      supabase.from('bookings').select('*, cars(name, resale_price, image_url)').order('created_at', { ascending: false }),
+      supabase.from('client_deals').select('*').order('created_at', { ascending: false }),
+    ]).then(([bk, dl]) => {
+      setAllBookings(bk.data || []);
+      setAllDeals(dl.data || []); // client_deals peut ne pas exister encore → []
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
 
-  // Build clients from bookings
-  const clients = Object.values(
-    allBookings.reduce((acc, b) => {
-      const key = b.client_phone || b.client_name;
-      if (!acc[key]) {
-        acc[key] = {
-          name:     b.client_name,
-          phone:    b.client_phone,
-          email:    b.client_email,
-          age:      b.client_age,
-          passport: b.client_passport,
-          bookings: [],
-          total:    0,
-        };
-      }
-      acc[key].bookings.push(b);
-      acc[key].total += Number(b.final_price || 0);
-      if (b.client_email) acc[key].email = b.client_email;
-      if (b.client_passport) acc[key].passport = b.client_passport;
-      return acc;
-    }, {})
-  ).sort((a, b) => b.bookings.length - a.bookings.length);
+  // Build clients from bookings + client_deals (location/vente, voiture/immo)
+  const acc = {};
+  const ensure = (name, phone) => {
+    const key = phone || name || '—';
+    if (!acc[key]) acc[key] = { name, phone, email: null, age: null, passport: null, bookings: [], deals: [], total: 0, types: new Set() };
+    return acc[key];
+  };
+  allBookings.forEach(b => {
+    const c = ensure(b.client_name, b.client_phone);
+    c.bookings.push(b);
+    c.total += Number(b.final_price || 0);
+    c.types.add('location_voiture');
+    if (b.client_email) c.email = b.client_email;
+    if (b.client_age) c.age = b.client_age;
+    if (b.client_passport) c.passport = b.client_passport;
+  });
+  allDeals.forEach(d => {
+    const c = ensure(d.client_name, d.client_phone);
+    c.deals.push(d);
+    c.total += Number(d.amount || 0);
+    if (d.deal_type) c.types.add(d.deal_type);
+  });
+  const clients = Object.values(acc)
+    .map(c => ({ ...c, types: [...c.types], activity: c.bookings.length + c.deals.length }))
+    .sort((a, b) => b.activity - a.activity);
 
   const filtered = clients.filter(c => {
     const q = search.toLowerCase();
@@ -138,6 +154,15 @@ export default function ClientsPage() {
                           <div className="min-w-0 flex-1">
                             <p className="text-white font-semibold text-sm truncate">{client.name}</p>
                             <p className="text-white/25 text-xs truncate">{client.phone}</p>
+                            {client.types.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {client.types.map(t => (
+                                  <span key={t} className={`text-[8px] font-bold px-1.5 py-0.5 rounded border ${DEAL_LABEL[t]?.cls || 'text-white/40 bg-white/5 border-white/10'}`}>
+                                    {DEAL_LABEL[t]?.txt || t}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                           <div className="flex-shrink-0 text-right">
                             <p className="text-gold-400 font-bold text-xs tabular-nums">
@@ -221,6 +246,34 @@ export default function ClientsPage() {
                         ))}
                       </div>
                     </div>
+
+                    {/* Autres opérations (immo, vente voiture) */}
+                    {selected.deals && selected.deals.length > 0 && (
+                      <div className="space-y-3">
+                        <h3 className="text-white/40 text-xs font-bold uppercase tracking-widest">Locations & ventes (immo / voiture)</h3>
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {selected.deals.map((d) => (
+                            <div key={d.id} className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-3">
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${DEAL_LABEL[d.deal_type]?.cls || 'text-white/40 bg-white/5 border-white/10'}`}>
+                                    {DEAL_LABEL[d.deal_type]?.txt || d.deal_type}
+                                  </span>
+                                  <p className="text-white font-semibold text-sm mt-1">{d.item_label || '—'}</p>
+                                  <p className="text-white/25 text-xs mt-0.5">{String(d.created_at).slice(0, 10)} · {d.status}</p>
+                                  {d.notes && <p className="text-white/30 text-xs mt-1 italic">{d.notes}</p>}
+                                </div>
+                                {d.amount != null && (
+                                  <p className="text-gold-400 font-bold text-sm tabular-nums flex-shrink-0">
+                                    {Math.round(d.amount).toLocaleString('fr-FR')} {d.currency === 'EUR' ? '€' : 'DA'}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-12 text-center">
