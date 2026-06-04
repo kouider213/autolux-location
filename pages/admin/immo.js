@@ -102,7 +102,8 @@ export default function AdminImmoPage() {
       let propId;
       const num = (v) => v === '' || v == null ? null : Number(v);
       const payload = {
-        title: form.title.trim(), type: form.type, transaction: form.transaction,
+        title: form.title.trim(), name: form.title.trim(), // name = ancienne colonne NOT NULL
+        type: form.type, transaction: form.transaction,
         // price_type gardé pour compat affichage existant
         price_type: form.transaction === 'vente' ? 'vente' : 'location',
         price: num(form.price), currency: form.currency,
