@@ -21,7 +21,7 @@ export async function getServerSideProps({ res }) {
     }
   } catch { /* non-blocking */ }
 
-  const staticPages = ['', '/cars', '/vente-voitures', '/immo', '/commande-vehicule', '/reservation', '/reviews', '/conditions', '/faq', '/blog', '/contact'];
+  const staticPages = ['', '/cars', '/vente-voitures', '/immo', '/investir', '/commande-vehicule', '/reservation', '/reviews', '/conditions', '/faq', '/blog', '/contact'];
   const carPages    = carIds.map(id => `/cars/${id}`);
   const salePages   = saleIds.map(id => `/vente-voitures/${id}`);
   const immoPages   = immoIds.map(id => `/immo/${id}`);

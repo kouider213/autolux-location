@@ -46,6 +46,7 @@ export default function Navbar({ scrollContainerRef }) {
     { href: '/vente-voitures',    label: t('nav.sale') },
     { href: '/commande-vehicule', label: t('nav.order') },
     { href: '/immo',              label: t('nav.immo') },
+    { href: '/investir',          label: lang === 'ar' ? 'استثمر في وهران' : 'Investir' },
     { href: '/reviews',           label: t('nav.reviews') },
     { href: '/faq',               label: t('nav.faq') },
     { href: '/conditions',        label: t('nav.conditions') },
