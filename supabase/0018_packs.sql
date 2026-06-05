@@ -14,7 +14,11 @@ CREATE TABLE IF NOT EXISTS packs (
   price_type    TEXT DEFAULT 'sejour',         -- jour | semaine | sejour | sur_devis
   currency      TEXT DEFAULT 'DZD',            -- DZD | EUR
   duration      TEXT,                          -- ex: "7 jours", "week-end"
-  -- Composants inclus (pour icônes / badges)
+  -- Inventaire RÉEL lié (le pack bloque ce véhicule + ce bien quand loué).
+  -- NULL possible (ex: pack entreprise = voiture avec chauffeur, pas dans le parc).
+  car_id        UUID REFERENCES cars(id)       ON DELETE SET NULL,
+  property_id   UUID REFERENCES properties(id) ON DELETE SET NULL,
+  -- Composants inclus (pour icônes / badges d'affichage)
   inc_car       BOOLEAN DEFAULT false,
   inc_apartment BOOLEAN DEFAULT false,
   inc_villa     BOOLEAN DEFAULT false,
@@ -31,6 +35,8 @@ CREATE TABLE IF NOT EXISTS packs (
 CREATE INDEX IF NOT EXISTS idx_packs_status   ON packs(status);
 CREATE INDEX IF NOT EXISTS idx_packs_tier      ON packs(tier);
 CREATE INDEX IF NOT EXISTS idx_packs_featured  ON packs(featured);
+CREATE INDEX IF NOT EXISTS idx_packs_car       ON packs(car_id);
+CREATE INDEX IF NOT EXISTS idx_packs_property  ON packs(property_id);
 
 -- Photos multiples
 CREATE TABLE IF NOT EXISTS pack_photos (

@@ -35,6 +35,7 @@ const INCLUSIONS = [
 const emptyForm = {
   title: '', tier: 'entree', tagline: '', description: '',
   price: '', price_type: 'sejour', currency: 'DZD', duration: '',
+  car_id: '', property_id: '',
   inc_car: true, inc_apartment: false, inc_villa: false, inc_jetski: false, inc_driver: false,
   features: '', status: 'disponible', featured: false,
 };
@@ -49,20 +50,31 @@ export default function AdminPacksPage() {
   const [form, setForm]         = useState(emptyForm);
   const [photos, setPhotos]     = useState([]);
   const [photoIdx, setPhotoIdx] = useState({});
+  const [cars, setCars]         = useState([]);       // inventaire location pour lier au pack
+  const [properties, setProps]  = useState([]);
   const fileRef = useRef(null);
   const camRef  = useRef(null);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); loadInventory(); }, []);
 
   const load = async () => {
     const { data } = await supabase
       .from('packs')
-      .select('*, pack_photos(url, position)')
+      .select('*, pack_photos(url, position), car:cars(id, name), property:properties(id, title)')
       .order('featured', { ascending: false })
       .order('position', { ascending: true })
       .order('created_at', { ascending: false });
     setPacks(data || []);
     setLoading(false);
+  };
+
+  const loadInventory = async () => {
+    const [{ data: c }, { data: p }] = await Promise.all([
+      supabase.from('cars').select('id, name').order('name'),
+      supabase.from('properties').select('id, title, name').order('created_at', { ascending: false }),
+    ]);
+    setCars(c || []);
+    setProps(p || []);
   };
 
   const openAdd = () => { setForm(emptyForm); setEditP(null); setPhotos([]); setShowForm(true); };
@@ -71,6 +83,7 @@ export default function AdminPacksPage() {
     setForm({
       title: p.title || '', tier: p.tier || 'entree', tagline: p.tagline || '', description: p.description || '',
       price: p.price || '', price_type: p.price_type || 'sejour', currency: p.currency || 'DZD', duration: p.duration || '',
+      car_id: p.car_id || '', property_id: p.property_id || '',
       inc_car: !!p.inc_car, inc_apartment: !!p.inc_apartment, inc_villa: !!p.inc_villa, inc_jetski: !!p.inc_jetski, inc_driver: !!p.inc_driver,
       features: (p.features || []).join('\n'), status: p.status || 'disponible', featured: !!p.featured,
     });
@@ -113,6 +126,7 @@ export default function AdminPacksPage() {
       price: form.price ? Number(form.price) : null,
       price_type: form.price_type, currency: form.currency,
       duration: form.duration.trim() || null,
+      car_id: form.car_id || null, property_id: form.property_id || null,
       inc_car: form.inc_car, inc_apartment: form.inc_apartment, inc_villa: form.inc_villa,
       inc_jetski: form.inc_jetski, inc_driver: form.inc_driver,
       features: form.features.split('\n').map(s => s.trim()).filter(Boolean),
@@ -256,6 +270,23 @@ export default function AdminPacksPage() {
                         <span className="ml-auto text-xs">{form[key] ? '✓' : ''}</span>
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Inventaire réel lié — bloque ce véhicule + ce bien quand le pack est loué */}
+                <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-3 space-y-3">
+                  <p className="text-white/40 text-[11px] leading-snug">Lie un <span className="text-gold-400">vrai véhicule</span> et un <span className="text-gold-400">vrai bien</span> de ton site. Quand le pack est loué, marque-les indisponibles → le pack devient indispo automatiquement. (Laisse vide pour le pack entreprise/chauffeur.)</p>
+                  <div><label className="label-dark">Véhicule lié (parc location)</label>
+                    <select value={form.car_id} onChange={up('car_id')} className="input-dark text-sm">
+                      <option value="">— Aucun (ex: chauffeur) —</option>
+                      {cars.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </div>
+                  <div><label className="label-dark">Bien immobilier lié</label>
+                    <select value={form.property_id} onChange={up('property_id')} className="input-dark text-sm">
+                      <option value="">— Aucun —</option>
+                      {properties.map(p => <option key={p.id} value={p.id}>{p.title || p.name || 'Sans titre'}</option>)}
+                    </select>
                   </div>
                 </div>
 

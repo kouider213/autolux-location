@@ -27,6 +27,14 @@ const INCLUSIONS = [
   { key: 'inc_driver',    icon: UserCheck,  label: 'Chauffeur',   ar: 'سائق' },
 ];
 
+// Dispo du pack = dérivée de l'inventaire réel lié (véhicule + bien).
+const packAvailable = (p) => {
+  if (p.status !== 'disponible') return false;
+  const carOk  = !p.car_id      || (p.car && p.car.available !== false);
+  const propOk = !p.property_id || (p.property && (p.property.status || 'disponible') === 'disponible');
+  return carOk && propOk;
+};
+
 const priceLabel = (p, lang) => {
   if (!p.price || p.price_type === 'sur_devis') return lang === 'ar' ? 'حسب الطلب' : 'Sur devis';
   const suffix = p.price_type === 'jour' ? (lang === 'ar' ? '/يوم' : '/jour')
@@ -42,6 +50,7 @@ function PackCard({ p, lang }) {
   const photo = photos[0];
   const tier = TIERS[p.tier] || TIERS.entree;
   const incs = INCLUSIONS.filter(i => p[i.key]);
+  const available = packAvailable(p);
   const waMsg = encodeURIComponent(
     lang === 'ar'
       ? `مرحبا فيك كونسيرجري، أنا مهتم بـ "${p.title}". هل يمكن إعطائي التفاصيل والسعر؟`
@@ -59,8 +68,10 @@ function PackCard({ p, lang }) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/30 to-transparent" />
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
           <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-md ${tier.cls}`}>{lang === 'ar' ? tier.ar : tier.label}</span>
-          {p.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950 flex items-center gap-1"><Star size={10} className="fill-current" /> {lang === 'ar' ? 'مميز' : 'Populaire'}</span>}
+          {p.featured && available && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950 flex items-center gap-1"><Star size={10} className="fill-current" /> {lang === 'ar' ? 'مميز' : 'Populaire'}</span>}
+          {!available && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-red-500/20 text-red-300 border border-red-500/25 backdrop-blur-md ml-auto">{lang === 'ar' ? 'غير متوفر حاليا' : 'Indisponible'}</span>}
         </div>
+        {!available && <div className="absolute inset-0 bg-[#0a0a0a]/55 backdrop-blur-[2px]" />}
         <div className="absolute inset-x-0 bottom-0 p-4">
           <h3 className="text-white font-bold text-xl leading-tight mb-1">{p.title}</h3>
           {p.tagline && <p className="text-white/45 text-xs leading-snug line-clamp-1">{p.tagline}</p>}
@@ -189,7 +200,7 @@ export async function getStaticProps() {
     if (!supabase) return { props: { packs: [] }, revalidate: 30 };
     const { data } = await supabase
       .from('packs')
-      .select('*, pack_photos(url, position)')
+      .select('*, pack_photos(url, position), car:cars(id, name, image_url, available), property:properties(id, title, city, status, image_url)')
       .neq('status', 'indisponible')
       .order('featured', { ascending: false })
       .order('position', { ascending: true })

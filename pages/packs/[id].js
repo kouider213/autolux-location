@@ -28,6 +28,13 @@ const INCLUSIONS = [
   { key: 'inc_driver',    icon: UserCheck, label: 'Chauffeur',   ar: 'سائق' },
 ];
 
+const packAvailable = (p) => {
+  if (p.status !== 'disponible') return false;
+  const carOk  = !p.car_id      || (p.car && p.car.available !== false);
+  const propOk = !p.property_id || (p.property && (p.property.status || 'disponible') === 'disponible');
+  return carOk && propOk;
+};
+
 const priceLabel = (p, lang) => {
   if (!p.price || p.price_type === 'sur_devis') return lang === 'ar' ? 'حسب الطلب' : 'Sur devis';
   const suffix = p.price_type === 'jour' ? (lang === 'ar' ? '/يوم' : '/jour')
@@ -72,7 +79,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
   const tier = TIERS[pack.tier] || TIERS.entree;
   const incs = INCLUSIONS.filter(i => pack[i.key]);
   const features = pack.features || [];
-  const available = pack.status === 'disponible';
+  const available = packAvailable(pack);
 
   const waMsg = encodeURIComponent(
     lang === 'ar'
@@ -162,6 +169,40 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
                 </div>
               </div>
 
+              {/* Véhicule + bien réels liés (inventaire du site) */}
+              {(pack.car || pack.property) && (
+                <div>
+                  <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{lang === 'ar' ? 'السيارة والعقار المعنيان' : 'Le véhicule & le bien de ce pack'}</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {pack.car && (
+                      <Link href={`/cars/${pack.car.id}`} className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/25 rounded-xl overflow-hidden transition-all">
+                        <div className="h-28 bg-[#0e0e0e] overflow-hidden">
+                          {pack.car.image_url ? <img src={pack.car.image_url} alt={pack.car.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <div className="w-full h-full flex items-center justify-center"><Car size={26} className="text-white/10" /></div>}
+                        </div>
+                        <div className="p-3">
+                          <div className="flex items-center gap-1.5 text-gold-500/80 text-[10px] uppercase tracking-wide mb-1"><Car size={11} /> {lang === 'ar' ? 'السيارة' : 'Véhicule'}</div>
+                          <p className="text-white font-semibold text-sm leading-tight">{pack.car.name}</p>
+                          <p className="text-white/35 text-xs mt-0.5">{[pack.car.category, pack.car.seats ? `${pack.car.seats} places` : null, pack.car.available === false ? (lang === 'ar' ? 'محجوزة' : 'Indisponible') : null].filter(Boolean).join(' · ')}</p>
+                        </div>
+                      </Link>
+                    )}
+                    {pack.property && (
+                      <Link href={`/immo/${pack.property.id}`} className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/25 rounded-xl overflow-hidden transition-all">
+                        <div className="h-28 bg-[#0e0e0e] overflow-hidden">
+                          {pack.property.image_url ? <img src={pack.property.image_url} alt={pack.property.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <div className="w-full h-full flex items-center justify-center"><Home size={26} className="text-white/10" /></div>}
+                        </div>
+                        <div className="p-3">
+                          <div className="flex items-center gap-1.5 text-gold-500/80 text-[10px] uppercase tracking-wide mb-1"><Home size={11} /> {lang === 'ar' ? 'العقار' : 'Bien immo'}</div>
+                          <p className="text-white font-semibold text-sm leading-tight">{pack.property.title}</p>
+                          <p className="text-white/35 text-xs mt-0.5">{[pack.property.district, pack.property.city, (pack.property.status && pack.property.status !== 'disponible') ? (lang === 'ar' ? 'محجوز' : 'Indisponible') : null].filter(Boolean).join(' · ')}</p>
+                        </div>
+                      </Link>
+                    )}
+                  </div>
+                  {!available && <p className="text-red-400/70 text-xs mt-2">{lang === 'ar' ? 'هذه الباقة غير متوفرة حاليا (السيارة أو العقار محجوز).' : 'Ce pack est indisponible actuellement (le véhicule ou le bien est déjà loué).'}</p>}
+                </div>
+              )}
+
               {/* Features list */}
               {features.length > 0 && (
                 <div className="bg-[#141414] border border-white/[0.06] rounded-xl p-5">
@@ -200,7 +241,9 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
 export async function getServerSideProps({ params }) {
   try {
     const client = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-    const { data: pack } = await client.from('packs').select('*').eq('id', params.id).single();
+    const { data: pack } = await client.from('packs')
+      .select('*, car:cars(id, name, image_url, available, category, seats, fuel), property:properties(id, title, city, district, status, image_url, transaction, rooms)')
+      .eq('id', params.id).single();
     return { props: { pack: pack || null, photos: [] } };
   } catch {
     return { props: { pack: null, photos: [] } };
