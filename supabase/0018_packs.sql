@@ -56,13 +56,23 @@ CREATE INDEX IF NOT EXISTS idx_pack_photos_position ON pack_photos(pack_id, posi
 ALTER TABLE packs       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pack_photos ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "packs: read public" ON packs;
+DROP POLICY IF EXISTS "ppho: read public"  ON pack_photos;
+DROP POLICY IF EXISTS "packs: admin write" ON packs;
+DROP POLICY IF EXISTS "ppho: admin write"  ON pack_photos;
+DROP POLICY IF EXISTS "packs: auth write"  ON packs;
+DROP POLICY IF EXISTS "ppho: auth write"   ON pack_photos;
+
 CREATE POLICY "packs: read public"  ON packs        FOR SELECT USING (true);
 CREATE POLICY "ppho: read public"   ON pack_photos  FOR SELECT USING (true);
 
-CREATE POLICY "packs: admin write"  ON packs FOR ALL
-  USING (auth.uid() IN (SELECT id FROM profiles WHERE role IN ('kouider', 'houari')));
-CREATE POLICY "ppho: admin write"   ON pack_photos FOR ALL
-  USING (auth.uid() IN (SELECT id FROM profiles WHERE role IN ('kouider', 'houari')));
+-- Écriture : tout utilisateur connecté (admin via /login). Le public (anon) ne peut que lire.
+-- NB: on n'utilise PAS un sous-select sur profiles (la RLS de profiles le faisait échouer
+-- → "new row violates row-level security policy").
+CREATE POLICY "packs: auth write"  ON packs FOR ALL
+  USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "ppho: auth write"   ON pack_photos FOR ALL
+  USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
 -- ════════════════════════════════════════════════════════════════
 -- Données d'exemple (les 4 packs demandés) — modifiables depuis l'admin
