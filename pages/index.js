@@ -5,8 +5,35 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Shield, Zap, Car, Star, ChevronDown, ArrowRight, ChevronLeft, ChevronRight,
   Users, MapPin, CalendarCheck, Fuel, MessageCircle, Sparkles, Building2, Tag,
-  Instagram, Music2, Facebook, Gauge,
+  Instagram, Music2, Facebook, Gauge, Package, Waves, UserCheck, Hotel,
 } from 'lucide-react';
+
+/* ── Packs : config affichage home ── */
+const PACK_TIERS_HOME = {
+  entree:     { label: 'Entrée de gamme', ar: 'اقتصادي',  cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/25' },
+  medium:     { label: 'Médium',          ar: 'متوسط',     cls: 'bg-gold-500/20 text-gold-300 border-gold-500/25' },
+  premium:    { label: 'Premium',         ar: 'فاخر',      cls: 'bg-purple-500/20 text-purple-300 border-purple-500/25' },
+  entreprise: { label: 'Entreprise / Groupe', ar: 'شركات', cls: 'bg-blue-500/20 text-blue-300 border-blue-500/25' },
+};
+const PACK_INC_HOME = [
+  { key: 'inc_car',       icon: Car,       label: 'Voiture',     ar: 'سيارة' },
+  { key: 'inc_apartment', icon: Building2, label: 'Appartement', ar: 'شقة' },
+  { key: 'inc_villa',     icon: Hotel,     label: 'Villa',       ar: 'فيلا' },
+  { key: 'inc_jetski',    icon: Waves,     label: 'Jet ski',     ar: 'جت سكي' },
+  { key: 'inc_driver',    icon: UserCheck, label: 'Chauffeur',   ar: 'سائق' },
+];
+const packPriceHome = (p, lang) => {
+  if (!p.price || p.price_type === 'sur_devis') return lang === 'ar' ? 'حسب الطلب' : 'Sur devis';
+  const sym = p.currency === 'EUR' ? '€' : 'DA';
+  const suffix = p.price_type === 'jour' ? '/j' : p.price_type === 'semaine' ? '/sem' : '';
+  return `${Number(p.price).toLocaleString('fr-FR')} ${sym}${suffix}`;
+};
+const packAvailHome = (p) => {
+  if (p.status && p.status !== 'disponible') return false;
+  const carOk  = !p.car_id      || (p.car && p.car.available !== false);
+  const propOk = !p.property_id || (p.property && (p.property.status || 'disponible') === 'disponible');
+  return carOk && propOk;
+};
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getSettings, useSettings, waNumber } from '../lib/settings';
@@ -364,8 +391,8 @@ function ComingSoon({ icon, title, desc, cta, href }) {
 }
 
 /* ── Main ── */
-export default function Home({ cars: initialCars, reviews: initialReviews, vehiclesSale: initialSale, properties: initialProps }) {
-  const { t } = useLang();
+export default function Home({ cars: initialCars, reviews: initialReviews, vehiclesSale: initialSale, properties: initialProps, packs: initialPacks }) {
+  const { t, lang } = useLang();
   const settings = useSettings();
   const WHATSAPP = waNumber(settings);
   const statsRef    = useRef(null);
@@ -375,6 +402,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
   const [reviews, setReviews] = useState(initialReviews || []);
   const [vehiclesSale, setVehiclesSale] = useState(initialSale  || []);
   const [properties, setProperties]     = useState(initialProps || []);
+  const [packs, setPacks]               = useState(initialPacks || []);
 
   // Client refresh: bypass ISR cache, get fresh Supabase data on mount
   useEffect(() => {
@@ -391,11 +419,15 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
     supabase.from('properties').select('*, property_photos(url, position)').order('featured', { ascending: false }).order('created_at', { ascending: false }).then(({ data }) => {
       if (data) setProperties(data);
     }).catch(() => {});
+    supabase.from('packs').select('*, pack_photos(url, position), car:cars(available), property:properties(status)').order('featured', { ascending: false }).order('position', { ascending: true }).then(({ data }) => {
+      if (data) setPacks(data);
+    }).catch(() => {});
   }, []);
 
   // Helpers carousel vente/immo
   const saleAvailable = (vehiclesSale || []).filter(v => v.status !== 'vendu');
   const immoAvailable = (properties || []).filter(p => p.status !== 'vendu' && p.status !== 'loue');
+  const packsAvailable = (packs || []).filter(packAvailHome);
   const curSym = (c) => (c === 'EUR' ? '€' : 'DA');
   const photoOf = (rows, fallback) => {
     const sorted = (rows || []).slice().sort((a, b) => a.position - b.position);
@@ -736,6 +768,49 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
           </div>
         </section>
 
+        {/* ══ PACKS SÉJOUR ══ */}
+        <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#050505]">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.05) 0%,transparent 65%)' }} />
+          <div className="relative z-10 max-w-5xl mx-auto">
+            <div className="mb-10">
+              <span className="section-badge mb-5 inline-block">{lang === 'ar' ? 'باقات كل شيء في واحد' : 'Packs tout-en-un'}</span>
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-3">
+                <h2 className="font-display text-4xl md:text-5xl font-bold text-white">
+                  {lang === 'ar' ? 'باقات' : 'Nos'} <span className="text-gold-gradient italic">{lang === 'ar' ? 'الإقامة' : 'Packs séjour'}</span>
+                </h2>
+                <Link href="/packs" className="btn-outline text-sm py-2.5 self-start">{lang === 'ar' ? 'كل الباقات' : 'Tous les packs'} <ArrowRight size={13} /></Link>
+              </div>
+              <p className="text-white/35 mt-3 max-w-xl font-body text-sm">
+                {lang === 'ar' ? 'سيارة + سكن + جت سكي + سائق — كل شيء في باقة واحدة.' : 'Voiture, villa, jet ski, chauffeur — tout réuni dans un seul pack clé en main.'}
+              </p>
+            </div>
+            {packsAvailable.length > 0 ? (
+              <ShowcaseCarousel items={packsAvailable} render={(p) => {
+                const tier = PACK_TIERS_HOME[p.tier] || PACK_TIERS_HOME.entree;
+                const incs = PACK_INC_HOME.filter(x => p[x.key]);
+                return {
+                  href: `/packs/${p.id}`,
+                  image: photoOf(p.pack_photos, p.image_url),
+                  emptyIcon: <Package size={100} className="text-white/[0.05]" />,
+                  title: p.title,
+                  badges: <>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${tier.cls}`}>{lang === 'ar' ? tier.ar : tier.label}</span>
+                    {p.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950">{t('b.featured')}</span>}
+                  </>,
+                  specs: incs.map(({ key, icon: Icon, label, ar }) => (
+                    <span key={key} className="flex items-center gap-1.5 text-white/50 text-sm font-body"><Icon size={12} className="text-gold-500/60" />{lang === 'ar' ? ar : label}</span>
+                  )),
+                  price: packPriceHome(p, lang),
+                  cta: lang === 'ar' ? 'اكتشف' : 'Découvrir', ctaIcon: <ArrowRight size={15} />,
+                };
+              }} />
+            ) : (
+              <ComingSoon icon={<Package size={32} className="text-gold-400" />} title={lang === 'ar' ? 'باقات قريبا' : 'Packs bientôt'} desc={lang === 'ar' ? 'باقات إقامة مخصصة قريبا.' : 'Des packs séjour clé en main arrivent très bientôt.'} cta={lang === 'ar' ? 'اكتشف' : 'Découvrir'} href="/packs" />
+            )}
+          </div>
+        </section>
+
         {/* ══ STATS ══ */}
         <section ref={statsRef} className="relative py-16 md:py-24 px-5 overflow-hidden bg-[#050505]">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none"
@@ -862,12 +937,13 @@ export async function getStaticProps() {
   try {
     const { data: cars }    = await supabase.from('cars').select('*').order('resale_price');
     const { data: reviews } = await supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false }).limit(6);
-    let vehiclesSale = [], properties = [];
+    let vehiclesSale = [], properties = [], packs = [];
     try { const r = await supabase.from('vehicles_for_sale').select('*, vehicle_sale_photos(url, position)').order('featured', { ascending: false }).order('created_at', { ascending: false }); vehiclesSale = r.data || []; } catch {}
     try { const r = await supabase.from('properties').select('*, property_photos(url, position)').order('featured', { ascending: false }).order('created_at', { ascending: false }); properties = r.data || []; } catch {}
-    return { props: { cars: cars||[], reviews: reviews||[], vehiclesSale, properties }, revalidate: 10 };
+    try { const r = await supabase.from('packs').select('*, pack_photos(url, position), car:cars(available), property:properties(status)').order('featured', { ascending: false }).order('position', { ascending: true }); packs = r.data || []; } catch {}
+    return { props: { cars: cars||[], reviews: reviews||[], vehiclesSale, properties, packs }, revalidate: 10 };
   } catch (err) {
     console.error('Error fetching home data:', err);
-    return { props: { cars: [], reviews: [], vehiclesSale: [], properties: [] }, revalidate: 10 };
+    return { props: { cars: [], reviews: [], vehiclesSale: [], properties: [], packs: [] }, revalidate: 10 };
   }
 }
