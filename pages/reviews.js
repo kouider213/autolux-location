@@ -1,5 +1,5 @@
 ﻿import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { Star, MessageSquarePlus, Check, Loader2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -7,12 +7,20 @@ import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 
-export default function ReviewsPage({ reviews }) {
+export default function ReviewsPage({ reviews: initialReviews }) {
   const { t } = useLang();
+  const [reviews, setReviews]   = useState(initialReviews || []);
   const [form, setForm]         = useState({ client_name: '', rating: 5, comment: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted]   = useState(false);
   const [hovered, setHovered]       = useState(0);
+
+  // Refresh client-side (comme la home) — évite la page figée par ISR
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false })
+      .then(({ data }) => { if (data) setReviews(data); });
+  }, []);
 
   const avgRating = reviews.length > 0
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
