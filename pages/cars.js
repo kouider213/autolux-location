@@ -10,14 +10,25 @@ import { useSettings, waNumber } from '../lib/settings';
 
 const CATEGORIES = ['Tous', 'citadine', 'berline', 'SUV', 'familiale', 'utilitaire', 'premium'];
 
-export default function CarsPage({ cars }) {
+export default function CarsPage({ cars: initialCars }) {
   const { t } = useLang();
   const settings = useSettings();
   const WHATSAPP = waNumber(settings);
   const availMode = settings.availability_mode !== false; // ON par défaut (safe)
   const [filter, setFilter]     = useState('Tous');
   const [search, setSearch]     = useState('');
+  const [cars, setCars]         = useState(initialCars || []);
   const [bookedCarIds, setBookedCarIds] = useState({});
+
+  // Refresh client-side des véhicules (sinon ISR revalidate:30 fige la liste :
+  // un toggle dispo/indispo dans l'app n'apparaît pas tout de suite). Même
+  // pattern que la home. Garde le SSR/ISR pour le SEO + 1er rendu.
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.from('cars').select('*').order('resale_price').then(({ data }) => {
+      if (data && data.length > 0) setCars(data);
+    });
+  }, []);
 
   useEffect(() => {
     if (!supabase) return;
