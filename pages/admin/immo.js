@@ -280,7 +280,7 @@ export default function AdminImmoPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className="label-dark">Quartier</label><input value={form.district} onChange={set('district')} placeholder="Hay Badr" className="input-dark w-full text-sm" /></div>
-                  <div><label className="label-dark">Adresse</label><input value={form.address} onChange={set('address')} placeholder="Rue, n°..." className="input-dark w-full text-sm" /></div>
+                  <div><label className="label-dark">Adresse</label><AddressAutocomplete value={form.address} onChange={v => setForm(s => ({ ...s, address: v }))} /></div>
                 </div>
 
                 {/* Location-specific */}
@@ -365,5 +365,40 @@ export default function AdminImmoPage() {
         )}
       </AdminLayout>
     </>
+  );
+}
+
+// Champ adresse avec autocomplétion Google (via l'API publique du backend Dzaryx)
+function AddressAutocomplete({ value, onChange }) {
+  const [sugs, setSugs] = useState([]);
+  const [open, setOpen] = useState(false);
+  const tRef = useRef(null);
+  const onType = (v) => {
+    onChange(v);
+    if (tRef.current) clearTimeout(tRef.current);
+    if (!v || v.trim().length < 3) { setSugs([]); setOpen(false); return; }
+    tRef.current = setTimeout(async () => {
+      try {
+        const r = await fetch(`https://ibrahim-backend-production.up.railway.app/api/maps/autocomplete-public?input=${encodeURIComponent(v)}`);
+        const j = await r.json();
+        setSugs(j.predictions || []); setOpen(true);
+      } catch { setSugs([]); }
+    }, 350);
+  };
+  return (
+    <div className="relative">
+      <input value={value || ''} onChange={e => onType(e.target.value)} onBlur={() => setTimeout(() => setOpen(false), 150)}
+        placeholder="Tape l'adresse… (suggestions)" className="input-dark w-full text-sm" />
+      {open && sugs.length > 0 && (
+        <div className="absolute z-30 left-0 right-0 mt-1 bg-[#161616] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
+          {sugs.map(s => (
+            <button type="button" key={s.place_id} onMouseDown={() => { onChange(s.label); setOpen(false); setSugs([]); }}
+              className="block w-full text-left px-3 py-2.5 text-sm text-white/80 hover:bg-white/5 border-b border-white/5 last:border-0">
+              📍 {s.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
