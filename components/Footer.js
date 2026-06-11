@@ -113,6 +113,18 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Liens légaux & confiance */}
+        <div className="border-t border-white/[0.05] pt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-5">
+          {[
+            { h: '/a-propos', l: 'Qui sommes-nous' },
+            { h: '/cgv', l: 'Conditions générales' },
+            { h: '/mentions-legales', l: 'Mentions légales' },
+            { h: '/confidentialite', l: 'Confidentialité' },
+          ].map(x => (
+            <Link key={x.h} href={x.h} className="text-white/30 text-xs font-body hover:text-gold-400 transition-colors">{x.l}</Link>
+          ))}
+        </div>
+
         <div className="border-t border-white/[0.05] pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="text-white/15 text-xs font-body">© {new Date().getFullYear()} Fik Conciergerie — {t('foot.rights')}</p>
           <span className="text-white/15 text-xs font-body">{t('foot.perks')}</span>
