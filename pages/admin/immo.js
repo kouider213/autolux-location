@@ -380,7 +380,7 @@ function AddressAutocomplete({ value, onChange }) {
     tRef.current = setTimeout(async () => {
       try {
         // Failover : Railway puis backup(s) — NEXT_PUBLIC_IBRAHIM_BACKENDS="url1,url2"
-        const backends = (process.env.NEXT_PUBLIC_IBRAHIM_BACKENDS || 'https://ibrahim-backend-production.up.railway.app').split(',');
+        const backends = (process.env.NEXT_PUBLIC_IBRAHIM_BACKENDS || 'https://ibrahim-backend-production.up.railway.app,https://dzaryx-backend-backup.onrender.com').split(',');
         let j = null;
         for (const b of backends) {
           try {
