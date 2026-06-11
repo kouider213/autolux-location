@@ -379,9 +379,16 @@ function AddressAutocomplete({ value, onChange }) {
     if (!v || v.trim().length < 3) { setSugs([]); setOpen(false); return; }
     tRef.current = setTimeout(async () => {
       try {
-        const r = await fetch(`https://ibrahim-backend-production.up.railway.app/api/maps/autocomplete-public?input=${encodeURIComponent(v)}`);
-        const j = await r.json();
-        setSugs(j.predictions || []); setOpen(true);
+        // Failover : Railway puis backup(s) — NEXT_PUBLIC_IBRAHIM_BACKENDS="url1,url2"
+        const backends = (process.env.NEXT_PUBLIC_IBRAHIM_BACKENDS || 'https://ibrahim-backend-production.up.railway.app').split(',');
+        let j = null;
+        for (const b of backends) {
+          try {
+            const r = await fetch(`${b.trim()}/api/maps/autocomplete-public?input=${encodeURIComponent(v)}`);
+            if (r.ok) { j = await r.json(); break; }
+          } catch { /* backend mort → suivant */ }
+        }
+        setSugs(j?.predictions || []); setOpen(!!j);
       } catch { setSugs([]); }
     }, 350);
   };
