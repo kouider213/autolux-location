@@ -2,9 +2,10 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import AdminLayout from '../../components/AdminLayout';
+import InspectionTool from '../../components/InspectionTool';
 import { supabase } from '../../lib/supabase';
 import { generateContract } from '../../lib/pdf';
-import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck, Wallet, FileSignature, Save, Plus, Copy, Loader2 } from 'lucide-react';
+import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck, Wallet, FileSignature, Save, Plus, Copy, Loader2, Camera } from 'lucide-react';
 
 const STATUS_FLOW = ['PENDING', 'ACCEPTED', 'ACTIVE', 'COMPLETED', 'REJECTED'];
 const STATUS_FR = { PENDING: 'En attente', ACCEPTED: 'Confirmée', ACTIVE: 'En cours', COMPLETED: 'Terminée', REJECTED: 'Refusée' };
@@ -136,6 +137,7 @@ export default function BookingsPage() {
   const [edit, setEdit]         = useState({ start: '', end: '', price: '' });
   const [busy, setBusy]         = useState('');
   const [contractLink, setLink] = useState('');
+  const [inspectOpen, setInspectOpen] = useState(false);
 
   // Sync champs édition quand on ouvre une résa
   useEffect(() => {
@@ -548,6 +550,14 @@ export default function BookingsPage() {
                       </div>
                     </div>
 
+                    {/* État des lieux */}
+                    <div className="pt-3 border-t border-white/[0.06]">
+                      <button onClick={() => setInspectOpen(true)}
+                        className="w-full flex items-center justify-center gap-2 bg-blue-500/15 hover:bg-blue-500/25 text-blue-400 font-semibold py-2.5 rounded-xl text-sm border border-blue-500/20 transition-all">
+                        <Camera size={14} />État des lieux (photos + défauts)
+                      </button>
+                    </div>
+
                     {/* Contrat à signer */}
                     <div className="pt-3 border-t border-white/[0.06]">
                       <button onClick={genContract} disabled={busy === 'contract'}
@@ -621,6 +631,11 @@ export default function BookingsPage() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Outil état des lieux */}
+        {inspectOpen && selected && (
+          <InspectionTool booking={selected} onClose={() => setInspectOpen(false)} />
         )}
       </AdminLayout>
     </>
