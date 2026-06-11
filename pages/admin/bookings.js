@@ -4,7 +4,10 @@ import toast from 'react-hot-toast';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import { generateContract } from '../../lib/pdf';
-import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck } from 'lucide-react';
+import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck, Wallet, FileSignature, Save, Plus, Copy, Loader2 } from 'lucide-react';
+
+const STATUS_FLOW = ['PENDING', 'ACCEPTED', 'ACTIVE', 'COMPLETED', 'REJECTED'];
+const STATUS_FR = { PENDING: 'En attente', ACCEPTED: 'Confirmée', ACTIVE: 'En cours', COMPLETED: 'Terminée', REJECTED: 'Refusée' };
 
 const STATUS_LABELS = {
   PENDING:   { label: 'En attente',  cls: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
@@ -127,6 +130,90 @@ export default function BookingsPage() {
   const handlePDF = async (b) => {
     try { await generateContract(b, b.cars); toast.success('Contrat PDF téléchargé'); }
     catch { toast.error('Erreur PDF'); }
+  };
+
+  // ── Gestion réservation (édition, statut, paiements, contrat) ──────────
+  const [edit, setEdit]         = useState({ start: '', end: '', price: '' });
+  const [busy, setBusy]         = useState('');
+  const [contractLink, setLink] = useState('');
+
+  // Sync champs édition quand on ouvre une résa
+  useEffect(() => {
+    if (selected) {
+      setEdit({ start: selected.start_date || '', end: selected.end_date || '', price: selected.final_price ?? '' });
+      setLink('');
+    }
+  }, [selected?.id]);
+
+  const patchBooking = async (patch, okMsg) => {
+    if (!supabase || !selected) return;
+    setBusy('save');
+    const { error } = await supabase.from('bookings').update(patch).eq('id', selected.id);
+    setBusy('');
+    if (error) { toast.error('Erreur : ' + error.message); return; }
+    setSelected(prev => ({ ...prev, ...patch }));
+    setBookings(prev => prev.map(b => b.id === selected.id ? { ...b, ...patch } : b));
+    if (okMsg) toast.success(okMsg);
+  };
+
+  const saveEdits = async () => {
+    const days = edit.start && edit.end ? Math.round((new Date(edit.end) - new Date(edit.start)) / 86400000) : selected.nb_days;
+    await patchBooking({
+      start_date: edit.start || selected.start_date,
+      end_date:   edit.end   || selected.end_date,
+      nb_days:    days > 0 ? days : selected.nb_days,
+      final_price: edit.price === '' ? selected.final_price : Number(edit.price),
+    }, 'Réservation mise à jour');
+  };
+
+  const changeStatus = (status) => patchBooking({ status }, `Statut : ${STATUS_FR[status]}`);
+
+  const addPayment = async (kind) => {
+    if (!supabase || !selected) return;
+    const total = Number(selected.final_price || 0);
+    const paid  = Number(selected.paid_amount || 0);
+    const suggested = kind === 'acompte'
+      ? (selected.nb_days ? Math.round(total / selected.nb_days) * 3 : Math.round(total * 0.3))
+      : Math.max(0, total - paid);
+    const input = window.prompt(`Montant ${kind === 'acompte' ? 'de l\'acompte' : 'du solde'} encaissé :`, String(suggested || ''));
+    if (input === null) return;
+    const amount = Number(input);
+    if (!amount || amount <= 0) { toast.error('Montant invalide'); return; }
+    setBusy('pay');
+    // 1) trace dans payments
+    await supabase.from('payments').insert({
+      booking_id: selected.id, amount, method: 'cash', status: 'confirmed',
+      is_deposit: kind === 'acompte', paid_at: new Date().toISOString(),
+    });
+    // 2) maj du booking (paid_amount + payment_status)
+    const newPaid = paid + amount;
+    const pStatus = total > 0 && newPaid >= total ? 'PAID' : newPaid > 0 ? 'PARTIAL' : 'PENDING';
+    await patchBooking({ paid_amount: newPaid, payment_status: pStatus });
+    setBusy('');
+    toast.success(`${kind === 'acompte' ? 'Acompte' : 'Solde'} de ${amount}€ enregistré`);
+  };
+
+  const genContract = async () => {
+    if (!selected) return;
+    setBusy('contract');
+    try {
+      const r = await fetch('/api/generate-contract-link', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: selected.id }),
+      });
+      const d = await r.json();
+      setBusy('');
+      if (!r.ok) { toast.error(d.error || 'Erreur'); return; }
+      setLink(d.url);
+      toast.success(d.already_signed ? 'Déjà signé' : 'Lien du contrat prêt');
+    } catch { setBusy(''); toast.error('Erreur réseau'); }
+  };
+
+  const sendContractWA = () => {
+    if (!contractLink || !selected) return;
+    const phone = selected.client_phone?.replace(/\D/g, '');
+    const msg = `Bonjour ${selected.client_name}, voici votre contrat de location ${selected.cars?.name || ''} à lire et signer en ligne :\n${contractLink}\n\nMerci — Fik Conciergerie`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   const filters = [
@@ -391,6 +478,96 @@ export default function BookingsPage() {
                         </div>
                       );
                     })()}
+                  </div>
+                </div>
+
+                {/* ── GESTION (toujours dispo, même après confirmation) ── */}
+                <div>
+                  <p className="text-white/25 text-[10px] uppercase tracking-widest font-medium mb-3">Gestion</p>
+                  <div className="bg-[#1e1e1e] rounded-xl p-4 space-y-4">
+
+                    {/* Statut */}
+                    <div>
+                      <label className="text-white/40 text-xs mb-2 block">Statut de la réservation</label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {STATUS_FLOW.map(s => (
+                          <button key={s} onClick={() => changeStatus(s)} disabled={busy === 'save'}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                              selected.status === s
+                                ? 'bg-gold-500 text-noir-950 border-gold-500'
+                                : 'bg-white/[0.03] border-white/[0.08] text-white/40 hover:text-white/70'
+                            }`}>
+                            {STATUS_FR[s]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Édition dates + prix */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-white/40 text-[11px] mb-1 block">Départ</label>
+                        <input type="date" value={edit.start} onChange={e => setEdit(v => ({ ...v, start: e.target.value }))}
+                          className="input-dark w-full text-sm py-2" />
+                      </div>
+                      <div>
+                        <label className="text-white/40 text-[11px] mb-1 block">Retour</label>
+                        <input type="date" value={edit.end} onChange={e => setEdit(v => ({ ...v, end: e.target.value }))}
+                          className="input-dark w-full text-sm py-2" />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="text-white/40 text-[11px] mb-1 block">Prix total (€)</label>
+                        <input type="number" value={edit.price} onChange={e => setEdit(v => ({ ...v, price: e.target.value }))}
+                          className="input-dark w-full text-sm py-2" />
+                      </div>
+                    </div>
+                    <button onClick={saveEdits} disabled={busy === 'save'}
+                      className="w-full flex items-center justify-center gap-2 bg-white/[0.06] hover:bg-white/[0.1] text-white/80 font-semibold py-2.5 rounded-xl text-sm transition-all">
+                      {busy === 'save' ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}Enregistrer les modifications
+                    </button>
+
+                    {/* Paiements */}
+                    <div className="pt-3 border-t border-white/[0.06]">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-white/40 text-xs flex items-center gap-1.5"><Wallet size={13} />Paiement</span>
+                        <span className="text-xs text-white/60">
+                          Payé <b className="text-emerald-400">{Number(selected.paid_amount || 0)}€</b> / {Number(selected.final_price || 0)}€
+                          {Number(selected.final_price || 0) - Number(selected.paid_amount || 0) > 0 &&
+                            <span className="text-amber-400"> · reste {Number(selected.final_price || 0) - Number(selected.paid_amount || 0)}€</span>}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button onClick={() => addPayment('acompte')} disabled={busy === 'pay'}
+                          className="flex items-center justify-center gap-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-sm font-semibold py-2 rounded-xl border border-emerald-500/20">
+                          <Plus size={13} />Acompte
+                        </button>
+                        <button onClick={() => addPayment('solde')} disabled={busy === 'pay'}
+                          className="flex items-center justify-center gap-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-sm font-semibold py-2 rounded-xl border border-emerald-500/20">
+                          <Plus size={13} />Solde
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Contrat à signer */}
+                    <div className="pt-3 border-t border-white/[0.06]">
+                      <button onClick={genContract} disabled={busy === 'contract'}
+                        className="w-full flex items-center justify-center gap-2 bg-gold-500/15 hover:bg-gold-500/25 text-gold-400 font-semibold py-2.5 rounded-xl text-sm border border-gold-500/20 transition-all">
+                        {busy === 'contract' ? <Loader2 size={14} className="animate-spin" /> : <FileSignature size={14} />}Générer le contrat à signer
+                      </button>
+                      {contractLink && (
+                        <div className="mt-2 space-y-2">
+                          <div className="flex items-center gap-2 bg-[#252525] rounded-lg px-3 py-2">
+                            <input readOnly value={contractLink} className="bg-transparent text-white/60 text-xs flex-1 outline-none" />
+                            <button onClick={() => { navigator.clipboard?.writeText(contractLink); toast.success('Lien copié'); }}
+                              className="text-white/40 hover:text-gold-400"><Copy size={14} /></button>
+                          </div>
+                          <button onClick={sendContractWA}
+                            className="w-full flex items-center justify-center gap-2 bg-[#25D366]/90 hover:bg-[#25D366] text-white font-semibold py-2.5 rounded-xl text-sm">
+                            <MessageCircle size={14} />Envoyer le contrat au client
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
