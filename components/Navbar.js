@@ -47,7 +47,7 @@ export default function Navbar({ scrollContainerRef }) {
     { href: '/commande-vehicule', label: t('nav.order') },
     { href: '/immo',              label: t('nav.immo') },
     { href: '/packs',             label: lang === 'ar' ? 'الباقات' : 'Packs' },
-    { href: '/investir',          label: lang === 'ar' ? 'استثمر في وهران' : 'Investir' },
+    { href: '/investir',          label: lang === 'ar' ? 'استثمر في وهران' : lang === 'en' ? 'Invest' : 'Investir' },
     { href: '/reviews',           label: t('nav.reviews') },
     { href: '/faq',               label: t('nav.faq') },
     { href: '/conditions',        label: t('nav.conditions') },
@@ -55,13 +55,17 @@ export default function Navbar({ scrollContainerRef }) {
   ];
 
   const LangToggle = ({ className = '' }) => (
-    <button
-      onClick={() => setLang(lang === 'ar' ? 'fr' : 'ar')}
-      className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold transition-all bg-white/[0.05] hover:bg-gold-500/15 text-white/70 hover:text-gold-400 ${className}`}
-      aria-label="Changer de langue">
-      <span className="text-base leading-none">🌐</span>
-      {lang === 'ar' ? 'FR' : 'عربية'}
-    </button>
+    <div className={`flex items-center gap-0.5 bg-white/[0.05] rounded-xl p-0.5 ${className}`} aria-label="Langue">
+      {[['fr', 'FR'], ['ar', 'ع'], ['en', 'EN']].map(([code, lbl]) => (
+        <button key={code} onClick={() => setLang(code)}
+          className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            lang === code ? 'bg-gold-500 text-noir-950' : 'text-white/60 hover:text-gold-400'
+          }`}
+          aria-pressed={lang === code}>
+          {lbl}
+        </button>
+      ))}
+    </div>
   );
 
   return (

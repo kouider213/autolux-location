@@ -5,7 +5,7 @@ import AdminLayout from '../../components/AdminLayout';
 import InspectionTool from '../../components/InspectionTool';
 import { supabase } from '../../lib/supabase';
 import { generateContract } from '../../lib/pdf';
-import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck, Wallet, FileSignature, Save, Plus, Copy, Loader2, Camera } from 'lucide-react';
+import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck, Wallet, FileSignature, Save, Plus, Minus, Copy, Loader2, Camera } from 'lucide-react';
 
 const STATUS_FLOW = ['PENDING', 'ACCEPTED', 'ACTIVE', 'COMPLETED', 'REJECTED'];
 const STATUS_FR = { PENDING: 'En attente', ACCEPTED: 'Confirmée', ACTIVE: 'En cours', COMPLETED: 'Terminée', REJECTED: 'Refusée' };
@@ -170,29 +170,44 @@ export default function BookingsPage() {
 
   const changeStatus = (status) => patchBooking({ status }, `Statut : ${STATUS_FR[status]}`);
 
-  const addPayment = async (kind) => {
+  const [paidEdit, setPaidEdit] = useState('');
+  useEffect(() => { if (selected) setPaidEdit(String(selected.paid_amount ?? 0)); }, [selected?.id]);
+
+  // Ajoute (+) ou retire (−) un montant au total payé — permet de corriger à la baisse
+  const adjustPayment = async (delta, kind) => {
     if (!supabase || !selected) return;
     const total = Number(selected.final_price || 0);
     const paid  = Number(selected.paid_amount || 0);
     const suggested = kind === 'acompte'
       ? (selected.nb_days ? Math.round(total / selected.nb_days) * 3 : Math.round(total * 0.3))
       : Math.max(0, total - paid);
-    const input = window.prompt(`Montant ${kind === 'acompte' ? 'de l\'acompte' : 'du solde'} encaissé :`, String(suggested || ''));
+    const input = window.prompt(`Montant à ${delta > 0 ? 'ajouter' : 'retirer'} (${kind}) :`, String(delta > 0 ? (suggested || '') : ''));
     if (input === null) return;
     const amount = Number(input);
     if (!amount || amount <= 0) { toast.error('Montant invalide'); return; }
+    await setPaidExact(paid + delta * amount, kind, delta * amount);
+  };
+
+  // Fixe le total payé à une valeur exacte (corrige en + ou en −)
+  const setPaidExact = async (value, kind, traceAmount) => {
+    if (!supabase || !selected) return;
+    const total   = Number(selected.final_price || 0);
+    const newPaid = Math.max(0, Math.round(Number(value)));
     setBusy('pay');
-    // 1) trace dans payments
-    await supabase.from('payments').insert({
-      booking_id: selected.id, amount, method: 'cash', status: 'confirmed',
-      is_deposit: kind === 'acompte', paid_at: new Date().toISOString(),
-    });
-    // 2) maj du booking (paid_amount + payment_status)
-    const newPaid = paid + amount;
+    // Trace le mouvement dans payments (montant signé si fourni)
+    if (traceAmount) {
+      await supabase.from('payments').insert({
+        booking_id: selected.id, amount: Math.abs(traceAmount), method: 'cash',
+        status: traceAmount > 0 ? 'confirmed' : 'refunded',
+        is_deposit: kind === 'acompte', paid_at: new Date().toISOString(),
+        notes: traceAmount < 0 ? 'Correction (diminution)' : null,
+      });
+    }
     const pStatus = total > 0 && newPaid >= total ? 'PAID' : newPaid > 0 ? 'PARTIAL' : 'PENDING';
     await patchBooking({ paid_amount: newPaid, payment_status: pStatus });
+    setPaidEdit(String(newPaid));
     setBusy('');
-    toast.success(`${kind === 'acompte' ? 'Acompte' : 'Solde'} de ${amount}€ enregistré`);
+    toast.success('Paiement mis à jour');
   };
 
   const genContract = async () => {
@@ -538,14 +553,31 @@ export default function BookingsPage() {
                             <span className="text-amber-400"> · reste {Number(selected.final_price || 0) - Number(selected.paid_amount || 0)}€</span>}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button onClick={() => addPayment('acompte')} disabled={busy === 'pay'}
+                      <div className="grid grid-cols-2 gap-2 mb-2">
+                        <button onClick={() => adjustPayment(1, 'acompte')} disabled={busy === 'pay'}
                           className="flex items-center justify-center gap-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-sm font-semibold py-2 rounded-xl border border-emerald-500/20">
                           <Plus size={13} />Acompte
                         </button>
-                        <button onClick={() => addPayment('solde')} disabled={busy === 'pay'}
+                        <button onClick={() => adjustPayment(1, 'solde')} disabled={busy === 'pay'}
                           className="flex items-center justify-center gap-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-sm font-semibold py-2 rounded-xl border border-emerald-500/20">
                           <Plus size={13} />Solde
+                        </button>
+                      </div>
+                      {/* Total payé éditable — corriger en + ou en − */}
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => adjustPayment(-1, 'correction')} disabled={busy === 'pay'}
+                          className="flex items-center justify-center bg-red-500/15 hover:bg-red-500/25 text-red-400 w-9 h-9 rounded-xl border border-red-500/20" title="Retirer un montant">
+                          <Minus size={14} />
+                        </button>
+                        <div className="flex items-center gap-1 flex-1 bg-[#252525] rounded-xl px-3 py-1.5">
+                          <span className="text-white/35 text-xs">Total payé</span>
+                          <input type="number" value={paidEdit} onChange={e => setPaidEdit(e.target.value)}
+                            className="bg-transparent text-white text-sm w-full text-right outline-none font-semibold" />
+                          <span className="text-white/40 text-xs">€</span>
+                        </div>
+                        <button onClick={() => setPaidExact(Number(paidEdit), 'correction', Number(paidEdit) - Number(selected.paid_amount || 0))} disabled={busy === 'pay'}
+                          className="flex items-center justify-center gap-1 bg-white/[0.06] hover:bg-white/[0.1] text-white/80 px-3 h-9 rounded-xl text-xs font-semibold" title="Fixer le total payé">
+                          <Save size={13} />Fixer
                         </button>
                       </div>
                     </div>
@@ -575,6 +607,10 @@ export default function BookingsPage() {
                             className="w-full flex items-center justify-center gap-2 bg-[#25D366]/90 hover:bg-[#25D366] text-white font-semibold py-2.5 rounded-xl text-sm">
                             <MessageCircle size={14} />Envoyer le contrat au client
                           </button>
+                          <a href={`${contractLink}/contrat`} target="_blank" rel="noopener noreferrer"
+                            className="w-full flex items-center justify-center gap-2 bg-blue-500/15 hover:bg-blue-500/25 text-blue-400 font-semibold py-2.5 rounded-xl text-sm border border-blue-500/20">
+                            <FileText size={14} />Télécharger le contrat (PDF)
+                          </a>
                         </div>
                       )}
                     </div>
