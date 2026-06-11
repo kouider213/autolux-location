@@ -5,6 +5,7 @@ import { ChevronDown, MessageCircle, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
+import { useTranslated } from '../lib/autoTranslate';
 import { useSettings, waNumber } from '../lib/settings';
 import { getFaq, DEFAULT_FAQ } from '../lib/faq';
 
@@ -16,8 +17,13 @@ export default function FaqPage() {
 
   useEffect(() => { getFaq().then(setFaq); }, []);
 
-  const q = (item) => (lang === 'ar' ? (item.question_ar || item.question_fr) : (item.question_fr || item.question_ar)) || '';
-  const a = (item) => (lang === 'ar' ? (item.answer_ar || item.answer_fr) : (item.answer_fr || item.answer_ar)) || '';
+  // Sources : arabe humain si présent (pour 'ar'), sinon français → traduit auto vers la langue courante
+  const srcQ = faq.map((it) => (lang === 'ar' ? (it.question_ar || it.question_fr) : (it.question_fr || it.question_ar)) || '');
+  const srcA = faq.map((it) => (lang === 'ar' ? (it.answer_ar || it.answer_fr) : (it.answer_fr || it.answer_ar)) || '');
+  const trQ = useTranslated(srcQ);
+  const trA = useTranslated(srcA);
+  const q = (_item, i) => trQ[i] ?? srcQ[i] ?? '';
+  const a = (_item, i) => trA[i] ?? srcA[i] ?? '';
 
   return (
     <>
@@ -49,12 +55,12 @@ export default function FaqPage() {
                 <div key={item.id ?? i} className="card-dark overflow-hidden">
                   <button onClick={() => setOpen(isOpen ? -1 : i)}
                     className="w-full flex items-center justify-between gap-4 p-5 text-start">
-                    <span className="text-white font-semibold text-sm md:text-base">{q(item)}</span>
+                    <span className="text-white font-semibold text-sm md:text-base">{q(item, i)}</span>
                     <ChevronDown size={18} className={`text-gold-400 flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
                   </button>
                   <div className={`grid transition-all duration-300 ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                     <div className="overflow-hidden">
-                      <p className="text-white/55 text-sm leading-relaxed px-5 pb-5">{a(item)}</p>
+                      <p className="text-white/55 text-sm leading-relaxed px-5 pb-5">{a(item, i)}</p>
                     </div>
                   </div>
                 </div>
