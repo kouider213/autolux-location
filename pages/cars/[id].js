@@ -9,10 +9,12 @@ import Lightbox from '../../components/Lightbox';
 import ShareButtons from '../../components/ShareButtons';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
+import { useTranslated } from '../../lib/autoTranslate';
 import { useSettings, waNumber } from '../../lib/settings';
 
 export default function CarDetail({ car, photos: initialPhotos }) {
   const { t } = useLang();
+  const descTr = useTranslated(car?.description || '');
   const settings = useSettings();
   const WHATSAPP = waNumber(settings);
   const availMode = settings.availability_mode !== false; // ON par défaut (safe)
@@ -225,7 +227,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
               {car.description && (
                 <div className="bg-[#141414] border border-white/[0.06] rounded-xl p-5">
                   <h2 className="text-gold-500 font-semibold text-sm mb-3 font-body tracking-wide uppercase">{t("d.about")}</h2>
-                  <p className="text-white/55 leading-relaxed text-sm font-body">{car.description}</p>
+                  <p className="text-white/55 leading-relaxed text-sm font-body">{descTr || car.description}</p>
                 </div>
               )}
 

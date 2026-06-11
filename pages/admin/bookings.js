@@ -138,12 +138,16 @@ export default function BookingsPage() {
   const [busy, setBusy]         = useState('');
   const [contractLink, setLink] = useState('');
   const [inspectOpen, setInspectOpen] = useState(false);
+  const [bDocs, setBDocs] = useState(null);
 
-  // Sync champs édition quand on ouvre une résa
+  // Sync champs édition quand on ouvre une résa + charge documents (contrat/photos)
   useEffect(() => {
     if (selected) {
       setEdit({ start: selected.start_date || '', end: selected.end_date || '', price: selected.final_price ?? '' });
       setLink('');
+      setBDocs(null);
+      fetch(`/api/booking-documents?id=${selected.id}`)
+        .then(r => r.json()).then(d => { if (d?.ok) setBDocs(d); }).catch(() => {});
     }
   }, [selected?.id]);
 
@@ -607,10 +611,44 @@ export default function BookingsPage() {
                             className="w-full flex items-center justify-center gap-2 bg-[#25D366]/90 hover:bg-[#25D366] text-white font-semibold py-2.5 rounded-xl text-sm">
                             <MessageCircle size={14} />Envoyer le contrat au client
                           </button>
-                          <a href={`${contractLink}/contrat`} target="_blank" rel="noopener noreferrer"
-                            className="w-full flex items-center justify-center gap-2 bg-blue-500/15 hover:bg-blue-500/25 text-blue-400 font-semibold py-2.5 rounded-xl text-sm border border-blue-500/20">
-                            <FileText size={14} />Télécharger le contrat (PDF)
-                          </a>
+                        </div>
+                      )}
+
+                      {/* État du contrat + documents reçus (passeport / permis) */}
+                      {bDocs?.contract && (
+                        <div className="mt-3 bg-[#181818] border border-white/[0.06] rounded-xl p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-semibold flex items-center gap-1.5">
+                              {bDocs.contract.signed
+                                ? <><Check size={13} className="text-emerald-400" /><span className="text-emerald-400">Contrat validé</span></>
+                                : <><FileSignature size={13} className="text-amber-400" /><span className="text-amber-400">En attente de validation</span></>}
+                            </span>
+                            {bDocs.contract.signedAt && <span className="text-white/30 text-[10px]">{new Date(bDocs.contract.signedAt).toLocaleDateString('fr-FR')}</span>}
+                          </div>
+                          {(bDocs.contract.passportUrl || bDocs.contract.permitUrl) ? (
+                            <div className="grid grid-cols-2 gap-2 mb-2">
+                              {bDocs.contract.passportUrl && (
+                                <a href={bDocs.contract.passportUrl} target="_blank" rel="noopener noreferrer" className="block">
+                                  <img src={bDocs.contract.passportUrl} alt="Passeport" className="w-full h-24 object-cover rounded-lg border border-white/10" />
+                                  <p className="text-white/40 text-[10px] text-center mt-1">Passeport</p>
+                                </a>
+                              )}
+                              {bDocs.contract.permitUrl && (
+                                <a href={bDocs.contract.permitUrl} target="_blank" rel="noopener noreferrer" className="block">
+                                  <img src={bDocs.contract.permitUrl} alt="Permis" className="w-full h-24 object-cover rounded-lg border border-white/10" />
+                                  <p className="text-white/40 text-[10px] text-center mt-1">Permis</p>
+                                </a>
+                              )}
+                            </div>
+                          ) : bDocs.contract.signed ? null : (
+                            <p className="text-white/30 text-[11px] mb-2">Le client n'a pas encore envoyé ses pièces.</p>
+                          )}
+                          {bDocs.contract.pdfLink && (
+                            <a href={bDocs.contract.pdfLink} target="_blank" rel="noopener noreferrer"
+                              className="w-full flex items-center justify-center gap-2 bg-blue-500/15 hover:bg-blue-500/25 text-blue-400 font-semibold py-2.5 rounded-xl text-sm border border-blue-500/20">
+                              <FileText size={14} />Télécharger le contrat (PDF)
+                            </a>
+                          )}
                         </div>
                       )}
                     </div>

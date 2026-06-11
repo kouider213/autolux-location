@@ -62,18 +62,23 @@ export default async function handler(req, res) {
   // 4. Contrat / signature électronique
   const { data: sigs } = await admin
     .from('contract_signatures')
-    .select('status, signature_url, signed_at, token, created_at')
+    .select('status, signature_url, signed_at, token, created_at, details')
     .eq('booking_id', id)
     .order('created_at', { ascending: false });
   // La page de signature /sign/:token est servie par le backend Dzaryx (Railway),
   // avec bascule sur le backup Render si besoin.
   const BACKEND = (process.env.IBRAHIM_BACKEND_URL || 'https://ibrahim-backend-production.up.railway.app').replace(/\/$/, '');
   const sig = (sigs && sigs[0]) || null;
+  const det = sig?.details || {};
   const contract = sig ? {
     status:        sig.status,                    // 'pending' | 'signed'
     signed:        sig.status === 'signed',
+    token:         sig.token || null,
     signatureUrl:  sig.signature_url || null,
+    passportUrl:   det.passport_url || null,
+    permitUrl:     det.permit_url || null,
     signedAt:      sig.signed_at || null,
+    pdfLink:       sig.token ? `${BACKEND}/sign/${sig.token}/contrat` : null,
     signLink:      sig.status === 'signed' ? null : (sig.token ? `${BACKEND}/sign/${sig.token}` : null),
   } : null;
 

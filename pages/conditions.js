@@ -5,7 +5,10 @@ import { AlertTriangle, ArrowRight, MessageCircle } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
+import { useTranslated } from '../lib/autoTranslate';
 import { getConditions, DEFAULT_CONDITIONS } from '../lib/conditions';
+
+const SECS = ['rental', 'sale', 'immo', 'owner'];
 
 const SECTION_STYLE = {
   rental: { titleKey: 'cd.sec_rental', dot: 'bg-gold-500',    bullet: 'bg-gold-500/60' },
@@ -20,8 +23,15 @@ export default function ConditionsPage() {
 
   useEffect(() => { getConditions().then(setCond); }, []);
 
-  const pick = (item) => (lang === 'ar' ? (item.text_ar || item.text_fr) : (item.text_fr || item.text_ar)) || '';
-  const intro = (cond.intro && cond.intro[0]) ? pick(cond.intro[0]) : t('cd.intro_d');
+  // Source : arabe humain si présent, sinon français → traduit auto vers la langue courante
+  const pickSrc = (item) => (lang === 'ar' ? (item.text_ar || item.text_fr) : (item.text_fr || item.text_ar)) || '';
+  const introSrc = (cond.intro && cond.intro[0]) ? pickSrc(cond.intro[0]) : t('cd.intro_d');
+  const flat = [introSrc];
+  const offsets = {};
+  SECS.forEach((s) => { offsets[s] = flat.length; (cond[s] || []).forEach((it) => flat.push(pickSrc(it))); });
+  const tr = useTranslated(flat);
+  const intro = tr[0] ?? introSrc;
+  const condText = (secKey, i) => tr[offsets[secKey] + i] ?? '';
 
   return (
     <>
@@ -65,7 +75,7 @@ export default function ConditionsPage() {
             </div>
 
             {/* Sections (éditables depuis l'admin) */}
-            {['rental', 'sale', 'immo', 'owner'].map(secKey => {
+            {SECS.map(secKey => {
               const items = cond[secKey] || [];
               if (items.length === 0) return null;
               const st = SECTION_STYLE[secKey];
@@ -79,7 +89,7 @@ export default function ConditionsPage() {
                       {items.map((item, i) => (
                         <li key={i} className="flex items-start gap-3">
                           <span className={`mt-1.5 w-1.5 h-1.5 ${st.bullet} rounded-full flex-shrink-0`} />
-                          <span className="text-white/55 text-sm leading-relaxed">{pick(item)}</span>
+                          <span className="text-white/55 text-sm leading-relaxed">{condText(secKey, i)}</span>
                         </li>
                       ))}
                     </ul>

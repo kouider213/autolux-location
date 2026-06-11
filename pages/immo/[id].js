@@ -8,6 +8,7 @@ import Footer from '../../components/Footer';
 import Lightbox from '../../components/Lightbox';
 import ShareButtons from '../../components/ShareButtons';
 import { useLang } from '../../lib/i18n';
+import { useTranslated } from '../../lib/autoTranslate';
 import { useSettings, waNumber } from '../../lib/settings';
 
 const supabaseClient = createClient(
@@ -26,6 +27,7 @@ const STATUS_BADGE = {
 
 export default function PropertyDetail({ property, photos }) {
   const { t } = useLang();
+  const descTr = useTranslated(property?.description || '');
   const WHATSAPP = waNumber(useSettings());
   const [active, setActive] = useState(0);
   const [lb, setLb] = useState(false);
@@ -218,7 +220,7 @@ export default function PropertyDetail({ property, photos }) {
               {property.description && (
                 <div>
                   <p className="text-white/25 text-xs uppercase tracking-widest mb-2">{t('d.description')}</p>
-                  <p className="text-white/55 text-sm leading-relaxed whitespace-pre-wrap">{property.description}</p>
+                  <p className="text-white/55 text-sm leading-relaxed whitespace-pre-wrap">{descTr || property.description}</p>
                 </div>
               )}
 
