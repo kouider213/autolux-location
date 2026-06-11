@@ -6,11 +6,12 @@ import { supabase } from '../lib/supabase';
 import { useSettings } from '../lib/settings';
 import {
   LayoutDashboard, Car, CalendarCheck, Users, Star,
-  BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag, Settings, FileText, HelpCircle, Newspaper, Package,
+  BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag, Settings, FileText, HelpCircle, Newspaper, Package, CalendarRange,
 } from 'lucide-react';
 
 const NAV = [
   { href: '/admin',             label: 'Dashboard',          icon: LayoutDashboard },
+  { href: '/admin/planning',    label: 'Planning flotte',    icon: CalendarRange },
   { href: '/admin/analytics',   label: 'Analytics',          icon: BarChart3 },
   { href: '/admin/bookings',    label: 'Réservations',       icon: CalendarCheck },
   { href: '/admin/clients',     label: 'Clients',            icon: Users },

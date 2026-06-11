@@ -2,11 +2,15 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Car, Calendar, Check, Clock, X, MessageCircle, Home, Phone } from 'lucide-react';
+import { Car, Calendar, Check, Clock, X, MessageCircle, Home, Phone, FileSignature, Camera, Wallet, ShieldCheck, AlertTriangle, Download, PenLine } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { supabase } from '../../lib/supabase';
 import { useSettings, waNumber } from '../../lib/settings';
+
+const sevColor = { grave: '#ef4444', moyen: '#f59e0b', leger: '#eab308', aucun: '#22c55e' };
+const curSym = (c) => (c === 'DZD' || c === 'DA' ? 'DA' : '€');
+const money = (n) => Number(n || 0).toLocaleString('fr-FR');
 
 const STEPS = [
   { key: 'PENDING',   label: 'Demande reçue',   icon: Clock },
@@ -31,6 +35,17 @@ export default function SuiviPage() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [docs, setDocs] = useState(null);
+  const [lightbox, setLightbox] = useState(null);
+
+  // Documents client (paiement, état des lieux, contrat) — via API service-role
+  useEffect(() => {
+    if (!id) return;
+    fetch(`/api/booking-documents?id=${id}`)
+      .then(r => r.json())
+      .then(d => { if (d?.ok) setDocs(d); })
+      .catch(() => {});
+  }, [id]);
 
   useEffect(() => {
     if (!id || !supabase) return;
@@ -162,6 +177,130 @@ export default function SuiviPage() {
               </div>
             ))}
           </div>
+
+          {/* ── Paiement ───────────────────────────────────────── */}
+          {docs?.payment && (docs.payment.finalPrice > 0 || docs.payment.totalPaid > 0) && (
+            <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5 mb-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Wallet size={15} className="text-gold-400" />
+                <p className="text-white/70 text-sm font-semibold">Paiement</p>
+              </div>
+              <div className="space-y-2.5 text-sm">
+                {docs.payment.finalPrice > 0 && (
+                  <div className="flex justify-between"><span className="text-white/35">Total location</span>
+                    <span className="text-white font-medium">{money(docs.payment.finalPrice)} {curSym(docs.currency)}</span></div>
+                )}
+                {docs.payment.depositPaid > 0 && (
+                  <div className="flex justify-between"><span className="text-white/35">Acompte versé</span>
+                    <span className="text-emerald-400 font-medium">{money(docs.payment.depositPaid)} {curSym(docs.currency)}</span></div>
+                )}
+                <div className="flex justify-between"><span className="text-white/35">Déjà payé</span>
+                  <span className="text-emerald-400 font-medium">{money(docs.payment.totalPaid)} {curSym(docs.currency)}</span></div>
+                {docs.payment.remaining !== null && (
+                  <div className="flex justify-between pt-2.5 border-t border-white/[0.06]">
+                    <span className="text-white/50 font-semibold">Reste à payer</span>
+                    <span className={`font-bold ${docs.payment.remaining > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                      {docs.payment.remaining > 0 ? `${money(docs.payment.remaining)} ${curSym(docs.currency)}` : 'Soldé ✓'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── Contrat / signature électronique ───────────────── */}
+          {docs?.contract && (
+            <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5 mb-5">
+              <div className="flex items-center gap-2 mb-4">
+                <FileSignature size={15} className="text-gold-400" />
+                <p className="text-white/70 text-sm font-semibold">Contrat de location</p>
+              </div>
+              {docs.contract.signed ? (
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
+                    <ShieldCheck size={16} className="text-emerald-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-emerald-400 text-sm font-semibold">Contrat signé</p>
+                    {docs.contract.signedAt && (
+                      <p className="text-white/30 text-xs">le {new Date(docs.contract.signedAt).toLocaleDateString('fr-FR')}</p>
+                    )}
+                  </div>
+                  {docs.contract.signatureUrl && (
+                    <a href={docs.contract.signatureUrl} target="_blank" rel="noopener noreferrer"
+                      className="text-white/40 hover:text-gold-400 p-2"><Download size={16} /></a>
+                  )}
+                </div>
+              ) : docs.contract.signLink ? (
+                <a href={docs.contract.signLink} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full bg-gold-500 hover:bg-gold-400 text-noir-950 font-semibold py-3 rounded-xl transition-colors">
+                  <PenLine size={16} />Signer mon contrat
+                </a>
+              ) : (
+                <p className="text-white/30 text-sm">En attente de préparation par notre équipe.</p>
+              )}
+            </div>
+          )}
+
+          {/* ── État des lieux avant / après (photos + dégâts) ──── */}
+          {docs?.inspections?.length > 0 && (
+            <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5 mb-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Camera size={15} className="text-gold-400" />
+                <p className="text-white/70 text-sm font-semibold">État des lieux</p>
+              </div>
+              <div className="space-y-5">
+                {docs.inspections.map((insp, ix) => (
+                  <div key={ix}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-white/40">
+                        {insp.type === 'after' ? 'Au retour' : 'Au départ'}
+                      </span>
+                      {insp.accident && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md">
+                          <AlertTriangle size={10} /> Accident signalé
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {insp.photos.map((url, pi) => (
+                        <button key={pi} onClick={() => setLightbox(url)}
+                          className="relative aspect-[4/3] rounded-xl overflow-hidden border border-white/[0.06] group">
+                          <img src={url} alt={`État ${insp.type}`} className="w-full h-full object-cover" />
+                          {/* Marqueurs dégâts (boîtes normalisées 0..1) */}
+                          {insp.boxes.filter(b => (b.photo_index ?? 0) === pi).map((b, bi) => b.box && (
+                            <span key={bi} className="absolute border-2 rounded"
+                              style={{
+                                left: `${b.box.x * 100}%`, top: `${b.box.y * 100}%`,
+                                width: `${b.box.w * 100}%`, height: `${b.box.h * 100}%`,
+                                borderColor: sevColor[b.severity] || '#f59e0b',
+                              }} />
+                          ))}
+                        </button>
+                      ))}
+                    </div>
+                    {insp.damages.length > 0 && (
+                      <ul className="mt-2 space-y-1">
+                        {insp.damages.slice(0, 5).map((d, di) => (
+                          <li key={di} className="text-white/40 text-xs flex gap-1.5"><span className="text-amber-400">•</span>{d}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <p className="text-white/20 text-[11px] mt-4 text-center">Photos prises et analysées par Fik Conciergerie — transparence garantie.</p>
+            </div>
+          )}
+
+          {/* Lightbox plein écran */}
+          {lightbox && (
+            <div onClick={() => setLightbox(null)}
+              className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" role="dialog">
+              <img src={lightbox} alt="" className="max-h-[85vh] max-w-full rounded-xl" />
+              <button className="absolute top-5 right-5 text-white/70 p-2"><X size={24} /></button>
+            </div>
+          )}
 
           {/* Contact */}
           <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(whatsappMsg)}`}
