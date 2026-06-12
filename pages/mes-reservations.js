@@ -4,18 +4,27 @@ import { useState } from 'react';
 import { Phone, Search, Loader2, Car, ArrowRight, Star, RefreshCw } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useLang } from '../lib/i18n';
 
-const STATUS = {
-  PENDING:   { label: 'En attente',  cls: 'bg-amber-500/15 text-amber-400' },
-  ACCEPTED:  { label: 'Confirmée',   cls: 'bg-emerald-500/15 text-emerald-400' },
-  CONFIRMED: { label: 'Confirmée',   cls: 'bg-emerald-500/15 text-emerald-400' },
-  ACTIVE:    { label: 'En cours',    cls: 'bg-blue-500/15 text-blue-400' },
-  COMPLETED: { label: 'Terminée',    cls: 'bg-white/10 text-white/50' },
-  REJECTED:  { label: 'Refusée',     cls: 'bg-red-500/15 text-red-400' },
+const STATUS_CLS = {
+  PENDING:   'bg-amber-500/15 text-amber-400',
+  ACCEPTED:  'bg-emerald-500/15 text-emerald-400',
+  CONFIRMED: 'bg-emerald-500/15 text-emerald-400',
+  ACTIVE:    'bg-blue-500/15 text-blue-400',
+  COMPLETED: 'bg-white/10 text-white/50',
+  REJECTED:  'bg-red-500/15 text-red-400',
+};
+const STATUS_LABEL = {
+  fr: { PENDING: 'En attente', ACCEPTED: 'Confirmée', CONFIRMED: 'Confirmée', ACTIVE: 'En cours', COMPLETED: 'Terminée', REJECTED: 'Refusée' },
+  ar: { PENDING: 'قيد الانتظار', ACCEPTED: 'مؤكَّدة', CONFIRMED: 'مؤكَّدة', ACTIVE: 'جارية', COMPLETED: 'منتهية', REJECTED: 'مرفوضة' },
+  en: { PENDING: 'Pending', ACCEPTED: 'Confirmed', CONFIRMED: 'Confirmed', ACTIVE: 'Ongoing', COMPLETED: 'Completed', REJECTED: 'Declined' },
 };
 const sym = (c) => (c === 'DZD' || c === 'DA' ? 'DA' : '€');
 
 export default function MesReservations() {
+  const { lang } = useLang();
+  const ar = lang === 'ar', en = lang === 'en';
+  const L = (fr, arT, enT) => (ar ? arT : en ? enT : fr);
   const [phone, setPhone]   = useState('');
   const [list, setList]     = useState(null);
   const [loading, setLoad]  = useState(false);
@@ -37,27 +46,28 @@ export default function MesReservations() {
   return (
     <>
       <Head>
-        <title>Mes réservations — Fik Conciergerie</title>
-        <meta name="description" content="Retrouvez vos réservations Fik Conciergerie avec votre numéro de téléphone." />
+        <title>{L('Mes réservations', 'حجوزاتي', 'My bookings')} — Fik Conciergerie</title>
+        <meta name="description" content={L('Retrouvez vos réservations Fik Conciergerie.', 'تتبّع حجوزاتك لدى Fik Conciergerie.', 'Track your Fik Conciergerie bookings.')} />
       </Head>
-      <div className="grain min-h-screen bg-[#0e0e0e]">
+      <div className="grain min-h-screen bg-[#0e0e0e]" dir={ar ? 'rtl' : 'ltr'}>
         <Navbar />
         <div className="pt-28 pb-20 px-5 max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <span className="section-badge mb-4 inline-block">Espace client</span>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-white mb-2">Mes réservations</h1>
-            <p className="text-white/40 text-sm">Entrez votre <b className="text-white/70">numéro de réservation</b>, votre <b className="text-white/70">email</b> ou votre <b className="text-white/70">téléphone</b>.</p>
+            <span className="section-badge mb-4 inline-block">{L('Espace client', 'فضاء العميل', 'Client area')}</span>
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-white mb-2">{L('Mes réservations', 'حجوزاتي', 'My bookings')}</h1>
+            <p className="text-white/40 text-sm">{L(<>Entrez votre <b className="text-white/70">numéro de réservation</b>, votre <b className="text-white/70">email</b> ou votre <b className="text-white/70">téléphone</b>.</>, <>أدخل <b className="text-white/70">رقم الحجز</b> أو <b className="text-white/70">البريد الإلكتروني</b> أو <b className="text-white/70">الهاتف</b>.</>, <>Enter your <b className="text-white/70">booking number</b>, <b className="text-white/70">email</b> or <b className="text-white/70">phone</b>.</>)}</p>
           </div>
 
           <div className="flex gap-2 mb-8">
             <div className="relative flex-1">
-              <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
+              <Search size={15} className={`absolute ${ar ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-white/25 pointer-events-none`} />
               <input value={phone} onChange={e => setPhone(e.target.value)} onKeyDown={e => e.key === 'Enter' && search()}
-                placeholder="N° réservation, email ou téléphone…"
-                className="input-dark w-full pl-10 py-3 text-sm" />
+                placeholder={L('N° réservation, email ou téléphone…', 'رقم الحجز أو البريد أو الهاتف…', 'Booking no., email or phone…')}
+                dir={ar ? 'rtl' : 'ltr'}
+                className={`input-dark w-full ${ar ? 'pr-10 pl-4 text-right' : 'pl-10 pr-4'} py-3 text-sm`} />
             </div>
-            <button onClick={search} disabled={loading}
-              className="btn-gold px-5 flex items-center gap-2">
+            <button onClick={search} disabled={loading} aria-label={L('Rechercher', 'بحث', 'Search')}
+              className="btn-gold px-5 shrink-0 flex items-center justify-center min-w-[52px]">
               {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
             </button>
           </div>
@@ -66,14 +76,15 @@ export default function MesReservations() {
             list.length === 0 ? (
               <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-10 text-center">
                 <Car size={28} className="text-white/15 mx-auto mb-3" />
-                <p className="text-white/40 text-sm mb-1">Aucune réservation trouvée pour ce numéro.</p>
-                <p className="text-white/25 text-xs">Vérifiez le numéro, ou <Link href="/reservation" className="text-gold-400">réservez maintenant</Link>.</p>
+                <p className="text-white/40 text-sm mb-1">{L('Aucune réservation trouvée.', 'لم يُعثر على أي حجز.', 'No booking found.')}</p>
+                <p className="text-white/25 text-xs">{L('Vérifiez vos infos, ou ', 'تحقّق من معلوماتك، أو ', 'Check your info, or ')}<Link href="/reservation" className="text-gold-400">{L('réservez maintenant', 'احجز الآن', 'book now')}</Link>.</p>
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-white/30 text-xs">{list.length} réservation{list.length > 1 ? 's' : ''}</p>
+                <p className="text-white/30 text-xs">{list.length} {L(list.length > 1 ? 'réservations' : 'réservation', 'حجز', list.length > 1 ? 'bookings' : 'booking')}</p>
                 {list.map(b => {
-                  const st = STATUS[b.status] || { label: b.status, cls: 'bg-white/10 text-white/40' };
+                  const stCls = STATUS_CLS[b.status] || 'bg-white/10 text-white/40';
+                  const stLabel = (STATUS_LABEL[lang] || STATUS_LABEL.fr)[b.status] || b.status;
                   return (
                     <div key={b.id} className="bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden">
                       <div className="flex">
@@ -81,23 +92,23 @@ export default function MesReservations() {
                         <div className="flex-1 p-4">
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <p className="text-white font-semibold text-sm">{b.car}</p>
-                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${st.cls}`}>{st.label}</span>
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${stCls}`}>{stLabel}</span>
                           </div>
-                          <p className="text-white/30 text-[10px] font-mono mb-1">N° {b.ref}</p>
+                          <p className="text-white/30 text-[10px] font-mono mb-1">{L('N°', 'رقم', 'No.')} {b.ref}</p>
                           <p className="text-white/40 text-xs mb-1">{b.start} → {b.end}</p>
                           {b.total ? <p className="text-gold-400 text-sm font-bold">{Number(b.total).toLocaleString('fr-FR')} {sym(b.currency)}</p> : null}
                           <div className="flex flex-wrap gap-2 mt-3">
                             <Link href={`/suivi/${b.id}`} className="inline-flex items-center gap-1 text-xs font-semibold bg-white/[0.06] hover:bg-white/[0.1] text-white/70 px-3 py-1.5 rounded-lg">
-                              Suivi <ArrowRight size={12} />
+                              {L('Suivi', 'تتبّع', 'Track')} <ArrowRight size={12} />
                             </Link>
                             {b.status === 'COMPLETED' && (
                               <Link href={`/avis/${b.id}`} className="inline-flex items-center gap-1 text-xs font-semibold bg-amber-500/15 text-amber-400 px-3 py-1.5 rounded-lg">
-                                <Star size={11} />Laisser un avis
+                                <Star size={11} />{L('Laisser un avis', 'اترك تقييماً', 'Leave a review')}
                               </Link>
                             )}
                             {['COMPLETED', 'REJECTED'].includes(b.status) && (
                               <Link href="/reservation" className="inline-flex items-center gap-1 text-xs font-semibold bg-gold-500/15 text-gold-400 px-3 py-1.5 rounded-lg">
-                                <RefreshCw size={11} />Re-réserver
+                                <RefreshCw size={11} />{L('Re-réserver', 'احجز مجدداً', 'Re-book')}
                               </Link>
                             )}
                           </div>

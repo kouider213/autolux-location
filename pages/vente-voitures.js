@@ -1,12 +1,13 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Tag, Fuel, Gauge, Calendar, MapPin, Search, X, ArrowRight, Star, MessageCircle } from 'lucide-react';
+import { Tag, Fuel, Gauge, Calendar, MapPin, Search, X, ArrowRight, Star, MessageCircle, Heart } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
+import { useFavorites } from '../lib/favorites';
 
 const STATUS_BADGE = {
   disponible:  { label: '● Disponible', cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/25' },
@@ -20,6 +21,7 @@ const cur = (c) => c === 'DZD' ? 'DA' : '€';
 function VehicleCard({ v }) {
   const { t } = useLang();
   const WHATSAPP = waNumber(useSettings());
+  const { isFav, toggle } = useFavorites();
   const photos = (v.vehicle_sale_photos || []).sort((a, b) => a.position - b.position).map(p => p.url);
   if (v.image_url && !photos.includes(v.image_url)) photos.unshift(v.image_url);
   const photo = photos[0];
@@ -50,6 +52,11 @@ function VehicleCard({ v }) {
             {v.fuel && <span className="flex items-center gap-1 text-white/35 text-xs"><Fuel size={10} /> {v.fuel}</span>}
           </div>
         </div>
+        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(v.id, 'vente'); }}
+          aria-label="Favori"
+          className={`absolute bottom-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center border transition-all ${isFav(v.id, 'vente') ? 'bg-red-500/90 border-red-400 text-white' : 'bg-black/40 border-white/20 text-white/70 hover:text-white backdrop-blur-md'}`}>
+          <Heart size={15} className={isFav(v.id, 'vente') ? 'fill-current' : ''} />
+        </button>
       </Link>
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-baseline gap-1">

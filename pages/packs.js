@@ -1,12 +1,13 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Package, Car, Building2, Home, Waves, UserCheck, Search, X, ArrowRight, Star, MessageCircle, Sparkles } from 'lucide-react';
+import { Package, Car, Building2, Home, Waves, UserCheck, Search, X, ArrowRight, Star, MessageCircle, Sparkles, Heart } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
+import { useFavorites } from '../lib/favorites';
 
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
@@ -45,6 +46,7 @@ const priceLabel = (p, lang) => {
 
 function PackCard({ p, lang }) {
   const WHATSAPP = waNumber(useSettings());
+  const { isFav, toggle } = useFavorites();
   const photos = (p.pack_photos || []).sort((a, b) => a.position - b.position).map(x => x.url);
   if (p.image_url && !photos.includes(p.image_url)) photos.unshift(p.image_url);
   const photo = photos[0];
@@ -76,6 +78,11 @@ function PackCard({ p, lang }) {
           <h3 className="text-white font-bold text-xl leading-tight mb-1">{p.title}</h3>
           {p.tagline && <p className="text-white/45 text-xs leading-snug line-clamp-1">{p.tagline}</p>}
         </div>
+        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(p.id, 'pack'); }}
+          aria-label="Favori"
+          className={`absolute bottom-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center border transition-all ${isFav(p.id, 'pack') ? 'bg-red-500/90 border-red-400 text-white' : 'bg-black/40 border-white/20 text-white/70 hover:text-white backdrop-blur-md'}`}>
+          <Heart size={15} className={isFav(p.id, 'pack') ? 'fill-current' : ''} />
+        </button>
       </Link>
 
       <div className="p-4 flex flex-col gap-3 flex-1">

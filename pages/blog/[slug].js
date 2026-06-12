@@ -5,6 +5,7 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ShareButtons from '../../components/ShareButtons';
 import { useLang } from '../../lib/i18n';
+import { useTranslated } from '../../lib/autoTranslate';
 import { useSettings, waNumber } from '../../lib/settings';
 import { getPublishedPosts, getPostBySlug, pickTitle, pickBody, pickExcerpt } from '../../lib/blog';
 
@@ -28,10 +29,9 @@ export default function BlogPost({ post }) {
     );
   }
 
-  const title = pickTitle(post, lang);
-  const body  = pickBody(post, lang);
-  const excerpt = pickExcerpt(post, lang);
-  const isHtml = /<\/?(h2|h3|p|ul|ol|li|strong|em|br)\b/i.test(body);
+  // Traduction auto FR→AR/EN (le blog n'a que FR + AR en base ; EN et AR manquant = auto)
+  const [title, body, excerpt] = useTranslated([pickTitle(post, lang), pickBody(post, lang), pickExcerpt(post, lang)]);
+  const isHtml = /<\/?(h2|h3|p|ul|ol|li|strong|em|br)\b/i.test(body || '');
   const paragraphs = body.split(/\n{2,}/).filter(Boolean);
 
   return (

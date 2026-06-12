@@ -3,13 +3,14 @@ import Link from 'next/link';
 import { useState } from 'react';
 import {
   Building2, MapPin, Maximize, BedDouble, Bath, Search, X, ArrowRight,
-  Star, MessageCircle, Home, Key, TrendingUp, Megaphone, Briefcase, Calculator,
+  Star, MessageCircle, Home, Key, TrendingUp, Megaphone, Briefcase, Calculator, Heart,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
+import { useFavorites } from '../lib/favorites';
 
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
@@ -23,6 +24,7 @@ const STATUS_BADGE = {
 function PropertyCard({ property: p }) {
   const { t } = useLang();
   const WHATSAPP = waNumber(useSettings());
+  const { isFav, toggle } = useFavorites();
   const photos = (p.property_photos || []).sort((a, b) => a.position - b.position).map(ph => ph.url);
   const photo = photos[0];
   const available = (p.status || 'disponible') === 'disponible';
@@ -59,6 +61,11 @@ function PropertyCard({ property: p }) {
             {p.bathrooms && <span className="flex items-center gap-1 text-white/35 text-xs"><Bath size={10} /> {p.bathrooms}</span>}
           </div>
         </div>
+        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(p.id, 'immo'); }}
+          aria-label="Favori"
+          className={`absolute bottom-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center border transition-all ${isFav(p.id, 'immo') ? 'bg-red-500/90 border-red-400 text-white' : 'bg-black/40 border-white/20 text-white/70 hover:text-white backdrop-blur-md'}`}>
+          <Heart size={15} className={isFav(p.id, 'immo') ? 'fill-current' : ''} />
+        </button>
       </Link>
       <div className="p-4 flex items-center justify-between">
         <div>
