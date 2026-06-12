@@ -23,7 +23,7 @@ const PACK_INC_HOME = [
   { key: 'inc_driver',    icon: UserCheck, label: 'Chauffeur',   ar: 'سائق' },
 ];
 const packPriceHome = (p, lang) => {
-  if (!p.price || p.price_type === 'sur_devis') return lang === 'ar' ? 'حسب الطلب' : 'Sur devis';
+  if (!p.price || p.price_type === 'sur_devis') return lang === 'ar' ? 'حسب الطلب' : lang === 'en' ? 'On quote' : 'Sur devis';
   const sym = p.currency === 'EUR' ? '€' : 'DA';
   const suffix = p.price_type === 'jour' ? '/j' : p.price_type === 'semaine' ? '/sem' : '';
   return `${Number(p.price).toLocaleString('fr-FR')} ${sym}${suffix}`;
@@ -774,15 +774,15 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.05) 0%,transparent 65%)' }} />
           <div className="relative z-10 max-w-5xl mx-auto">
             <div className="mb-10">
-              <span className="section-badge mb-5 inline-block">{lang === 'ar' ? 'باقات كل شيء في واحد' : 'Packs tout-en-un'}</span>
+              <span className="section-badge mb-5 inline-block">{lang === 'ar' ? 'باقات كل شيء في واحد' : lang === 'en' ? 'All-in-one packs' : 'Packs tout-en-un'}</span>
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-3">
                 <h2 className="font-display text-4xl md:text-5xl font-bold text-white">
-                  {lang === 'ar' ? 'باقات' : 'Nos'} <span className="text-gold-gradient italic">{lang === 'ar' ? 'الإقامة' : 'Packs séjour'}</span>
+                  {lang === 'ar' ? 'باقات' : lang === 'en' ? 'Our' : 'Nos'} <span className="text-gold-gradient italic">{lang === 'ar' ? 'الإقامة' : lang === 'en' ? 'stay packs' : 'Packs séjour'}</span>
                 </h2>
-                <Link href="/packs" className="btn-outline text-sm py-2.5 self-start">{lang === 'ar' ? 'كل الباقات' : 'Tous les packs'} <ArrowRight size={13} /></Link>
+                <Link href="/packs" className="btn-outline text-sm py-2.5 self-start">{lang === 'ar' ? 'كل الباقات' : lang === 'en' ? 'All packs' : 'Tous les packs'} <ArrowRight size={13} /></Link>
               </div>
               <p className="text-white/35 mt-3 max-w-xl font-body text-sm">
-                {lang === 'ar' ? 'سيارة + سكن + جت سكي + سائق — كل شيء في باقة واحدة.' : 'Voiture, villa, jet ski, chauffeur — tout réuni dans un seul pack clé en main.'}
+                {lang === 'ar' ? 'سيارة + سكن + جت سكي + سائق — كل شيء في باقة واحدة.' : lang === 'en' ? 'Car, villa, jet ski, driver — all in one turnkey pack.' : 'Voiture, villa, jet ski, chauffeur — tout réuni dans un seul pack clé en main.'}
               </p>
             </div>
             {packsAvailable.length > 0 ? (
@@ -802,11 +802,11 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                     <span key={key} className="flex items-center gap-1.5 text-white/50 text-sm font-body"><Icon size={12} className="text-gold-500/60" />{lang === 'ar' ? ar : label}</span>
                   )),
                   price: packPriceHome(p, lang),
-                  cta: lang === 'ar' ? 'اكتشف' : 'Découvrir', ctaIcon: <ArrowRight size={15} />,
+                  cta: lang === 'ar' ? 'اكتشف' : lang === 'en' ? 'Discover' : 'Découvrir', ctaIcon: <ArrowRight size={15} />,
                 };
               }} />
             ) : (
-              <ComingSoon icon={<Package size={32} className="text-gold-400" />} title={lang === 'ar' ? 'باقات قريبا' : 'Packs bientôt'} desc={lang === 'ar' ? 'باقات إقامة مخصصة قريبا.' : 'Des packs séjour clé en main arrivent très bientôt.'} cta={lang === 'ar' ? 'اكتشف' : 'Découvrir'} href="/packs" />
+              <ComingSoon icon={<Package size={32} className="text-gold-400" />} title={lang === 'ar' ? 'باقات قريبا' : lang === 'en' ? 'Packs soon' : 'Packs bientôt'} desc={lang === 'ar' ? 'باقات إقامة مخصصة قريبا.' : lang === 'en' ? 'Turnkey stay packs coming soon.' : 'Des packs séjour clé en main arrivent très bientôt.'} cta={lang === 'ar' ? 'اكتشف' : lang === 'en' ? 'Discover' : 'Découvrir'} href="/packs" />
             )}
           </div>
         </section>

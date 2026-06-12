@@ -36,10 +36,10 @@ const packAvailable = (p) => {
 };
 
 const priceLabel = (p, lang) => {
-  if (!p.price || p.price_type === 'sur_devis') return lang === 'ar' ? 'حسب الطلب' : 'Sur devis';
-  const suffix = p.price_type === 'jour' ? (lang === 'ar' ? '/يوم' : '/jour')
-               : p.price_type === 'semaine' ? (lang === 'ar' ? '/أسبوع' : '/semaine')
-               : (lang === 'ar' ? '/إقامة' : ' /séjour');
+  if (!p.price || p.price_type === 'sur_devis') return lang === 'ar' ? 'حسب الطلب' : lang === 'en' ? 'On quote' : 'Sur devis';
+  const suffix = p.price_type === 'jour' ? (lang === 'ar' ? '/يوم' : lang === 'en' ? '/day' : '/jour')
+               : p.price_type === 'semaine' ? (lang === 'ar' ? '/أسبوع' : lang === 'en' ? '/week' : '/semaine')
+               : (lang === 'ar' ? '/إقامة' : lang === 'en' ? ' /stay' : ' /séjour');
   return `${Number(p.price).toLocaleString()} ${cur(p.currency)}${suffix}`;
 };
 
@@ -68,8 +68,8 @@ function PackCard({ p, lang }) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/30 to-transparent" />
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
           <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-md ${tier.cls}`}>{lang === 'ar' ? tier.ar : tier.label}</span>
-          {p.featured && available && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950 flex items-center gap-1"><Star size={10} className="fill-current" /> {lang === 'ar' ? 'مميز' : 'Populaire'}</span>}
-          {!available && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-red-500/20 text-red-300 border border-red-500/25 backdrop-blur-md ml-auto">{lang === 'ar' ? 'غير متوفر حاليا' : 'Indisponible'}</span>}
+          {p.featured && available && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950 flex items-center gap-1"><Star size={10} className="fill-current" /> {lang === 'ar' ? 'مميز' : lang === 'en' ? 'Popular' : 'Populaire'}</span>}
+          {!available && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-red-500/20 text-red-300 border border-red-500/25 backdrop-blur-md ml-auto">{lang === 'ar' ? 'غير متوفر حاليا' : lang === 'en' ? 'Unavailable' : 'Indisponible'}</span>}
         </div>
         {!available && <div className="absolute inset-0 bg-[#0a0a0a]/55 backdrop-blur-[2px]" />}
         <div className="absolute inset-x-0 bottom-0 p-4">
@@ -135,10 +135,10 @@ export default function PacksPage({ packs }) {
           <div className="absolute top-20 left-1/3 w-72 h-72 bg-gold-500/[0.05] rounded-full blur-[100px] pointer-events-none" />
           <div className="relative max-w-7xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
-              <Sparkles size={11} /> {lang === 'ar' ? 'باقات كل شيء في واحد' : 'Packs tout-en-un'}
+              <Sparkles size={11} /> {lang === 'ar' ? 'باقات كل شيء في واحد' : lang === 'en' ? 'All-in-one packs' : 'Packs tout-en-un'}
             </div>
             <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-none mb-5">
-              {lang === 'ar' ? 'باقات' : 'Nos'} <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{lang === 'ar' ? 'الإقامة' : 'Packs séjour'}</span>
+              {lang === 'ar' ? 'باقات' : lang === 'en' ? 'Our' : 'Nos'} <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{lang === 'ar' ? 'الإقامة' : lang === 'en' ? 'stay packs' : 'Packs séjour'}</span>
             </h1>
             <p className="text-white/35 max-w-xl mx-auto text-base leading-relaxed">
               {lang === 'ar'
@@ -156,22 +156,22 @@ export default function PacksPage({ packs }) {
                 <div className="bg-[#111]/80 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-5 mb-8 space-y-4">
                   <div className="relative">
                     <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
-                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === 'ar' ? 'بحث...' : 'Rechercher un pack...'} className="w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl pl-10 pr-4 py-3 text-white text-sm placeholder-white/25 outline-none transition-colors" />
+                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === 'ar' ? 'بحث...' : lang === 'en' ? 'Search a pack...' : 'Rechercher un pack...'} className="w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl pl-10 pr-4 py-3 text-white text-sm placeholder-white/25 outline-none transition-colors" />
                     {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white"><X size={13} /></button>}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {tierKeys.map(k => (
                       <button key={k} onClick={() => setTier(k)} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${tier === k ? 'bg-gold-500 text-noir-950' : 'bg-white/[0.04] border border-white/[0.07] text-white/40 hover:text-white/70'}`}>
-                        {k === 'Tous' ? (lang === 'ar' ? 'الكل' : 'Tous') : (lang === 'ar' ? TIERS[k].ar : TIERS[k].label)}
+                        {k === 'Tous' ? (lang === 'ar' ? 'الكل' : lang === 'en' ? 'All' : 'Tous') : (lang === 'ar' ? TIERS[k].ar : TIERS[k].label)}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <p className="text-white/25 text-xs font-semibold uppercase tracking-widest mb-6">{filtered.length} {lang === 'ar' ? 'باقة' : 'pack' + (filtered.length > 1 ? 's' : '')}</p>
+                <p className="text-white/25 text-xs font-semibold uppercase tracking-widest mb-6">{filtered.length} {lang === 'ar' ? 'باقة' : (lang === 'en' ? 'pack' : 'pack') + (filtered.length > 1 ? 's' : '')}</p>
 
                 {filtered.length === 0 ? (
-                  <div className="text-center py-24"><Search size={22} className="text-white/15 mx-auto mb-4" /><p className="text-white/35">{lang === 'ar' ? 'لا توجد نتائج' : 'Aucun pack trouvé'}</p></div>
+                  <div className="text-center py-24"><Search size={22} className="text-white/15 mx-auto mb-4" /><p className="text-white/35">{lang === 'ar' ? 'لا توجد نتائج' : lang === 'en' ? 'No pack found' : 'Aucun pack trouvé'}</p></div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {filtered.map(p => <PackCard key={p.id} p={p} lang={lang} />)}
@@ -182,9 +182,9 @@ export default function PacksPage({ packs }) {
               /* Coming soon */
               <div className="text-center py-20 max-w-lg mx-auto">
                 <div className="w-20 h-20 bg-gold-500/[0.08] border border-gold-500/20 rounded-3xl flex items-center justify-center mx-auto mb-7"><Package size={32} className="text-gold-400" /></div>
-                <h2 className="font-display text-3xl font-bold text-white mb-3">{lang === 'ar' ? 'باقات قريبا' : 'Packs bientôt disponibles'}</h2>
-                <p className="text-white/40 leading-relaxed mb-8">{lang === 'ar' ? 'تواصل معنا لتحضير باقة مخصصة لك.' : 'Contactez-nous pour préparer un pack sur mesure selon votre séjour.'}</p>
-                <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(lang === 'ar' ? 'مرحبا، أنا مهتم بباقات الإقامة.' : 'Bonjour, je suis intéressé(e) par vos packs séjour.')}`} target="_blank" rel="noopener noreferrer" className="btn-gold px-8 py-3.5 text-sm inline-flex items-center gap-2"><MessageCircle size={15} /> {lang === 'ar' ? 'تواصل واتساب' : 'Contacter sur WhatsApp'}</a>
+                <h2 className="font-display text-3xl font-bold text-white mb-3">{lang === 'ar' ? 'باقات قريبا' : lang === 'en' ? 'Packs coming soon' : 'Packs bientôt disponibles'}</h2>
+                <p className="text-white/40 leading-relaxed mb-8">{lang === 'ar' ? 'تواصل معنا لتحضير باقة مخصصة لك.' : lang === 'en' ? 'Contact us to prepare a custom pack for your stay.' : 'Contactez-nous pour préparer un pack sur mesure selon votre séjour.'}</p>
+                <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(lang === 'ar' ? 'مرحبا، أنا مهتم بباقات الإقامة.' : lang === 'en' ? 'Hello, I am interested in your stay packs.' : 'Bonjour, je suis intéressé(e) par vos packs séjour.')}`} target="_blank" rel="noopener noreferrer" className="btn-gold px-8 py-3.5 text-sm inline-flex items-center gap-2"><MessageCircle size={15} /> {lang === 'ar' ? 'تواصل واتساب' : lang === 'en' ? 'Contact on WhatsApp' : 'Contacter sur WhatsApp'}</a>
               </div>
             )}
           </div>
