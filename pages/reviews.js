@@ -1,7 +1,7 @@
 ﻿import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { Star, MessageSquarePlus, Check, Loader2 } from 'lucide-react';
+import { Star, MessageSquarePlus, Check, Loader2, ShieldCheck } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
@@ -121,7 +121,14 @@ export default function ReviewsPage({ reviews: initialReviews }) {
                         <span className="text-gold-400 font-bold text-sm">{review.client_name?.[0]?.toUpperCase()}</span>
                       </div>
                       <div>
-                        <p className="text-white font-medium text-sm">{review.client_name}</p>
+                        <p className="text-white font-medium text-sm flex items-center gap-1.5">
+                          {review.client_name}
+                          {review.verified && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md">
+                              <ShieldCheck size={9} />Vérifié
+                            </span>
+                          )}
+                        </p>
                         {review.created_at && (
                           <p className="text-white/25 text-xs">
                             {new Date(review.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}

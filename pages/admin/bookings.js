@@ -5,7 +5,7 @@ import AdminLayout from '../../components/AdminLayout';
 import InspectionTool from '../../components/InspectionTool';
 import { supabase } from '../../lib/supabase';
 import { generateContract } from '../../lib/pdf';
-import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck, Wallet, FileSignature, Save, Plus, Minus, Copy, Loader2, Camera } from 'lucide-react';
+import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck, Wallet, FileSignature, Save, Plus, Minus, Copy, Loader2, Camera, Star } from 'lucide-react';
 
 const STATUS_FLOW = ['PENDING', 'ACCEPTED', 'ACTIVE', 'COMPLETED', 'REJECTED'];
 const STATUS_FR = { PENDING: 'En attente', ACCEPTED: 'Confirmée', ACTIVE: 'En cours', COMPLETED: 'Terminée', REJECTED: 'Refusée' };
@@ -245,6 +245,16 @@ export default function BookingsPage() {
     if (!contractLink || !selected) return;
     const phone = selected.client_phone?.replace(/\D/g, '');
     const msg = `Bonjour ${selected.client_name}, voici votre contrat de location ${selected.cars?.name || ''} à lire et signer en ligne :\n${contractLink}\n\nMerci — Fik Conciergerie`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  // Demande d'avis vérifié au client (lien /avis/[id]) via WhatsApp
+  const requestReview = () => {
+    if (!selected) return;
+    const phone = selected.client_phone?.replace(/\D/g, '');
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://fikconciergerie.com';
+    const link = `${origin}/avis/${selected.id}`;
+    const msg = `Bonjour ${selected.client_name}, merci d'avoir choisi Fik Conciergerie ! 🙏\nVotre avis nous aiderait beaucoup — il prend 30 secondes :\n${link}`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -712,6 +722,12 @@ export default function BookingsPage() {
                     className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white font-bold py-3 rounded-xl transition-all shadow-[0_4px_16px_rgba(37,211,102,0.25)]">
                     <MessageCircle size={16} />Contacter via WhatsApp
                   </button>
+                  {['ACTIVE', 'COMPLETED'].includes(selected.status) && (
+                    <button onClick={requestReview}
+                      className="w-full flex items-center justify-center gap-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 font-bold py-3 rounded-xl border border-amber-500/20 transition-all">
+                      <Star size={15} />Demander un avis au client
+                    </button>
+                  )}
                   {(selected.status === 'ACCEPTED' || selected.status === 'CONFIRMED' || selected.status === 'COMPLETED') && (
                     <button onClick={() => handlePDF(selected)}
                       className="w-full flex items-center justify-center gap-2 bg-blue-500/15 hover:bg-blue-500/25 text-blue-400 font-bold py-3 rounded-xl border border-blue-500/20 transition-all">
