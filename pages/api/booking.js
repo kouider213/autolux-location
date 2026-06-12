@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../../lib/supabase';
+import { sendEmail, bookingReceivedEmail } from '../../lib/email';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -67,6 +68,16 @@ export default async function handler(req, res) {
   }
 
   try { await sendSMSNotification(booking, car); } catch (e) { console.error('SMS error (non-bloquant):', e.message); }
+
+  // Email auto "réservation reçue" (si email fourni — non bloquant)
+  if (booking.client_email) {
+    const { subject, html } = bookingReceivedEmail({
+      client_name: booking.client_name, car_name: car.name,
+      start_date: booking.start_date, end_date: booking.end_date,
+      total: booking.final_price, currency: car.currency, booking_id: booking.id,
+    });
+    sendEmail(booking.client_email, subject, html).catch(() => {});
+  }
 
   // Notifier Dzaryx en temps réel
   try {
