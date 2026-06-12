@@ -3,5 +3,8 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 Disallow: /login
+Disallow: /suivi/
+Disallow: /avis/
+Disallow: /sign/
 
 Sitemap: https://fikconciergerie.com/sitemap.xml
