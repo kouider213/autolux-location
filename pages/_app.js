@@ -9,6 +9,7 @@ import { LangProvider } from '../lib/i18n';
 import AnnouncementBanner from '../components/AnnouncementBanner';
 import CookieBanner from '../components/CookieBanner';
 import FloatingWhatsApp from '../components/FloatingWhatsApp';
+import PWAInstall from '../components/PWAInstall';
 
 const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { ssr: false });
 
@@ -46,7 +47,7 @@ export default function App({ Component, pageProps }) {
               <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
               <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
               <link rel="shortcut icon" href="/favicon.ico" />
-              <link rel="apple-touch-icon" href="/favicon.png" />
+              <link rel="apple-touch-icon" href="/icons/icon-192.png" />
               <meta name="apple-mobile-web-app-capable" content="yes" />
               <meta name="apple-mobile-web-app-status-bar-style" content="default" />
               {/* SEO de base */}
@@ -105,6 +106,7 @@ export default function App({ Component, pageProps }) {
           <Component {...pageProps} />
           {!router.pathname.startsWith('/admin') && <CookieBanner />}
           {!router.pathname.startsWith('/admin') && <FloatingWhatsApp />}
+          {!router.pathname.startsWith('/admin') && <PWAInstall />}
         </LangProvider>
         <Toaster
           position="top-right"
