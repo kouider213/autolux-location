@@ -10,7 +10,7 @@ import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 import { format, isWithinInterval, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
-import { fr, arDZ } from 'date-fns/locale';
+import { fr, arDZ, enUS } from 'date-fns/locale';
 
 const DatePicker = dynamic(() => import('react-datepicker'), { ssr: false });
 
@@ -166,7 +166,9 @@ export default function ReservationPage({ cars: initialCars }) {
   const [err1, setErr1] = useState('');
   const ar = lang === 'ar';
   const validateStep1 = () => {
-    const E = ar
+    const E = lang === 'en'
+      ? { car: 'Please select a vehicle.', sd: 'Please choose a pickup date.', ed: 'Please choose a return date.', neg: 'Return date must be after pickup.', conf: 'This vehicle is not available on these dates. Please choose other dates.' }
+      : ar
       ? { car: 'يرجى اختيار سيارة.', sd: 'يرجى اختيار تاريخ الانطلاق.', ed: 'يرجى اختيار تاريخ العودة.', neg: 'تاريخ العودة يجب أن يكون بعد الانطلاق.', conf: 'السيارة غير متوفّرة في هذه التواريخ. اختر تواريخ أخرى.' }
       : { car: 'Veuillez sélectionner un véhicule.', sd: 'Veuillez choisir une date de départ.', ed: 'Veuillez choisir une date de retour.', neg: 'La date de retour doit être après le départ.', conf: 'Le véhicule n\'est pas disponible sur ces dates. Veuillez choisir d\'autres dates.' };
     if (!form.carId)    { setErr1(E.car); return false; }
@@ -183,7 +185,9 @@ export default function ReservationPage({ cars: initialCars }) {
   const ageTooYoung = form.age && ageNum < 35;
 
   const validateStep2 = () => {
-    const E = ar
+    const E = lang === 'en'
+      ? { name: 'Enter your full name.', phone: 'Enter your phone number.', age: 'Enter your age.', ageInv: 'Invalid age.', ageMin: 'Minimum age 35 required (insurance requirement).' }
+      : ar
       ? { name: 'أدخل اسمك الكامل.', phone: 'أدخل رقم هاتفك.', age: 'أدخل عمرك.', ageInv: 'عمر غير صحيح.', ageMin: 'السن الأدنى المطلوب 35 سنة (شرط التأمين).' }
       : { name: 'Entrez votre nom complet.', phone: 'Entrez votre numéro de téléphone.', age: 'Entrez votre âge.', ageInv: 'Âge invalide.', ageMin: 'Âge minimum 35 ans requis (exigence assurance).' };
     if (!form.name.trim()) { setErr2(E.name); return false; }
@@ -429,7 +433,7 @@ export default function ReservationPage({ cars: initialCars }) {
                             filterDate={filterDate}
                             dayClassName={getDayClass}
                             minDate={today}
-                            locale={lang === 'ar' ? arDZ : fr}
+                            locale={lang === 'ar' ? arDZ : lang === 'en' ? enUS : fr}
                             inline
                             calendarStartDay={1}
                           />
@@ -545,7 +549,12 @@ export default function ReservationPage({ cars: initialCars }) {
                     )}
 
                     <div>
-                      <label className="label-dark">{t("res.email")}</label>
+                      <label className="label-dark flex items-center gap-2">
+                        {t("res.email")}
+                        <span className="text-gold-400/70 text-[10px] font-normal normal-case">
+                          {lang === 'ar' ? '— لاستلام رقم الحجز والمتابعة' : lang === 'en' ? '— to receive your booking number & tracking' : '— pour recevoir votre n° de réservation et le suivi'}
+                        </span>
+                      </label>
                       <input type="email" value={form.email} onChange={set('email')}
                         placeholder={t("res.ph_email")} className="input-dark" autoComplete="email" />
                     </div>

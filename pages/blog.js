@@ -4,11 +4,17 @@ import { Newspaper, ArrowRight, Calendar } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
+import { useTranslated } from '../lib/autoTranslate';
 import { getPublishedPosts, pickTitle, pickExcerpt } from '../lib/blog';
 
 export default function BlogPage({ posts }) {
   const { t, lang } = useLang();
   const list = posts || [];
+  // Traduction auto des titres/extraits (source = FR si pas de version dans la langue)
+  const srcTitles   = list.map(p => pickTitle(p, lang));
+  const srcExcerpts = list.map(p => pickExcerpt(p, lang));
+  const trTitles    = useTranslated(srcTitles);
+  const trExcerpts  = useTranslated(srcExcerpts);
 
   return (
     <>
@@ -41,20 +47,20 @@ export default function BlogPage({ posts }) {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {list.map(p => (
+                {list.map((p, i) => (
                   <Link key={p.id} href={`/blog/${p.slug}`}
                     className="group bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-gold-500/25 hover:-translate-y-1.5 transition-all duration-300">
                     <div className="relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
                       {p.cover_url ? (
-                        <img src={p.cover_url} alt={pickTitle(p, lang)} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img src={p.cover_url} alt={trTitles[i] || pickTitle(p, lang)} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
                         <div className="w-full h-full bg-[#111] flex items-center justify-center"><Newspaper size={28} className="text-white/[0.06]" /></div>
                       )}
                     </div>
                     <div className="p-5">
-                      {p.created_at && <span className="flex items-center gap-1.5 text-white/30 text-xs mb-2"><Calendar size={11} /> {new Date(p.created_at).toLocaleDateString(lang === 'ar' ? 'ar-DZ' : 'fr-FR')}</span>}
-                      <h2 className="text-white font-bold text-base leading-snug mb-2 line-clamp-2">{pickTitle(p, lang)}</h2>
-                      <p className="text-white/40 text-sm leading-relaxed line-clamp-3">{pickExcerpt(p, lang)}</p>
+                      {p.created_at && <span className="flex items-center gap-1.5 text-white/30 text-xs mb-2"><Calendar size={11} /> {new Date(p.created_at).toLocaleDateString(lang === 'ar' ? 'ar-DZ' : lang === 'en' ? 'en-GB' : 'fr-FR')}</span>}
+                      <h2 className="text-white font-bold text-base leading-snug mb-2 line-clamp-2">{trTitles[i] || pickTitle(p, lang)}</h2>
+                      <p className="text-white/40 text-sm leading-relaxed line-clamp-3">{trExcerpts[i] || pickExcerpt(p, lang)}</p>
                       <span className="mt-3 inline-flex items-center gap-1 text-gold-400 text-sm font-medium">{t('blog.read')} <ArrowRight size={13} /></span>
                     </div>
                   </Link>

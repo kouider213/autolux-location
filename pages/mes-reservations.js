@@ -21,12 +21,12 @@ export default function MesReservations() {
   const [loading, setLoad]  = useState(false);
 
   const search = async () => {
-    if (phone.replace(/\D/g, '').length < 6) return;
+    if (phone.trim().length < 4) return;
     setLoad(true); setList(null);
     try {
       const r = await fetch('/api/my-bookings', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ query: phone }),
       });
       const d = await r.json();
       setList(d.bookings || []);
@@ -46,14 +46,14 @@ export default function MesReservations() {
           <div className="text-center mb-8">
             <span className="section-badge mb-4 inline-block">Espace client</span>
             <h1 className="font-display text-3xl sm:text-4xl font-bold text-white mb-2">Mes réservations</h1>
-            <p className="text-white/40 text-sm">Entrez votre numéro de téléphone pour retrouver vos locations.</p>
+            <p className="text-white/40 text-sm">Entrez votre <b className="text-white/70">numéro de réservation</b>, votre <b className="text-white/70">email</b> ou votre <b className="text-white/70">téléphone</b>.</p>
           </div>
 
           <div className="flex gap-2 mb-8">
             <div className="relative flex-1">
-              <Phone size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
+              <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
               <input value={phone} onChange={e => setPhone(e.target.value)} onKeyDown={e => e.key === 'Enter' && search()}
-                inputMode="tel" placeholder="Ex: 0699 11 22 33 ou +213…"
+                placeholder="N° réservation, email ou téléphone…"
                 className="input-dark w-full pl-10 py-3 text-sm" />
             </div>
             <button onClick={search} disabled={loading}
@@ -83,6 +83,7 @@ export default function MesReservations() {
                             <p className="text-white font-semibold text-sm">{b.car}</p>
                             <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${st.cls}`}>{st.label}</span>
                           </div>
+                          <p className="text-white/30 text-[10px] font-mono mb-1">N° {b.ref}</p>
                           <p className="text-white/40 text-xs mb-1">{b.start} → {b.end}</p>
                           {b.total ? <p className="text-gold-400 text-sm font-bold">{Number(b.total).toLocaleString('fr-FR')} {sym(b.currency)}</p> : null}
                           <div className="flex flex-wrap gap-2 mt-3">
