@@ -2,9 +2,10 @@
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Menu, X, LayoutDashboard, LogOut, LogIn, CalendarCheck } from 'lucide-react';
+import { Menu, X, LayoutDashboard, LogOut, LogIn, CalendarCheck, Heart } from 'lucide-react';
 import { useLang } from '../lib/i18n';
 import { useSettings } from '../lib/settings';
+import { useFavorites } from '../lib/favorites';
 
 export default function Navbar({ scrollContainerRef }) {
   const [scrolled, setScrolled]   = useState(false);
@@ -13,7 +14,9 @@ export default function Navbar({ scrollContainerRef }) {
   const router = useRouter();
   const { lang, setLang, t } = useLang();
   const settings = useSettings();
+  const { count: favCount } = useFavorites();
   const logo = settings.logo_url || '/logo.png';
+  const favLabel = lang === 'ar' ? 'مفضلتي' : lang === 'en' ? 'Favorites' : 'Mes favoris';
 
   useEffect(() => {
     const el = scrollContainerRef?.current || window;
@@ -113,6 +116,13 @@ export default function Navbar({ scrollContainerRef }) {
         </div>
 
         <div className="hidden md:flex items-center gap-2">
+          <Link href="/favoris" title={favLabel} aria-label={favLabel}
+            className="relative w-10 h-10 flex items-center justify-center rounded-xl text-white/55 hover:text-red-400 hover:bg-white/[0.04] transition-all">
+            <Heart size={18} className={favCount > 0 ? 'fill-red-500 text-red-500' : ''} />
+            {favCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold">{favCount}</span>
+            )}
+          </Link>
           <LangToggle />
           {user ? (
             <>
@@ -149,6 +159,10 @@ export default function Navbar({ scrollContainerRef }) {
             );
           })}
           <div className="pt-3 border-t border-white/[0.05] space-y-2">
+            <Link href="/favoris" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/55 hover:text-red-400 hover:bg-white/[0.04] font-body transition-all">
+              <Heart size={15} className={favCount > 0 ? 'fill-red-500 text-red-500' : ''} />{favLabel}
+              {favCount > 0 && <span className="ml-auto min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold">{favCount}</span>}
+            </Link>
             {user ? (
               <>
                 <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/55 hover:text-white hover:bg-white/[0.04] font-body transition-all"><LayoutDashboard size={15} />Dashboard</Link>

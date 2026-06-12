@@ -1,12 +1,13 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Car, Fuel, Users, Search, ArrowRight, X, Gauge } from 'lucide-react';
+import { Car, Fuel, Users, Search, ArrowRight, X, Gauge, Heart } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang, localizeValue } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
+import { useFavorites } from '../lib/favorites';
 
 const CATEGORIES = ['Tous', 'citadine', 'berline', 'SUV', 'familiale', 'utilitaire', 'premium'];
 
@@ -14,6 +15,7 @@ export default function CarsPage({ cars: initialCars }) {
   const { t, lang } = useLang();
   const settings = useSettings();
   const WHATSAPP = waNumber(settings);
+  const { isFav, toggle } = useFavorites();
   const availMode = settings.availability_mode !== false; // ON par défaut (safe)
   const [filter, setFilter]     = useState('Tous');
   const [search, setSearch]     = useState('');
@@ -146,7 +148,7 @@ export default function CarsPage({ cars: initialCars }) {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {filtered.map(car => <CarCard key={car.id} car={car} bookedUntil={bookedCarIds[car.id] || null} t={t} lang={lang} availMode={availMode} wa={WHATSAPP} />)}
+                {filtered.map(car => <CarCard key={car.id} car={car} bookedUntil={bookedCarIds[car.id] || null} t={t} lang={lang} availMode={availMode} wa={WHATSAPP} isFav={isFav(car.id)} onFav={() => toggle(car.id)} />)}
               </div>
             )}
 
@@ -177,7 +179,7 @@ export default function CarsPage({ cars: initialCars }) {
   );
 }
 
-function CarCard({ car, bookedUntil, t, lang, availMode, wa }) {
+function CarCard({ car, bookedUntil, t, lang, availMode, wa, isFav, onFav }) {
   const isBookedNow = !!bookedUntil;
   const available   = car.available && !isBookedNow;
 
@@ -243,6 +245,16 @@ function CarCard({ car, bookedUntil, t, lang, availMode, wa }) {
             )}
           </div>
         </div>
+
+        {/* Bouton favori (sans login) */}
+        <button
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFav && onFav(); }}
+          aria-label="Favori"
+          className={`absolute bottom-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md border transition-all ${
+            isFav ? 'bg-red-500/90 border-red-400 text-white' : 'bg-black/40 border-white/15 text-white/70 hover:text-white'
+          }`}>
+          <Heart size={15} className={isFav ? 'fill-current' : ''} />
+        </button>
       </Link>
 
       {/* Bottom — price + CTA */}
