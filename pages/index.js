@@ -472,12 +472,12 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 ) : (
                   <img src={settings.hero_media_url} alt="Fik Conciergerie"
                     className="absolute inset-0 w-full h-full object-cover object-center"
-                    loading="eager" style={{ display: 'block' }} />
+                    loading="eager" fetchPriority="high" decoding="async" style={{ display: 'block' }} />
                 )
               ) : heroCar?.image_url && (
                 <img src={heroCar.image_url} alt={heroCar.name}
                   className="absolute inset-0 w-full h-full object-cover object-center"
-                  loading="eager"
+                  loading="eager" fetchPriority="high" decoding="async"
                   style={{ display: 'block' }} />
               )}
             </div>

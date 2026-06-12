@@ -31,6 +31,7 @@ export default function BlogPost({ post }) {
   const title = pickTitle(post, lang);
   const body  = pickBody(post, lang);
   const excerpt = pickExcerpt(post, lang);
+  const isHtml = /<\/?(h2|h3|p|ul|ol|li|strong|em|br)\b/i.test(body);
   const paragraphs = body.split(/\n{2,}/).filter(Boolean);
 
   return (
@@ -75,11 +76,17 @@ export default function BlogPost({ post }) {
               </div>
             )}
 
-            <div className="space-y-5">
-              {paragraphs.map((p, i) => (
-                <p key={i} className="text-white/65 text-base leading-relaxed whitespace-pre-line">{p}</p>
-              ))}
-            </div>
+            {isHtml ? (
+              <div className="blog-content text-white/65 text-base leading-relaxed space-y-4"
+                dir={lang === 'ar' ? 'rtl' : 'ltr'}
+                dangerouslySetInnerHTML={{ __html: body }} />
+            ) : (
+              <div className="space-y-5">
+                {paragraphs.map((p, i) => (
+                  <p key={i} className="text-white/65 text-base leading-relaxed whitespace-pre-line">{p}</p>
+                ))}
+              </div>
+            )}
 
             {/* CTA */}
             <div className="mt-12 pt-8 border-t border-white/[0.06] text-center">

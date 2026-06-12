@@ -334,3 +334,14 @@ body {
     white-space: nowrap;
   }
 }
+
+/* Articles de blog générés en HTML */
+.blog-content h2 { color:#fff; font-size:1.35rem; font-weight:700; margin:1.6rem 0 .6rem; }
+.blog-content h3 { color:#fff; font-size:1.1rem; font-weight:700; margin:1.2rem 0 .5rem; }
+.blog-content p { margin:0 0 1rem; line-height:1.75; }
+.blog-content ul, .blog-content ol { margin:0 0 1rem 1.2rem; list-style:disc; }
+.blog-content ol { list-style:decimal; }
+.blog-content li { margin:.35rem 0; }
+.blog-content a { color:#e2b614; text-decoration:underline; }
+.blog-content strong { color:#fff; }
+.blog-content[dir="rtl"] ul, .blog-content[dir="rtl"] ol { margin:0 1.2rem 1rem 0; }

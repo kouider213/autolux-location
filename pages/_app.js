@@ -41,6 +41,10 @@ export default function App({ Component, pageProps }) {
               <meta name="viewport" content="width=device-width, initial-scale=1" />
               <meta name="theme-color" content="#080808" />
               <link rel="manifest" href="/manifest.json" />
+              {/* Perf : pré-connexion aux hôtes d'images/API pour accélérer le LCP */}
+              {process.env.NEXT_PUBLIC_SUPABASE_URL && <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} crossOrigin="anonymous" />}
+              <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+              <link rel="dns-prefetch" href="https://res.cloudinary.com" />
               {/* Favicon carré (Google exige carré) — logo Fik sur fond sombre */}
               <link rel="icon" href="/favicon.ico" sizes="48x48" />
               <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />

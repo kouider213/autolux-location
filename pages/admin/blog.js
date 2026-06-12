@@ -1,10 +1,13 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Newspaper, Plus, Trash2, Save, X, Eye, EyeOff, ImageIcon, Loader2, Edit3 } from 'lucide-react';
+import { Newspaper, Plus, Trash2, Save, X, Eye, EyeOff, ImageIcon, Loader2, Edit3, Sparkles } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import { slugify } from '../../lib/blog';
+import { translateMany } from '../../lib/autoTranslate';
+
+const BACKEND = process.env.NEXT_PUBLIC_IBRAHIM_BACKEND || 'https://ibrahim-backend-production.up.railway.app';
 
 const inputCls = "w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none transition-colors";
 const emptyPost = { slug: '', title_fr: '', title_ar: '', excerpt_fr: '', excerpt_ar: '', body_fr: '', body_ar: '', cover_url: '', published: false };
@@ -15,6 +18,33 @@ export default function AdminBlogPage() {
   const [editing, setEdit]  = useState(null); // null = liste, sinon objet en édition
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [topic, setTopic] = useState('');
+  const [genState, setGenState] = useState(''); // '' | 'writing' | 'translating'
+
+  const generate = async () => {
+    if (!topic.trim()) { toast.error('Donne un sujet'); return; }
+    setGenState('writing');
+    try {
+      const r = await fetch(`${BACKEND}/api/blog-generate`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic }),
+      });
+      const json = await r.json();
+      if (!r.ok || !json.article) throw new Error(json.error || 'Génération échouée');
+      const { title, excerpt, body } = json.article;
+      setEdit(p => ({ ...p, title_fr: title, excerpt_fr: excerpt, body_fr: body, slug: slugify(title) }));
+
+      // Traduction auto en arabe (non bloquant)
+      setGenState('translating');
+      try {
+        const [tAr, eAr, bAr] = await translateMany([title, excerpt, body], 'ar');
+        setEdit(p => ({ ...p, title_ar: tAr || '', excerpt_ar: eAr || '', body_ar: bAr || '' }));
+      } catch { /* AR optionnel */ }
+
+      toast.success('Article généré ✨ Relis puis publie.');
+    } catch (e) { toast.error(e.message); }
+    finally { setGenState(''); }
+  };
 
   const load = () => {
     supabase.from('blog_posts').select('*').order('created_at', { ascending: false })
@@ -108,6 +138,22 @@ export default function AdminBlogPage() {
                   <input type="file" accept="image/*" onChange={onCover} disabled={uploading} className="hidden" />
                 </label>
               </div>
+            </div>
+
+            {/* Génération IA */}
+            <div className="bg-gradient-to-br from-gold-500/10 to-transparent border border-gold-500/25 rounded-2xl p-5">
+              <label className="text-gold-300 text-xs font-bold mb-2 flex items-center gap-1.5"><Sparkles size={13} /> Rédiger avec l'IA (Dzaryx)</label>
+              <div className="flex gap-2">
+                <input value={topic} onChange={e => setTopic(e.target.value)} disabled={!!genState}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); generate(); } }}
+                  className={inputCls} placeholder="Sujet : ex. « Importer sa voiture en Algérie en 2026 »" />
+                <button type="button" onClick={generate} disabled={!!genState}
+                  className="btn-gold px-4 py-2.5 text-sm font-bold whitespace-nowrap flex items-center gap-1.5 disabled:opacity-50">
+                  {genState ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                  {genState === 'writing' ? 'Rédaction…' : genState === 'translating' ? 'Traduction…' : 'Générer'}
+                </button>
+              </div>
+              <p className="text-white/30 text-[11px] mt-2">L'IA rédige l'article FR + traduit en arabe. Tu relis, ajoutes une image, puis publies.</p>
             </div>
 
             <div className="bg-[#141414] border border-white/[0.07] rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
