@@ -3,6 +3,7 @@ import { MapPin, MessageCircle, Star, Instagram, Music2, Facebook } from 'lucide
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 import NewsletterSignup from './NewsletterSignup';
+import { GOOGLE_MAPS_URL } from '../lib/google';
 
 function SocialIcons({ s }) {
   const items = [
@@ -24,7 +25,7 @@ function SocialIcons({ s }) {
 }
 
 export default function Footer() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const settings = useSettings();
   const WHATSAPP = waNumber(settings);
 
@@ -100,7 +101,9 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin size={13} className="text-gold-500 mt-0.5 flex-shrink-0" />
-                <span className="text-white/35 text-sm font-body leading-relaxed">{settings.address || t('foot.addr')}</span>
+                <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="text-white/35 text-sm font-body leading-relaxed hover:text-gold-400 transition-colors">
+                  {settings.address || t('foot.addr')}<br /><span className="text-gold-500/60 text-xs">{lang === 'ar' ? 'عرض على خرائط Google ←' : lang === 'en' ? 'View on Google Maps →' : 'Voir sur Google Maps →'}</span>
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <MessageCircle size={13} className="text-gold-500 flex-shrink-0" />
