@@ -8,7 +8,6 @@ import { supabase } from '../lib/supabase';
 import { useLang, localizeValue } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 import { useFavorites } from '../lib/favorites';
-import ApproxPrice from '../components/ApproxPrice';
 
 const CATEGORIES = ['Tous', 'citadine', 'berline', 'SUV', 'familiale', 'utilitaire', 'premium'];
 
@@ -268,7 +267,6 @@ function CarCard({ car, bookedUntil, t, lang, availMode, wa, isFav, onFav }) {
             <span className="text-gold-500/50 text-sm">{car.currency === 'EUR' ? '€' : 'DA'}</span>
             <span className="text-white/25 text-xs">{t('b.per_day')}</span>
           </div>
-          <ApproxPrice amount={car.resale_price} from={car.currency === 'EUR' ? 'EUR' : 'DZD'} className="mt-0.5 block" />
         </div>
 
         <div className="flex items-center gap-2">
