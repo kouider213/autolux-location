@@ -153,15 +153,22 @@ export default function BookingsPage() {
     }
   }, [selected?.id]);
 
+  // Passe par l'API serveur (clé service) — l'update direct est bloqué par la RLS.
   const patchBooking = async (patch, okMsg) => {
-    if (!supabase || !selected) return;
+    if (!selected) return;
     setBusy('save');
-    const { error } = await supabase.from('bookings').update(patch).eq('id', selected.id);
-    setBusy('');
-    if (error) { toast.error('Erreur : ' + error.message); return; }
-    setSelected(prev => ({ ...prev, ...patch }));
-    setBookings(prev => prev.map(b => b.id === selected.id ? { ...b, ...patch } : b));
-    if (okMsg) toast.success(okMsg);
+    try {
+      const r = await fetch('/api/update-booking', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: selected.id, patch }),
+      });
+      const d = await r.json();
+      setBusy('');
+      if (!r.ok) { toast.error('Erreur : ' + (d.error || 'impossible')); return; }
+      setSelected(prev => ({ ...prev, ...patch }));
+      setBookings(prev => prev.map(b => b.id === selected.id ? { ...b, ...patch } : b));
+      if (okMsg) toast.success(okMsg);
+    } catch (e) { setBusy(''); toast.error('Erreur réseau'); }
   };
 
   const saveEdits = async () => {
@@ -196,18 +203,20 @@ export default function BookingsPage() {
 
   // Fixe le total payé à une valeur exacte (corrige en + ou en −)
   const setPaidExact = async (value, kind, traceAmount) => {
-    if (!supabase || !selected) return;
+    if (!selected) return;
     const total   = Number(selected.final_price || 0);
     const newPaid = Math.max(0, Math.round(Number(value)));
     setBusy('pay');
-    // Trace le mouvement dans payments (montant signé si fourni)
-    if (traceAmount) {
-      await supabase.from('payments').insert({
-        booking_id: selected.id, amount: Math.abs(traceAmount), method: 'cash',
-        status: traceAmount > 0 ? 'confirmed' : 'refunded',
-        is_deposit: kind === 'acompte', paid_at: new Date().toISOString(),
-        notes: traceAmount < 0 ? 'Correction (diminution)' : null,
-      });
+    // Trace le mouvement dans payments (non bloquant — l'essentiel = maj du paid_amount)
+    if (traceAmount && supabase) {
+      try {
+        await supabase.from('payments').insert({
+          booking_id: selected.id, amount: Math.abs(traceAmount), method: 'cash',
+          status: traceAmount > 0 ? 'confirmed' : 'refunded',
+          is_deposit: kind === 'acompte', paid_at: new Date().toISOString(),
+          notes: traceAmount < 0 ? 'Correction (diminution)' : null,
+        });
+      } catch { /* RLS / non bloquant */ }
     }
     const pStatus = total > 0 && newPaid >= total ? 'PAID' : newPaid > 0 ? 'PARTIAL' : 'PENDING';
     await patchBooking({ paid_amount: newPaid, payment_status: pStatus });
