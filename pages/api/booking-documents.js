@@ -78,7 +78,7 @@ export default async function handler(req, res) {
     passportUrl:   det.passport_url || null,
     permitUrl:     det.permit_url || null,
     signedAt:      sig.signed_at || null,
-    pdfLink:       sig.token ? `${BACKEND}/sign/${sig.token}/contrat` : null,
+    pdfLink:       sig.token ? `${BACKEND}/sign/${sig.token}/pdf` : null,
     signLink:      sig.status === 'signed' ? null : (sig.token ? `${BACKEND}/sign/${sig.token}` : null),
   } : null;
 
