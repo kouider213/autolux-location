@@ -5,13 +5,13 @@ import { Car, Fuel, Users, Search, ArrowRight, X, Gauge } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
-import { useLang } from '../lib/i18n';
+import { useLang, localizeValue } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 
 const CATEGORIES = ['Tous', 'citadine', 'berline', 'SUV', 'familiale', 'utilitaire', 'premium'];
 
 export default function CarsPage({ cars: initialCars }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const settings = useSettings();
   const WHATSAPP = waNumber(settings);
   const availMode = settings.availability_mode !== false; // ON par défaut (safe)
@@ -146,7 +146,7 @@ export default function CarsPage({ cars: initialCars }) {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {filtered.map(car => <CarCard key={car.id} car={car} bookedUntil={bookedCarIds[car.id] || null} t={t} availMode={availMode} wa={WHATSAPP} />)}
+                {filtered.map(car => <CarCard key={car.id} car={car} bookedUntil={bookedCarIds[car.id] || null} t={t} lang={lang} availMode={availMode} wa={WHATSAPP} />)}
               </div>
             )}
 
@@ -177,7 +177,7 @@ export default function CarsPage({ cars: initialCars }) {
   );
 }
 
-function CarCard({ car, bookedUntil, t, availMode, wa }) {
+function CarCard({ car, bookedUntil, t, lang, availMode, wa }) {
   const isBookedNow = !!bookedUntil;
   const available   = car.available && !isBookedNow;
 
@@ -202,11 +202,11 @@ function CarCard({ car, bookedUntil, t, availMode, wa }) {
         {/* Top badges */}
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
           <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-black/50 backdrop-blur-md border border-white/[0.08] text-white/50 capitalize">
-            {car.category}
+            {localizeValue(car.category, lang)}
           </span>
           {availMode ? (
             <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500/20 text-gold-300 border border-gold-500/25 backdrop-blur-md">
-              Sur demande
+              {t('d.on_demand')}
             </span>
           ) : available ? (
             <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 backdrop-blur-md">
@@ -233,13 +233,13 @@ function CarCard({ car, bookedUntil, t, availMode, wa }) {
           <h3 className="text-white font-bold text-lg leading-tight mb-1.5">{car.name}</h3>
           <div className="flex items-center gap-3 flex-wrap">
             <span className="flex items-center gap-1 text-white/35 text-xs">
-              <Fuel size={10} /> {car.fuel}
+              <Fuel size={10} /> {localizeValue(car.fuel, lang)}
             </span>
             <span className="flex items-center gap-1 text-white/35 text-xs">
               <Users size={10} /> {car.seats} {t('b.places')}
             </span>
             {car.transmission && (
-              <span className="text-white/35 text-xs capitalize">{car.transmission}</span>
+              <span className="text-white/35 text-xs capitalize">{localizeValue(car.transmission, lang)}</span>
             )}
           </div>
         </div>
@@ -265,7 +265,7 @@ function CarCard({ car, bookedUntil, t, availMode, wa }) {
           {availMode ? (
             <Link href={`/reservation?car=${car.id}`}
               className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-gold-500 text-noir-950 hover:bg-gold-400 shadow-[0_4px_16px_rgba(226,182,20,0.3)] transition-all whitespace-nowrap">
-              Vérifier la dispo
+              {t('b.check')}
             </Link>
           ) : (
             <Link href={available ? `/reservation?car=${car.id}` : '#'}

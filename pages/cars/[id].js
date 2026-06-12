@@ -8,12 +8,12 @@ import Footer from '../../components/Footer';
 import Lightbox from '../../components/Lightbox';
 import ShareButtons from '../../components/ShareButtons';
 import { trackPageView } from '../../lib/tracker';
-import { useLang } from '../../lib/i18n';
+import { useLang, localizeValue } from '../../lib/i18n';
 import { useTranslated } from '../../lib/autoTranslate';
 import { useSettings, waNumber } from '../../lib/settings';
 
 export default function CarDetail({ car, photos: initialPhotos }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const descTr = useTranslated(car?.description || '');
   const settings = useSettings();
   const WHATSAPP = waNumber(settings);
@@ -58,11 +58,11 @@ export default function CarDetail({ car, photos: initialPhotos }) {
   const whatsappUrl = `https://wa.me/${WHATSAPP}?text=${whatsappMsg}`;
 
   const specs = [
-    { icon: Fuel,     label: t('d.fuel'),         value: car.fuel || 'Essence' },
-    { icon: Settings, label: t('d.transmission'), value: car.transmission || 'Manuelle' },
+    { icon: Fuel,     label: t('d.fuel'),         value: localizeValue(car.fuel || 'Essence', lang) },
+    { icon: Settings, label: t('d.transmission'), value: localizeValue(car.transmission || 'Manuelle', lang) },
     { icon: Users,    label: t('d.seats'),        value: `${car.seats || 5} ${t('b.places')}` },
     { icon: Wind,     label: t('d.clim'),         value: car.clim ? t('common.all') : t('d.included') },
-    { icon: Car,      label: t('d.category'),     value: car.category },
+    { icon: Car,      label: t('d.category'),     value: localizeValue(car.category, lang) },
   ].filter(s => s.value);
 
   const perks = [t('d.perk1'), t('d.perk2'), t('d.perk3'), t('d.perk4')];
@@ -112,7 +112,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
             <div>
               <p className="text-white/40 text-xs font-body">{t("b.from")}</p>
               <p className="font-display font-black text-gold-400 text-xl leading-none tabular-nums">
-                {Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}<span className="text-sm font-body text-white/25 ml-1">/jour</span>
+                {Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}<span className="text-sm font-body text-white/25 ml-1">{t('d.perday')}</span>
               </p>
             </div>
             <div className="flex gap-2 flex-1 justify-end">
@@ -122,7 +122,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
               </a>
               <Link href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
                 className="btn-gold py-3 px-5 text-sm flex-1 justify-center max-w-[200px]">
-                <CalendarCheck size={15} />{availMode ? 'Vérifier la dispo' : t("common.book")}
+                <CalendarCheck size={15} />{availMode ? t('b.check') : t("common.book")}
               </Link>
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                           <span className="text-white/15 text-xs tracking-widest uppercase font-body">{t("d.photo_soon")}</span>
                         </div>
                       )}
-                      <span className="absolute top-4 left-4 tag-category capitalize">{car.category}</span>
+                      <span className="absolute top-4 left-4 tag-category capitalize">{localizeValue(car.category, lang)}</span>
                       {!availMode && car.available === false && (
                         <div className="absolute inset-0 bg-[#0e0e0e]/75 backdrop-blur-sm flex items-center justify-center">
                           <span className="text-white/60 text-xs font-medium tracking-widest uppercase border border-white/20 rounded-full px-4 py-2">{t("b.unavailable")}</span>
@@ -192,7 +192,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
 
               {/* Name + price */}
               <div>
-                <p className="text-white/30 text-xs tracking-widest uppercase font-body mb-2">{car.category}</p>
+                <p className="text-white/30 text-xs tracking-widest uppercase font-body mb-2">{localizeValue(car.category, lang)}</p>
                 <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 leading-tight">
                   {car.name}
                 </h1>
@@ -247,7 +247,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                   <Link
                     href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
                     className="btn-gold flex-1 py-4 text-base justify-center">
-                    <CalendarCheck size={18} />Vérifier la disponibilité
+                    <CalendarCheck size={18} />{t('b.check')}
                   </Link>
                 ) : car.available !== false ? (
                   <Link

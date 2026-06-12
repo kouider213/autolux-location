@@ -49,6 +49,7 @@ export default function Navbar({ scrollContainerRef }) {
     { href: '/packs',             label: lang === 'ar' ? 'الباقات' : 'Packs' },
     { href: '/investir',          label: lang === 'ar' ? 'استثمر في وهران' : lang === 'en' ? 'Invest' : 'Investir' },
     { href: '/reviews',           label: t('nav.reviews') },
+    { href: '/blog',              label: t('nav.blog') },
     { href: '/faq',               label: t('nav.faq') },
     { href: '/conditions',        label: t('nav.conditions') },
     { href: '/contact',           label: t('nav.contact') },
