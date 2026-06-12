@@ -114,6 +114,18 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Liens SEO Oran */}
+        <div className="border-t border-white/[0.05] pt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-6">
+          {[
+            { h: '/conciergerie-oran', l: 'Conciergerie Oran' },
+            { h: '/location-voiture-oran', l: 'Location voiture Oran' },
+            { h: '/vente-voiture-oran', l: 'Vente voiture Oran' },
+            { h: '/immobilier-oran', l: 'Immobilier Oran' },
+          ].map(x => (
+            <Link key={x.h} href={x.h} className="text-white/30 text-xs font-body hover:text-gold-400 transition-colors">{x.l}</Link>
+          ))}
+        </div>
+
         {/* Newsletter */}
         <div className="border-t border-white/[0.05] pt-8 mb-8 max-w-md mx-auto">
           <NewsletterSignup />

@@ -23,7 +23,7 @@ export async function getServerSideProps({ res }) {
     }
   } catch { /* non-blocking */ }
 
-  const staticPages = ['', '/cars', '/vente-voitures', '/immo', '/packs', '/investir', '/commande-vehicule', '/reservation', '/mes-reservations', '/reviews', '/conditions', '/faq', '/blog', '/contact', '/a-propos', '/cgv', '/mentions-legales', '/confidentialite'];
+  const staticPages = ['', '/cars', '/vente-voitures', '/immo', '/packs', '/investir', '/commande-vehicule', '/reservation', '/mes-reservations', '/reviews', '/conditions', '/faq', '/blog', '/contact', '/a-propos', '/cgv', '/mentions-legales', '/confidentialite', '/conciergerie-oran', '/location-voiture-oran', '/vente-voiture-oran', '/immobilier-oran'];
   const carPages    = carIds.map(id => `/cars/${id}`);
   const salePages   = saleIds.map(id => `/vente-voitures/${id}`);
   const immoPages   = immoIds.map(id => `/immo/${id}`);
@@ -33,6 +33,7 @@ export async function getServerSideProps({ res }) {
 
   const prio = (page) => {
     if (page === '') return '1.0';
+    if (/-oran$/.test(page)) return '0.9'; // pages SEO métier
     if (/^\/(cars|vente-voitures|immo|blog)\//.test(page)) return '0.8';
     return '0.7';
   };

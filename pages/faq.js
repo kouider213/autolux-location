@@ -30,6 +30,17 @@ export default function FaqPage() {
       <Head>
         <title>{t('faq.meta_title')}</title>
         <meta name="description" content={t('faq.meta_desc')} />
+        {faq.length > 0 && (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: faq.map((it) => ({
+              '@type': 'Question',
+              name: it.question_fr || it.question_ar || '',
+              acceptedAnswer: { '@type': 'Answer', text: (it.answer_fr || it.answer_ar || '').replace(/<[^>]+>/g, '') },
+            })).filter((x) => x.name && x.acceptedAnswer.text),
+          }) }} />
+        )}
       </Head>
 
       <div className="grain min-h-screen bg-[#0e0e0e]">

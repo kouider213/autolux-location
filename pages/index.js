@@ -391,7 +391,7 @@ function ComingSoon({ icon, title, desc, cta, href }) {
 }
 
 /* ── Main ── */
-export default function Home({ cars: initialCars, reviews: initialReviews, vehiclesSale: initialSale, properties: initialProps, packs: initialPacks }) {
+export default function Home({ cars: initialCars, reviews: initialReviews, vehiclesSale: initialSale, properties: initialProps, packs: initialPacks, reviewStats }) {
   const { t, lang } = useLang();
   const settings = useSettings();
   const WHATSAPP = waNumber(settings);
@@ -454,6 +454,20 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
       <Head>
         <title>Fik Conciergerie — Location de Véhicules Premium Oran</title>
         <meta name="description" content="Fik Conciergerie — Conciergerie premium à Oran : location & vente de voitures, immobilier. Sans caution." />
+        {reviewStats?.count > 0 && (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'LocalBusiness',
+            '@id': 'https://fikconciergerie.com/#business',
+            name: 'Fik Conciergerie',
+            image: 'https://fikconciergerie.com/logo.png',
+            url: 'https://fikconciergerie.com',
+            telephone: '+213',
+            address: { '@type': 'PostalAddress', streetAddress: 'Hay Badr', addressLocality: 'Oran', addressCountry: 'DZ' },
+            geo: { '@type': 'GeoCoordinates', latitude: 35.6976, longitude: -0.6369 },
+            aggregateRating: { '@type': 'AggregateRating', ratingValue: String(reviewStats.avg), reviewCount: String(reviewStats.count), bestRating: '5', worstRating: '1' },
+          }) }} />
+        )}
       </Head>
 
       <div className="grain bg-[#080808] overflow-x-hidden">
@@ -937,13 +951,19 @@ export async function getStaticProps() {
   try {
     const { data: cars }    = await supabase.from('cars').select('*').order('resale_price');
     const { data: reviews } = await supabase.from('reviews').select('*').eq('approved', true).order('created_at', { ascending: false }).limit(6);
+    // Stats avis réelles (toutes les notes approuvées) pour le schema AggregateRating
+    let reviewStats = { count: 0, avg: 5 };
+    try {
+      const { data: allR } = await supabase.from('reviews').select('rating').eq('approved', true);
+      if (allR && allR.length) reviewStats = { count: allR.length, avg: Math.round((allR.reduce((s, r) => s + (r.rating || 5), 0) / allR.length) * 10) / 10 };
+    } catch {}
     let vehiclesSale = [], properties = [], packs = [];
     try { const r = await supabase.from('vehicles_for_sale').select('*, vehicle_sale_photos(url, position)').order('featured', { ascending: false }).order('created_at', { ascending: false }); vehiclesSale = r.data || []; } catch {}
     try { const r = await supabase.from('properties').select('*, property_photos(url, position)').order('featured', { ascending: false }).order('created_at', { ascending: false }); properties = r.data || []; } catch {}
     try { const r = await supabase.from('packs').select('*, pack_photos(url, position), car:cars(available), property:properties(status)').order('featured', { ascending: false }).order('position', { ascending: true }); packs = r.data || []; } catch {}
-    return { props: { cars: cars||[], reviews: reviews||[], vehiclesSale, properties, packs }, revalidate: 10 };
+    return { props: { cars: cars||[], reviews: reviews||[], vehiclesSale, properties, packs, reviewStats }, revalidate: 10 };
   } catch (err) {
     console.error('Error fetching home data:', err);
-    return { props: { cars: [], reviews: [], vehiclesSale: [], properties: [], packs: [] }, revalidate: 10 };
+    return { props: { cars: [], reviews: [], vehiclesSale: [], properties: [], packs: [], reviewStats: { count: 0, avg: 5 } }, revalidate: 10 };
   }
 }
