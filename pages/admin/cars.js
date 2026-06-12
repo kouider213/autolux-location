@@ -14,6 +14,7 @@ const emptyForm = {
   name: '', base_price: '', resale_price: '', currency: 'DZD',
   category: 'berline', seats: 5, fuel: 'essence',
   transmission: 'manuelle', description: '', featured: false,
+  insurance_expiry: '', technical_expiry: '', vignette_expiry: '', service_due_date: '', maintenance_note: '',
 };
 const sym = (c) => (c === 'EUR' ? '€' : 'DA');
 
@@ -49,6 +50,9 @@ export default function AdminCarsPage() {
       name: car.name, base_price: car.base_price, resale_price: car.resale_price, currency: car.currency || 'DZD', featured: !!car.featured,
       category: car.category, seats: car.seats, fuel: car.fuel,
       transmission: car.transmission, description: car.description || '',
+      insurance_expiry: car.insurance_expiry || '', technical_expiry: car.technical_expiry || '',
+      vignette_expiry: car.vignette_expiry || '', service_due_date: car.service_due_date || '',
+      maintenance_note: car.maintenance_note || '',
     });
     const sorted = (car.car_photos || []).sort((a, b) => a.position - b.position);
     setPhotos(sorted.map(p => ({ url: p.url })));
@@ -131,14 +135,24 @@ export default function AdminCarsPage() {
       image_url:     photos[0]?.url || null,
       description:   form.description || null,
     };
-    let error, carId;
-    if (editCar) {
-      ({ error } = await supabase.from('cars').update(payload).eq('id', editCar.id));
-      carId = editCar.id;
-    } else {
-      const { data, error: e } = await supabase.from('cars').insert([payload]).select('id').single();
-      error = e; carId = data?.id;
+    // Champs maintenance (présents après migration 0019) — séparés pour retry gracieux
+    const maint = {
+      insurance_expiry: form.insurance_expiry || null,
+      technical_expiry: form.technical_expiry || null,
+      vignette_expiry:  form.vignette_expiry || null,
+      service_due_date: form.service_due_date || null,
+      maintenance_note: form.maintenance_note || null,
+    };
+    const saveCar = async (withMaint) => {
+      const p = withMaint ? { ...payload, ...maint } : payload;
+      if (editCar) return supabase.from('cars').update(p).eq('id', editCar.id).select('id').single();
+      return supabase.from('cars').insert([p]).select('id').single();
+    };
+    let { data: savedData, error } = await saveCar(true);
+    if (error && /column .* (insurance_expiry|technical_expiry|vignette_expiry|service_due_date|maintenance_note)/i.test(error.message || '')) {
+      ({ data: savedData, error } = await saveCar(false)); // migration pas encore lancée → sans maintenance
     }
+    const carId = editCar ? editCar.id : savedData?.id;
     if (error) { toast.error('Erreur sauvegarde'); setSaving(false); return; }
 
     // Save photos
@@ -510,6 +524,18 @@ export default function AdminCarsPage() {
                   <label className="label-dark">Description</label>
                   <textarea value={form.description} onChange={up('description')} rows={2}
                     className="input-dark text-sm resize-none" placeholder="Options, équipements..." />
+                </div>
+
+                {/* Maintenance & échéances (privé, non visible clients) */}
+                <div className="pt-3 border-t border-white/[0.06]">
+                  <p className="text-white/40 text-xs uppercase tracking-widest font-medium mb-3">Maintenance & échéances (privé)</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div><label className="label-dark">Assurance expire</label><input type="date" value={form.insurance_expiry} onChange={up('insurance_expiry')} className="input-dark text-sm w-full" /></div>
+                    <div><label className="label-dark">Contrôle technique</label><input type="date" value={form.technical_expiry} onChange={up('technical_expiry')} className="input-dark text-sm w-full" /></div>
+                    <div><label className="label-dark">Vignette expire</label><input type="date" value={form.vignette_expiry} onChange={up('vignette_expiry')} className="input-dark text-sm w-full" /></div>
+                    <div><label className="label-dark">Prochaine révision</label><input type="date" value={form.service_due_date} onChange={up('service_due_date')} className="input-dark text-sm w-full" /></div>
+                  </div>
+                  <div className="mt-3"><label className="label-dark">Note maintenance</label><input value={form.maintenance_note} onChange={up('maintenance_note')} placeholder="Ex: pneus à changer, dernière vidange…" className="input-dark text-sm w-full" /></div>
                 </div>
 
                 {/* Save */}

@@ -32,7 +32,7 @@ export default function PlanningPage() {
     if (!supabase) return;
     (async () => {
       const [{ data: c }, { data: b }] = await Promise.all([
-        supabase.from('cars').select('id, name, image_url').order('name'),
+        supabase.from('cars').select('*').order('name'),
         supabase.from('bookings').select('id, car_id, client_name, client_phone, start_date, end_date, status, final_price, paid_amount, payment_status, currency').in('status', ACTIVE),
       ]);
       setCars(c || []); setBookings(b || []);
@@ -72,6 +72,22 @@ export default function PlanningPage() {
     }
     return { departs, retours, impayes, conflits };
   }, [bookings, today, tomorrow]);
+
+  // ── Alertes maintenance (échéances ≤30j ou dépassées) ──────────
+  const maintenance = useMemo(() => {
+    const todayMs = Date.now();
+    const out = [];
+    const LABELS = { insurance_expiry: 'Assurance', technical_expiry: 'Contrôle technique', vignette_expiry: 'Vignette', service_due_date: 'Révision' };
+    for (const car of cars) {
+      for (const [field, label] of Object.entries(LABELS)) {
+        const v = car[field];
+        if (!v) continue;
+        const diff = Math.ceil((new Date(v).getTime() - todayMs) / 86400000);
+        if (diff <= 30) out.push({ car: car.name, label, diff, date: v });
+      }
+    }
+    return out.sort((a, b) => a.diff - b.diff);
+  }, [cars]);
 
   const carName = (id) => cars.find(c => c.id === id)?.name || '—';
   const waLink = (b, kind) => {
@@ -125,6 +141,23 @@ export default function PlanningPage() {
                     <Phone size={12} />Relancer
                   </a>
                 )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Maintenance — échéances proches/dépassées */}
+      {maintenance.length > 0 && (
+        <div className="bg-[#141414] border border-white/[0.07] rounded-2xl p-5 mb-6">
+          <p className="text-blue-400 text-sm font-bold mb-3 flex items-center gap-2"><AlertTriangle size={15} />Maintenance & papiers à renouveler</p>
+          <div className="space-y-2">
+            {maintenance.map((m, i) => (
+              <div key={i} className="flex items-center justify-between gap-3 bg-white/[0.03] rounded-xl px-3 py-2.5">
+                <span className="text-white text-sm font-medium">{m.car} — {m.label}</span>
+                <span className={`text-xs font-semibold ${m.diff < 0 ? 'text-red-400' : m.diff <= 7 ? 'text-amber-400' : 'text-white/40'}`}>
+                  {m.diff < 0 ? `EXPIRÉ depuis ${Math.abs(m.diff)}j` : m.diff === 0 ? "expire aujourd'hui" : `dans ${m.diff}j`} ({m.date})
+                </span>
               </div>
             ))}
           </div>
