@@ -1,11 +1,22 @@
 import LegalPage from '../components/LegalPage';
+import LegalBody from '../components/LegalBody';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { ShieldCheck, Car, Building2, Tag, Package, Heart } from 'lucide-react';
 import { useSettings, waNumber } from '../lib/settings';
+import { useLang } from '../lib/i18n';
+import { getLegal } from '../lib/legal';
 
 export default function AProposPage() {
   const s = useSettings();
   const wa = waNumber(s);
+  const { lang } = useLang();
+  const [ov, setOv] = useState(null);
+  useEffect(() => { getLegal('a-propos').then(setOv); }, []);
+  if (ov && ov.body_fr && ov.body_fr.trim()) {
+    const title = (lang === 'ar' ? ov.title_ar : lang === 'en' ? ov.title_en : ov.title_fr) || ov.title_fr || 'Qui sommes-nous';
+    return <LegalPage title={title}><LegalBody bodyFr={ov.body_fr} bodyLang={ov['body_' + lang]} /></LegalPage>;
+  }
   const services = [
     { Icon: Car, t: 'Location de voiture', d: 'Assurance tous risques incluse, kilométrage illimité, partout en Algérie.' },
     { Icon: Tag, t: 'Vente de véhicules', d: 'Voitures vérifiées, prix et papiers confirmés avant publication.' },

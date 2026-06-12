@@ -1,9 +1,20 @@
 import LegalPage from '../components/LegalPage';
+import LegalBody from '../components/LegalBody';
+import { useState, useEffect } from 'react';
 import { useSettings, waNumber } from '../lib/settings';
+import { useLang } from '../lib/i18n';
+import { getLegal } from '../lib/legal';
 
 export default function MentionsLegales() {
   const s = useSettings();
   const wa = waNumber(s);
+  const { lang } = useLang();
+  const [ov, setOv] = useState(null);
+  useEffect(() => { getLegal('mentions-legales').then(setOv); }, []);
+  if (ov && ov.body_fr && ov.body_fr.trim()) {
+    const title = (lang === 'ar' ? ov.title_ar : lang === 'en' ? ov.title_en : ov.title_fr) || ov.title_fr || 'Mentions légales';
+    return <LegalPage title={title}><LegalBody bodyFr={ov.body_fr} bodyLang={ov['body_' + lang]} /></LegalPage>;
+  }
   return (
     <LegalPage title="Mentions légales" updated="Juin 2026">
       <h2>Éditeur du site</h2>

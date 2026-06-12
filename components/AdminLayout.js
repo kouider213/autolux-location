@@ -21,6 +21,7 @@ const NAV = [
   { href: '/admin/packs',       label: 'Packs séjour',       icon: Package },
   { href: '/admin/reviews',     label: 'Avis',               icon: Star },
   { href: '/admin/conditions',  label: 'Conditions',         icon: FileText },
+  { href: '/admin/pages',       label: 'Pages du site',      icon: FileText },
   { href: '/admin/faq',         label: 'FAQ',                icon: HelpCircle },
   { href: '/admin/blog',        label: 'Blog',               icon: Newspaper },
   { href: '/admin/settings',    label: 'Paramètres',         icon: Settings },
