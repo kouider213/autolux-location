@@ -9,7 +9,6 @@ import { LangProvider } from '../lib/i18n';
 import AnnouncementBanner from '../components/AnnouncementBanner';
 import CookieBanner from '../components/CookieBanner';
 import FloatingWhatsApp from '../components/FloatingWhatsApp';
-import PWAInstall from '../components/PWAInstall';
 
 const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { ssr: false });
 
@@ -110,7 +109,6 @@ export default function App({ Component, pageProps }) {
           <Component {...pageProps} />
           {!router.pathname.startsWith('/admin') && <CookieBanner />}
           {!router.pathname.startsWith('/admin') && <FloatingWhatsApp />}
-          {!router.pathname.startsWith('/admin') && <PWAInstall />}
         </LangProvider>
         <Toaster
           position="top-right"
