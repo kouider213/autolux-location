@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   const { data: bookings, error } = await admin
     .from('bookings')
-    .select('id, client_name, client_email, start_date, end_date, pickup_location, status, reminder_sent_at, cars(name)')
+    .select('id, client_name, client_email, start_date, end_date, status, reminder_sent_at, cars(name)')
     .eq('start_date', ymd)
     .is('reminder_sent_at', null)
     .in('status', ['ACCEPTED', 'CONFIRMED', 'confirmed', 'accepted']);
@@ -36,7 +36,6 @@ export default async function handler(req, res) {
       car_name: b.cars?.name,
       start_date: b.start_date,
       end_date: b.end_date,
-      pickup: b.pickup_location,
       booking_id: b.id,
     });
     const r = await sendEmail(b.client_email, subject, html);
