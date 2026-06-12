@@ -37,10 +37,10 @@ const packAvailable = (p) => {
 };
 
 const priceLabel = (p, lang) => {
-  if (!p.price || p.price_type === 'sur_devis') return lang === 'ar' ? 'حسب الطلب' : 'Sur devis';
-  const suffix = p.price_type === 'jour' ? (lang === 'ar' ? '/يوم' : '/jour')
-               : p.price_type === 'semaine' ? (lang === 'ar' ? '/أسبوع' : '/semaine')
-               : (lang === 'ar' ? '/إقامة' : ' /séjour');
+  if (!p.price || p.price_type === 'sur_devis') return lang === 'ar' ? 'حسب الطلب' : lang === 'en' ? 'On quote' : 'Sur devis';
+  const suffix = p.price_type === 'jour' ? (lang === 'ar' ? '/يوم' : lang === 'en' ? '/day' : '/jour')
+               : p.price_type === 'semaine' ? (lang === 'ar' ? '/أسبوع' : lang === 'en' ? '/week' : '/semaine')
+               : (lang === 'ar' ? '/إقامة' : lang === 'en' ? ' /stay' : ' /séjour');
   return `${Number(p.price).toLocaleString()} ${cur(p.currency)}${suffix}`;
 };
 
@@ -69,8 +69,8 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <Package size={48} className="text-white/10 mx-auto mb-4" />
-            <p className="text-white/50 text-lg mb-2">{lang === 'ar' ? 'الباقة غير موجودة' : 'Pack introuvable'}</p>
-            <Link href="/packs" className="text-gold-500 hover:text-gold-400 text-sm">← {lang === 'ar' ? 'كل الباقات' : 'Tous les packs'}</Link>
+            <p className="text-white/50 text-lg mb-2">{lang === 'ar' ? 'الباقة غير موجودة' : lang === 'en' ? 'Pack not found' : 'Pack introuvable'}</p>
+            <Link href="/packs" className="text-gold-500 hover:text-gold-400 text-sm">← {lang === 'ar' ? 'كل الباقات' : lang === 'en' ? 'All packs' : 'Tous les packs'}</Link>
           </div>
         </div>
       </div>
@@ -107,7 +107,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
         {/* Sticky CTA mobile */}
         <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/[0.08] px-5 py-4 flex items-center justify-between gap-4">
           <div>
-            <p className="text-white/40 text-xs">{lang === 'ar' ? 'السعر' : 'À partir de'}</p>
+            <p className="text-white/40 text-xs">{lang === 'ar' ? 'السعر' : lang === 'en' ? 'From' : 'À partir de'}</p>
             <p className="font-display font-black text-gold-400 text-xl leading-none tabular-nums">{priceLabel(pack, lang)}</p>
           </div>
           <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-gold py-3 px-6 text-sm flex-1 justify-center max-w-[200px]"><MessageCircle size={15} /> {lang === 'ar' ? 'واتساب' : 'WhatsApp'}</a>
@@ -115,7 +115,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
 
         <div className="pt-24 pb-0 px-5 max-w-6xl mx-auto">
           <Link href="/packs" className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm mb-6 group">
-            <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" /> {lang === 'ar' ? 'كل الباقات' : 'Tous les packs'}
+            <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform" /> {lang === 'ar' ? 'كل الباقات' : lang === 'en' ? 'All packs' : 'Tous les packs'}
           </Link>
         </div>
 
@@ -131,7 +131,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
                     : <img src={src} alt={pack.title} onClick={() => setLb(true)} className="w-full h-full object-cover cursor-zoom-in" loading="eager" />
                 ) : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] to-[#0e0e0e]"><Package size={56} className="text-white/[0.07]" /></div>}
                 <span className={`absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-lg border ${tier.cls}`}>{lang === 'ar' ? tier.ar : tier.label}</span>
-                {pack.featured && <span className="absolute top-4 right-4 text-xs font-bold px-3 py-1.5 rounded-lg bg-gold-500 text-noir-950">{lang === 'ar' ? 'مميز' : 'Populaire'}</span>}
+                {pack.featured && <span className="absolute top-4 right-4 text-xs font-bold px-3 py-1.5 rounded-lg bg-gold-500 text-noir-950">{lang === 'ar' ? 'مميز' : lang === 'en' ? 'Popular' : 'Populaire'}</span>}
               </div>
               {allPhotos.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto pb-1">
@@ -149,7 +149,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
             {/* Details */}
             <div className="flex flex-col gap-6">
               <div>
-                <p className="text-white/30 text-xs tracking-widest uppercase mb-2">{lang === 'ar' ? 'باقة إقامة' : 'Pack séjour'} · Oran</p>
+                <p className="text-white/30 text-xs tracking-widest uppercase mb-2">{lang === 'ar' ? 'باقة إقامة' : lang === 'en' ? 'Stay pack' : 'Pack séjour'} · Oran</p>
                 <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 leading-tight">{pack.title}</h1>
                 {pack.tagline && <p className="text-white/50 text-base mb-3 leading-relaxed">{pack.tagline}</p>}
                 <div className="mb-4"><ShareButtons title={pack.title} /></div>
@@ -161,7 +161,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
 
               {/* Inclusions */}
               <div>
-                <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{lang === 'ar' ? 'يشمل' : 'Ce pack comprend'}</h2>
+                <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{lang === 'ar' ? 'يشمل' : lang === 'en' ? 'This pack includes' : 'Ce pack comprend'}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {incs.map(({ key, icon: Icon, label, ar }) => (
                     <div key={key} className="bg-[#141414] border border-white/[0.06] rounded-xl p-4 flex flex-col items-start gap-2">
@@ -175,7 +175,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
               {/* Véhicule + bien réels liés (inventaire du site) */}
               {(pack.car || pack.property) && (
                 <div>
-                  <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{lang === 'ar' ? 'السيارة والعقار المعنيان' : 'Le véhicule & le bien de ce pack'}</h2>
+                  <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{lang === 'ar' ? 'السيارة والعقار المعنيان' : lang === 'en' ? 'The vehicle & property of this pack' : 'Le véhicule & le bien de ce pack'}</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {pack.car && (
                       <Link href={`/cars/${pack.car.id}`} className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/25 rounded-xl overflow-hidden transition-all">
@@ -183,7 +183,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
                           {pack.car.image_url ? <img src={pack.car.image_url} alt={pack.car.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <div className="w-full h-full flex items-center justify-center"><Car size={26} className="text-white/10" /></div>}
                         </div>
                         <div className="p-3">
-                          <div className="flex items-center gap-1.5 text-gold-500/80 text-[10px] uppercase tracking-wide mb-1"><Car size={11} /> {lang === 'ar' ? 'السيارة' : 'Véhicule'}</div>
+                          <div className="flex items-center gap-1.5 text-gold-500/80 text-[10px] uppercase tracking-wide mb-1"><Car size={11} /> {lang === 'ar' ? 'السيارة' : lang === 'en' ? 'Vehicle' : 'Véhicule'}</div>
                           <p className="text-white font-semibold text-sm leading-tight">{pack.car.name}</p>
                           <p className="text-white/35 text-xs mt-0.5">{[pack.car.category, pack.car.seats ? `${pack.car.seats} places` : null, pack.car.available === false ? (lang === 'ar' ? 'محجوزة' : 'Indisponible') : null].filter(Boolean).join(' · ')}</p>
                         </div>
@@ -195,21 +195,21 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
                           {pack.property.image_url ? <img src={pack.property.image_url} alt={pack.property.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <div className="w-full h-full flex items-center justify-center"><Home size={26} className="text-white/10" /></div>}
                         </div>
                         <div className="p-3">
-                          <div className="flex items-center gap-1.5 text-gold-500/80 text-[10px] uppercase tracking-wide mb-1"><Home size={11} /> {lang === 'ar' ? 'العقار' : 'Bien immo'}</div>
+                          <div className="flex items-center gap-1.5 text-gold-500/80 text-[10px] uppercase tracking-wide mb-1"><Home size={11} /> {lang === 'ar' ? 'العقار' : lang === 'en' ? 'Property' : 'Bien immo'}</div>
                           <p className="text-white font-semibold text-sm leading-tight">{pack.property.title}</p>
                           <p className="text-white/35 text-xs mt-0.5">{[pack.property.district, pack.property.city, (pack.property.status && pack.property.status !== 'disponible') ? (lang === 'ar' ? 'محجوز' : 'Indisponible') : null].filter(Boolean).join(' · ')}</p>
                         </div>
                       </Link>
                     )}
                   </div>
-                  {!available && <p className="text-red-400/70 text-xs mt-2">{lang === 'ar' ? 'هذه الباقة غير متوفرة حاليا (السيارة أو العقار محجوز).' : 'Ce pack est indisponible actuellement (le véhicule ou le bien est déjà loué).'}</p>}
+                  {!available && <p className="text-red-400/70 text-xs mt-2">{lang === 'ar' ? 'هذه الباقة غير متوفرة حاليا (السيارة أو العقار محجوز).' : lang === 'en' ? 'This pack is currently unavailable (the vehicle or property is already booked).' : 'Ce pack est indisponible actuellement (le véhicule ou le bien est déjà loué).'}</p>}
                 </div>
               )}
 
               {/* Features list */}
               {features.length > 0 && (
                 <div className="bg-[#141414] border border-white/[0.06] rounded-xl p-5">
-                  <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{lang === 'ar' ? 'التفاصيل' : 'Détails inclus'}</h2>
+                  <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{lang === 'ar' ? 'التفاصيل' : lang === 'en' ? 'Included details' : 'Détails inclus'}</h2>
                   <ul className="space-y-2.5">
                     {features.map((f, i) => (
                       <li key={i} className="flex items-start gap-2.5 text-white/65 text-sm leading-relaxed">
@@ -222,15 +222,15 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
 
               {pack.description && (
                 <div className="bg-[#141414] border border-white/[0.06] rounded-xl p-5">
-                  <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{lang === 'ar' ? 'الوصف' : 'Description'}</h2>
+                  <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{lang === 'ar' ? 'الوصف' : 'Description'}</h2>{/* Description identique EN */}
                   <p className="text-white/55 leading-relaxed text-sm whitespace-pre-wrap">{descTr || pack.description}</p>
                 </div>
               )}
 
               <div className="hidden md:flex flex-col sm:flex-row gap-3 mt-auto pt-2">
-                <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-gold flex-1 py-4 text-base justify-center"><MessageCircle size={18} /> {lang === 'ar' ? 'اطلب عبر واتساب' : 'Demander ce pack sur WhatsApp'}</a>
+                <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-gold flex-1 py-4 text-base justify-center"><MessageCircle size={18} /> {lang === 'ar' ? 'اطلب عبر واتساب' : lang === 'en' ? 'Request this pack on WhatsApp' : 'Demander ce pack sur WhatsApp'}</a>
               </div>
-              <p className="text-white/20 text-xs text-center">{lang === 'ar' ? 'كل شيء يتم عبر واتساب — تأكيد التوفر والسعر من طرف فريقنا.' : 'Tout se fait via WhatsApp — disponibilité et tarif confirmés par notre équipe.'}</p>
+              <p className="text-white/20 text-xs text-center">{lang === 'ar' ? 'كل شيء يتم عبر واتساب — تأكيد التوفر والسعر من طرف فريقنا.' : lang === 'en' ? 'Everything goes through WhatsApp — availability and price confirmed by our team.' : 'Tout se fait via WhatsApp — disponibilité et tarif confirmés par notre équipe.'}</p>
             </div>
           </div>
         </div>
