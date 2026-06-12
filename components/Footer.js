@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { MapPin, MessageCircle, Star, Instagram, Music2, Facebook } from 'lucide-react';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
+import NewsletterSignup from './NewsletterSignup';
 
 function SocialIcons({ s }) {
   const items = [
@@ -111,6 +112,11 @@ export default function Footer() {
               </li>
             </ul>
           </div>
+        </div>
+
+        {/* Newsletter */}
+        <div className="border-t border-white/[0.05] pt-8 mb-8 max-w-md mx-auto">
+          <NewsletterSignup />
         </div>
 
         {/* Liens légaux & confiance */}
