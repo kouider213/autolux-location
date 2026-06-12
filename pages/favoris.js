@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang, localizeValue } from '../lib/i18n';
 import { useFavorites } from '../lib/favorites';
+import ApproxPrice from '../components/ApproxPrice';
 
 export default function FavorisPage() {
   const { lang } = useLang();
@@ -60,7 +61,7 @@ export default function FavorisPage() {
                     <h3 className="text-white font-bold text-base mb-1">{car.name}</h3>
                     <p className="text-white/35 text-xs mb-3 capitalize">{localizeValue(car.category, lang)} · {car.seats} {lang === 'ar' ? 'مقاعد' : lang === 'en' ? 'seats' : 'places'} · {localizeValue(car.fuel, lang)}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-gold-400 font-bold">{Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}<span className="text-white/30 text-xs">{lang === 'en' ? '/day' : '/jour'}</span></span>
+                      <span className="text-gold-400 font-bold">{Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}<span className="text-white/30 text-xs">{lang === 'en' ? '/day' : '/jour'}</span><ApproxPrice amount={car.resale_price} from={car.currency === 'EUR' ? 'EUR' : 'DZD'} className="block" /></span>
                       <Link href={`/reservation?car=${car.id}`} className="text-xs font-bold bg-gold-500 text-noir-950 px-3 py-1.5 rounded-lg inline-flex items-center gap-1">
                         {lang === 'ar' ? 'احجز' : lang === 'en' ? 'Book' : 'Réserver'} <ArrowRight size={12} />
                       </Link>

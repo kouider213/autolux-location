@@ -6,6 +6,7 @@ import { Menu, X, LayoutDashboard, LogOut, LogIn, CalendarCheck, Heart } from 'l
 import { useLang } from '../lib/i18n';
 import { useSettings } from '../lib/settings';
 import { useFavorites } from '../lib/favorites';
+import { useCurrency, CURRENCIES } from '../lib/currency';
 
 export default function Navbar({ scrollContainerRef }) {
   const [scrolled, setScrolled]   = useState(false);
@@ -15,6 +16,7 @@ export default function Navbar({ scrollContainerRef }) {
   const { lang, setLang, t } = useLang();
   const settings = useSettings();
   const { count: favCount } = useFavorites();
+  const { cur, setCur } = useCurrency();
   const logo = settings.logo_url || '/logo.png';
   const favLabel = lang === 'ar' ? 'مفضلتي' : lang === 'en' ? 'Favorites' : 'Mes favoris';
 
@@ -58,6 +60,13 @@ export default function Navbar({ scrollContainerRef }) {
     { href: '/conditions',        label: t('nav.conditions') },
     { href: '/contact',           label: t('nav.contact') },
   ];
+
+  const CurSelect = ({ className = '' }) => (
+    <select value={cur} onChange={(e) => setCur(e.target.value)} aria-label="Devise"
+      className={`bg-white/[0.05] rounded-xl text-white/60 text-xs font-bold px-2 py-2 outline-none border-0 cursor-pointer hover:text-gold-400 ${className}`}>
+      {CURRENCIES.map(c => <option key={c.code} value={c.code} className="bg-[#141414] text-white">{c.code} {c.label}</option>)}
+    </select>
+  );
 
   const LangToggle = ({ className = '' }) => (
     <div className={`flex items-center gap-0.5 bg-white/[0.05] rounded-xl p-0.5 ${className}`} aria-label="Langue">
@@ -123,6 +132,7 @@ export default function Navbar({ scrollContainerRef }) {
               <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold">{favCount}</span>
             )}
           </Link>
+          <CurSelect />
           <LangToggle />
           {user ? (
             <>
@@ -136,6 +146,7 @@ export default function Navbar({ scrollContainerRef }) {
         </div>
 
         <div className="md:hidden flex items-center gap-2">
+          <CurSelect className="!py-1.5" />
           <LangToggle className="!py-1.5 !px-2.5 text-xs" />
           <button onClick={() => setMenuOpen(v => !v)}
             className="w-10 h-10 flex items-center justify-center rounded-xl text-white/60 hover:text-white hover:bg-white/[0.06] transition-all">
