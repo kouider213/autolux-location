@@ -10,6 +10,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
   const { bookingId } = req.body || {};
   if (!bookingId) return res.status(400).json({ error: 'bookingId manquant' });
+  const { pickup, dropoff } = req.body || {};
 
   const admin = supabaseAdmin();
   if (!admin) return res.status(500).json({ error: 'config serveur manquante' });
@@ -29,23 +30,25 @@ export default async function handler(req, res) {
     .order('created_at', { ascending: false })
     .limit(1);
 
+  const details = {
+    car: b.cars?.name || null,
+    start: b.start_date,
+    end: b.end_date,
+    price: b.final_price,
+    currency: b.currency || 'EUR',
+    pickup_location: (pickup || '').trim() || null,
+    return_location: (dropoff || '').trim() || null,
+  };
+
   let token;
   if (existing && existing[0] && existing[0].status !== 'signed') {
     token = existing[0].token;
+    // met à jour les lieux si le contrat existe encore (non signé)
+    await admin.from('contract_signatures').update({ details }).eq('token', token);
   } else {
     token = randomBytes(8).toString('hex');
     const { error: insErr } = await admin.from('contract_signatures').insert({
-      token,
-      booking_id: bookingId,
-      client_name: b.client_name,
-      status: 'pending',
-      details: {
-        car: b.cars?.name || null,
-        start: b.start_date,
-        end: b.end_date,
-        price: b.final_price,
-        currency: b.currency || 'EUR',
-      },
+      token, booking_id: bookingId, client_name: b.client_name, status: 'pending', details,
     });
     if (insErr) return res.status(500).json({ error: insErr.message });
   }

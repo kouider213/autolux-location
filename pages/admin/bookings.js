@@ -137,6 +137,8 @@ export default function BookingsPage() {
   const [edit, setEdit]         = useState({ start: '', end: '', price: '' });
   const [busy, setBusy]         = useState('');
   const [contractLink, setLink] = useState('');
+  const [pickup, setPickup]     = useState('');
+  const [dropoff, setDropoff]   = useState('');
   const [inspectOpen, setInspectOpen] = useState(false);
   const [bDocs, setBDocs] = useState(null);
 
@@ -220,7 +222,7 @@ export default function BookingsPage() {
     try {
       const r = await fetch('/api/generate-contract-link', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: selected.id }),
+        body: JSON.stringify({ bookingId: selected.id, pickup, dropoff }),
       });
       const d = await r.json();
       setBusy('');
@@ -596,6 +598,12 @@ export default function BookingsPage() {
 
                     {/* Contrat à signer */}
                     <div className="pt-3 border-t border-white/[0.06]">
+                      <div className="grid grid-cols-1 gap-2 mb-2">
+                        <input value={pickup} onChange={e => setPickup(e.target.value)}
+                          placeholder="Lieu de récupération (déf. agence Hay Badr)" className="input-dark w-full text-sm py-2" />
+                        <input value={dropoff} onChange={e => setDropoff(e.target.value)}
+                          placeholder="Lieu de restitution (déf. = récupération)" className="input-dark w-full text-sm py-2" />
+                      </div>
                       <button onClick={genContract} disabled={busy === 'contract'}
                         className="w-full flex items-center justify-center gap-2 bg-gold-500/15 hover:bg-gold-500/25 text-gold-400 font-semibold py-2.5 rounded-xl text-sm border border-gold-500/20 transition-all">
                         {busy === 'contract' ? <Loader2 size={14} className="animate-spin" /> : <FileSignature size={14} />}Générer le contrat à signer
