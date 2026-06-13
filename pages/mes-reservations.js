@@ -1,8 +1,9 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Phone, Search, Loader2, Car, ArrowRight, Star, RefreshCw, Ship } from 'lucide-react';
+import { Phone, Search, Loader2, Car, ArrowRight, Star, RefreshCw, Ship, FolderKanban } from 'lucide-react';
 import { statusLabel } from '../lib/importStatus';
+import { dossierStatusLabel } from '../lib/dossierStatus';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
@@ -29,20 +30,24 @@ export default function MesReservations() {
   const [phone, setPhone]   = useState('');
   const [list, setList]     = useState(null);
   const [imports, setImports] = useState([]);
+  const [dossiers, setDossiers] = useState([]);
   const [loading, setLoad]  = useState(false);
 
   const search = async () => {
     if (phone.trim().length < 4) return;
-    setLoad(true); setList(null); setImports([]);
+    setLoad(true); setList(null); setImports([]); setDossiers([]);
     try {
-      const [rb, ri] = await Promise.all([
+      const [rb, ri, rd] = await Promise.all([
         fetch('/api/my-bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: phone }) }),
         fetch('/api/import-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: phone }) }),
+        fetch('/api/dossier', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: phone }) }),
       ]);
       const db = await rb.json();
       setList(db.bookings || []);
       const di = await ri.json().catch(() => ({}));
       setImports(di?.order ? [di.order] : []);
+      const dd = await rd.json().catch(() => ({}));
+      setDossiers(dd?.dossier ? [dd.dossier] : []);
     } catch { setList([]); }
     setLoad(false);
   };
@@ -105,8 +110,33 @@ export default function MesReservations() {
             </div>
           )}
 
+          {/* Dossiers achat véhicule / immobilier */}
+          {dossiers.length > 0 && (
+            <div className="space-y-3 mb-4">
+              {dossiers.map(o => (
+                <div key={o.ref} className="bg-[#141414] border border-gold-500/15 rounded-2xl overflow-hidden">
+                  <div className="flex">
+                    {o.photos?.[0]
+                      ? <div className="w-24 shrink-0"><img src={o.photos[0]} alt={o.subject || ''} className="w-full h-full object-cover" /></div>
+                      : <div className="w-24 shrink-0 bg-white/[0.03] flex items-center justify-center"><FolderKanban size={22} className="text-gold-500/40" /></div>}
+                    <div className="flex-1 p-4">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <p className="text-white font-semibold text-sm">{o.subject || (o.kind === 'immo' ? L('Dossier immobilier', 'ملف عقاري', 'Real estate file') : L('Dossier achat', 'ملف اقتناء', 'Purchase file'))}</p>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gold-500/15 text-gold-400">{dossierStatusLabel(o.kind, o.status, lang)}</span>
+                      </div>
+                      <p className="text-white/30 text-[10px] font-mono mb-1">{o.kind === 'immo' ? L('Immobilier', 'عقار', 'Real estate') : L('Achat véhicule', 'اقتناء سيارة', 'Vehicle purchase')} · {o.ref}</p>
+                      <Link href={`/suivi-dossier/${o.ref}`} className="inline-flex items-center gap-1 text-xs font-semibold bg-white/[0.06] hover:bg-white/[0.1] text-white/70 px-3 py-1.5 rounded-lg mt-2">
+                        {L('Suivi', 'تتبّع', 'Track')} <ArrowRight size={12} />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {list !== null && (
-            list.length === 0 && imports.length === 0 ? (
+            list.length === 0 && imports.length === 0 && dossiers.length === 0 ? (
               <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-10 text-center">
                 <Car size={28} className="text-white/15 mx-auto mb-3" />
                 <p className="text-white/40 text-sm mb-1">{L('Aucune réservation trouvée.', 'لم يُعثر على أي حجز.', 'No booking found.')}</p>

@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import { useSettings } from '../lib/settings';
 import {
   LayoutDashboard, Car, CalendarCheck, Users, Star,
-  BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag, Settings, FileText, HelpCircle, Newspaper, Package, CalendarRange, Mail, Wallet, Ship, UserPlus,
+  BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag, Settings, FileText, HelpCircle, Newspaper, Package, CalendarRange, Mail, Wallet, Ship, UserPlus, FolderKanban,
 } from 'lucide-react';
 
 const NAV = [
@@ -20,6 +20,7 @@ const NAV = [
   { href: '/admin/cars',        label: 'Location voiture',   icon: Car },
   { href: '/admin/vehicles-sale', label: 'Véhicules à vendre', icon: Tag },
   { href: '/admin/import',      label: 'Importation',        icon: Ship },
+  { href: '/admin/dossiers',    label: 'Dossiers achat/immo', icon: FolderKanban },
   { href: '/admin/immo',        label: 'Immobilier',         icon: Building2 },
   { href: '/admin/packs',       label: 'Packs séjour',       icon: Package },
   { href: '/admin/reviews',     label: 'Avis',               icon: Star },

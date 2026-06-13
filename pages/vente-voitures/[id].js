@@ -7,6 +7,7 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ShareButtons from '../../components/ShareButtons';
 import LeadCapture from '../../components/LeadCapture';
+import StartDossier from '../../components/StartDossier';
 import Lightbox from '../../components/Lightbox';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
@@ -193,9 +194,10 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
                 )}
               </div>
               {available && (
-                <div className="hidden md:block">
-                  <LeadCapture category="voiture_vente" criteria={`${vehicle.brand} ${vehicle.model}${vehicle.year ? ` (${vehicle.year})` : ''}`}
+                <div className="hidden md:block space-y-2.5">
+                  <LeadCapture category="voiture_vente" criteria={veh}
                     budget_max={vehicle.price} currency={vehicle.currency} city={vehicle.city} whatsappUrl={waUrl} />
+                  <StartDossier kind="voiture" subject={veh} listing_id={vehicle.id} budget={vehicle.price} currency={vehicle.currency} />
                 </div>
               )}
               <p className="text-white/20 text-xs text-center">{t('d.perks_note')}</p>

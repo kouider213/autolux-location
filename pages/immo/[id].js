@@ -8,6 +8,7 @@ import Footer from '../../components/Footer';
 import Lightbox from '../../components/Lightbox';
 import ShareButtons from '../../components/ShareButtons';
 import LeadCapture from '../../components/LeadCapture';
+import StartDossier from '../../components/StartDossier';
 import { useLang } from '../../lib/i18n';
 import { useTranslated } from '../../lib/autoTranslate';
 import { useSettings, waNumber } from '../../lib/settings';
@@ -245,6 +246,7 @@ export default function PropertyDetail({ property, photos }) {
                 </a>
                 <LeadCapture category={isSale ? 'immo_vente' : 'immo_location'} criteria={property.title}
                   budget_max={property.price} currency={property.currency} city={property.city} whatsappUrl={whatsappUrl} />
+                <StartDossier kind="immo" subject={property.title} listing_id={property.id} budget={property.price} currency={property.currency} />
                 <Link href="/immo" className="flex items-center justify-center gap-2 w-full btn-outline py-3.5">
                   <Home size={15} />{t('d.all_immo')}
                 </Link>
