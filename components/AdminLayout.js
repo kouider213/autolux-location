@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import { useSettings } from '../lib/settings';
 import {
   LayoutDashboard, Car, CalendarCheck, Users, Star,
-  BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag, Settings, FileText, HelpCircle, Newspaper, Package, CalendarRange, Mail, Wallet, Ship, UserPlus, FolderKanban,
+  BarChart3, LogOut, Globe, Menu, Bell, Building2, Tag, Settings, FileText, HelpCircle, Newspaper, Package, CalendarRange, Mail, Wallet, Ship, UserPlus, FolderKanban, UserCog, ShieldCheck,
 } from 'lucide-react';
 
 const NAV = [
@@ -30,6 +30,8 @@ const NAV = [
   { href: '/admin/blog',        label: 'Blog',               icon: Newspaper },
   { href: '/admin/newsletter',  label: 'Newsletter',         icon: Mail },
   { href: '/admin/settings',    label: 'Paramètres',         icon: Settings },
+  { href: '/admin/compte',      label: 'Mon compte',         icon: UserCog },
+  { href: '/admin/equipe',      label: 'Équipe & accès',     icon: ShieldCheck },
 ];
 
 export default function AdminLayout({ children, title }) {
