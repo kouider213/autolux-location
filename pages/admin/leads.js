@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { UserPlus, Loader2, Trash2, MessageCircle, Phone, Search } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
+import TranslateToFr from '../../components/TranslateToFr';
 import { supabase } from '../../lib/supabase';
 import { useSettings, waNumber } from '../../lib/settings';
 
@@ -126,7 +127,8 @@ export default function AdminLeadsPage() {
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gold-500/15 text-gold-400">{l.lang === 'ar' ? '🇩🇿 ع' : l.lang === 'en' ? '🇬🇧 EN' : '🇫🇷 FR'}</span>
                     </div>
                     <p className="text-white/45 text-xs mt-1 flex items-center gap-1.5"><Phone size={11} />{l.client_phone || '—'}{l.city ? ` · ${l.city}` : ''}</p>
-                    {l.criteria && <p className="text-white/60 text-sm mt-1.5">{l.criteria}</p>}
+                    {l.criteria && <><p className="text-white/60 text-sm mt-1.5">{l.criteria}</p><TranslateToFr text={l.criteria} lang={l.lang} /></>}
+                    {l.notes && <TranslateToFr text={l.notes} lang={l.lang} />}
                     {l.budget_max ? <p className="text-gold-400 text-xs mt-0.5 font-semibold">Budget : {fmt(l.budget_max)} {l.currency === 'EUR' ? '€' : 'DA'}</p> : null}
                     <p className="text-white/20 text-[11px] mt-1">{new Date(l.created_at).toLocaleString('fr-FR')}</p>
                   </div>

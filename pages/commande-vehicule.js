@@ -237,16 +237,16 @@ export default function CommandeVehiculePage() {
               <div>
                 <p className="text-gold-400/80 text-[11px] font-black uppercase tracking-widest mb-4">{t('os.vehicle')}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Field label={t('f.type')} icon={Car}><input value={form.type} onChange={set('type')} placeholder="SUV, berline, citadine..." className={inputCls} /></Field>
+                  <Field label={t('f.type')} icon={Car}><input value={form.type} onChange={set('type')} placeholder={lang === 'ar' ? 'SUV، سيدان، مدينية...' : lang === 'en' ? 'SUV, sedan, city car...' : 'SUV, berline, citadine...'} className={inputCls} /></Field>
                   <Field label={t('f.marque')}><input value={form.marque} onChange={set('marque')} placeholder="Volkswagen" className={inputCls} /></Field>
                   <Field label={t('f.modele')}><input value={form.modele} onChange={set('modele')} placeholder="Golf 8" className={inputCls} /></Field>
                   <Field label={t('f.etat')}><select value={form.etat} onChange={set('etat')} className={inputCls}><option value="occasion">{t('f.etat_occ')}</option><option value="neuf">{t('f.etat_neuf')}</option><option value="indifferent">{t('f.etat_ind')}</option></select></Field>
                   <Field label={t('f.annee')} icon={Calendar}><input type="number" value={form.annee_min} onChange={set('annee_min')} placeholder="2018" className={inputCls} /></Field>
                   <Field label={t('f.km')} icon={Gauge}><input type="number" value={form.km_max} onChange={set('km_max')} placeholder="80000" className={inputCls} /></Field>
-                  <Field label={t('f.carburant')} icon={Fuel}><select value={form.carburant} onChange={set('carburant')} className={inputCls}><option value="">{t('f.indifferent')}</option><option>essence</option><option>diesel</option><option>hybride</option><option>électrique</option></select></Field>
-                  <Field label={t('f.boite')} icon={Settings}><select value={form.boite} onChange={set('boite')} className={inputCls}><option value="">{t('f.indifferent')}</option><option>automatique</option><option>manuelle</option></select></Field>
-                  <Field label={t('f.couleur')} icon={Palette}><input value={form.couleur} onChange={set('couleur')} placeholder="Noir, blanc..." className={inputCls} /></Field>
-                  <Field label={t('f.options')}><input value={form.options} onChange={set('options')} placeholder="GPS, toit ouvrant, cuir..." className={inputCls} /></Field>
+                  <Field label={t('f.carburant')} icon={Fuel}><select value={form.carburant} onChange={set('carburant')} className={inputCls}><option value="">{t('f.indifferent')}</option><option value="essence">{lang === 'ar' ? 'بنزين' : lang === 'en' ? 'Petrol' : 'Essence'}</option><option value="diesel">{lang === 'ar' ? 'ديزل' : 'Diesel'}</option><option value="hybride">{lang === 'ar' ? 'هجين' : lang === 'en' ? 'Hybrid' : 'Hybride'}</option><option value="électrique">{lang === 'ar' ? 'كهربائي' : lang === 'en' ? 'Electric' : 'Électrique'}</option></select></Field>
+                  <Field label={t('f.boite')} icon={Settings}><select value={form.boite} onChange={set('boite')} className={inputCls}><option value="">{t('f.indifferent')}</option><option value="automatique">{lang === 'ar' ? 'أوتوماتيك' : lang === 'en' ? 'Automatic' : 'Automatique'}</option><option value="manuelle">{lang === 'ar' ? 'يدوي' : lang === 'en' ? 'Manual' : 'Manuelle'}</option></select></Field>
+                  <Field label={t('f.couleur')} icon={Palette}><input value={form.couleur} onChange={set('couleur')} placeholder={lang === 'ar' ? 'أسود، أبيض...' : lang === 'en' ? 'Black, white...' : 'Noir, blanc...'} className={inputCls} /></Field>
+                  <Field label={t('f.options')}><input value={form.options} onChange={set('options')} placeholder={lang === 'ar' ? 'GPS، فتحة سقف، جلد...' : lang === 'en' ? 'GPS, sunroof, leather...' : 'GPS, toit ouvrant, cuir...'} className={inputCls} /></Field>
                 </div>
               </div>
 
@@ -258,8 +258,8 @@ export default function CommandeVehiculePage() {
                     <div className="col-span-2"><Field label={t('f.budget')}><input type="number" value={form.budget} onChange={set('budget')} placeholder="15000" className={inputCls} /></Field></div>
                     <Field label={t('f.devise')}><select value={form.devise} onChange={set('devise')} className={inputCls}><option value="EUR">EUR</option><option value="DZD">DZD</option></select></Field>
                   </div>
-                  <Field label={t('f.origine')} icon={Globe}><input value={form.origine} onChange={set('origine')} placeholder="France, Allemagne..." className={inputCls} /></Field>
-                  <Field label={t('f.delai')}><input value={form.delai} onChange={set('delai')} placeholder="2-3 mois..." className={inputCls} /></Field>
+                  <Field label={t('f.origine')} icon={Globe}><input value={form.origine} onChange={set('origine')} placeholder={lang === 'ar' ? 'فرنسا، ألمانيا...' : lang === 'en' ? 'France, Germany...' : 'France, Allemagne...'} className={inputCls} /></Field>
+                  <Field label={t('f.delai')}><input value={form.delai} onChange={set('delai')} placeholder={lang === 'ar' ? '2-3 أشهر...' : lang === 'en' ? '2-3 months...' : '2-3 mois...'} className={inputCls} /></Field>
                   <Field label={t('f.liens')}><input value={form.liens} onChange={set('liens')} placeholder="https://..." className={inputCls} /></Field>
                 </div>
               </div>

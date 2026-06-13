@@ -183,7 +183,7 @@ export default function ReviewsPage({ reviews: initialReviews }) {
                           type="text"
                           value={form.client_name}
                           onChange={e => setForm(f => ({ ...f, client_name: e.target.value }))}
-                          placeholder="Ex: Mohammed B."
+                          placeholder={t('rv.name_ph')}
                           className="input-dark"
                         />
                       </div>

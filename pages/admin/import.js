@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Ship, Loader2, Upload, Trash2, X, Copy, ExternalLink, Save, Search, MessageCircle } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
+import TranslateToFr from '../../components/TranslateToFr';
 import { supabase } from '../../lib/supabase';
 import { ALL_IMPORT_STATUSES, statusLabel } from '../../lib/importStatus';
 
@@ -239,6 +240,7 @@ function OrderCard({ order, open, onToggle, onSaved, onDeleted }) {
               <select value={form.currency || 'EUR'} onChange={set('currency')} className={inputCls}><option value="EUR">EUR</option><option value="DZD">DZD</option></select>
             </div>
             <textarea value={form.vehicle_specs || ''} onChange={set('vehicle_specs')} rows={2} placeholder="Options / précisions" className={`${inputCls} resize-none mt-2.5`} />
+            <TranslateToFr text={form.vehicle_specs} lang={form.lang} />
           </div>
 
           {/* Client */}

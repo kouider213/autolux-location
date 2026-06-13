@@ -155,21 +155,21 @@ export default function VenteVoituresPage({ vehicles }) {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {['Tous', 'essence', 'diesel', 'hybride', 'électrique'].map(f => (
-                      <button key={f} onClick={() => setFuel(f)} className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize transition-all ${fuel === f ? 'bg-gold-500 text-noir-950' : 'bg-white/[0.04] border border-white/[0.07] text-white/40 hover:text-white/70'}`}>{f}</button>
+                      <button key={f} onClick={() => setFuel(f)} className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize transition-all ${fuel === f ? 'bg-gold-500 text-noir-950' : 'bg-white/[0.04] border border-white/[0.07] text-white/40 hover:text-white/70'}`}>{f === 'Tous' ? t('common.all') : f}</button>
                     ))}
                   </div>
                   {/* Prix + tri */}
                   <div className="flex flex-wrap gap-2 items-center">
-                    <input value={priceMin} onChange={e => setPriceMin(e.target.value)} type="number" inputMode="numeric" placeholder="Prix min" className="w-28 bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none" />
-                    <input value={priceMax} onChange={e => setPriceMax(e.target.value)} type="number" inputMode="numeric" placeholder="Prix max" className="w-28 bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none" />
+                    <input value={priceMin} onChange={e => setPriceMin(e.target.value)} type="number" inputMode="numeric" placeholder={t('common.price_min')} className="w-28 bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none" />
+                    <input value={priceMax} onChange={e => setPriceMax(e.target.value)} type="number" inputMode="numeric" placeholder={t('common.price_max')} className="w-28 bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none" />
                     <select value={sort} onChange={e => setSort(e.target.value)} className="bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white/80 text-sm outline-none ml-auto">
-                      <option value="recent" className="bg-[#111]">Plus récents</option>
-                      <option value="price_asc" className="bg-[#111]">Prix croissant</option>
-                      <option value="price_desc" className="bg-[#111]">Prix décroissant</option>
-                      <option value="year_desc" className="bg-[#111]">Année récente</option>
+                      <option value="recent" className="bg-[#111]">{t('common.sort_recent')}</option>
+                      <option value="price_asc" className="bg-[#111]">{t('common.sort_price_asc')}</option>
+                      <option value="price_desc" className="bg-[#111]">{t('common.sort_price_desc')}</option>
+                      <option value="year_desc" className="bg-[#111]">{t('common.sort_year')}</option>
                     </select>
                     {(priceMin || priceMax) && (
-                      <button onClick={() => { setPriceMin(''); setPriceMax(''); }} className="text-white/40 hover:text-white text-xs px-3 py-2.5 border border-white/[0.07] rounded-xl">✕ Réinit.</button>
+                      <button onClick={() => { setPriceMin(''); setPriceMax(''); }} className="text-white/40 hover:text-white text-xs px-3 py-2.5 border border-white/[0.07] rounded-xl">{t('common.reset_short')}</button>
                     )}
                   </div>
                 </div>

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import AdminLayout from '../../components/AdminLayout';
 import InspectionTool from '../../components/InspectionTool';
+import TranslateToFr from '../../components/TranslateToFr';
 import { supabase } from '../../lib/supabase';
 import { generateContract } from '../../lib/pdf';
 import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck, Wallet, FileSignature, Save, Plus, Minus, Copy, Loader2, Camera, Star } from 'lucide-react';
@@ -530,6 +531,7 @@ export default function BookingsPage() {
                       <div className="pt-2 border-t border-white/[0.06]">
                         <p className="text-white/35 text-xs mb-1">Notes</p>
                         <p className="text-white/60 text-sm">{selected.notes}</p>
+                        <TranslateToFr text={selected.notes} lang={selected.client_lang} />
                       </div>
                     )}
                   </div>

@@ -173,17 +173,17 @@ export default function ImmoPage({ properties }) {
                   {/* Ville + prix + tri */}
                   <div className="flex flex-wrap gap-2 items-center">
                     <select value={city} onChange={e => setCity(e.target.value)} className="bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white/80 text-sm outline-none capitalize">
-                      {cities.map(c => <option key={c} value={c} className="bg-[#111]">{c === 'Toutes' ? '📍 Toutes villes' : c}</option>)}
+                      {cities.map(c => <option key={c} value={c} className="bg-[#111]">{c === 'Toutes' ? t('common.all_cities') : c}</option>)}
                     </select>
-                    <input value={priceMin} onChange={e => setPriceMin(e.target.value)} type="number" inputMode="numeric" placeholder="Prix min" className="w-28 bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none" />
-                    <input value={priceMax} onChange={e => setPriceMax(e.target.value)} type="number" inputMode="numeric" placeholder="Prix max" className="w-28 bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none" />
+                    <input value={priceMin} onChange={e => setPriceMin(e.target.value)} type="number" inputMode="numeric" placeholder={t('common.price_min')} className="w-28 bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none" />
+                    <input value={priceMax} onChange={e => setPriceMax(e.target.value)} type="number" inputMode="numeric" placeholder={t('common.price_max')} className="w-28 bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none" />
                     <select value={sort} onChange={e => setSort(e.target.value)} className="bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white/80 text-sm outline-none ml-auto">
-                      <option value="recent" className="bg-[#111]">Plus récents</option>
-                      <option value="price_asc" className="bg-[#111]">Prix croissant</option>
-                      <option value="price_desc" className="bg-[#111]">Prix décroissant</option>
+                      <option value="recent" className="bg-[#111]">{t('common.sort_recent')}</option>
+                      <option value="price_asc" className="bg-[#111]">{t('common.sort_price_asc')}</option>
+                      <option value="price_desc" className="bg-[#111]">{t('common.sort_price_desc')}</option>
                     </select>
                     {(city !== 'Toutes' || priceMin || priceMax) && (
-                      <button onClick={() => { setCity('Toutes'); setPriceMin(''); setPriceMax(''); }} className="text-white/40 hover:text-white text-xs px-3 py-2.5 border border-white/[0.07] rounded-xl">✕ Réinit.</button>
+                      <button onClick={() => { setCity('Toutes'); setPriceMin(''); setPriceMax(''); }} className="text-white/40 hover:text-white text-xs px-3 py-2.5 border border-white/[0.07] rounded-xl">{t('common.reset_short')}</button>
                     )}
                   </div>
                 </div>
