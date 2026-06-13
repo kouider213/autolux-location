@@ -62,16 +62,70 @@ export default function AdminNewsletterPage() {
     setUploading(false);
   };
 
+  // Bloc vidéo email = miniature cliquable + bouton ▶ (les emails ne lisent pas <video>)
+  const appendVideoBlock = (link, thumb) => {
+    if (thumb) {
+      appendHtml(
+        `<a href="${link}" style="text-decoration:none;display:block;margin:14px auto;max-width:100%">` +
+        `<img src="${thumb}" alt="Voir la vidéo" style="max-width:100%;height:auto;border-radius:10px;display:block;margin:0 auto" />` +
+        `</a>` +
+        `<p style="text-align:center;margin:6px 0 14px"><a href="${link}" style="background:#e9b949;color:#1a1500;text-decoration:none;font-weight:700;font-size:14px;padding:10px 18px;border-radius:8px;display:inline-block">▶ Regarder la vidéo</a></p>`
+      );
+    } else {
+      appendHtml(`<p style="text-align:center;margin:16px 0"><a href="${link}" style="background:#e9b949;color:#1a1500;text-decoration:none;font-weight:700;font-size:15px;padding:12px 24px;border-radius:9px;display:inline-block">▶ Regarder la vidéo</a></p>`);
+    }
+  };
+
   const insertVideo = () => {
     if (!/^https?:\/\//.test(vid.link)) { toast.error('Lien vidéo (https://) requis'); return; }
-    const thumb = vid.thumb || 'https://img.youtube.com/vi/' + ((vid.link.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/) || [])[1] || '') + '/hqdefault.jpg';
-    appendHtml(
-      `<a href="${vid.link}" style="text-decoration:none;display:block;margin:14px auto;max-width:100%">` +
-      `<img src="${thumb}" alt="Voir la vidéo" style="max-width:100%;height:auto;border-radius:10px;display:block;margin:0 auto" />` +
-      `</a>` +
-      `<p style="text-align:center;margin:6px 0 14px"><a href="${vid.link}" style="background:#e9b949;color:#1a1500;text-decoration:none;font-weight:700;font-size:14px;padding:10px 18px;border-radius:8px;display:inline-block">▶ Regarder la vidéo</a></p>`
-    );
+    const thumb = vid.thumb || (/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/.test(vid.link)
+      ? 'https://img.youtube.com/vi/' + (vid.link.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/) || [])[1] + '/hqdefault.jpg' : '');
+    appendVideoBlock(vid.link, thumb);
     setVid({ link: '', thumb: '' }); setPanel(null); toast.success('Vidéo ajoutée');
+  };
+
+  // Upload direct navigateur -> Supabase Storage (bucket 'videos', public). Contourne la limite Vercel.
+  const uploadToStorage = async (file, ext) => {
+    const path = `newsletter/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from('videos').upload(path, file, { contentType: file.type || undefined, upsert: false });
+    if (error) throw new Error(error.message);
+    return supabase.storage.from('videos').getPublicUrl(path).data.publicUrl;
+  };
+
+  // Génère une miniature (1ère image) depuis un fichier vidéo, côté navigateur
+  const genVideoThumb = (file) => new Promise((resolve) => {
+    try {
+      const v = document.createElement('video');
+      v.preload = 'metadata'; v.muted = true; v.playsInline = true; v.src = URL.createObjectURL(file);
+      const fail = () => { try { URL.revokeObjectURL(v.src); } catch {} resolve(null); };
+      v.onloadeddata = () => { try { v.currentTime = Math.min(0.6, (v.duration || 2) / 2); } catch { fail(); } };
+      v.onseeked = () => {
+        try {
+          const c = document.createElement('canvas');
+          c.width = v.videoWidth || 640; c.height = v.videoHeight || 360;
+          c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+          c.toBlob((b) => { URL.revokeObjectURL(v.src); resolve(b); }, 'image/jpeg', 0.8);
+        } catch { fail(); }
+      };
+      v.onerror = fail;
+      setTimeout(fail, 8000); // sécurité
+    } catch { resolve(null); }
+  });
+
+  const onPickVideoFile = async (e) => {
+    const file = e.target.files?.[0]; e.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = (file.name.split('.').pop() || 'mp4').toLowerCase();
+      const videoUrl = await uploadToStorage(file, ext);
+      let thumbUrl = '';
+      const blob = await genVideoThumb(file);
+      if (blob) { try { thumbUrl = await uploadToStorage(new File([blob], 'thumb.jpg', { type: 'image/jpeg' }), 'jpg'); } catch {} }
+      appendVideoBlock(videoUrl, thumbUrl);
+      toast.success('Vidéo ajoutée');
+    } catch (e) { toast.error('Échec : ' + e.message + (/exceeded|size/i.test(e.message) ? ' (vidéo trop lourde — réduis-la)' : '')); }
+    setUploading(false);
   };
 
   const insertButton = () => {
@@ -153,8 +207,12 @@ export default function AdminNewsletterPage() {
                 {uploading ? <Loader2 size={14} className="animate-spin" /> : <ImageIcon size={14} className="text-gold-400" />} Photo
                 <input type="file" accept="image/*" className="hidden" onChange={onPickImage} />
               </label>
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-white/70 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 rounded-lg px-3 py-2 cursor-pointer">
+                {uploading ? <Loader2 size={14} className="animate-spin" /> : <Video size={14} className="text-gold-400" />} Vidéo galerie
+                <input type="file" accept="video/*" className="hidden" onChange={onPickVideoFile} />
+              </label>
               <button type="button" onClick={() => setPanel(panel === 'video' ? null : 'video')}
-                className="flex items-center gap-1.5 text-xs font-semibold text-white/70 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 rounded-lg px-3 py-2"><Video size={14} className="text-gold-400" />Vidéo</button>
+                className="flex items-center gap-1.5 text-xs font-semibold text-white/70 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 rounded-lg px-3 py-2"><Video size={14} className="text-gold-400" />Vidéo (lien)</button>
               <button type="button" onClick={() => setPanel(panel === 'button' ? null : 'button')}
                 className="flex items-center gap-1.5 text-xs font-semibold text-white/70 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 rounded-lg px-3 py-2"><MousePointerClick size={14} className="text-gold-400" />Bouton</button>
               <button type="button" onClick={() => appendHtml('<b>texte en gras</b>')}
