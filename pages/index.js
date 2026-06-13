@@ -462,8 +462,8 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
             name: 'Fik Conciergerie',
             image: 'https://fikconciergerie.com/logo.png',
             url: 'https://fikconciergerie.com',
-            telephone: '+213',
-            address: { '@type': 'PostalAddress', streetAddress: 'Hay Badr', addressLocality: 'Oran', addressCountry: 'DZ' },
+            telephone: '+32466311469',
+            address: { '@type': 'PostalAddress', streetAddress: 'Rue Derbouz Draoua, Houari', addressLocality: 'Oran', postalCode: '31300', addressCountry: 'DZ' },
             geo: { '@type': 'GeoCoordinates', latitude: 35.6976, longitude: -0.6369 },
             aggregateRating: { '@type': 'AggregateRating', ratingValue: String(reviewStats.avg), reviewCount: String(reviewStats.count), bestRating: '5', worstRating: '1' },
           }) }} />

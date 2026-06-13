@@ -96,11 +96,11 @@ export default function App({ Component, pageProps }) {
                 image: 'https://fikconciergerie.com/logo.png',
                 telephone: '+32466311469',
                 priceRange: '€€',
-                address: { '@type': 'PostalAddress', addressLocality: 'Oran', addressRegion: 'Oran', addressCountry: 'DZ', streetAddress: 'Hay Badr' },
+                address: { '@type': 'PostalAddress', streetAddress: 'Rue Derbouz Draoua, Houari', addressLocality: 'Oran', postalCode: '31300', addressRegion: 'Oran', addressCountry: 'DZ' },
                 geo: { '@type': 'GeoCoordinates', latitude: 35.6976, longitude: -0.6369 },
                 areaServed: { '@type': 'City', name: 'Oran' },
                 openingHours: 'Mo-Su 00:00-23:59',
-                sameAs: [],
+                sameAs: ['https://www.instagram.com/fik_conciergerie', 'https://share.google/N4itFBIAR9Z1JX8Aw'],
               }) }} />
               <title>Fik Conciergerie — Location, Vente & Immobilier à Oran</title>
       </Head>
