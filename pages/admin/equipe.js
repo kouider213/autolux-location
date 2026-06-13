@@ -133,16 +133,16 @@ export default function AdminEquipePage() {
                   </div>
                 </div>
                 {/* édition rapide rôle + username */}
-                {!u.is_super && (
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/[0.05] flex-wrap">
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/[0.05] flex-wrap">
+                  {!u.is_super && (
                     <select value={u.role} onChange={e => saveRow(u, { role: e.target.value })} className="bg-white/[0.04] border border-white/[0.07] rounded-lg px-2 py-1.5 text-white text-xs outline-none">
                       {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                     </select>
-                    <input defaultValue={u.username || ''} onBlur={e => e.target.value !== (u.username || '') && saveRow(u, { username: e.target.value })}
-                      placeholder="nom d'utilisateur" className="bg-white/[0.04] border border-white/[0.07] rounded-lg px-2 py-1.5 text-white text-xs outline-none w-40" />
-                    <span className="text-white/20 text-[11px]">modifié au clic ailleurs</span>
-                  </div>
-                )}
+                  )}
+                  <input defaultValue={u.username || ''} onBlur={e => e.target.value !== (u.username || '') && saveRow(u, { username: e.target.value })}
+                    placeholder="nom d'utilisateur (login)" className="bg-white/[0.04] border border-white/[0.07] rounded-lg px-2 py-1.5 text-white text-xs outline-none w-44" />
+                  <span className="text-white/20 text-[11px]">enregistré au clic ailleurs</span>
+                </div>
               </div>
             ))}
           </div>
