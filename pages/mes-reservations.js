@@ -64,11 +64,11 @@ export default function MesReservations() {
 
           <div className="flex gap-2 mb-8">
             <div className="relative flex-1">
-              <Search size={15} className={`absolute ${ar ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-white/25 pointer-events-none`} />
+              <Search size={15} className={`absolute ${ar ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 text-white/30 pointer-events-none`} />
               <input value={phone} onChange={e => setPhone(e.target.value)} onKeyDown={e => e.key === 'Enter' && search()}
                 placeholder={L('N° réservation, email ou téléphone…', 'رقم الحجز أو البريد أو الهاتف…', 'Booking no., email or phone…')}
                 dir={ar ? 'rtl' : 'ltr'}
-                className={`input-dark w-full ${ar ? 'pr-10 pl-4 text-right' : 'pl-10 pr-4'} py-3 text-sm`} />
+                className={`input-dark w-full ${ar ? 'pr-11 pl-4 text-right' : 'pl-11 pr-4'} py-3 text-sm truncate`} />
             </div>
             <button onClick={search} disabled={loading} aria-label={L('Rechercher', 'بحث', 'Search')}
               className="btn-gold px-5 shrink-0 flex items-center justify-center min-w-[52px]">

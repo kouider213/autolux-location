@@ -9,6 +9,16 @@ import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Cal
 
 const STATUS_FLOW = ['PENDING', 'ACCEPTED', 'ACTIVE', 'COMPLETED', 'REJECTED'];
 const STATUS_FR = { PENDING: 'En attente', ACCEPTED: 'Confirmée', ACTIVE: 'En cours', COMPLETED: 'Terminée', REJECTED: 'Refusée' };
+// Libellés statut dans la langue du client (pour les messages WhatsApp)
+const WA_STATUS_L = {
+  PENDING:  { fr: 'En attente de confirmation', ar: 'في انتظار التأكيد', en: 'Awaiting confirmation' },
+  ACCEPTED: { fr: 'Confirmée', ar: 'مؤكَّدة', en: 'Confirmed' },
+  CONFIRMED:{ fr: 'Confirmée', ar: 'مؤكَّدة', en: 'Confirmed' },
+  ACTIVE:   { fr: 'En cours', ar: 'جارية', en: 'Ongoing' },
+  COMPLETED:{ fr: 'Terminée', ar: 'منتهية', en: 'Completed' },
+  REJECTED: { fr: 'Indisponible à ces dates', ar: 'غير متوفّر في هذه التواريخ', en: 'Unavailable on these dates' },
+};
+const LANG_BADGE = { fr: '🇫🇷 Français', ar: '🇩🇿 العربية', en: '🇬🇧 English' };
 
 const STATUS_LABELS = {
   PENDING:   { label: 'En attente',  cls: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
@@ -122,9 +132,22 @@ export default function BookingsPage() {
 
   const handleWhatsApp = (b) => {
     const phone = b.client_phone?.replace(/\D/g, '');
-    const msg = b.status === 'REJECTED'
-      ? `Bonjour ${b.client_name},\n\nNous vous remercions pour votre demande. Nous sommes sincèrement navrés, nous ne sommes malheureusement pas disponibles sur ces dates. Notre équipe serait toutefois ravie de vous proposer d'autres options — n'hésitez pas à nous écrire.\n\nBien à vous, l'équipe Fik Conciergerie.`
-      : `✅ *Confirmation — Fik Conciergerie*\n\nBonjour ${b.client_name},\n\nNous avons le plaisir de vous confirmer votre réservation.\n\n🚗 ${b.cars?.name}\n📅 ${b.start_date} → ${b.end_date}\n💰 ${b.final_price}€\n\nToute l'équipe se réjouit de vous accueillir. Merci de votre confiance 🙏`;
+    const lg = b.client_lang === 'ar' ? 'ar' : b.client_lang === 'en' ? 'en' : 'fr';
+    const rejected = b.status === 'REJECTED';
+    let msg;
+    if (lg === 'ar') {
+      msg = rejected
+        ? `مرحباً ${b.client_name}،\n\nنشكرك على طلبك. نأسف بصدق، لسنا متاحين للأسف في هذه التواريخ. يسعد فريقنا أن يقترح عليك تواريخ أخرى — لا تتردد في مراسلتنا.\n\nمع تحياتنا، فريق Fik Conciergerie.`
+        : `✅ *تأكيد — Fik Conciergerie*\n\nمرحباً ${b.client_name}،\n\nيسعدنا تأكيد حجزك.\n\n🚗 ${b.cars?.name}\n📅 ${b.start_date} → ${b.end_date}\n💰 ${b.final_price}€\n\nيتشرف فريقنا باستقبالك. شكراً لثقتك 🙏`;
+    } else if (lg === 'en') {
+      msg = rejected
+        ? `Hello ${b.client_name},\n\nThank you for your request. We are sincerely sorry, we are unfortunately not available on these dates. Our team would be glad to suggest other options — feel free to write to us.\n\nBest regards, the Fik Conciergerie team.`
+        : `✅ *Confirmation — Fik Conciergerie*\n\nHello ${b.client_name},\n\nWe are pleased to confirm your booking.\n\n🚗 ${b.cars?.name}\n📅 ${b.start_date} → ${b.end_date}\n💰 ${b.final_price}€\n\nThe whole team looks forward to welcoming you. Thank you for your trust 🙏`;
+    } else {
+      msg = rejected
+        ? `Bonjour ${b.client_name},\n\nNous vous remercions pour votre demande. Nous sommes sincèrement navrés, nous ne sommes malheureusement pas disponibles sur ces dates. Notre équipe serait toutefois ravie de vous proposer d'autres options — n'hésitez pas à nous écrire.\n\nBien à vous, l'équipe Fik Conciergerie.`
+        : `✅ *Confirmation — Fik Conciergerie*\n\nBonjour ${b.client_name},\n\nNous avons le plaisir de vous confirmer votre réservation.\n\n🚗 ${b.cars?.name}\n📅 ${b.start_date} → ${b.end_date}\n💰 ${b.final_price}€\n\nToute l'équipe se réjouit de vous accueillir. Merci de votre confiance 🙏`;
+    }
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -252,14 +275,21 @@ export default function BookingsPage() {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  // Envoie le statut actuel + lien de suivi au client via WhatsApp
+  // Envoie le statut actuel + lien de suivi au client via WhatsApp — DANS SA LANGUE
   const sendStatusWA = () => {
     if (!selected) return;
     const phone = selected.client_phone?.replace(/\D/g, '');
     if (!phone) { toast.error('Pas de téléphone client'); return; }
+    const lg = selected.client_lang === 'ar' ? 'ar' : selected.client_lang === 'en' ? 'en' : 'fr';
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://fikconciergerie.com';
     const link = `${origin}/suivi/${selected.id}`;
-    const msg = `Bonjour ${selected.client_name},\n\nVoici la mise à jour de votre réservation ${selected.cars?.name || ''} chez Fik Conciergerie.\n\n📌 Statut : *${STATUS_FR[selected.status] || selected.status}*\n🔗 Suivez votre réservation en temps réel : ${link}\n\nNous restons à votre entière disposition pour toute question.\nBien à vous, l'équipe Fik Conciergerie.`;
+    const sLabel = (WA_STATUS_L[selected.status] || {})[lg] || STATUS_FR[selected.status] || selected.status;
+    const car = selected.cars?.name || '';
+    const msg = lg === 'ar'
+      ? `مرحباً ${selected.client_name}،\n\nإليك تحديث حجزك ${car} لدى Fik Conciergerie.\n\n📌 الحالة: *${sLabel}*\n🔗 تابع حجزك مباشرة: ${link}\n\nنبقى رهن إشارتك لأي استفسار.\nمع تحياتنا، فريق Fik Conciergerie.`
+      : lg === 'en'
+      ? `Hello ${selected.client_name},\n\nHere is the update on your booking ${car} at Fik Conciergerie.\n\n📌 Status: *${sLabel}*\n🔗 Track your booking live: ${link}\n\nWe remain at your full disposal for any question.\nBest regards, the Fik Conciergerie team.`
+      : `Bonjour ${selected.client_name},\n\nVoici la mise à jour de votre réservation ${car} chez Fik Conciergerie.\n\n📌 Statut : *${sLabel}*\n🔗 Suivez votre réservation en temps réel : ${link}\n\nNous restons à votre entière disposition pour toute question.\nBien à vous, l'équipe Fik Conciergerie.`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -453,6 +483,10 @@ export default function BookingsPage() {
                 <div>
                   <p className="text-white/25 text-[10px] uppercase tracking-widest font-medium mb-3">Client</p>
                   <div className="bg-[#1e1e1e] rounded-xl p-4 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2 pb-1">
+                      <span className="text-white/35 text-sm">Langue du client</span>
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-gold-500/15 text-gold-400">{LANG_BADGE[selected.client_lang] || LANG_BADGE.fr}</span>
+                    </div>
                     {[
                       [User, 'Nom',        selected.client_name],
                       [Phone, 'Téléphone', selected.client_phone],

@@ -21,6 +21,7 @@ export default async function handler(req, res) {
     currency: b.currency || 'DZD',
     city: b.city || null,
     notes: b.notes || null,
+    lang: b.lang || 'fr',
     status: 'nouveau',
   }).select('id').single();
   if (error) return res.status(500).json({ error: error.message });

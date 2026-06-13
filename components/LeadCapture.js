@@ -23,7 +23,7 @@ export default function LeadCapture({ category, criteria, budget_max, currency =
     try {
       await fetch('/api/lead', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ client_name: name, client_phone: phone, category, criteria, budget_max, currency, city }),
+        body: JSON.stringify({ client_name: name, client_phone: phone, category, criteria, budget_max, currency, city, lang }),
       });
     } catch { /* best-effort */ }
     setSending(false); setDone(true);

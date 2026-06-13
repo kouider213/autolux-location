@@ -72,13 +72,13 @@ export default async function handler(req, res) {
     try {
       const { data: b } = await supabase
         .from('bookings')
-        .select('client_name, client_email, start_date, end_date, final_price, currency, cars(name)')
+        .select('client_name, client_email, client_lang, start_date, end_date, final_price, currency, cars(name)')
         .eq('id', bookingId).single();
       if (b?.client_email && /@/.test(b.client_email)) {
         const payload = {
           client_name: b.client_name, car_name: b.cars?.name,
           start_date: b.start_date, end_date: b.end_date,
-          total: b.final_price, currency: b.currency, booking_id: bookingId, status,
+          total: b.final_price, currency: b.currency, booking_id: bookingId, status, lang: b.client_lang,
         };
         const { subject, html } = status === 'ACCEPTED' ? bookingConfirmedEmail(payload) : bookingStatusEmail(payload);
         sendEmail(b.client_email, subject, html).catch(() => {});

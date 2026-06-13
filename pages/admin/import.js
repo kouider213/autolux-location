@@ -143,9 +143,15 @@ function OrderCard({ order, open, onToggle, onSaved, onDeleted }) {
   const sendStatusWA = () => {
     const phone = (form.client_phone || '').replace(/\D/g, '');
     if (!phone) { toast.error('Pas de téléphone client'); return; }
-    const veh = [form.vehicle_brand, form.vehicle_model].filter(Boolean).join(' ') || 'votre véhicule';
+    const lg = form.lang === 'ar' ? 'ar' : form.lang === 'en' ? 'en' : 'fr';
+    const veh = [form.vehicle_brand, form.vehicle_model].filter(Boolean).join(' ') || (lg === 'ar' ? 'سيارتك' : lg === 'en' ? 'your vehicle' : 'votre véhicule');
     const link = `https://fikconciergerie.com/suivi-import/${order.order_ref}`;
-    const msg = `Bonjour ${form.client_name || ''},\n\nVoici la mise à jour de votre dossier d'importation (${veh}) chez Fik Conciergerie.\n\n📌 Statut : *${statusLabel(form.status, 'fr')}*\n📋 N° de commande : ${order.order_ref}\n🔗 Suivez votre importation en temps réel : ${link}\n\nNous restons à votre entière disposition pour toute question.\nBien à vous, l'équipe Fik Conciergerie.`;
+    const sLabel = statusLabel(form.status, lg);
+    const msg = lg === 'ar'
+      ? `مرحباً ${form.client_name || ''}،\n\nإليك تحديث ملف استيراد (${veh}) لدى Fik Conciergerie.\n\n📌 الحالة: *${sLabel}*\n📋 رقم الطلب: ${order.order_ref}\n🔗 تابع استيرادك مباشرة: ${link}\n\nنبقى رهن إشارتك لأي استفسار.\nمع تحياتنا، فريق Fik Conciergerie.`
+      : lg === 'en'
+      ? `Hello ${form.client_name || ''},\n\nHere is the update on your import file (${veh}) at Fik Conciergerie.\n\n📌 Status: *${sLabel}*\n📋 Order no.: ${order.order_ref}\n🔗 Track your import live: ${link}\n\nWe remain at your full disposal for any question.\nBest regards, the Fik Conciergerie team.`
+      : `Bonjour ${form.client_name || ''},\n\nVoici la mise à jour de votre dossier d'importation (${veh}) chez Fik Conciergerie.\n\n📌 Statut : *${sLabel}*\n📋 N° de commande : ${order.order_ref}\n🔗 Suivez votre importation en temps réel : ${link}\n\nNous restons à votre entière disposition pour toute question.\nBien à vous, l'équipe Fik Conciergerie.`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -171,7 +177,7 @@ function OrderCard({ order, open, onToggle, onSaved, onDeleted }) {
             <p className="text-white font-semibold text-sm truncate">{[form.vehicle_brand, form.vehicle_model].filter(Boolean).join(' ') || 'Véhicule à définir'}</p>
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${STATUS_CLS[form.status] || 'bg-white/10 text-white/40'}`}>{statusLabel(form.status, 'fr')}</span>
           </div>
-          <p className="text-white/35 text-xs mt-0.5">{order.order_ref} · {form.client_name || '—'} · {form.client_phone || ''}</p>
+          <p className="text-white/35 text-xs mt-0.5">{order.order_ref} · {form.client_name || '—'} · {form.client_phone || ''} · <span className="text-gold-400 font-semibold">{form.lang === 'ar' ? '🇩🇿 ع' : form.lang === 'en' ? '🇬🇧 EN' : '🇫🇷 FR'}</span></p>
         </div>
       </button>
 

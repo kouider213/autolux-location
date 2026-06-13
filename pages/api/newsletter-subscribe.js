@@ -29,8 +29,8 @@ export default async function handler(req, res) {
     }
   }
 
-  // Email de bienvenue (non bloquant)
-  const { subject, html } = newsletterWelcomeEmail();
+  // Email de bienvenue (non bloquant) — dans la langue d'inscription
+  const { subject, html } = newsletterWelcomeEmail(lang);
   sendEmail(clean, subject, html).catch(() => {});
 
   return res.json({ ok: true });

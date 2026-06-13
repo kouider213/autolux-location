@@ -213,6 +213,7 @@ export default function ReservationPage({ cars: initialCars }) {
           client_age:           ageNum,
           client_email:         form.email    || null,
           client_passport:      form.passport || null,
+          client_lang:          lang          || 'fr',
           start_date:           form.startDate,
           end_date:             form.endDate,
           final_price:          total,
@@ -234,7 +235,7 @@ export default function ReservationPage({ cars: initialCars }) {
           body: JSON.stringify({
             client_email: form.email, client_name: form.name, car_name: selectedCar?.name,
             start_date: form.startDate, end_date: form.endDate, total,
-            currency: selectedCar?.currency, booking_id: newBookingId,
+            currency: selectedCar?.currency, booking_id: newBookingId, lang,
           }),
         }).catch(() => {});
       }

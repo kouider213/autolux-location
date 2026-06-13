@@ -62,7 +62,13 @@ export default function AdminLeadsPage() {
 
   const relance = (l) => {
     const num = digits(l.client_phone) || WHATSAPP;
-    const msg = `Bonjour ${l.client_name}, c'est Fik Conciergerie 👋 Vous étiez intéressé(e) par : ${l.criteria || CAT_LABEL[l.category] || ''}. Toujours d'actualité ? On est là pour vous aider.`;
+    const lg = l.lang === 'ar' ? 'ar' : l.lang === 'en' ? 'en' : 'fr';
+    const obj = l.criteria || CAT_LABEL[l.category] || '';
+    const msg = lg === 'ar'
+      ? `مرحباً ${l.client_name}، معك Fik Conciergerie 👋 كنت مهتماً بـ: ${obj}. هل ما زلت مهتماً؟ نحن هنا لمساعدتك.`
+      : lg === 'en'
+      ? `Hello ${l.client_name}, this is Fik Conciergerie 👋 You were interested in: ${obj}. Still interested? We're here to help.`
+      : `Bonjour ${l.client_name}, c'est Fik Conciergerie 👋 Vous étiez intéressé(e) par : ${obj}. Toujours d'actualité ? Nous sommes là pour vous aider.`;
     window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
     if (l.status === 'nouveau') setStatus(l.id, 'en_cours');
   };
@@ -117,6 +123,7 @@ export default function AdminLeadsPage() {
                       <p className="text-white font-semibold text-sm">{l.client_name}</p>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${STATUS_CLS[l.status] || 'bg-white/10 text-white/40'}`}>{(l.status || '').replace('_', ' ')}</span>
                       <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white/[0.06] text-white/50">{CAT_LABEL[l.category] || l.category}</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gold-500/15 text-gold-400">{l.lang === 'ar' ? '🇩🇿 ع' : l.lang === 'en' ? '🇬🇧 EN' : '🇫🇷 FR'}</span>
                     </div>
                     <p className="text-white/45 text-xs mt-1 flex items-center gap-1.5"><Phone size={11} />{l.client_phone || '—'}{l.city ? ` · ${l.city}` : ''}</p>
                     {l.criteria && <p className="text-white/60 text-sm mt-1.5">{l.criteria}</p>}

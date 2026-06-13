@@ -30,14 +30,14 @@ export default async function handler(req, res) {
   const { data, error } = await admin.from('bookings').update(clean).eq('id', bookingId).select('*, cars(name, currency)').single();
   if (error) return res.status(500).json({ error: error.message });
 
-  // Email auto au client si le statut a changé (et email fourni)
+  // Email auto au client si le statut a changé (et email fourni) — dans SA langue
   let emailed = false;
   if (clean.status && before && clean.status !== before.status && data.client_email && /@/.test(data.client_email)) {
     try {
       const { subject, html } = bookingStatusEmail({
         client_name: data.client_name, car_name: data.cars?.name, status: data.status,
         start_date: data.start_date, end_date: data.end_date, total: data.final_price,
-        currency: data.cars?.currency, booking_id: data.id,
+        currency: data.cars?.currency, booking_id: data.id, lang: data.client_lang,
       });
       const r = await sendEmail(data.client_email, subject, html);
       emailed = !!r.ok;
