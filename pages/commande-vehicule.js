@@ -1,8 +1,9 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import { useState } from 'react';
 import {
   Globe, Search, FileCheck, Wallet, Truck, ShieldCheck, AlertTriangle,
-  Send, Car, MapPin, Gauge, Fuel, Settings, Calendar, Palette, MessageCircle, CheckCircle2,
+  Send, Car, MapPin, Gauge, Fuel, Settings, Calendar, Palette, MessageCircle, CheckCircle2, Copy, Loader2,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -28,6 +29,8 @@ export default function CommandeVehiculePage() {
   const [form, setForm]       = useState(emptyForm);
   const [accept, setAccept]   = useState(false);
   const [error, setError]     = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult]   = useState(null); // { ref }
 
   const set = (f) => (e) => setForm(s => ({ ...s, [f]: e.target.value }));
   const cur = form.devise === 'DZD' ? 'DA' : '€';
@@ -97,7 +100,7 @@ export default function CommandeVehiculePage() {
     return L.join('\n');
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const E = ar
       ? { name: 'الاسم واللقب إجباريان.', wa: 'رقم واتساب إجباري.', veh: 'حدّد على الأقل نوع أو ماركة السيارة.', acc: 'يجب الموافقة على الشروط لإرسال الطلب.' }
       : { name: 'Nom et prénom obligatoires.', wa: 'Numéro WhatsApp obligatoire.', veh: 'Indiquez au moins le type ou la marque du véhicule.', acc: 'Vous devez accepter les conditions pour envoyer la demande.' };
@@ -106,9 +109,32 @@ export default function CommandeVehiculePage() {
     if (!form.marque.trim() && !form.type.trim()) { setError(E.veh); return; }
     if (!accept) { setError(E.acc); return; }
     setError('');
-    const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(buildMessage())}`;
-    window.open(url, '_blank');
+    setSubmitting(true);
+
+    // Enregistre la commande en base (suivi A→Z) — best effort, ne bloque jamais WhatsApp
+    let ref = null;
+    try {
+      const r = await fetch('/api/create-import-order', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_name: `${form.nom} ${form.prenom}`.trim(), client_phone: form.whatsapp, client_city: form.ville, lang,
+          vehicle_brand: form.marque, vehicle_model: form.modele, vehicle_year: form.annee_min, vehicle_type: form.type,
+          vehicle_fuel: form.carburant, vehicle_gearbox: form.boite, vehicle_color: form.couleur,
+          vehicle_specs: [form.options, form.km_max ? `Km max: ${form.km_max}` : '', form.etat ? `État: ${form.etat}` : '', form.liens, form.message].filter(Boolean).join(' · '),
+          budget: form.budget || null, currency: form.devise, country_origin: form.origine, deadline: form.delai,
+        }),
+      });
+      const d = await r.json();
+      if (d?.ok) ref = d.ref;
+    } catch { /* silencieux : WhatsApp reste le canal principal */ }
+
+    setSubmitting(false);
+    const wmsg = buildMessage() + (ref ? `\n\n${ar ? 'رقم طلبي' : 'N° de ma commande'} : ${ref}` : '');
+    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(wmsg)}`, '_blank');
+    if (ref) { setResult({ ref }); window.scrollTo({ top: 0, behavior: 'smooth' }); }
   };
+
+  const copyRef = () => { if (result?.ref) { navigator.clipboard.writeText(result.ref); } };
 
   const Field = ({ label, icon: Icon, children }) => (
     <div>
@@ -148,6 +174,25 @@ export default function CommandeVehiculePage() {
         </div>
 
         <div className="px-5 pb-28 max-w-5xl mx-auto space-y-16">
+
+          {/* Confirmation : commande enregistrée + numéro de suivi */}
+          {result?.ref && (
+            <section className="max-w-2xl mx-auto">
+              <div className="bg-gradient-to-b from-emerald-500/[0.08] to-[#111] border border-emerald-500/25 rounded-3xl p-7 text-center">
+                <div className="w-14 h-14 bg-emerald-500/15 rounded-full flex items-center justify-center mx-auto mb-4"><CheckCircle2 size={26} className="text-emerald-400" /></div>
+                <h2 className="text-white font-bold text-xl mb-2">{ar ? 'تم تسجيل طلبك ✅' : 'Votre demande est enregistrée ✅'}</h2>
+                <p className="text-white/45 text-sm mb-5">{ar ? 'احتفظ برقم طلبك لتتبّع استيراد سيارتك في أي وقت.' : 'Conservez votre numéro de commande pour suivre votre importation à tout moment.'}</p>
+                <div className="inline-flex items-center gap-3 bg-white/[0.05] border border-white/10 rounded-xl px-5 py-3 mb-5">
+                  <span className="font-mono font-bold text-gold-400 text-lg tracking-wider">{result.ref}</span>
+                  <button onClick={copyRef} className="text-white/40 hover:text-gold-400" aria-label="Copier"><Copy size={16} /></button>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2.5 justify-center">
+                  <Link href={`/suivi-import/${result.ref}`} className="btn-gold px-6 py-3 justify-center"><Search size={15} />{ar ? 'تتبّع طلبي' : 'Suivre ma commande'}</Link>
+                  <button onClick={() => setResult(null)} className="border border-white/12 text-white/60 hover:text-white rounded-xl px-6 py-3 text-sm font-semibold">{ar ? 'طلب آخر' : 'Nouvelle demande'}</button>
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* Comment ça fonctionne */}
           <section>
@@ -242,8 +287,8 @@ export default function CommandeVehiculePage() {
               )}
 
               {/* Submit */}
-              <button onClick={handleSubmit} className="w-full bg-[#25D366] hover:bg-[#1ebe5a] text-white font-bold py-4 rounded-xl transition-all shadow-[0_4px_20px_rgba(37,211,102,0.3)] flex items-center justify-center gap-2 text-base">
-                <Send size={18} /> {t('order.send')}
+              <button onClick={handleSubmit} disabled={submitting} className="w-full bg-[#25D366] hover:bg-[#1ebe5a] text-white font-bold py-4 rounded-xl transition-all shadow-[0_4px_20px_rgba(37,211,102,0.3)] flex items-center justify-center gap-2 text-base disabled:opacity-60">
+                {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />} {t('order.send')}
               </button>
               <p className="text-white/25 text-xs text-center">{t('os.submit_note')}</p>
             </div>
