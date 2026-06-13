@@ -63,15 +63,15 @@ export default function MesReservations() {
         <div className="pt-28 pb-20 px-5 max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <span className="section-badge mb-4 inline-block">{L('Espace client', 'فضاء العميل', 'Client area')}</span>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-white mb-2">{L('Mes réservations', 'حجوزاتي', 'My bookings')}</h1>
-            <p className="text-white/40 text-sm">{L(<>Entrez votre <b className="text-white/70">numéro de réservation</b>, votre <b className="text-white/70">email</b> ou votre <b className="text-white/70">téléphone</b>.</>, <>أدخل <b className="text-white/70">رقم الحجز</b> أو <b className="text-white/70">البريد الإلكتروني</b> أو <b className="text-white/70">الهاتف</b>.</>, <>Enter your <b className="text-white/70">booking number</b>, <b className="text-white/70">email</b> or <b className="text-white/70">phone</b>.</>)}</p>
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-white mb-2">{L('Suivi de mes demandes', 'متابعة طلباتي', 'Track my requests')}</h1>
+            <p className="text-white/40 text-sm">{L(<>Réservation, commande d'importation ou dossier d'achat — entrez votre <b className="text-white/70">numéro</b>, <b className="text-white/70">email</b> ou <b className="text-white/70">téléphone</b>.</>, <>حجز، طلب استيراد أو ملف اقتناء — أدخل <b className="text-white/70">رقمك</b> أو <b className="text-white/70">بريدك</b> أو <b className="text-white/70">هاتفك</b>.</>, <>Booking, import order or purchase file — enter your <b className="text-white/70">number</b>, <b className="text-white/70">email</b> or <b className="text-white/70">phone</b>.</>)}</p>
           </div>
 
           <div className="flex gap-2 mb-8">
             <div className="relative flex-1">
               <Search size={15} className={`absolute ${ar ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 text-white/30 pointer-events-none`} />
               <input value={phone} onChange={e => setPhone(e.target.value)} onKeyDown={e => e.key === 'Enter' && search()}
-                placeholder={L('N° réservation, email ou téléphone…', 'رقم الحجز أو البريد أو الهاتف…', 'Booking no., email or phone…')}
+                placeholder={L('N° (résa, IMP, VTE, IMM), email ou tél…', 'رقم، بريد أو هاتف…', 'Number, email or phone…')}
                 dir={ar ? 'rtl' : 'ltr'}
                 className={`input-dark w-full ${ar ? 'pr-11 pl-4 text-right' : 'pl-11 pr-4'} py-3 text-sm truncate`} />
             </div>

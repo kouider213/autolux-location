@@ -51,7 +51,7 @@ export default function Navbar({ scrollContainerRef }) {
     { href: '/immo',              label: t('nav.immo') },
     { href: '/packs',             label: lang === 'ar' ? 'الباقات' : 'Packs' },
     { href: '/investir',          label: lang === 'ar' ? 'استثمر في وهران' : lang === 'en' ? 'Invest' : 'Investir' },
-    { href: '/mes-reservations',  label: lang === 'ar' ? 'حجوزاتي' : lang === 'en' ? 'My bookings' : 'Mes réservations' },
+    { href: '/mes-reservations',  label: lang === 'ar' ? 'تتبّع طلبي' : lang === 'en' ? 'Track' : 'Suivi' },
     { href: '/reviews',           label: t('nav.reviews') },
     { href: '/blog',              label: t('nav.blog') },
     { href: '/faq',               label: t('nav.faq') },
