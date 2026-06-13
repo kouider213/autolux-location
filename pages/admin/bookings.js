@@ -186,6 +186,10 @@ export default function BookingsPage() {
   const [paidEdit, setPaidEdit] = useState('');
   useEffect(() => { if (selected) setPaidEdit(String(selected.paid_amount ?? 0)); }, [selected?.id]);
 
+  const [emailEdit, setEmailEdit] = useState('');
+  useEffect(() => { if (selected) setEmailEdit(selected.client_email || ''); }, [selected?.id]);
+  const saveEmail = () => patchBooking({ client_email: emailEdit.trim() || null }, 'Email client mis à jour');
+
   // Ajoute (+) ou retire (−) un montant au total payé — permet de corriger à la baisse
   const adjustPayment = async (delta, kind) => {
     if (!supabase || !selected) return;
@@ -454,13 +458,22 @@ export default function BookingsPage() {
                       [Phone, 'Téléphone', selected.client_phone],
                       [CreditCard, 'Âge', selected.client_age ? `${selected.client_age} ans` : '—'],
                       [FileText, 'Passeport', selected.client_passport || '—'],
-                      [Tag, 'Email', selected.client_email || '—'],
                     ].map(([Icon, label, val]) => (
                       <div key={label} className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 text-white/35 text-sm"><Icon size={13} />{label}</div>
                         <span className="text-white text-sm font-medium text-right max-w-[60%] truncate">{val || '—'}</span>
                       </div>
                     ))}
+                    {/* Email éditable (sert aux emails auto de statut) */}
+                    <div className="pt-2.5 border-t border-white/[0.06]">
+                      <div className="flex items-center gap-2 text-white/35 text-sm mb-1.5"><Tag size={13} />Email <span className="text-white/20 text-[11px]">(pour les emails auto)</span></div>
+                      <div className="flex items-center gap-2">
+                        <input type="email" value={emailEdit} onChange={e => setEmailEdit(e.target.value)} placeholder="email@client.com"
+                          className="input-dark flex-1 text-sm py-2" />
+                        <button onClick={saveEmail} disabled={busy === 'save' || emailEdit === (selected.client_email || '')}
+                          className="text-xs font-bold bg-gold-500 text-noir-950 rounded-lg px-3 py-2 disabled:opacity-40">OK</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

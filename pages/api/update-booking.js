@@ -5,7 +5,7 @@ import { sendEmail, bookingStatusEmail } from '../../lib/email';
 
 const ALLOWED = new Set([
   'status', 'start_date', 'end_date', 'nb_days',
-  'final_price', 'paid_amount', 'payment_status', 'rented_by',
+  'final_price', 'paid_amount', 'payment_status', 'rented_by', 'client_email',
 ]);
 
 export default async function handler(req, res) {
