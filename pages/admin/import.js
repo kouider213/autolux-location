@@ -65,7 +65,8 @@ export default function AdminImportPage() {
             {filtered.map(o => (
               <OrderCard key={o.id} order={o} open={openId === o.id}
                 onToggle={() => setOpenId(openId === o.id ? null : o.id)}
-                onSaved={(updated) => setOrders(list => list.map(x => x.id === updated.id ? updated : x))} />
+                onSaved={(updated) => setOrders(list => list.map(x => x.id === updated.id ? updated : x))}
+                onDeleted={(id) => setOrders(list => list.filter(x => x.id !== id))} />
             ))}
           </div>
         )}
@@ -74,7 +75,7 @@ export default function AdminImportPage() {
   );
 }
 
-function OrderCard({ order, open, onToggle, onSaved }) {
+function OrderCard({ order, open, onToggle, onSaved, onDeleted }) {
   const [form, setForm] = useState(order);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -137,6 +138,14 @@ function OrderCard({ order, open, onToggle, onSaved }) {
   const copyLink = () => {
     navigator.clipboard.writeText(`https://fikconciergerie.com/suivi-import/${order.order_ref}`);
     toast.success('Lien de suivi copié');
+  };
+
+  const del = async () => {
+    if (!confirm(`Supprimer définitivement la commande ${order.order_ref} ?`)) return;
+    const { error } = await supabase.from('import_orders').delete().eq('id', order.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Commande supprimée');
+    onDeleted?.(order.id);
   };
 
   return (
@@ -239,9 +248,14 @@ function OrderCard({ order, open, onToggle, onSaved }) {
             </div>
           </div>
 
-          <button onClick={saveAll} disabled={saving} className="flex items-center gap-2 text-sm font-bold bg-gold-500 text-noir-950 rounded-xl px-5 py-2.5 disabled:opacity-50">
-            {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}Enregistrer les modifications
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button onClick={saveAll} disabled={saving} className="flex items-center gap-2 text-sm font-bold bg-gold-500 text-noir-950 rounded-xl px-5 py-2.5 disabled:opacity-50">
+              {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}Enregistrer les modifications
+            </button>
+            <button onClick={del} className="flex items-center gap-2 text-sm font-semibold text-red-400/70 hover:text-red-400 border border-red-500/15 hover:border-red-500/30 rounded-xl px-4 py-2.5">
+              <Trash2 size={15} />Supprimer
+            </button>
+          </div>
         </div>
       )}
     </div>
