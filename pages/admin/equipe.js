@@ -50,25 +50,20 @@ export default function AdminEquipePage() {
     setCreating(false);
   };
 
-  const resetPwd = async (u) => {
-    const p = window.prompt(`Nouveau mot de passe pour ${u.name || u.email} :`);
-    if (!p) return;
-    try { await call('reset-password', { id: u.id, password: p }); toast.success('Mot de passe réinitialisé'); }
-    catch (e) { toast.error(e.message); }
+  const resetPwd = async (id, password) => {
+    try { await call('reset-password', { id, password }); toast.success('Mot de passe réinitialisé ✅'); return true; }
+    catch (e) { toast.error(e.message); return false; }
   };
-  const changeEmail = async (u) => {
-    const em = window.prompt(`Nouvel email pour ${u.name || u.email} :`, u.email);
-    if (!em || em === u.email) return;
-    try { await call('update-email', { id: u.id, email: em }); toast.success('Email changé'); await load(); }
-    catch (e) { toast.error(e.message); }
+  const changeEmail = async (id, email) => {
+    try { await call('update-email', { id, email }); toast.success('Email changé ✅'); await load(); return true; }
+    catch (e) { toast.error(e.message); return false; }
   };
   const saveRow = async (u, patch) => {
-    try { await call('update-profile', { id: u.id, ...patch }); setUsers(us => us.map(x => x.id === u.id ? { ...x, ...patch } : x)); }
+    try { await call('update-profile', { id: u.id, ...patch }); setUsers(us => us.map(x => x.id === u.id ? { ...x, ...patch } : x)); toast.success('Enregistré'); }
     catch (e) { toast.error(e.message); }
   };
-  const del = async (u) => {
-    if (!confirm(`Supprimer le compte de ${u.name || u.email} ? Action définitive.`)) return;
-    try { await call('delete', { id: u.id }); toast.success('Compte supprimé'); setUsers(us => us.filter(x => x.id !== u.id)); }
+  const del = async (id) => {
+    try { await call('delete', { id }); toast.success('Compte supprimé'); setUsers(us => us.filter(x => x.id !== id)); }
     catch (e) { toast.error(e.message); }
   };
 
@@ -115,39 +110,89 @@ export default function AdminEquipePage() {
         ) : (
           <div className="space-y-3">
             {users.map(u => (
-              <div key={u.id} className="bg-[#141414] border border-white/[0.07] rounded-2xl p-4">
-                <div className="flex items-start justify-between gap-3 flex-wrap">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-white font-semibold text-sm">{u.name || '—'}</p>
-                      {u.is_super && <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gold-500/15 text-gold-400">Admin suprême</span>}
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white/[0.06] text-white/50">{u.role}</span>
-                    </div>
-                    <p className="text-white/45 text-xs mt-1">✉️ {u.email}</p>
-                    {u.username && <p className="text-white/35 text-xs">👤 {u.username}</p>}
-                  </div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <button onClick={() => resetPwd(u)} title="Réinitialiser le mot de passe" className="flex items-center gap-1 text-xs font-semibold text-gold-400 bg-gold-500/10 hover:bg-gold-500/20 rounded-lg px-2.5 py-1.5"><KeyRound size={13} />Mot de passe</button>
-                    <button onClick={() => changeEmail(u)} title="Changer l'email" className="flex items-center gap-1 text-xs font-semibold text-white/60 hover:text-white border border-white/10 rounded-lg px-2.5 py-1.5"><Mail size={13} />Email</button>
-                    {!u.is_super && <button onClick={() => del(u)} className="w-8 h-8 rounded-lg bg-white/[0.04] text-white/30 hover:text-red-400 flex items-center justify-center"><Trash2 size={13} /></button>}
-                  </div>
-                </div>
-                {/* édition rapide rôle + username */}
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/[0.05] flex-wrap">
-                  {!u.is_super && (
-                    <select value={u.role} onChange={e => saveRow(u, { role: e.target.value })} className="bg-white/[0.04] border border-white/[0.07] rounded-lg px-2 py-1.5 text-white text-xs outline-none">
-                      {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                    </select>
-                  )}
-                  <input defaultValue={u.username || ''} onBlur={e => e.target.value !== (u.username || '') && saveRow(u, { username: e.target.value })}
-                    placeholder="nom d'utilisateur (login)" className="bg-white/[0.04] border border-white/[0.07] rounded-lg px-2 py-1.5 text-white text-xs outline-none w-44" />
-                  <span className="text-white/20 text-[11px]">enregistré au clic ailleurs</span>
-                </div>
-              </div>
+              <AdminRow key={u.id} u={u} onResetPwd={resetPwd} onChangeEmail={changeEmail} onDelete={del} onSave={saveRow} />
             ))}
           </div>
         )}
       </div>
     </AdminLayout>
+  );
+}
+
+function AdminRow({ u, onResetPwd, onChangeEmail, onDelete, onSave }) {
+  const [panel, setPanel] = useState(null); // 'pwd' | 'email' | 'del' | null
+  const [pwd, setPwd] = useState('');
+  const [email, setEmail] = useState(u.email || '');
+  const [busy, setBusy] = useState(false);
+
+  const doPwd = async () => {
+    if (pwd.length < 6) { toast.error('6 caractères minimum'); return; }
+    setBusy(true); const ok = await onResetPwd(u.id, pwd); setBusy(false);
+    if (ok) { setPwd(''); setPanel(null); }
+  };
+  const doEmail = async () => {
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast.error('Email invalide'); return; }
+    setBusy(true); const ok = await onChangeEmail(u.id, email); setBusy(false);
+    if (ok) setPanel(null);
+  };
+
+  return (
+    <div className="bg-[#141414] border border-white/[0.07] rounded-2xl p-4">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-white font-semibold text-sm">{u.name || '—'}</p>
+            {u.is_super && <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gold-500/15 text-gold-400">Admin suprême</span>}
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white/[0.06] text-white/50">{u.role}</span>
+          </div>
+          <p className="text-white/45 text-xs mt-1">✉️ {u.email}</p>
+          {u.username && <p className="text-white/35 text-xs">👤 {u.username}</p>}
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button onClick={() => { setPanel(panel === 'pwd' ? null : 'pwd'); setPwd(''); }} className="flex items-center gap-1 text-xs font-semibold text-gold-400 bg-gold-500/10 hover:bg-gold-500/20 rounded-lg px-2.5 py-1.5"><KeyRound size={13} />Mot de passe</button>
+          <button onClick={() => { setPanel(panel === 'email' ? null : 'email'); setEmail(u.email || ''); }} className="flex items-center gap-1 text-xs font-semibold text-white/60 hover:text-white border border-white/10 rounded-lg px-2.5 py-1.5"><Mail size={13} />Email</button>
+          {!u.is_super && <button onClick={() => setPanel(panel === 'del' ? null : 'del')} className="w-8 h-8 rounded-lg bg-white/[0.04] text-white/30 hover:text-red-400 flex items-center justify-center"><Trash2 size={13} /></button>}
+        </div>
+      </div>
+
+      {/* Panneau mot de passe */}
+      {panel === 'pwd' && (
+        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/[0.05] flex-wrap">
+          <input type="text" value={pwd} onChange={e => setPwd(e.target.value)} placeholder="Nouveau mot de passe (6+)" className="flex-1 min-w-[180px] bg-white/[0.04] border border-white/[0.07] rounded-lg px-3 py-2 text-white text-sm outline-none" />
+          <button onClick={doPwd} disabled={busy} className="text-xs font-bold bg-gold-500 text-noir-950 rounded-lg px-4 py-2 disabled:opacity-50">{busy ? '…' : 'Définir'}</button>
+          <button onClick={() => setPanel(null)} className="text-white/40 hover:text-white text-xs px-2">Annuler</button>
+        </div>
+      )}
+
+      {/* Panneau email */}
+      {panel === 'email' && (
+        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/[0.05] flex-wrap">
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="nouvel@email.com" className="flex-1 min-w-[180px] bg-white/[0.04] border border-white/[0.07] rounded-lg px-3 py-2 text-white text-sm outline-none" />
+          <button onClick={doEmail} disabled={busy} className="text-xs font-bold bg-gold-500 text-noir-950 rounded-lg px-4 py-2 disabled:opacity-50">{busy ? '…' : 'Changer'}</button>
+          <button onClick={() => setPanel(null)} className="text-white/40 hover:text-white text-xs px-2">Annuler</button>
+        </div>
+      )}
+
+      {/* Confirmation suppression */}
+      {panel === 'del' && (
+        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-red-500/15 flex-wrap">
+          <span className="text-red-300 text-xs font-semibold">Supprimer définitivement {u.name} ?</span>
+          <button onClick={() => onDelete(u.id)} className="text-xs font-bold bg-red-500/80 text-white rounded-lg px-4 py-2">Oui, supprimer</button>
+          <button onClick={() => setPanel(null)} className="text-white/40 hover:text-white text-xs px-2">Annuler</button>
+        </div>
+      )}
+
+      {/* Rôle + nom d'utilisateur */}
+      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/[0.05] flex-wrap">
+        {!u.is_super && (
+          <select value={u.role} onChange={e => onSave(u, { role: e.target.value })} className="bg-white/[0.04] border border-white/[0.07] rounded-lg px-2 py-1.5 text-white text-xs outline-none">
+            {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+        )}
+        <input defaultValue={u.username || ''} onBlur={e => e.target.value !== (u.username || '') && onSave(u, { username: e.target.value })}
+          placeholder="nom d'utilisateur (login)" className="bg-white/[0.04] border border-white/[0.07] rounded-lg px-2 py-1.5 text-white text-xs outline-none w-44" />
+        <span className="text-white/20 text-[11px]">enregistré au clic ailleurs</span>
+      </div>
+    </div>
   );
 }
