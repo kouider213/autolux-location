@@ -1,5 +1,8 @@
 // Crée un dossier (achat véhicule / immobilier) — statut REQUESTED. Insert public via clé service.
 import { supabaseAdmin } from '../../lib/supabase';
+import { notifyTelegram, buildNotif } from '../../lib/telegramNotify';
+
+const KIND_FR = { voiture: 'Achat véhicule', immo: 'Immobilier', pack: 'Pack séjour' };
 
 const REF_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const rand = () => Array.from({ length: 4 }, () => REF_CHARS[Math.floor(Math.random() * REF_CHARS.length)]).join('');
@@ -31,5 +34,13 @@ export default async function handler(req, res) {
     if (!String(error.message || '').toLowerCase().includes('duplicate')) break;
   }
   if (error) return res.status(500).json({ error: error.message });
+
+  notifyTelegram(buildNotif({
+    icon: '📁', type: `Nouveau DOSSIER ${KIND_FR[kind]} — ${data.ref}`,
+    name: b.client_name, phone: b.client_phone, email: b.client_email, lang: b.lang,
+    lines: [b.subject ? `📌 ${b.subject}` : '', b.budget ? `💰 ${b.budget} ${b.currency || 'DZD'}` : ''],
+    adminPath: '/admin/dossiers',
+  })).catch(() => {});
+
   return res.status(200).json({ ok: true, ref: data.ref, id: data.id });
 }

@@ -1,8 +1,10 @@
 // Enregistre un lead (client intéressé par immo / vente voiture / pack) AVANT WhatsApp.
 // Insert public via clé service (RLS écriture = authenticated). Best-effort, jamais bloquant.
 import { supabaseAdmin } from '../../lib/supabase';
+import { notifyTelegram, buildNotif } from '../../lib/telegramNotify';
 
 const VALID_CAT = new Set(['immo_location', 'immo_vente', 'voiture_vente', 'voiture_location', 'pack']);
+const CAT_FR = { immo_location: 'Immo location', immo_vente: 'Immo vente', voiture_vente: 'Voiture vente', voiture_location: 'Voiture location', pack: 'Pack séjour' };
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
@@ -25,6 +27,13 @@ export default async function handler(req, res) {
     status: 'nouveau',
   }).select('id').single();
   if (error) return res.status(500).json({ error: error.message });
+
+  notifyTelegram(buildNotif({
+    icon: '🔔', type: 'Nouveau LEAD — ' + (CAT_FR[b.category] || 'Demande'),
+    name: b.client_name, phone: b.client_phone, lang: b.lang,
+    lines: [b.criteria ? `📌 ${b.criteria}` : '', b.budget_max ? `💰 ${b.budget_max} ${b.currency || 'DZD'}` : '', b.city ? `📍 ${b.city}` : ''],
+    adminPath: '/admin/leads',
+  })).catch(() => {});
 
   return res.status(200).json({ ok: true, id: data.id });
 }

@@ -264,17 +264,15 @@ export default function ReservationPage({ cars: initialCars }) {
         newBookingId = inserted?.id || null;
         setBookingId(newBookingId);
       }
-      // Email "demande reçue" (si email fourni — non bloquant)
-      if (form.email) {
-        fetch('/api/booking-received', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            client_email: form.email, client_name: form.name, car_name: selectedCar?.name,
-            start_date: form.startDate, end_date: form.endDate, total,
-            currency: selectedCar?.currency, booking_id: newBookingId, lang,
-          }),
-        }).catch(() => {});
-      }
+      // Email "demande reçue" (si email) + notif Telegram à Kouider (toujours) — non bloquant
+      fetch('/api/booking-received', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_email: form.email, client_name: form.name, client_phone: form.phone, car_name: selectedCar?.name,
+          start_date: form.startDate, end_date: form.endDate, total,
+          currency: selectedCar?.currency, booking_id: newBookingId, lang,
+        }),
+      }).catch(() => {});
       // Notify Dzaryx
       fetch('/api/notify-dzaryx', {
         method: 'POST',

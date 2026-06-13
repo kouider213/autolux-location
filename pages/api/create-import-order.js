@@ -1,6 +1,7 @@
 // Crée une commande d'importation véhicule (statut REQUESTED) depuis le formulaire public.
 // Clé service (contourne la RLS). Retourne le numéro de commande + lien de suivi.
 import { supabaseAdmin } from '../../lib/supabase';
+import { notifyTelegram, buildNotif } from '../../lib/telegramNotify';
 
 const REF_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sans I/O/0/1 (lisibilité)
 const genRef = () => 'IMP-' + Array.from({ length: 5 }, () => REF_CHARS[Math.floor(Math.random() * REF_CHARS.length)]).join('');
@@ -44,6 +45,13 @@ export default async function handler(req, res) {
     if (!String(error.message || '').toLowerCase().includes('duplicate')) break;
   }
   if (error) return res.status(500).json({ error: error.message });
+
+  notifyTelegram(buildNotif({
+    icon: '🛳️', type: `Nouvelle COMMANDE IMPORT — ${data.order_ref}`,
+    name: b.client_name, phone: b.client_phone, email: b.client_email, lang: b.lang,
+    lines: [[b.vehicle_brand, b.vehicle_model, b.vehicle_year].filter(Boolean).join(' ') ? `🚗 ${[b.vehicle_brand, b.vehicle_model, b.vehicle_year].filter(Boolean).join(' ')}` : '', b.budget ? `💰 ${b.budget} ${b.currency || 'EUR'}` : '', b.country_origin ? `🌐 ${b.country_origin}` : ''],
+    adminPath: '/admin/import',
+  })).catch(() => {});
 
   return res.status(200).json({ ok: true, ref: data.order_ref, id: data.id });
 }
