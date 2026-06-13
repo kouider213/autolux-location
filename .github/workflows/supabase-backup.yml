@@ -1,0 +1,41 @@
+name: Backup Supabase (hebdomadaire)
+
+# Sauvegarde la base chaque dimanche 03:00 UTC + déclenchement manuel.
+# Garde 90 jours d'archives. Restauration possible en cas de perte de données.
+# 🛑 Requiert le secret GitHub SUPABASE_DB_URL (Settings → Secrets → Actions)
+#    = connection string Supabase (Dashboard → Project Settings → Database → Connection string, mode "URI").
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Dump database
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL manquant — ajoute le secret dans Settings → Secrets → Actions."
+            exit 1
+          fi
+          mkdir -p backup
+          STAMP=$(date +%Y-%m-%d)
+          pg_dump "$SUPABASE_DB_URL" --no-owner --no-privileges -f "backup/fik-db-$STAMP.sql"
+          gzip "backup/fik-db-$STAMP.sql"
+          ls -lh backup
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fik-db-backup
+          path: backup/*.sql.gz
+          retention-days: 90
