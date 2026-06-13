@@ -21,7 +21,29 @@ const fmt = (n) => Number(n).toLocaleString('fr-FR');
 
 function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = WHATSAPP_FALLBACK) {
   const ar = lang === 'ar';
-  const lines = ar ? [
+  const en = lang === 'en';
+  const lines = en ? [
+    `🚗 *New Booking — Fik Conciergerie*`,
+    ``,
+    `*Vehicle:* ${car.name}`,
+    `*Category:* ${car.category || '—'} · ${car.seats || '—'} seats`,
+    `*Price/day:* ${fmt(car.resale_price)} ${sym(car.currency)}`,
+    ``,
+    `*Client:* ${form.name}`,
+    `*Phone:* ${form.phone}`,
+    `*Age:* ${form.age}`,
+    form.email    ? `*Email:* ${form.email}`         : null,
+    form.passport ? `*Passport/ID:* ${form.passport}` : null,
+    ``,
+    `*Pick-up:* ${form.startDate}`,
+    `*Return:* ${form.endDate}`,
+    `*Duration:* ${days} day${days > 1 ? 's' : ''}`,
+    `*Estimated total:* ${fmt(total)} ${sym(car.currency)}`,
+    form.notes ? `*Notes:* ${form.notes}` : null,
+    ``,
+    bookingId ? `🔗 Tracking: https://fikconciergerie.com/suivi/${bookingId}` : null,
+    `_Request sent from the Fik Conciergerie website._`,
+  ] : ar ? [
     `🚗 *حجز جديد — فيك كونسيرجري*`,
     ``,
     `*السيارة :* ${car.name}`,

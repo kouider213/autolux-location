@@ -52,8 +52,13 @@ export default function CarDetail({ car, photos: initialPhotos }) {
     );
   }
 
+  const priceDay = car.resale_price ? Number(car.resale_price).toLocaleString('fr-FR') + ' ' + (car.currency === 'EUR' ? '€' : 'DA') : '';
   const whatsappMsg = encodeURIComponent(
-    `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par la location du véhicule :\n*${car.name}* - ${car.resale_price ? Number(car.resale_price).toLocaleString('fr-FR') + ' ' + (car.currency === 'EUR' ? '€' : 'DA') + '/jour' : 'Prix sur demande'}\n\nMerci de me confirmer les disponibilités.`
+    lang === 'ar'
+      ? `مرحباً Fik Conciergerie،\n\nأنا مهتم بكراء السيارة:\n*${car.name}* - ${priceDay ? priceDay + '/يوم' : 'السعر عند الطلب'}\n\nيرجى تأكيد التوفّر لي.`
+      : lang === 'en'
+      ? `Hello Fik Conciergerie,\n\nI'm interested in renting this vehicle:\n*${car.name}* - ${priceDay ? priceDay + '/day' : 'Price on request'}\n\nPlease confirm availability.`
+      : `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par la location du véhicule :\n*${car.name}* - ${priceDay ? priceDay + '/jour' : 'Prix sur demande'}\n\nMerci de me confirmer les disponibilités.`
   );
   const whatsappUrl = `https://wa.me/${WHATSAPP}?text=${whatsappMsg}`;
 

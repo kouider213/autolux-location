@@ -88,6 +88,8 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
   const waMsg = encodeURIComponent(
     lang === 'ar'
       ? `مرحبا فيك كونسيرجري،\n\nأنا مهتم بـ "${pack.title}".\n${priceLabel(pack, lang)}\n\nهل يمكن إعطائي التفاصيل والتوفر؟`
+      : lang === 'en'
+      ? `Hello Fik Conciergerie,\n\nI'm interested in the "${pack.title}" pack.\n${priceLabel(pack, 'en')}\n\nCould you give me the details and availability?`
       : `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par le "${pack.title}".\n${priceLabel(pack, 'fr')}\n\nPouvez-vous me donner les détails et les disponibilités ?`
   );
   const waUrl = `https://wa.me/${WHATSAPP}?text=${waMsg}`;

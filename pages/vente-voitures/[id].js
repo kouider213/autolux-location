@@ -22,7 +22,7 @@ const STATUS_BADGE = {
 };
 
 export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const WHATSAPP = waNumber(useSettings());
   const [photos, setPhotos] = useState(initialPhotos || []);
   const [active, setActive] = useState(0);
@@ -59,8 +59,14 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
   const st = STATUS_BADGE[vehicle.status] || STATUS_BADGE.disponible;
   const stLabel = STB[vehicle.status] || STB.disponible;
 
+  const priceStr = vehicle.price ? `${Number(vehicle.price).toLocaleString()} ${cur(vehicle.currency)}` : '';
+  const veh = `${vehicle.brand} ${vehicle.model}${vehicle.year ? ` (${vehicle.year})` : ''}`;
   const waMsg = encodeURIComponent(
-    `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par le véhicule à vendre :\n*${vehicle.brand} ${vehicle.model}*${vehicle.year ? ` (${vehicle.year})` : ''}\n${vehicle.price ? `Prix : ${Number(vehicle.price).toLocaleString()} ${cur(vehicle.currency)}` : ''}\n\nEst-il toujours disponible ?`
+    lang === 'ar'
+      ? `مرحباً Fik Conciergerie،\n\nأنا مهتم بالسيارة المعروضة للبيع:\n*${veh}*${priceStr ? `\nالسعر: ${priceStr}` : ''}\n\nهل ما زالت متوفرة؟`
+      : lang === 'en'
+      ? `Hello Fik Conciergerie,\n\nI'm interested in this vehicle for sale:\n*${veh}*${priceStr ? `\nPrice: ${priceStr}` : ''}\n\nIs it still available?`
+      : `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par le véhicule à vendre :\n*${veh}*${priceStr ? `\nPrix : ${priceStr}` : ''}\n\nEst-il toujours disponible ?`
   );
   const waUrl = `https://wa.me/${WHATSAPP}?text=${waMsg}`;
 

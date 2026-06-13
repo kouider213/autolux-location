@@ -27,7 +27,7 @@ const STATUS_BADGE = {
 };
 
 export default function PropertyDetail({ property, photos }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const descTr = useTranslated(property?.description || '');
   const WHATSAPP = waNumber(useSettings());
   const [active, setActive] = useState(0);
@@ -53,7 +53,11 @@ export default function PropertyDetail({ property, photos }) {
   const stLabel = STB[property.status] || STB.disponible;
   const priceTxt = property.price ? `${Number(property.price).toLocaleString()} ${cur(property.currency)}${isSale ? '' : '/mois'}` : 'Prix sur demande';
 
-  const whatsappMsg = `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par le bien :\n*${property.title}*\n${property.price ? `Prix: ${priceTxt}` : 'Prix sur demande'}\n\nMerci de me contacter.`;
+  const whatsappMsg = lang === 'ar'
+    ? `مرحباً Fik Conciergerie،\n\nأنا مهتم بالعقار:\n*${property.title}*\n${property.price ? `السعر: ${priceTxt}` : 'السعر عند الطلب'}\n\nيرجى التواصل معي.`
+    : lang === 'en'
+    ? `Hello Fik Conciergerie,\n\nI'm interested in this property:\n*${property.title}*\n${property.price ? `Price: ${priceTxt}` : 'Price on request'}\n\nPlease contact me.`
+    : `Bonjour Fik Conciergerie,\n\nJe suis intéressé(e) par le bien :\n*${property.title}*\n${property.price ? `Prix: ${priceTxt}` : 'Prix sur demande'}\n\nMerci de me contacter.`;
   const whatsappUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(whatsappMsg)}`;
 
   const specs = [

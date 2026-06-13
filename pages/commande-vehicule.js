@@ -69,6 +69,37 @@ export default function CommandeVehiculePage() {
       L.push('_قرأتُ وأوافق على أن يُدرَس طلبي وألّا يُؤكَّد الطلب إلا بعد التأكيد الكتابي._');
       return L.join('\n');
     }
+    if (lang === 'en') {
+      L.push('🚗 *VEHICLE ORDER / IMPORT REQUEST*');
+      L.push('— Fik Conciergerie —');
+      L.push('');
+      L.push('*👤 CLIENT*');
+      L.push(`Name: ${form.nom} ${form.prenom}`);
+      L.push(`WhatsApp: ${form.whatsapp}`);
+      if (form.ville) L.push(`City/Country: ${form.ville}`);
+      L.push('');
+      L.push('*🚘 VEHICLE WANTED*');
+      if (form.type)    L.push(`Type: ${form.type}`);
+      if (form.marque)  L.push(`Brand: ${form.marque}`);
+      if (form.modele)  L.push(`Model: ${form.modele}`);
+      if (form.annee_min) L.push(`Min year: ${form.annee_min}`);
+      if (form.km_max)  L.push(`Max mileage: ${form.km_max}`);
+      if (form.carburant) L.push(`Fuel: ${form.carburant}`);
+      if (form.boite)   L.push(`Gearbox: ${form.boite}`);
+      if (form.couleur) L.push(`Colour: ${form.couleur}`);
+      L.push(`Condition: ${form.etat}`);
+      if (form.options) L.push(`Options: ${form.options}`);
+      L.push('');
+      L.push('*💰 BUDGET & TERMS*');
+      if (form.budget)  L.push(`Max budget: ${form.budget} ${cur}`);
+      if (form.origine) L.push(`Preferred origin country: ${form.origine}`);
+      if (form.delai)   L.push(`Preferred timeframe: ${form.delai}`);
+      if (form.liens)   { L.push(''); L.push(`*🔗 Examples:* ${form.liens}`); }
+      if (form.message) { L.push(''); L.push(`*📝 Message:* ${form.message}`); }
+      L.push('');
+      L.push('_I have read and accept that my request will be reviewed and the order confirmed only after written confirmation._');
+      return L.join('\n');
+    }
     L.push('🚗 *DEMANDE DE COMMANDE / IMPORTATION VÉHICULE*');
     L.push('— Fik Conciergerie —');
     L.push('');
@@ -129,7 +160,7 @@ export default function CommandeVehiculePage() {
     } catch { /* silencieux : WhatsApp reste le canal principal */ }
 
     setSubmitting(false);
-    const wmsg = buildMessage() + (ref ? `\n\n${ar ? 'رقم طلبي' : 'N° de ma commande'} : ${ref}` : '');
+    const wmsg = buildMessage() + (ref ? `\n\n${ar ? 'رقم طلبي' : lang === 'en' ? 'My order no.' : 'N° de ma commande'} : ${ref}` : '');
     window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(wmsg)}`, '_blank');
     if (ref) { setResult({ ref }); window.scrollTo({ top: 0, behavior: 'smooth' }); }
   };
