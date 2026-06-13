@@ -5,7 +5,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Shield, Zap, Car, Star, ChevronDown, ArrowRight, ChevronLeft, ChevronRight,
   Users, MapPin, CalendarCheck, Fuel, MessageCircle, Sparkles, Building2, Tag,
-  Instagram, Music2, Facebook, Gauge, Package, Waves, UserCheck, Hotel,
+  Instagram, Music2, Facebook, Gauge, Package, Waves, UserCheck, Hotel, Ship,
 } from 'lucide-react';
 
 /* ── Packs : config affichage home ── */
@@ -602,9 +602,12 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {[
-                { icon: Car,       title: t('poles.rental.title'), desc: t('poles.rental.desc'), href: '/cars', cta: t('poles.rental.cta'), color: 'gold' },
-                { icon: Building2, title: t('poles.immo.title'),   desc: t('poles.immo.desc'),   href: '/immo', cta: t('poles.immo.cta'), color: 'blue' },
-                { icon: Tag,       title: t('poles.sale.title'),   desc: t('poles.sale.desc'),   href: '/vente-voitures', cta: t('poles.sale.cta'), color: 'purple' },
+                { icon: Car,       title: t('poles.rental.title'),       desc: t('poles.rental.desc'),       href: '/cars',               cta: t('poles.rental.cta'),       color: 'gold' },
+                { icon: Tag,       title: t('poles.sale.title'),         desc: t('poles.sale.desc'),         href: '/vente-voitures',     cta: t('poles.sale.cta'),         color: 'purple' },
+                { icon: Ship,      title: t('poles.import.title'),       desc: t('poles.import.desc'),       href: '/commande-vehicule',  cta: t('poles.import.cta'),       color: 'gold' },
+                { icon: Building2, title: t('poles.immo.title'),         desc: t('poles.immo.desc'),         href: '/immo',               cta: t('poles.immo.cta'),         color: 'blue' },
+                { icon: Package,   title: t('poles.packs.title'),        desc: t('poles.packs.desc'),        href: '/packs',              cta: t('poles.packs.cta'),        color: 'purple' },
+                { icon: Sparkles,  title: t('poles.conciergerie.title'), desc: t('poles.conciergerie.desc'), href: '/contact',            cta: t('poles.conciergerie.cta'), color: 'blue' },
               ].map((p, i) => {
                 const c = {
                   gold:   { ring: 'group-hover:border-gold-500/40',   ico: 'bg-gold-500/10 border-gold-500/25 text-gold-400',     glow: 'bg-gold-500/[0.06]' },
@@ -925,7 +928,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               viewport={{ once:true }} transition={{ duration:0.8, ease }}>
               <motion.div className="w-20 h-20 bg-gold-500/[0.08] border border-gold-500/20 rounded-2xl flex items-center justify-center mx-auto mb-10"
                 animate={{ y:[0,-10,0] }} transition={{ duration:3.5, repeat:Infinity, ease:'easeInOut' }}>
-                <Car size={32} className="text-gold-400" />
+                <Sparkles size={32} className="text-gold-400" />
               </motion.div>
               <h2 className="font-display text-4xl md:text-7xl font-bold text-white mb-6 leading-[0.9]">
                 {t('home.cta_t1')}<br /><span className="text-gold-gradient italic">{t('home.cta_t2')}</span>
@@ -933,9 +936,14 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               <p className="text-white/35 text-lg md:text-xl mb-12 font-body leading-relaxed">
                 {t('home.cta_sub')}
               </p>
-              <Link href="/reservation" className="btn-gold text-base md:text-lg px-10 md:px-14 py-4 md:py-5 animate-pulse-gold">
-                <CalendarCheck size={18} />{t('nav.book_now')}
-              </Link>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Link href="/contact" className="btn-gold text-base md:text-lg px-9 md:px-12 py-4 md:py-5 animate-pulse-gold">
+                  <MessageCircle size={18} />{t('nav.contact')}
+                </Link>
+                <Link href="/reservation" className="btn-outline text-base md:text-lg px-7 md:px-10 py-4 md:py-5">
+                  <CalendarCheck size={17} />{t('nav.book')}
+                </Link>
+              </div>
             </motion.div>
           </div>
         </section>
