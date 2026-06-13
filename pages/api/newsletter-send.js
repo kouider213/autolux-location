@@ -19,6 +19,11 @@ export default async function handler(req, res) {
   const { title, body, test } = req.body || {};
   if (!title || !body) return res.status(400).json({ error: 'titre + contenu requis' });
 
+  // Diagnostic explicite : sans RESEND_API_KEY, aucun email ne part (skip silencieux avant).
+  if (!process.env.RESEND_API_KEY) {
+    return res.status(400).json({ error: "Envoi d'emails non configuré : ajoutez RESEND_API_KEY + RESEND_FROM dans les variables Vercel (domaine vérifié sur resend.com)." });
+  }
+
   const admin = supabaseAdmin();
   if (!admin) return res.status(500).json({ error: 'config serveur manquante' });
 
@@ -26,7 +31,8 @@ export default async function handler(req, res) {
   if (test) {
     const { subject, html } = newsletterCampaignEmail(title, body, u.user.email);
     const r = await sendEmail(u.user.email, subject, html);
-    return res.json({ ok: !!r.ok, test: true });
+    if (!r.ok) return res.status(502).json({ error: `Échec Resend${r.status ? ` (${r.status})` : ''} : ${r.detail || r.reason || 'inconnu'}` });
+    return res.json({ ok: true, test: true });
   }
 
   const { data: subs, error } = await admin
@@ -34,12 +40,18 @@ export default async function handler(req, res) {
     .select('email').eq('status', 'active');
   if (error) return res.status(500).json({ error: error.message });
 
-  let sent = 0;
+  let sent = 0; let lastErr = null;
   for (const s of subs || []) {
     const { subject, html } = newsletterCampaignEmail(title, body, s.email);
     const r = await sendEmail(s.email, subject, html);
     if (r.ok) sent++;
+    else lastErr = r.detail || r.reason || `status ${r.status || '?'}`;
     await new Promise(r => setTimeout(r, 120)); // ~8/s, respecte la limite Resend
+  }
+
+  // Si rien n'est parti alors qu'il y avait des abonnés → remonte la cause (souvent : domaine Resend non vérifié)
+  if ((subs?.length || 0) > 0 && sent === 0) {
+    return res.status(502).json({ error: `Aucun email envoyé. Cause Resend : ${lastErr || 'inconnue'}. Vérifiez le domaine RESEND_FROM sur resend.com.` });
   }
 
   return res.json({ ok: true, total: subs?.length || 0, sent });
