@@ -1,6 +1,7 @@
 // Soumission d'un avis. Si bookingId fourni + réservation valide → avis VÉRIFIÉ.
 // Sinon → avis simple (non vérifié), modéré par l'admin avant publication.
 import { supabaseAdmin } from '../../lib/supabase';
+import { notifyTelegram, buildNotif } from '../../lib/telegramNotify';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
@@ -31,6 +32,12 @@ export default async function handler(req, res) {
     verified = false;
   }
   if (error) return res.status(500).json({ error: error.message });
+
+  // Notif Telegram à Kouider (avis à modérer)
+  notifyTelegram(buildNotif({
+    icon: '⭐', type: `Nouvel AVIS ${'★'.repeat(r)} ${verified ? '(vérifié)' : '(à modérer)'}`,
+    name, lines: [comment ? `💬 ${String(comment).slice(0, 200)}` : ''], adminPath: '/admin/reviews',
+  })).catch(() => {});
 
   // Notifie Dzaryx (non bloquant)
   fetch(`${req.headers['x-forwarded-proto'] || 'https'}://${req.headers['host']}/api/notify-dzaryx`, {

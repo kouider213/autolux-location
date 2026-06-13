@@ -1,6 +1,7 @@
 // Inscription newsletter (public). Email + langue. Anti-doublon via index unique.
 import { supabaseAdmin } from '../../lib/supabase';
 import { sendEmail, newsletterWelcomeEmail } from '../../lib/email';
+import { notifyTelegram, buildNotif } from '../../lib/telegramNotify';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
@@ -19,14 +20,20 @@ export default async function handler(req, res) {
     .from('newsletter_subscribers')
     .insert({ email: clean, lang, source, status: 'active' });
 
+  let isNew = true;
   if (error) {
     if (/duplicate key|already exists/i.test(error.message)) {
+      isNew = false;
       // Déjà inscrit → on réactive (au cas où désabonné) — idempotent
       await admin.from('newsletter_subscribers').update({ status: 'active', lang }).ilike('email', clean);
     } else {
       console.error('[newsletter]', error.message);
       return res.status(500).json({ error: 'Erreur serveur' });
     }
+  }
+
+  if (isNew) {
+    notifyTelegram(buildNotif({ icon: '📧', type: 'Nouvel ABONNÉ newsletter', email: clean, lang, adminPath: '/admin/newsletter' })).catch(() => {});
   }
 
   // Email de bienvenue (non bloquant) — dans la langue d'inscription
