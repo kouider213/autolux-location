@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FolderKanban, Loader2, Upload, Trash2, X, Copy, ExternalLink, Save, Search, MessageCircle, Plus, Car, Building2 } from 'lucide-react';
+import { FolderKanban, Loader2, Upload, Trash2, X, Copy, ExternalLink, Save, Search, MessageCircle, Plus, Car, Building2, Package } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import TranslateToFr from '../../components/TranslateToFr';
 import { supabase } from '../../lib/supabase';
@@ -59,7 +59,7 @@ export default function AdminDossiersPage() {
           </div>
           <div className="ml-auto flex items-center gap-2">
             <select value={kindFilter} onChange={e => setKindFilter(e.target.value)} className="bg-white/[0.04] border border-white/[0.07] rounded-lg px-3 py-2 text-white text-sm outline-none">
-              <option value="">Tous</option><option value="voiture">Véhicule</option><option value="immo">Immobilier</option>
+              <option value="">Tous</option><option value="voiture">Véhicule</option><option value="immo">Immobilier</option><option value="pack">Pack séjour</option>
             </select>
             <div className="relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25" />
@@ -73,7 +73,7 @@ export default function AdminDossiersPage() {
           <h2 className="text-white font-bold text-sm flex items-center gap-2"><Plus size={15} className="text-gold-500" />Nouveau dossier</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
             <select value={nf.kind} onChange={e => setNf(f => ({ ...f, kind: e.target.value }))} className={inputCls}>
-              <option value="voiture">🚗 Achat véhicule</option><option value="immo">🏠 Immobilier</option>
+              <option value="voiture">🚗 Achat véhicule</option><option value="immo">🏠 Immobilier</option><option value="pack">🎒 Pack séjour</option>
             </select>
             <input value={nf.client_name} onChange={e => setNf(f => ({ ...f, client_name: e.target.value }))} placeholder="Nom client" className={inputCls} />
             <input value={nf.client_phone} onChange={e => setNf(f => ({ ...f, client_phone: e.target.value }))} placeholder="Téléphone" className={inputCls} />
@@ -115,7 +115,7 @@ function DossierCard({ dossier, open, onToggle, onSaved, onDeleted }) {
 
   const set = (f) => (e) => setForm(s => ({ ...s, [f]: e.target.value }));
   const photos = Array.isArray(form.photos) ? form.photos : [];
-  const KindIcon = form.kind === 'immo' ? Building2 : Car;
+  const KindIcon = form.kind === 'immo' ? Building2 : form.kind === 'pack' ? Package : Car;
 
   const save = async (patch) => {
     setSaving(true);

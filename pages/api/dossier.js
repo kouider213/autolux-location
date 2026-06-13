@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   const admin = supabaseAdmin();
   if (!admin) return res.status(500).json({ error: 'config serveur' });
 
-  const refUpper = /^(VTE|IMM)-/i.test(q) ? q.toUpperCase() : null;
+  const refUpper = /^(VTE|IMM|PCK)-/i.test(q) ? q.toUpperCase() : null;
   const isEmail = q.includes('@');
   const qDigits = digits(q);
 

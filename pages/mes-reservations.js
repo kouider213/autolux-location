@@ -170,7 +170,8 @@ export default function MesReservations() {
                               </Link>
                             )}
                             {['COMPLETED', 'REJECTED'].includes(b.status) && (
-                              <Link href="/reservation" className="inline-flex items-center gap-1 text-xs font-semibold bg-gold-500/15 text-gold-400 px-3 py-1.5 rounded-lg">
+                              <Link href={{ pathname: '/reservation', query: { car: b.car_id || '', name: b.client_name || '', phone: b.client_phone || '', email: b.client_email || '', age: b.client_age || '', passport: b.client_passport || '' } }}
+                                className="inline-flex items-center gap-1 text-xs font-semibold bg-gold-500/15 text-gold-400 px-3 py-1.5 rounded-lg">
                                 <RefreshCw size={11} />{L('Re-réserver', 'احجز مجدداً', 'Re-book')}
                               </Link>
                             )}

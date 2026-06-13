@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { MessageCircle, Home, X, Car, Building2, Wallet, MapPin, FileText, Check } from 'lucide-react';
+import { MessageCircle, Home, X, Car, Building2, Package, Wallet, MapPin, FileText, Check } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useSettings, waNumber } from '../../lib/settings';
@@ -62,7 +62,7 @@ export default function SuiviDossierPage() {
   const flow = flowFor(d.kind);
   const curIdx = statusIndex(d.kind, d.status);
   const hint = (DOSSIER_HINT[d.status] || {})[lang] || (DOSSIER_HINT[d.status] || {}).fr || '';
-  const KindIcon = d.kind === 'immo' ? Building2 : Car;
+  const KindIcon = d.kind === 'immo' ? Building2 : d.kind === 'pack' ? Package : Car;
   const title = d.subject || (KIND_LABEL[d.kind] || KIND_LABEL.voiture)[lang];
   const wa = L(
     `Bonjour Fik Conciergerie, des nouvelles de mon dossier ${d.ref} ?`,

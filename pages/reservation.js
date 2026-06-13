@@ -127,6 +127,20 @@ export default function ReservationPage({ cars: initialCars }) {
     if (found) setForm(f => ({ ...f, carId: found.id }));
   }, [preselectedId, cars]);
 
+  // Pré-remplit les infos client depuis l'URL (re-réservation : pas besoin de tout retaper)
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { name, phone, email, age, passport } = router.query;
+    if (name || phone || email || age || passport) {
+      setForm(f => ({
+        ...f,
+        name: f.name || (name || ''), phone: f.phone || (phone || ''),
+        email: f.email || (email || ''), age: f.age || (age || ''),
+        passport: f.passport || (passport || ''),
+      }));
+    }
+  }, [router.isReady]);
+
   // Fetch booked dates when car changes
   useEffect(() => {
     if (!form.carId || !supabase) { setBookedRanges([]); return; }

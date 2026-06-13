@@ -3,13 +3,14 @@ import { supabaseAdmin } from '../../lib/supabase';
 
 const REF_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const rand = () => Array.from({ length: 4 }, () => REF_CHARS[Math.floor(Math.random() * REF_CHARS.length)]).join('');
-const genRef = (kind) => (kind === 'immo' ? 'IMM-' : 'VTE-') + rand();
+const PREFIX = { immo: 'IMM-', pack: 'PCK-', voiture: 'VTE-' };
+const genRef = (kind) => (PREFIX[kind] || 'VTE-') + rand();
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
   const b = req.body || {};
   if (!b.client_name && !b.client_phone) return res.status(400).json({ error: 'nom ou téléphone requis' });
-  const kind = b.kind === 'immo' ? 'immo' : 'voiture';
+  const kind = ['immo', 'pack', 'voiture'].includes(b.kind) ? b.kind : 'voiture';
 
   const admin = supabaseAdmin();
   if (!admin) return res.status(500).json({ error: 'config serveur manquante' });
