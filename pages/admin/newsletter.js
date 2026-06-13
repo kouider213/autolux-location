@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Mail, Send, Users, Loader2, TestTube2, Trash2 } from 'lucide-react';
+import { Mail, Send, Users, Loader2, TestTube2, Trash2, Image as ImageIcon, Video, MousePointerClick, Eye, X } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 
@@ -16,6 +16,69 @@ export default function AdminNewsletterPage() {
   const [result, setResult] = useState(null); // { ok, msg }
   const [testEmail, setTestEmail] = useState('doubakouider@gmail.com');
   const [confirmAll, setConfirmAll] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState(false);
+  const [panel, setPanel] = useState(null); // 'video' | 'button' | null
+  const [vid, setVid] = useState({ link: '', thumb: '' });
+  const [btn, setBtn] = useState({ text: '', link: '' });
+
+  // Ajoute du HTML à la fin du message
+  const appendHtml = (html) => setBody(b => (b && !b.endsWith('\n') ? b + '\n' : b) + html + '\n');
+
+  // Upload image → URL publique (bucket car-images)
+  const uploadImage = async (file) => {
+    const base64 = await new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onload = () => res(String(fr.result).split(',')[1]);
+      fr.onerror = rej; fr.readAsDataURL(file);
+    });
+    const r = await fetch('/api/upload-car-image', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type }),
+    });
+    const d = await r.json();
+    if (!d.url) throw new Error(d.error || 'upload échoué');
+    return d.url;
+  };
+
+  const onPickImage = async (e) => {
+    const file = e.target.files?.[0]; e.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadImage(file);
+      appendHtml(`<img src="${url}" alt="" style="max-width:100%;height:auto;border-radius:10px;display:block;margin:14px auto" />`);
+      toast.success('Image ajoutée');
+    } catch (e) { toast.error(e.message); }
+    setUploading(false);
+  };
+
+  const onPickVidThumb = async (e) => {
+    const file = e.target.files?.[0]; e.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    try { const url = await uploadImage(file); setVid(v => ({ ...v, thumb: url })); toast.success('Miniature prête'); }
+    catch (e) { toast.error(e.message); }
+    setUploading(false);
+  };
+
+  const insertVideo = () => {
+    if (!/^https?:\/\//.test(vid.link)) { toast.error('Lien vidéo (https://) requis'); return; }
+    const thumb = vid.thumb || 'https://img.youtube.com/vi/' + ((vid.link.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/) || [])[1] || '') + '/hqdefault.jpg';
+    appendHtml(
+      `<a href="${vid.link}" style="text-decoration:none;display:block;margin:14px auto;max-width:100%">` +
+      `<img src="${thumb}" alt="Voir la vidéo" style="max-width:100%;height:auto;border-radius:10px;display:block;margin:0 auto" />` +
+      `</a>` +
+      `<p style="text-align:center;margin:6px 0 14px"><a href="${vid.link}" style="background:#e9b949;color:#1a1500;text-decoration:none;font-weight:700;font-size:14px;padding:10px 18px;border-radius:8px;display:inline-block">▶ Regarder la vidéo</a></p>`
+    );
+    setVid({ link: '', thumb: '' }); setPanel(null); toast.success('Vidéo ajoutée');
+  };
+
+  const insertButton = () => {
+    if (!btn.text.trim() || !/^https?:\/\//.test(btn.link)) { toast.error('Texte + lien (https://) requis'); return; }
+    appendHtml(`<p style="text-align:center;margin:16px 0"><a href="${btn.link}" style="background:#e9b949;color:#1a1500;text-decoration:none;font-weight:700;font-size:15px;padding:12px 24px;border-radius:9px;display:inline-block">${btn.text}</a></p>`);
+    setBtn({ text: '', link: '' }); setPanel(null); toast.success('Bouton ajouté');
+  };
 
   const load = () => {
     supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false })
@@ -82,8 +145,64 @@ export default function AdminNewsletterPage() {
             <input value={title} onChange={e => setTitle(e.target.value)} className={inputCls} placeholder="Ex : -20% sur la location ce week-end !" />
           </div>
           <div>
-            <label className="text-white/40 text-xs font-semibold block mb-1.5">Message (HTML simple autorisé : &lt;b&gt;, &lt;br&gt;, &lt;a&gt;)</label>
-            <textarea value={body} onChange={e => setBody(e.target.value)} rows={8} className={inputCls} placeholder={"Bonjour,\n\nDécouvrez nos nouvelles offres...\n\n<b>Réservez vite !</b>"} />
+            <label className="text-white/40 text-xs font-semibold block mb-1.5">Message</label>
+
+            {/* Barre d'outils */}
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-white/70 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 rounded-lg px-3 py-2 cursor-pointer">
+                {uploading ? <Loader2 size={14} className="animate-spin" /> : <ImageIcon size={14} className="text-gold-400" />} Photo
+                <input type="file" accept="image/*" className="hidden" onChange={onPickImage} />
+              </label>
+              <button type="button" onClick={() => setPanel(panel === 'video' ? null : 'video')}
+                className="flex items-center gap-1.5 text-xs font-semibold text-white/70 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 rounded-lg px-3 py-2"><Video size={14} className="text-gold-400" />Vidéo</button>
+              <button type="button" onClick={() => setPanel(panel === 'button' ? null : 'button')}
+                className="flex items-center gap-1.5 text-xs font-semibold text-white/70 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 rounded-lg px-3 py-2"><MousePointerClick size={14} className="text-gold-400" />Bouton</button>
+              <button type="button" onClick={() => appendHtml('<b>texte en gras</b>')}
+                className="text-xs font-bold text-white/70 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 rounded-lg px-3 py-2">B</button>
+              <button type="button" onClick={() => setPreview(p => !p)}
+                className={`flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-2 border ml-auto ${preview ? 'bg-gold-500 text-noir-950 border-gold-500' : 'text-white/70 bg-white/[0.05] border-white/10'}`}><Eye size={14} />Aperçu</button>
+            </div>
+
+            {/* Panneau vidéo */}
+            {panel === 'video' && (
+              <div className="bg-[#0e0e0e] border border-white/[0.08] rounded-xl p-3 mb-2 space-y-2">
+                <p className="text-white/40 text-xs">Lien de la vidéo (YouTube ou autre) + miniature (optionnelle, auto pour YouTube)</p>
+                <input value={vid.link} onChange={e => setVid(v => ({ ...v, link: e.target.value }))} placeholder="https://youtube.com/watch?v=..." className={inputCls} />
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-white/70 bg-white/[0.05] border border-white/10 rounded-lg px-3 py-2 cursor-pointer">
+                    {uploading ? <Loader2 size={13} className="animate-spin" /> : <ImageIcon size={13} />}{vid.thumb ? 'Miniature ✓' : 'Miniature'}
+                    <input type="file" accept="image/*" className="hidden" onChange={onPickVidThumb} />
+                  </label>
+                  <button type="button" onClick={insertVideo} className="text-xs font-bold bg-gold-500 text-noir-950 rounded-lg px-4 py-2">Insérer la vidéo</button>
+                  <button type="button" onClick={() => setPanel(null)} className="text-white/40 hover:text-white p-1"><X size={15} /></button>
+                </div>
+              </div>
+            )}
+
+            {/* Panneau bouton */}
+            {panel === 'button' && (
+              <div className="bg-[#0e0e0e] border border-white/[0.08] rounded-xl p-3 mb-2 space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <input value={btn.text} onChange={e => setBtn(b => ({ ...b, text: e.target.value }))} placeholder="Texte du bouton (ex: Réserver)" className={inputCls} />
+                  <input value={btn.link} onChange={e => setBtn(b => ({ ...b, link: e.target.value }))} placeholder="https://fikconciergerie.com/cars" className={inputCls} />
+                </div>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={insertButton} className="text-xs font-bold bg-gold-500 text-noir-950 rounded-lg px-4 py-2">Insérer le bouton</button>
+                  <button type="button" onClick={() => setPanel(null)} className="text-white/40 hover:text-white p-1"><X size={15} /></button>
+                </div>
+              </div>
+            )}
+
+            <textarea value={body} onChange={e => setBody(e.target.value)} rows={8} className={inputCls} placeholder={"Bonjour,\n\nDécouvrez nos nouvelles offres...\n\nUtilisez les boutons ci-dessus pour ajouter photos, vidéos et boutons."} />
+            <p className="text-white/25 text-[11px] mt-1.5">Astuce : tape ton texte, puis clique Photo / Vidéo / Bouton pour insérer. Les sauts de ligne sont gardés.</p>
+
+            {/* Aperçu live */}
+            {preview && (
+              <div className="mt-3 bg-white rounded-xl p-4 max-h-[400px] overflow-y-auto">
+                <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-2">Aperçu du message</p>
+                <div style={{ color: '#444', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: body.replace(/\n/g, '<br/>') }} />
+              </div>
+            )}
           </div>
           {/* Email de test */}
           <div>
