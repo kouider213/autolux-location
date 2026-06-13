@@ -13,6 +13,7 @@ export default function LeadCapture({ category, criteria, budget_max, currency =
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [err, setErr] = useState('');
@@ -23,7 +24,7 @@ export default function LeadCapture({ category, criteria, budget_max, currency =
     try {
       await fetch('/api/lead', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ client_name: name, client_phone: phone, category, criteria, budget_max, currency, city, lang }),
+        body: JSON.stringify({ client_name: name, client_phone: phone, client_email: email, category, criteria, budget_max, currency, city, lang }),
       });
     } catch { /* best-effort */ }
     setSending(false); setDone(true);
@@ -62,6 +63,7 @@ export default function LeadCapture({ category, criteria, budget_max, currency =
                 <div className="space-y-3">
                   <input value={name} onChange={e => setName(e.target.value)} placeholder={L('Votre nom', 'اسمك', 'Your name')} className={inputCls} />
                   <input value={phone} onChange={e => setPhone(e.target.value)} placeholder={L('Téléphone / WhatsApp', 'الهاتف / واتساب', 'Phone / WhatsApp')} inputMode="tel" className={inputCls} />
+                  <input value={email} onChange={e => setEmail(e.target.value)} placeholder={L('Email (optionnel — pour être tenu informé)', 'البريد (اختياري — لإبقائك على اطلاع)', 'Email (optional — to stay informed)')} inputMode="email" className={inputCls} />
                   {err && <p className="text-red-400 text-xs">{err}</p>}
                   <button onClick={submit} disabled={sending}
                     className="flex items-center justify-center gap-2 w-full bg-gold-500 hover:bg-gold-400 text-noir-950 font-bold py-3 rounded-xl transition-colors disabled:opacity-60">

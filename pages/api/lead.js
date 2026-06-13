@@ -24,13 +24,14 @@ export default async function handler(req, res) {
     city: b.city || null,
     notes: b.notes || null,
     lang: b.lang || 'fr',
+    client_email: b.client_email || null,
     status: 'nouveau',
   }).select('id').single();
   if (error) return res.status(500).json({ error: error.message });
 
   notifyTelegram(buildNotif({
     icon: '🔔', type: 'Nouveau LEAD — ' + (CAT_FR[b.category] || 'Demande'),
-    name: b.client_name, phone: b.client_phone, lang: b.lang,
+    name: b.client_name, phone: b.client_phone, email: b.client_email, lang: b.lang,
     lines: [b.criteria ? `📌 ${b.criteria}` : '', b.budget_max ? `💰 ${b.budget_max} ${b.currency || 'DZD'}` : '', b.city ? `📍 ${b.city}` : ''],
     adminPath: '/admin/leads',
   })).catch(() => {});
