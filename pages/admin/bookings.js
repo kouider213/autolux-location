@@ -248,6 +248,17 @@ export default function BookingsPage() {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
+  // Envoie le statut actuel + lien de suivi au client via WhatsApp
+  const sendStatusWA = () => {
+    if (!selected) return;
+    const phone = selected.client_phone?.replace(/\D/g, '');
+    if (!phone) { toast.error('Pas de téléphone client'); return; }
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://fikconciergerie.com';
+    const link = `${origin}/suivi/${selected.id}`;
+    const msg = `Bonjour ${selected.client_name}, mise à jour de votre réservation ${selected.cars?.name || ''} chez Fik Conciergerie :\n\n📌 Statut : *${STATUS_FR[selected.status] || selected.status}*\n🔗 Suivi en temps réel : ${link}\n\nUne question ? Répondez-nous ici.`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
   // Demande d'avis vérifié au client (lien /avis/[id]) via WhatsApp
   const requestReview = () => {
     if (!selected) return;
@@ -543,6 +554,11 @@ export default function BookingsPage() {
                           </button>
                         ))}
                       </div>
+                      <p className="text-white/25 text-[10px] mt-1.5">{selected.client_email ? '📧 Le client reçoit un email auto à chaque changement de statut.' : 'ℹ️ Pas d\'email client — utilise le bouton WhatsApp ci-dessous.'}</p>
+                      <button onClick={sendStatusWA}
+                        className="mt-2 w-full flex items-center justify-center gap-2 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] text-xs font-semibold py-2 rounded-lg transition-colors">
+                        <MessageCircle size={14} />Envoyer le statut + lien de suivi sur WhatsApp
+                      </button>
                     </div>
 
                     {/* Édition dates + prix */}

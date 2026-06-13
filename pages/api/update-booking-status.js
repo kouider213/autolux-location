@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { sendEmail, bookingConfirmedEmail } from '../../lib/email';
+import { sendEmail, bookingConfirmedEmail, bookingStatusEmail } from '../../lib/email';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -67,19 +67,20 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: 'Réservation introuvable ou non modifiée' });
   }
 
-  // Email auto "réservation confirmée" (si acceptée + email présent — non bloquant)
-  if (status === 'ACCEPTED') {
+  // Email auto au client si email présent (confirmée OU refusée) — non bloquant
+  if (status === 'ACCEPTED' || status === 'REJECTED') {
     try {
       const { data: b } = await supabase
         .from('bookings')
         .select('client_name, client_email, start_date, end_date, final_price, currency, cars(name)')
         .eq('id', bookingId).single();
-      if (b?.client_email) {
-        const { subject, html } = bookingConfirmedEmail({
+      if (b?.client_email && /@/.test(b.client_email)) {
+        const payload = {
           client_name: b.client_name, car_name: b.cars?.name,
           start_date: b.start_date, end_date: b.end_date,
-          total: b.final_price, currency: b.currency, booking_id: bookingId,
-        });
+          total: b.final_price, currency: b.currency, booking_id: bookingId, status,
+        };
+        const { subject, html } = status === 'ACCEPTED' ? bookingConfirmedEmail(payload) : bookingStatusEmail(payload);
         sendEmail(b.client_email, subject, html).catch(() => {});
       }
     } catch { /* non bloquant */ }

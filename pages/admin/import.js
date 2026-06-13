@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Ship, Loader2, Upload, Trash2, X, Copy, ExternalLink, Save, Search } from 'lucide-react';
+import { Ship, Loader2, Upload, Trash2, X, Copy, ExternalLink, Save, Search, MessageCircle } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import { ALL_IMPORT_STATUSES, statusLabel } from '../../lib/importStatus';
@@ -140,6 +140,15 @@ function OrderCard({ order, open, onToggle, onSaved, onDeleted }) {
     toast.success('Lien de suivi copié');
   };
 
+  const sendStatusWA = () => {
+    const phone = (form.client_phone || '').replace(/\D/g, '');
+    if (!phone) { toast.error('Pas de téléphone client'); return; }
+    const veh = [form.vehicle_brand, form.vehicle_model].filter(Boolean).join(' ') || 'votre véhicule';
+    const link = `https://fikconciergerie.com/suivi-import/${order.order_ref}`;
+    const msg = `Bonjour ${form.client_name || ''}, mise à jour de votre importation (${veh}) chez Fik Conciergerie :\n\n📌 Statut : *${statusLabel(form.status, 'fr')}*\n🔗 Suivi en temps réel : ${link}\n📋 N° de commande : ${order.order_ref}\n\nUne question ? Répondez-nous ici.`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
   const del = async () => {
     if (!confirm(`Supprimer définitivement la commande ${order.order_ref} ?`)) return;
     const { error } = await supabase.from('import_orders').delete().eq('id', order.id);
@@ -172,6 +181,7 @@ function OrderCard({ order, open, onToggle, onSaved, onDeleted }) {
           <div className="flex flex-wrap items-center gap-2">
             <button onClick={copyLink} className="flex items-center gap-1.5 text-xs font-semibold text-white/60 hover:text-white border border-white/10 rounded-lg px-3 py-2"><Copy size={13} />Copier lien suivi</button>
             <a href={`/suivi-import/${order.order_ref}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs font-semibold text-white/60 hover:text-white border border-white/10 rounded-lg px-3 py-2"><ExternalLink size={13} />Voir la page client</a>
+            <button onClick={sendStatusWA} className="flex items-center gap-1.5 text-xs font-semibold text-[#25D366] bg-[#25D366]/15 hover:bg-[#25D366]/25 rounded-lg px-3 py-2"><MessageCircle size={13} />Statut + suivi WhatsApp</button>
           </div>
 
           {/* Statut */}
