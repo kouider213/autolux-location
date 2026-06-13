@@ -6,6 +6,7 @@ import { Package, Car, Building2, Home, Waves, UserCheck, ArrowLeft, MessageCirc
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ShareButtons from '../../components/ShareButtons';
+import LeadCapture from '../../components/LeadCapture';
 import Lightbox from '../../components/Lightbox';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
@@ -229,6 +230,9 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
 
               <div className="hidden md:flex flex-col sm:flex-row gap-3 mt-auto pt-2">
                 <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-gold flex-1 py-4 text-base justify-center"><MessageCircle size={18} /> {lang === 'ar' ? 'اطلب عبر واتساب' : lang === 'en' ? 'Request this pack on WhatsApp' : 'Demander ce pack sur WhatsApp'}</a>
+              </div>
+              <div className="hidden md:block mt-3">
+                <LeadCapture category="pack" criteria={pack.title} city="Oran" whatsappUrl={waUrl} />
               </div>
               <p className="text-white/20 text-xs text-center">{lang === 'ar' ? 'كل شيء يتم عبر واتساب — تأكيد التوفر والسعر من طرف فريقنا.' : lang === 'en' ? 'Everything goes through WhatsApp — availability and price confirmed by our team.' : 'Tout se fait via WhatsApp — disponibilité et tarif confirmés par notre équipe.'}</p>
             </div>
