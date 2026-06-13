@@ -123,8 +123,8 @@ export default function BookingsPage() {
   const handleWhatsApp = (b) => {
     const phone = b.client_phone?.replace(/\D/g, '');
     const msg = b.status === 'REJECTED'
-      ? `Bonjour ${b.client_name}, malheureusement nous n'avons pas de disponibilité à ces dates. Fik Conciergerie`
-      : `✅ *Confirmation — Fik Conciergerie*\n\nBonjour ${b.client_name},\n\nVotre réservation est *confirmée* !\n\n🚗 ${b.cars?.name}\n📅 ${b.start_date} → ${b.end_date}\n💰 ${b.final_price}€\n\nMerci de votre confiance !`;
+      ? `Bonjour ${b.client_name},\n\nNous vous remercions pour votre demande. Nous sommes sincèrement navrés, nous ne sommes malheureusement pas disponibles sur ces dates. Notre équipe serait toutefois ravie de vous proposer d'autres options — n'hésitez pas à nous écrire.\n\nBien à vous, l'équipe Fik Conciergerie.`
+      : `✅ *Confirmation — Fik Conciergerie*\n\nBonjour ${b.client_name},\n\nNous avons le plaisir de vous confirmer votre réservation.\n\n🚗 ${b.cars?.name}\n📅 ${b.start_date} → ${b.end_date}\n💰 ${b.final_price}€\n\nToute l'équipe se réjouit de vous accueillir. Merci de votre confiance 🙏`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -259,7 +259,7 @@ export default function BookingsPage() {
     if (!phone) { toast.error('Pas de téléphone client'); return; }
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://fikconciergerie.com';
     const link = `${origin}/suivi/${selected.id}`;
-    const msg = `Bonjour ${selected.client_name}, mise à jour de votre réservation ${selected.cars?.name || ''} chez Fik Conciergerie :\n\n📌 Statut : *${STATUS_FR[selected.status] || selected.status}*\n🔗 Suivi en temps réel : ${link}\n\nUne question ? Répondez-nous ici.`;
+    const msg = `Bonjour ${selected.client_name},\n\nVoici la mise à jour de votre réservation ${selected.cars?.name || ''} chez Fik Conciergerie.\n\n📌 Statut : *${STATUS_FR[selected.status] || selected.status}*\n🔗 Suivez votre réservation en temps réel : ${link}\n\nNous restons à votre entière disposition pour toute question.\nBien à vous, l'équipe Fik Conciergerie.`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 

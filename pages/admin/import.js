@@ -145,7 +145,7 @@ function OrderCard({ order, open, onToggle, onSaved, onDeleted }) {
     if (!phone) { toast.error('Pas de téléphone client'); return; }
     const veh = [form.vehicle_brand, form.vehicle_model].filter(Boolean).join(' ') || 'votre véhicule';
     const link = `https://fikconciergerie.com/suivi-import/${order.order_ref}`;
-    const msg = `Bonjour ${form.client_name || ''}, mise à jour de votre importation (${veh}) chez Fik Conciergerie :\n\n📌 Statut : *${statusLabel(form.status, 'fr')}*\n🔗 Suivi en temps réel : ${link}\n📋 N° de commande : ${order.order_ref}\n\nUne question ? Répondez-nous ici.`;
+    const msg = `Bonjour ${form.client_name || ''},\n\nVoici la mise à jour de votre dossier d'importation (${veh}) chez Fik Conciergerie.\n\n📌 Statut : *${statusLabel(form.status, 'fr')}*\n📋 N° de commande : ${order.order_ref}\n🔗 Suivez votre importation en temps réel : ${link}\n\nNous restons à votre entière disposition pour toute question.\nBien à vous, l'équipe Fik Conciergerie.`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
