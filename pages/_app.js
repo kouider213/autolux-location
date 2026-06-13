@@ -100,7 +100,8 @@ export default function App({ Component, pageProps }) {
                 geo: { '@type': 'GeoCoordinates', latitude: 35.6976, longitude: -0.6369 },
                 areaServed: { '@type': 'City', name: 'Oran' },
                 openingHours: 'Mo-Su 00:00-23:59',
-                sameAs: ['https://www.instagram.com/fik_conciergerie', 'https://share.google/N4itFBIAR9Z1JX8Aw'],
+                email: 'Fikconciergerie@gmail.com',
+                sameAs: ['https://www.instagram.com/fik_conciergerie', 'https://www.facebook.com/share/1KLWrMo7GW/', 'https://www.tiktok.com/@fik_conciergerie', 'https://maps.app.goo.gl/RGrRY3mUDy8MfQNv5'],
               }) }} />
               <title>Fik Conciergerie — Location, Vente & Immobilier à Oran</title>
       </Head>

@@ -18,6 +18,7 @@ export default function Document() {
           logo: 'https://fikconciergerie.com/logo.png',
           image: 'https://fikconciergerie.com/logo.png',
           telephone: '+32466311469',
+          email: 'Fikconciergerie@gmail.com',
           areaServed: [
             { '@type': 'City', name: 'Oran' },
             { '@type': 'Country', name: 'Algérie' },
@@ -40,7 +41,9 @@ export default function Document() {
           ],
           sameAs: [
             'https://www.instagram.com/fik_conciergerie',
-            'https://share.google/N4itFBIAR9Z1JX8Aw',
+            'https://www.facebook.com/share/1KLWrMo7GW/',
+            'https://www.tiktok.com/@fik_conciergerie',
+            'https://maps.app.goo.gl/RGrRY3mUDy8MfQNv5',
           ],
         }) }} />
       </Head>
