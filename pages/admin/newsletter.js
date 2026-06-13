@@ -14,6 +14,8 @@ export default function AdminNewsletterPage() {
   const [body, setBody] = useState('');
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState(null); // { ok, msg }
+  const [testEmail, setTestEmail] = useState('doubakouider@gmail.com');
+  const [confirmAll, setConfirmAll] = useState(false);
 
   const load = () => {
     supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false })
@@ -26,7 +28,8 @@ export default function AdminNewsletterPage() {
 
   const send = async (test) => {
     if (!title.trim() || !body.trim()) { toast.error('Titre et contenu requis'); return; }
-    if (!test && !confirm(`Envoyer à ${active.length} abonné(s) ?`)) return;
+    if (test && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(testEmail.trim())) { setResult({ ok: false, msg: 'Email de test invalide.' }); return; }
+    setConfirmAll(false);
     setSending(true); setResult(null);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -34,11 +37,11 @@ export default function AdminNewsletterPage() {
       const r = await fetch('/api/newsletter-send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ title, body, test }),
+        body: JSON.stringify({ title, body, test, testEmail: test ? testEmail.trim() : undefined }),
       });
       const json = await r.json();
       if (!r.ok) { setResult({ ok: false, msg: json.error || `Échec (HTTP ${r.status})` }); toast.error('Échec'); return; }
-      const msg = test ? `Email test envoyé à ${session.user?.email || 'toi'} ✅` : `Envoyé à ${json.sent}/${json.total} abonné(s) ✅`;
+      const msg = test ? `Email test envoyé à ${testEmail.trim()} ✅` : `Envoyé à ${json.sent}/${json.total} abonné(s) ✅`;
       setResult({ ok: true, msg }); toast.success('OK');
     } catch (e) { setResult({ ok: false, msg: e.message }); toast.error(e.message); }
     finally { setSending(false); }
@@ -82,16 +85,32 @@ export default function AdminNewsletterPage() {
             <label className="text-white/40 text-xs font-semibold block mb-1.5">Message (HTML simple autorisé : &lt;b&gt;, &lt;br&gt;, &lt;a&gt;)</label>
             <textarea value={body} onChange={e => setBody(e.target.value)} rows={8} className={inputCls} placeholder={"Bonjour,\n\nDécouvrez nos nouvelles offres...\n\n<b>Réservez vite !</b>"} />
           </div>
-          <div className="flex gap-2.5">
+          {/* Email de test */}
+          <div>
+            <label className="text-white/40 text-xs font-semibold block mb-1.5">Email pour le test</label>
+            <input value={testEmail} onChange={e => setTestEmail(e.target.value)} className={inputCls} placeholder="ton@email.com" inputMode="email" />
+          </div>
+
+          <div className="flex flex-wrap gap-2.5">
             <button onClick={() => send(true)} disabled={sending}
               className="flex items-center gap-2 text-sm font-semibold text-white/60 hover:text-white border border-white/10 rounded-xl px-4 py-2.5 disabled:opacity-50">
-              <TestTube2 size={15} />Envoyer un test (à moi)
+              <TestTube2 size={15} />Envoyer un test
             </button>
-            <button onClick={() => send(false)} disabled={sending}
-              className="flex items-center gap-2 text-sm font-bold bg-gold-500 text-noir-950 rounded-xl px-5 py-2.5 disabled:opacity-50">
-              {sending ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
-              Envoyer à tous ({active.length})
-            </button>
+            {!confirmAll ? (
+              <button onClick={() => { if (!title.trim() || !body.trim()) { toast.error('Titre et contenu requis'); return; } setResult(null); setConfirmAll(true); }} disabled={sending || active.length === 0}
+                className="flex items-center gap-2 text-sm font-bold bg-gold-500 text-noir-950 rounded-xl px-5 py-2.5 disabled:opacity-50">
+                <Send size={15} />Envoyer à tous ({active.length})
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 flex-wrap bg-gold-500/10 border border-gold-500/25 rounded-xl px-3 py-2">
+                <span className="text-gold-300 text-sm font-semibold">Envoyer à {active.length} abonné(s) ?</span>
+                <button onClick={() => send(false)} disabled={sending}
+                  className="flex items-center gap-1.5 text-sm font-bold bg-gold-500 text-noir-950 rounded-lg px-4 py-2 disabled:opacity-50">
+                  {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}Confirmer
+                </button>
+                <button onClick={() => setConfirmAll(false)} disabled={sending} className="text-sm font-semibold text-white/50 hover:text-white px-3 py-2">Annuler</button>
+              </div>
+            )}
           </div>
 
           {/* Résultat permanent (diagnostic) */}

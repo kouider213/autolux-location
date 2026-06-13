@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   const { data: u } = await sb.auth.getUser(token);
   if (!u?.user) return res.status(401).json({ error: 'non autorisé' });
 
-  const { title, body, test } = req.body || {};
+  const { title, body, test, testEmail } = req.body || {};
   if (!title || !body) return res.status(400).json({ error: 'titre + contenu requis' });
 
   // Diagnostic explicite : sans RESEND_API_KEY, aucun email ne part (skip silencieux avant).
@@ -27,12 +27,13 @@ export default async function handler(req, res) {
   const admin = supabaseAdmin();
   if (!admin) return res.status(500).json({ error: 'config serveur manquante' });
 
-  // Mode test : envoie seulement à l'email de l'admin
+  // Mode test : envoie à l'email de test fourni (ou, à défaut, l'email du compte admin)
   if (test) {
-    const { subject, html } = newsletterCampaignEmail(title, body, u.user.email);
-    const r = await sendEmail(u.user.email, subject, html);
+    const dest = (testEmail && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(testEmail)) ? testEmail : u.user.email;
+    const { subject, html } = newsletterCampaignEmail(title, body, dest);
+    const r = await sendEmail(dest, subject, html);
     if (!r.ok) return res.status(502).json({ error: `Échec Resend${r.status ? ` (${r.status})` : ''} : ${r.detail || r.reason || 'inconnu'}` });
-    return res.json({ ok: true, test: true });
+    return res.json({ ok: true, test: true, dest });
   }
 
   const { data: subs, error } = await admin
