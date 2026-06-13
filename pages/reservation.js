@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { Car, User, Check, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Phone, FileText, Loader2, Home, CalendarDays, Info } from 'lucide-react';
+import { Car, User, Check, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Phone, FileText, Loader2, Home, CalendarDays, Info, Search } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
@@ -227,6 +227,17 @@ export default function ReservationPage({ cars: initialCars }) {
         newBookingId = inserted?.id || null;
         setBookingId(newBookingId);
       }
+      // Email "demande reçue" (si email fourni — non bloquant)
+      if (form.email) {
+        fetch('/api/booking-received', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            client_email: form.email, client_name: form.name, car_name: selectedCar?.name,
+            start_date: form.startDate, end_date: form.endDate, total,
+            currency: selectedCar?.currency, booking_id: newBookingId,
+          }),
+        }).catch(() => {});
+      }
       // Notify Dzaryx
       fetch('/api/notify-dzaryx', {
         method: 'POST',
@@ -285,6 +296,11 @@ export default function ReservationPage({ cars: initialCars }) {
               ))}
             </div>
             <div className="flex flex-col gap-3 w-full max-w-sm">
+              {/* Suivi de la demande — bouton principal */}
+              <Link href={bookingId ? `/suivi/${bookingId}` : '/mes-reservations'}
+                className="flex items-center justify-center gap-2 bg-gold-500 hover:bg-gold-400 text-noir-950 font-bold py-3.5 rounded-xl transition-colors shadow-[0_4px_16px_rgba(226,182,20,0.3)]">
+                <Search size={17} />{lang === 'ar' ? 'تتبّع طلبي' : lang === 'en' ? 'Track my request' : 'Suivre ma demande'}
+              </Link>
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white font-semibold py-3.5 rounded-xl transition-colors shadow-[0_4px_16px_rgba(37,211,102,0.3)]">
                 <MessageCircle size={17} />{t('res.open_wa')}
@@ -298,9 +314,21 @@ export default function ReservationPage({ cars: initialCars }) {
                 </Link>
               </div>
             </div>
-            <div className="mt-6 flex items-start gap-2 bg-amber-500/[0.06] border border-amber-500/20 rounded-xl p-4 max-w-sm text-left">
-              <AlertCircle size={15} className="text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-amber-400/80 text-xs leading-relaxed">{t('res.team')}</p>
+            <div className="mt-6 flex flex-col gap-3 max-w-sm">
+              <div className="flex items-start gap-2 bg-gold-500/[0.06] border border-gold-500/20 rounded-xl p-4 text-left">
+                <Search size={15} className="text-gold-400 flex-shrink-0 mt-0.5" />
+                <p className="text-white/55 text-xs leading-relaxed">
+                  {lang === 'ar'
+                    ? 'يمكنك متابعة طلبك في أي وقت من صفحة «حجوزاتي» باستخدام رقم هاتفك أو بريدك الإلكتروني. سيصلك أيضاً بريد تأكيد الاستلام.'
+                    : lang === 'en'
+                    ? 'You can track your request anytime in “My bookings” using your phone or email. A confirmation email has also been sent.'
+                    : 'Vous pouvez suivre votre demande à tout moment dans « Mes réservations » avec votre téléphone ou votre email. Un email de confirmation vous a aussi été envoyé.'}
+                </p>
+              </div>
+              <div className="flex items-start gap-2 bg-amber-500/[0.06] border border-amber-500/20 rounded-xl p-4 text-left">
+                <AlertCircle size={15} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                <p className="text-amber-400/80 text-xs leading-relaxed">{t('res.team')}</p>
+              </div>
             </div>
           </div>
         </div>
