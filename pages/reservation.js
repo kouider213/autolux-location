@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { Car, User, Check, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Phone, FileText, Loader2, Home, CalendarDays, Info, Search } from 'lucide-react';
+import { Car, User, Check, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Phone, FileText, Loader2, Home, CalendarDays, Info, Search, RefreshCw } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
@@ -575,6 +575,19 @@ export default function ReservationPage({ cars: initialCars }) {
                       </div>
                     </div>
 
+                    {router.isReady && (router.query.name || router.query.phone) && (
+                      <div className="flex items-start gap-2 bg-gold-500/[0.06] border border-gold-500/20 rounded-xl p-3.5">
+                        <RefreshCw size={14} className="text-gold-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-white/55 text-xs leading-relaxed">
+                          {lang === 'ar'
+                            ? 'تم ملء معلوماتك مسبقاً من حجزك السابق. تحقّق منها وعدّلها إذا لزم (العمر، رقم الجواز…).'
+                            : lang === 'en'
+                            ? 'Your details are pre-filled from your previous booking. Check and edit them if needed (age, passport number…).'
+                            : 'Vos infos sont pré-remplies depuis votre précédente réservation. Vérifiez-les et modifiez-les si besoin (âge, n° passeport…).'}
+                        </p>
+                      </div>
+                    )}
+
                     <div>
                       <label className="label-dark">{t("res.fullname")}</label>
                       <div className="relative">
@@ -631,6 +644,13 @@ export default function ReservationPage({ cars: initialCars }) {
                         <input type="text" value={form.passport} onChange={set('passport')}
                           placeholder={t("res.ph_passport")} className="input-dark" style={{ paddingLeft: '2.75rem' }} />
                       </div>
+                      <p className="text-white/35 text-xs mt-1.5 leading-relaxed">
+                        {lang === 'ar'
+                          ? '📸 ستُطلب منك صور جواز السفر والرخصة في خطوة العقد — احرص على أن تكون الوثائق سارية (غير منتهية). يمكنك تعديل عمرك ورقم جوازك هنا.'
+                          : lang === 'en'
+                          ? '📸 Passport & licence photos will be requested at the contract step — make sure your documents are valid (not expired). You can edit your age and passport number here.'
+                          : '📸 Les photos du passeport et du permis vous seront demandées à l\'étape du contrat — assurez-vous que vos documents sont valides (non périmés). Vous pouvez modifier votre âge et votre n° de passeport ici.'}
+                      </p>
                     </div>
 
                     <div>
