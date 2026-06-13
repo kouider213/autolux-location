@@ -253,6 +253,7 @@ export default function AdminNewsletterPage() {
 
             <textarea value={body} onChange={e => setBody(e.target.value)} rows={8} className={inputCls} placeholder={"Bonjour,\n\nDécouvrez nos nouvelles offres...\n\nUtilisez les boutons ci-dessus pour ajouter photos, vidéos et boutons."} />
             <p className="text-white/25 text-[11px] mt-1.5">Astuce : tape ton texte, puis clique Photo / Vidéo / Bouton pour insérer. Les sauts de ligne sont gardés.</p>
+            <p className="text-emerald-400/70 text-[11px] mt-1">🌍 Chaque abonné reçoit le message traduit automatiquement dans sa langue (FR / العربية / EN). Écris en français, on traduit pour toi.</p>
 
             {/* Aperçu live */}
             {preview && (

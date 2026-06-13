@@ -122,7 +122,10 @@ export default function Footer() {
           {[
             { h: '/conciergerie-oran', l: 'Conciergerie Oran' },
             { h: '/location-voiture-oran', l: 'Location voiture Oran' },
+            { h: '/location-voiture-aeroport-oran', l: 'Location aéroport Oran' },
             { h: '/vente-voiture-oran', l: 'Vente voiture Oran' },
+            { h: '/vente-voiture-occasion-oran', l: 'Voiture occasion Oran' },
+            { h: '/importation-voiture-algerie', l: 'Importation véhicule' },
             { h: '/immobilier-oran', l: 'Immobilier Oran' },
           ].map(x => (
             <Link key={x.h} href={x.h} className="text-white/30 text-xs font-body hover:text-gold-400 transition-colors">{x.l}</Link>

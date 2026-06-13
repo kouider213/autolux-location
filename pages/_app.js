@@ -40,6 +40,10 @@ export default function App({ Component, pageProps }) {
               <meta name="viewport" content="width=device-width, initial-scale=1" />
               <meta name="theme-color" content="#080808" />
               <link rel="manifest" href="/manifest.json" />
+              {/* Polices Google — preconnect + stylesheet (remplace l'@import CSS render-blocking) */}
+              <link rel="preconnect" href="https://fonts.googleapis.com" />
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+              <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,700;0,6..96,800;0,6..96,900;1,6..96,400;1,6..96,700;1,6..96,900&family=Jost:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" />
               {/* Perf : pré-connexion aux hôtes d'images/API pour accélérer le LCP */}
               {process.env.NEXT_PUBLIC_SUPABASE_URL && <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} crossOrigin="anonymous" />}
               <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />

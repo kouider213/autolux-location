@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { supabaseAdmin } from '../../lib/supabase';
 import { sendEmail, newsletterCampaignEmail } from '../../lib/email';
+import { translateTexts, translateHtml } from '../../lib/serverTranslate';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
@@ -38,12 +39,26 @@ export default async function handler(req, res) {
 
   const { data: subs, error } = await admin
     .from('newsletter_subscribers')
-    .select('email').eq('status', 'active');
+    .select('email, lang').eq('status', 'active');
   if (error) return res.status(500).json({ error: error.message });
+
+  // Traduit le titre + le contenu UNE fois par langue (le HTML img/boutons est préservé).
+  const langs = [...new Set((subs || []).map(s => (s.lang === 'ar' ? 'ar' : s.lang === 'en' ? 'en' : 'fr')))];
+  const translated = {}; // lang -> { title, body }
+  for (const lg of langs) {
+    if (lg === 'fr') { translated.fr = { title, body }; continue; }
+    try {
+      const [tTitle] = await translateTexts([title], lg);
+      const tBody = await translateHtml(body, lg);
+      translated[lg] = { title: tTitle || title, body: tBody || body };
+    } catch { translated[lg] = { title, body }; }
+  }
 
   let sent = 0; let lastErr = null;
   for (const s of subs || []) {
-    const { subject, html } = newsletterCampaignEmail(title, body, s.email);
+    const lg = s.lang === 'ar' ? 'ar' : s.lang === 'en' ? 'en' : 'fr';
+    const t = translated[lg] || { title, body };
+    const { subject, html } = newsletterCampaignEmail(t.title, t.body, s.email);
     const r = await sendEmail(s.email, subject, html);
     if (r.ok) sent++;
     else lastErr = r.detail || r.reason || `status ${r.status || '?'}`;

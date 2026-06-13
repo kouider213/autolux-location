@@ -23,7 +23,7 @@ export async function getServerSideProps({ res }) {
     }
   } catch { /* non-blocking */ }
 
-  const staticPages = ['', '/cars', '/vente-voitures', '/immo', '/packs', '/investir', '/commande-vehicule', '/reservation', '/mes-reservations', '/reviews', '/conditions', '/faq', '/blog', '/contact', '/a-propos', '/cgv', '/mentions-legales', '/confidentialite', '/conciergerie-oran', '/location-voiture-oran', '/vente-voiture-oran', '/immobilier-oran'];
+  const staticPages = ['', '/cars', '/vente-voitures', '/immo', '/packs', '/investir', '/commande-vehicule', '/reservation', '/mes-reservations', '/reviews', '/conditions', '/faq', '/blog', '/contact', '/a-propos', '/cgv', '/mentions-legales', '/confidentialite', '/conciergerie-oran', '/location-voiture-oran', '/vente-voiture-oran', '/immobilier-oran', '/location-voiture-aeroport-oran', '/importation-voiture-algerie', '/vente-voiture-occasion-oran'];
   const carPages    = carIds.map(id => `/cars/${id}`);
   const salePages   = saleIds.map(id => `/vente-voitures/${id}`);
   const immoPages   = immoIds.map(id => `/immo/${id}`);
