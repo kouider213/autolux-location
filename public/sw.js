@@ -1,5 +1,5 @@
 /* Fik Conciergerie — service worker. Bump CACHE version to invalidate. */
-const CACHE = 'fik-v1';
+const CACHE = 'fik-v2';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE = ['/offline.html', '/manifest.json', '/logo.png', '/icons/icon-192.png'];
 
@@ -23,6 +23,11 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return; // ne touche pas aux API externes (supabase, backend)
 
+  // Admin + API : JAMAIS de cache (toujours frais, données sensibles)
+  if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api')) {
+    return; // laisse le navigateur gérer (réseau direct)
+  }
+
   // Pages HTML : réseau d'abord, cache/offline en secours
   if (request.mode === 'navigate') {
     event.respondWith(
@@ -37,8 +42,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Statique (_next, images, icons) : cache d'abord
-  if (/\/_next\/|\.(?:js|css|png|jpg|jpeg|svg|webp|woff2?|ico)$/.test(url.pathname)) {
+  // JS/CSS (_next) : RÉSEAU d'abord (sinon une nouvelle version ne charge jamais), cache en secours offline
+  if (/\/_next\/.*\.(?:js|css)$/.test(url.pathname)) {
+    event.respondWith(
+      fetch(request)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(request, copy));
+          return res;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  // Images / polices : cache d'abord (statique, sûr)
+  if (/\.(?:png|jpg|jpeg|svg|webp|woff2?|ico)$/.test(url.pathname)) {
     event.respondWith(
       caches.match(request).then((cached) =>
         cached ||
