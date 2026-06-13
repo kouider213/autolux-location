@@ -13,6 +13,7 @@ export default function AdminNewsletterPage() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [sending, setSending] = useState(false);
+  const [result, setResult] = useState(null); // { ok, msg }
 
   const load = () => {
     supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false })
@@ -26,18 +27,20 @@ export default function AdminNewsletterPage() {
   const send = async (test) => {
     if (!title.trim() || !body.trim()) { toast.error('Titre et contenu requis'); return; }
     if (!test && !confirm(`Envoyer à ${active.length} abonné(s) ?`)) return;
-    setSending(true);
+    setSending(true); setResult(null);
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) { setResult({ ok: false, msg: 'Session expirée — reconnecte-toi (déconnexion puis /login).' }); return; }
       const r = await fetch('/api/newsletter-send', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token || ''}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({ title, body, test }),
       });
       const json = await r.json();
-      if (!r.ok) throw new Error(json.error || 'Échec');
-      toast.success(test ? 'Email test envoyé' : `Envoyé à ${json.sent}/${json.total}`);
-    } catch (e) { toast.error(e.message); }
+      if (!r.ok) { setResult({ ok: false, msg: json.error || `Échec (HTTP ${r.status})` }); toast.error('Échec'); return; }
+      const msg = test ? `Email test envoyé à ${session.user?.email || 'toi'} ✅` : `Envoyé à ${json.sent}/${json.total} abonné(s) ✅`;
+      setResult({ ok: true, msg }); toast.success('OK');
+    } catch (e) { setResult({ ok: false, msg: e.message }); toast.error(e.message); }
     finally { setSending(false); }
   };
 
@@ -90,6 +93,13 @@ export default function AdminNewsletterPage() {
               Envoyer à tous ({active.length})
             </button>
           </div>
+
+          {/* Résultat permanent (diagnostic) */}
+          {result && (
+            <div className={`rounded-xl px-4 py-3 text-sm border ${result.ok ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-300' : 'bg-red-500/10 border-red-500/25 text-red-300'}`}>
+              {result.msg}
+            </div>
+          )}
         </div>
 
         {/* Liste abonnés */}
