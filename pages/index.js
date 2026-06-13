@@ -37,7 +37,7 @@ const packAvailHome = (p) => {
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getSettings, useSettings, waNumber } from '../lib/settings';
-import { useLang } from '../lib/i18n';
+import { useLang, localizeValue } from '../lib/i18n';
 
 /* ── Social icons (footer) — lit les réseaux depuis les paramètres ── */
 function SocialIcons() {
@@ -170,7 +170,7 @@ function AnimCounter({ to, suffix }) {
 
 /* ── Interactive car carousel ── */
 function CarCarousel({ cars }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [idx, setIdx] = useState(0);
   const [dir, setDir] = useState(1);
   const total = cars.length;
@@ -235,7 +235,7 @@ function CarCarousel({ cars }) {
               >
                 {/* Category + index */}
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="tag-category capitalize">{car.category}</span>
+                  <span className="tag-category capitalize">{localizeValue(car.category, lang)}</span>
                   <span className="text-white/25 text-xs font-body tracking-widest">
                     {String(idx + 1).padStart(2,'0')} / {String(total).padStart(2,'0')}
                   </span>
@@ -250,7 +250,7 @@ function CarCarousel({ cars }) {
                 {/* Specs */}
                 <div className="flex items-center gap-3 mb-6 flex-wrap">
                   <span className="flex items-center gap-1.5 text-white/50 text-sm font-body">
-                    <Fuel size={12} className="text-gold-500/60" />{car.fuel}
+                    <Fuel size={12} className="text-gold-500/60" />{localizeValue(car.fuel, lang)}
                   </span>
                   <span className="text-white/20">·</span>
                   <span className="flex items-center gap-1.5 text-white/50 text-sm font-body">
@@ -258,7 +258,7 @@ function CarCarousel({ cars }) {
                   </span>
                   {car.transmission && (
                     <><span className="text-white/20">·</span>
-                    <span className="text-white/50 text-sm capitalize font-body">{car.transmission}</span></>
+                    <span className="text-white/50 text-sm capitalize font-body">{localizeValue(car.transmission, lang)}</span></>
                   )}
                 </div>
 
@@ -276,7 +276,7 @@ function CarCarousel({ cars }) {
                     href={`/reservation?car=${car.id}`}
                     className="btn-gold px-6 py-3 text-sm md:text-base whitespace-nowrap"
                   >
-                    <CalendarCheck size={15} />Réserver
+                    <CalendarCheck size={15} />{t('nav.book')}
                   </Link>
                 </div>
               </motion.div>
@@ -554,7 +554,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               {/* Car badge */}
               {heroCar && (
                 <div className="hero-css-sub absolute bottom-6 right-5 text-right pointer-events-none">
-                  <p className="text-white/20 text-[10px] tracking-widest uppercase font-body">{heroCar.category}</p>
+                  <p className="text-white/20 text-[10px] tracking-widest uppercase font-body">{localizeValue(heroCar.category, lang)}</p>
                   <p className="text-white/55 font-display font-bold text-sm">{heroCar.name}</p>
                   <p className="text-gold-400 font-display font-bold text-lg">{Number(heroCar.resale_price).toLocaleString('fr-FR')} {heroCar.currency === 'EUR' ? '€' : 'DA'}<span className="text-white/25 text-xs font-body">/j</span></p>
                 </div>
@@ -734,7 +734,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 badges: <><span className="tag-category">{v.year || t('home.sale_badge')}</span>{v.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950">{t('b.featured')}</span>}</>,
                 specs: <>
                   {v.mileage != null && <span className="flex items-center gap-1.5 text-white/50 text-sm font-body"><Gauge size={12} className="text-gold-500/60" />{Number(v.mileage).toLocaleString('fr-FR')} km</span>}
-                  {v.fuel && <><span className="text-white/20">·</span><span className="flex items-center gap-1.5 text-white/50 text-sm font-body"><Fuel size={12} className="text-gold-500/60" />{v.fuel}</span></>}
+                  {v.fuel && <><span className="text-white/20">·</span><span className="flex items-center gap-1.5 text-white/50 text-sm font-body"><Fuel size={12} className="text-gold-500/60" />{localizeValue(v.fuel, lang)}</span></>}
                   {v.city && <><span className="text-white/20">·</span><span className="flex items-center gap-1.5 text-white/50 text-sm font-body"><MapPin size={12} className="text-gold-500/60" />{v.city}</span></>}
                 </>,
                 price: v.price ? `${Number(v.price).toLocaleString('fr-FR')} ${curSym(v.currency)}` : t('b.price_request'),
