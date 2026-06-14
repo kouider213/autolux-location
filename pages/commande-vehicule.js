@@ -20,7 +20,7 @@ const emptyForm = {
   type: '', marque: '', modele: '', annee_min: '', km_max: '',
   carburant: '', boite: '', budget: '', devise: 'EUR',
   origine: '', delai: '', couleur: '', options: '',
-  etat: 'occasion', liens: '', message: '',
+  etat: 'occasion', liens: '', message: '', referral: '',
 };
 
 export default function CommandeVehiculePage() {
@@ -153,6 +153,7 @@ export default function CommandeVehiculePage() {
           vehicle_fuel: form.carburant, vehicle_gearbox: form.boite, vehicle_color: form.couleur,
           vehicle_specs: [form.options, form.km_max ? `Km max: ${form.km_max}` : '', form.etat ? `État: ${form.etat}` : '', form.liens, form.message].filter(Boolean).join(' · '),
           budget: form.budget || null, currency: form.devise, country_origin: form.origine, deadline: form.delai,
+          referral_code: form.referral || null,
         }),
       });
       const d = await r.json();
@@ -298,6 +299,11 @@ export default function CommandeVehiculePage() {
               {/* Message */}
               <Field label={t('f.message')}>
                 <textarea value={form.message} onChange={set('message')} rows={3} className={`${inputCls} resize-none`} />
+              </Field>
+
+              {/* Code parrainage (optionnel) */}
+              <Field label={lang === 'ar' ? 'رمز الإحالة (اختياري)' : lang === 'en' ? 'Referral code (optional)' : 'Code parrainage (optionnel)'}>
+                <input value={form.referral} onChange={set('referral')} placeholder={lang === 'ar' ? 'إن كان لديك رمز' : lang === 'en' ? 'If you have a code' : 'Si vous avez un code'} className={inputCls} />
               </Field>
 
               {/* Case obligatoire */}

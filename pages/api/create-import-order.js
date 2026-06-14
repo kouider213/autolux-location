@@ -46,6 +46,15 @@ export default async function handler(req, res) {
   }
   if (error) return res.status(500).json({ error: error.message });
 
+  // Parrainage : si un code est fourni, on incrémente son compteur
+  if (b.referral_code) {
+    try {
+      const code = String(b.referral_code).trim().toUpperCase();
+      const { data: rf } = await admin.from('referrals').select('id, uses').ilike('code', code).maybeSingle();
+      if (rf) await admin.from('referrals').update({ uses: (rf.uses || 0) + 1 }).eq('id', rf.id);
+    } catch { /* ignore */ }
+  }
+
   notifyTelegram(buildNotif({
     icon: '🛳️', type: `Nouvelle COMMANDE IMPORT — ${data.order_ref}`,
     name: b.client_name, phone: b.client_phone, email: b.client_email, lang: b.lang,
