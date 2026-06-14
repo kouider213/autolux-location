@@ -109,7 +109,7 @@ export default function ReservationPage({ cars: initialCars }) {
 
   const [form, setForm] = useState({
     carId: '', startDate: '', endDate: '',
-    name: '', phone: '', age: '', email: '', passport: '', notes: '',
+    name: '', phone: '', age: '', email: '', passport: '', notes: '', referral: '',
   });
 
   // Refresh cars
@@ -273,6 +273,13 @@ export default function ReservationPage({ cars: initialCars }) {
           currency: selectedCar?.currency, booking_id: newBookingId, lang,
         }),
       }).catch(() => {});
+      // Code parrainage (si saisi) → incrémente le compteur — non bloquant
+      if (form.referral && form.referral.trim()) {
+        fetch('/api/referral-use', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: form.referral.trim() }),
+        }).catch(() => {});
+      }
       // Notify Dzaryx
       fetch('/api/notify-dzaryx', {
         method: 'POST',
@@ -656,6 +663,13 @@ export default function ReservationPage({ cars: initialCars }) {
                       <textarea value={form.notes} onChange={set('notes')} rows={3}
                         placeholder={t("res.ph_notes")}
                         className="input-dark resize-none" />
+                    </div>
+
+                    <div>
+                      <label className="label-dark">{lang === 'ar' ? 'رمز الإحالة (اختياري)' : lang === 'en' ? 'Referral code (optional)' : 'Code parrainage (optionnel)'}</label>
+                      <input value={form.referral} onChange={set('referral')}
+                        placeholder={lang === 'ar' ? 'إن كان لديك رمز' : lang === 'en' ? 'If you have a code' : 'Si vous avez un code'}
+                        className="input-dark" />
                     </div>
 
                     {selectedCar && (
