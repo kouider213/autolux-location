@@ -6,15 +6,6 @@ import { sendEmail, newsletterCampaignEmail } from '../../lib/email';
 import { translateTexts, translateHtml } from '../../lib/serverTranslate';
 
 export default async function handler(req, res) {
-  // Diagnostic (aucun secret exposé) : confirme que ce code est déployé + si la variable est lue + si le header arrive.
-  if (req.method === 'GET') {
-    return res.json({
-      build: 'internal-token-v1',
-      tokenConfigured: !!process.env.INTERNAL_API_TOKEN,
-      headerSeen: !!req.headers['x-internal-token'],
-      match: !!req.headers['x-internal-token'] && !!process.env.INTERNAL_API_TOKEN && req.headers['x-internal-token'] === process.env.INTERNAL_API_TOKEN,
-    });
-  }
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
 
   // Auth : soit token interne (app Dzaryx via backend), soit session admin Supabase.
