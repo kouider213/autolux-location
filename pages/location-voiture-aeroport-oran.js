@@ -25,7 +25,7 @@ export default function LocationVoitureAeroportOran() {
       faq={[
         { q: "Livrez-vous vraiment à l'aéroport d'Oran ?", a: "Oui, livraison à l'aéroport Oran Es-Sénia (ORN) calée sur votre heure d'arrivée. Précisez votre vol à la réservation." },
         { q: "Faut-il une caution ?", a: "Non. Un passeport et un permis valides suffisent." },
-        { q: "Puis-je rendre la voiture à l'aéroport ?", a: "Oui, restitution possible à l'aéroport ou à l'adresse de votre choix sur Oran." },
+        { q: "Puis-je rendre la voiture à l'aéroport ?", a: "Oui, restitution à l'aéroport d'Oran ou à notre bureau à Oran." },
         { q: "Comment réserver depuis l'étranger ?", a: "En ligne via la page Réservation ou par WhatsApp. Vous recevez un numéro de suivi." },
       ]}
       ctaPrimary={{ href: "/reservation", label: "Réserver maintenant" }}

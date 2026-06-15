@@ -13,7 +13,7 @@ export default function LocationVoitureOran() {
       bullets={[
         "Sans caution — passeport + permis suffisent",
         "Kilométrage illimité sur toute l'Algérie",
-        "Livraison à l'aéroport d'Oran ou à votre adresse",
+        "Livraison à l'aéroport d'Oran ou à notre bureau",
         "Large choix : citadine, berline, SUV, premium",
         "Véhicules récents, propres et assurés",
         "Réservation en ligne ou par WhatsApp, 7j/7",
@@ -25,7 +25,7 @@ export default function LocationVoitureOran() {
       faq={[
         { q: "Faut-il une caution pour louer ?", a: "Non. La location se fait sans caution. Un passeport et un permis valides suffisent." },
         { q: "Le kilométrage est-il limité ?", a: "Non, le kilométrage est illimité partout en Algérie." },
-        { q: "Livrez-vous à l'aéroport d'Oran ?", a: "Oui, livraison possible à l'aéroport ou à l'adresse de votre choix sur Oran." },
+        { q: "Livrez-vous à l'aéroport d'Oran ?", a: "Oui, livraison et récupération à l'aéroport d'Oran ou à notre bureau à Oran." },
         { q: "Comment réserver ?", a: "En ligne via la page Réservation, ou directement par WhatsApp. Vous recevez un numéro de suivi." },
       ]}
       ctaPrimary={{ href: "/reservation", label: "Réserver maintenant" }}
