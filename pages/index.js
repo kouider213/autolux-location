@@ -38,6 +38,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getSettings, useSettings, waNumber } from '../lib/settings';
 import { useLang, localizeValue } from '../lib/i18n';
+import { useTranslated } from '../lib/autoTranslate';
 
 /* ── Social icons (footer) — lit les réseaux depuis les paramètres ── */
 function SocialIcons() {
@@ -395,6 +396,9 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
   const { t, lang } = useLang();
   const settings = useSettings();
   const WHATSAPP = waNumber(settings);
+  // Titre/sous-titre accueil saisis dans l'admin (FR) → auto-traduits FR/AR/EN
+  const heroTitleTr = useTranslated(settings.hero_title || '');
+  const heroSubtitleTr = useTranslated(settings.hero_subtitle || '');
   const statsRef    = useRef(null);
   const statsInView = useInView(statsRef, { once: true, amount: 0.4 });
   const benefitsRef = useRef(null);
@@ -522,7 +526,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 <div className="overflow-hidden">
                   <h1 className="hero-css-line1 font-display font-black text-hero-gradient leading-[0.88]"
                     style={{ fontSize: 'clamp(50px, 9vw, 116px)' }}>
-                    {settings.hero_title || t('hero.line1')}
+                    {heroTitleTr || t('hero.line1')}
                   </h1>
                 </div>
                 <div className="overflow-hidden">
@@ -536,7 +540,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               {/* Subtitle */}
               <div className="hero-css-sub absolute left-5 md:left-12 bottom-[20%] right-5 pointer-events-none">
                 <p className="text-white/60 text-base md:text-xl font-body max-w-md leading-relaxed">
-                  {settings.hero_subtitle || t('hero.subtitle')}
+                  {heroSubtitleTr || t('hero.subtitle')}
                   <span className="block text-white/35 text-sm md:text-base mt-0.5">{t('hero.tags')}</span>
                 </p>
               </div>

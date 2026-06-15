@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
+import { useTranslated } from '../lib/autoTranslate';
 import { useSettings, waNumber } from '../lib/settings';
 import { useFavorites } from '../lib/favorites';
 
@@ -47,6 +48,8 @@ const priceLabel = (p, lang) => {
 function PackCard({ p, lang }) {
   const WHATSAPP = waNumber(useSettings());
   const { isFav, toggle } = useFavorites();
+  const titleTr = useTranslated(p.title || '');
+  const taglineTr = useTranslated(p.tagline || '');
   const photos = (p.pack_photos || []).sort((a, b) => a.position - b.position).map(x => x.url);
   if (p.image_url && !photos.includes(p.image_url)) photos.unshift(p.image_url);
   const photo = photos[0];
@@ -75,8 +78,8 @@ function PackCard({ p, lang }) {
         </div>
         {!available && <div className="absolute inset-0 bg-[#0a0a0a]/55 backdrop-blur-[2px]" />}
         <div className="absolute inset-x-0 bottom-0 p-4">
-          <h3 className="text-white font-bold text-xl leading-tight mb-1">{p.title}</h3>
-          {p.tagline && <p className="text-white/45 text-xs leading-snug line-clamp-1">{p.tagline}</p>}
+          <h3 className="text-white font-bold text-xl leading-tight mb-1">{titleTr || p.title}</h3>
+          {p.tagline && <p className="text-white/45 text-xs leading-snug line-clamp-1">{taglineTr || p.tagline}</p>}
         </div>
         <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(p.id, 'pack'); }}
           aria-label="Favori"

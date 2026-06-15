@@ -11,6 +11,7 @@ import StartDossier from '../../components/StartDossier';
 import Lightbox from '../../components/Lightbox';
 import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
+import { useTranslated } from '../../lib/autoTranslate';
 import { useSettings, waNumber } from '../../lib/settings';
 
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
@@ -24,6 +25,7 @@ const STATUS_BADGE = {
 
 export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
   const { t, lang } = useLang();
+  const descTr = useTranslated(vehicle.description || '');
   const WHATSAPP = waNumber(useSettings());
   const [photos, setPhotos] = useState(initialPhotos || []);
   const [active, setActive] = useState(0);
@@ -182,7 +184,7 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
               {vehicle.description && (
                 <div className="bg-[#141414] border border-white/[0.06] rounded-xl p-5">
                   <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{t('d.description')}</h2>
-                  <p className="text-white/55 leading-relaxed text-sm whitespace-pre-wrap">{vehicle.description}</p>
+                  <p className="text-white/55 leading-relaxed text-sm whitespace-pre-wrap">{descTr}</p>
                 </div>
               )}
 

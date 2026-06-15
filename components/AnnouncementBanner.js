@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Megaphone, X } from 'lucide-react';
 import { getSettings } from '../lib/settings';
+import { useTranslated } from '../lib/autoTranslate';
 
 // Bandeau d'annonce sitewide. Affiché si l'admin a rempli le champ "announcement"
 // dans Paramètres. Masqué sur l'admin. Refermable (mémorisé par texte).
+// Le texte saisi (FR) est auto-traduit FR/AR/EN selon la langue du visiteur.
 export default function AnnouncementBanner() {
-  const [msg, setMsg]       = useState('');
+  const [raw, setRaw]       = useState('');   // texte FR brut (clé de fermeture stable)
   const [closed, setClosed] = useState(true);
+  const msg = useTranslated(raw);             // texte affiché, traduit
 
   useEffect(() => {
     getSettings().then(s => {
       const a = (s.announcement || '').trim();
-      setMsg(a);
+      setRaw(a);
       if (a) {
         const dismissed = typeof window !== 'undefined' && localStorage.getItem('annc_dismissed') === a;
         setClosed(!!dismissed);
@@ -20,7 +23,7 @@ export default function AnnouncementBanner() {
   }, []);
 
   // Décale la Navbar (top-[var(--annc-h)]) selon présence du bandeau
-  const visible = !!msg && !closed;
+  const visible = !!raw && !closed;
   useEffect(() => {
     if (typeof document === 'undefined') return;
     document.documentElement.style.setProperty('--annc-h', visible ? '38px' : '0px');
@@ -31,7 +34,7 @@ export default function AnnouncementBanner() {
 
   const close = () => {
     setClosed(true);
-    try { localStorage.setItem('annc_dismissed', msg); } catch {}
+    try { localStorage.setItem('annc_dismissed', raw); } catch {}
   };
 
   return (
