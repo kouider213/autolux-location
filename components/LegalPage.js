@@ -1,9 +1,12 @@
 import Head from 'next/head';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import { useLang } from '../lib/i18n';
 
 // Gabarit commun des pages légales / institutionnelles (typo lisible, dark/gold).
 export default function LegalPage({ title, subtitle, updated, children }) {
+  const { lang } = useLang();
+  const updatedLabel = lang === 'ar' ? 'آخر تحديث' : lang === 'en' ? 'Last updated' : 'Dernière mise à jour';
   return (
     <>
       <Head>
@@ -16,7 +19,7 @@ export default function LegalPage({ title, subtitle, updated, children }) {
           <span className="section-badge mb-4 inline-block">Fik Conciergerie</span>
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-white mb-2">{title}</h1>
           {subtitle && <p className="text-white/40 text-sm mb-2">{subtitle}</p>}
-          {updated && <p className="text-white/25 text-xs mb-8">Dernière mise à jour : {updated}</p>}
+          {updated && <p className="text-white/25 text-xs mb-8">{updatedLabel} : {updated}</p>}
           <div className="legal-content space-y-6 mt-8">{children}</div>
         </div>
       </div>
@@ -27,7 +30,8 @@ export default function LegalPage({ title, subtitle, updated, children }) {
         .legal-content ul { list-style: disc; padding-left: 1.3rem; }
         .legal-content li { margin-bottom: .4rem; }
         .legal-content strong { color: rgba(255,255,255,.85); }
-        .legal-content a { color: #e9b949; }
+        .legal-content a:not(.btn-gold):not(.btn-outline):not(.btn-ghost) { color: #e9b949; }
+        .legal-content a.btn-gold { color: #0a0a0a; }
       `}</style>
     </>
   );

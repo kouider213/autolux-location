@@ -140,10 +140,10 @@ export default function Footer() {
         {/* Liens légaux & confiance */}
         <div className="border-t border-white/[0.05] pt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-5">
           {[
-            { h: '/a-propos', l: 'Qui sommes-nous' },
-            { h: '/cgv', l: 'Conditions générales' },
-            { h: '/mentions-legales', l: 'Mentions légales' },
-            { h: '/confidentialite', l: 'Confidentialité' },
+            { h: '/a-propos', l: lang === 'ar' ? 'من نحن' : lang === 'en' ? 'About us' : 'Qui sommes-nous' },
+            { h: '/cgv', l: lang === 'ar' ? 'الشروط العامة' : lang === 'en' ? 'Terms & conditions' : 'Conditions générales' },
+            { h: '/mentions-legales', l: lang === 'ar' ? 'إشعارات قانونية' : lang === 'en' ? 'Legal notice' : 'Mentions légales' },
+            { h: '/confidentialite', l: lang === 'ar' ? 'الخصوصية' : lang === 'en' ? 'Privacy' : 'Confidentialité' },
           ].map(x => (
             <Link key={x.h} href={x.h} className="text-white/30 text-xs font-body hover:text-gold-400 transition-colors">{x.l}</Link>
           ))}
