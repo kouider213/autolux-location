@@ -29,7 +29,7 @@ export default function handler() {
         </div>
 
         <div style={{ fontSize: 34, color: 'rgba(255,255,255,0.55)', marginTop: 18, textAlign: 'center' }}>
-          Location · Vente · Immobilier — Oran, Algérie
+          Voiture · Immobilier · Import · Séjour — Oran, Algérie
         </div>
 
         <div style={{ display: 'flex', gap: 18, marginTop: 40 }}>

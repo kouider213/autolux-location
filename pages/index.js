@@ -452,8 +452,8 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
   return (
     <>
       <Head>
-        <title>Fik Conciergerie — Location de Véhicules Premium Oran</title>
-        <meta name="description" content="Fik Conciergerie — Conciergerie premium à Oran : location & vente de voitures, immobilier. Sans caution." />
+        <title>Fik Conciergerie Oran — Voiture, Immobilier, Import & Séjour clé en main</title>
+        <meta name="description" content="Votre conciergerie premium à Oran : location & vente de voitures, immobilier, importation de véhicules, packs séjour et services sur-mesure. Tout Oran sous une clé. Sans caution, 7j/7, FR/AR/EN." />
         {reviewStats?.count > 0 && (
           <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
             '@context': 'https://schema.org',

@@ -58,8 +58,8 @@ export default function App({ Component, pageProps }) {
               <meta name="apple-mobile-web-app-capable" content="yes" />
               <meta name="apple-mobile-web-app-status-bar-style" content="default" />
               {/* SEO de base */}
-              <meta name="description" content="Fik Conciergerie — Location de voitures, vente de véhicules et immobilier à Oran, Algérie. Sans caution, kilométrage illimité, 7j/7. Réservation par WhatsApp." />
-              <meta name="keywords" content="location voiture Oran, louer voiture Algérie, vente voiture Oran, immobilier Oran, location auto Oran, Fik Conciergerie, voiture occasion Algérie, importer voiture Algérie" />
+              <meta name="description" content="Fik Conciergerie à Oran : votre conciergerie premium clé en main. Location & vente de voitures, immobilier, importation de véhicules, packs séjour et services sur-mesure. Sans caution, 7j/7, FR/AR/EN." />
+              <meta name="keywords" content="conciergerie Oran, conciergerie Algérie, location voiture Oran, vente voiture Oran, immobilier Oran, importation voiture Algérie, packs séjour Oran, conciergerie diaspora, Fik Conciergerie, services sur-mesure Oran" />
               <meta name="author" content="Fik Conciergerie" />
               <meta name="robots" content="index, follow" />
               <meta name="google-site-verification" content="L2kJSkOT3PzBoRuGg8ZnP0iLPZf1Qa-lxPMR2aiEMrk" />
@@ -76,8 +76,8 @@ export default function App({ Component, pageProps }) {
               {/* Open Graph — partage WhatsApp/Facebook/Instagram */}
               <meta property="og:type"        content="website" />
               <meta property="og:site_name"   content="Fik Conciergerie" />
-              <meta property="og:title"       content="Fik Conciergerie — Location, Vente & Immobilier à Oran" />
-              <meta property="og:description" content="Location de voitures sans caution, véhicules à vendre et immobilier à Oran. Kilométrage illimité, 7j/7. Réservez par WhatsApp." />
+              <meta property="og:title"       content="Fik Conciergerie Oran — Voiture, Immobilier, Import & Séjour clé en main" />
+              <meta property="og:description" content="Votre conciergerie premium à Oran : location & vente de voitures, immobilier, importation de véhicules, packs séjour et services sur-mesure. Sans caution, 7j/7." />
               <meta property="og:url"         content="https://fikconciergerie.com" />
               <meta property="og:image"       content="https://fikconciergerie.com/api/og" key="og-image" />
               <meta property="og:image:width"  content="1200" />
@@ -86,15 +86,15 @@ export default function App({ Component, pageProps }) {
               <meta property="og:locale:alternate" content="ar_DZ" />
               {/* Twitter Card */}
               <meta name="twitter:card"        content="summary_large_image" />
-              <meta name="twitter:title"       content="Fik Conciergerie — Location Premium Oran" />
-              <meta name="twitter:description" content="Location de voitures premium à Oran. Sans caution. 7j/7." />
+              <meta name="twitter:title"       content="Fik Conciergerie Oran — Tout Oran sous une clé" />
+              <meta name="twitter:description" content="Conciergerie premium à Oran : voiture, immobilier, import, packs séjour & services sur-mesure. Sans caution, 7j/7." />
               <meta name="twitter:image"       content="https://fikconciergerie.com/api/og" key="tw-image" />
               {/* JSON-LD — Google comprend que c'est une entreprise locale */}
               <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
                 '@context': 'https://schema.org',
-                '@type': 'AutoRental',
+                '@type': ['LocalBusiness', 'AutoRental', 'RealEstateAgent'],
                 name: 'Fik Conciergerie',
-                description: 'Location de voitures, vente de véhicules et immobilier à Oran, Algérie.',
+                description: 'Conciergerie premium à Oran : location et vente de voitures, immobilier, importation de véhicules, packs séjour et services sur-mesure.',
                 url: 'https://fikconciergerie.com',
                 logo: 'https://fikconciergerie.com/logo.png',
                 image: 'https://fikconciergerie.com/logo.png',
@@ -107,7 +107,7 @@ export default function App({ Component, pageProps }) {
                 email: 'Fikconciergerie@gmail.com',
                 sameAs: ['https://www.instagram.com/fik_conciergerie', 'https://www.facebook.com/share/1KLWrMo7GW/', 'https://www.tiktok.com/@fik_conciergerie', 'https://maps.app.goo.gl/RGrRY3mUDy8MfQNv5'],
               }) }} />
-              <title>Fik Conciergerie — Location, Vente & Immobilier à Oran</title>
+              <title>Fik Conciergerie Oran — Voiture, Immobilier, Import & Séjour clé en main</title>
       </Head>
         <LangProvider>
           {!router.pathname.startsWith('/admin') && <AnnouncementBanner />}
