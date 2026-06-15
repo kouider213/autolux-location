@@ -13,19 +13,19 @@ const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
 // Paliers de gamme
 const TIERS = {
-  entree:     { label: 'Entrée de gamme', ar: 'اقتصادي',  cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25' },
-  medium:     { label: 'Médium',          ar: 'متوسط',     cls: 'bg-gold-500/15 text-gold-400 border-gold-500/25' },
-  premium:    { label: 'Premium',         ar: 'فاخر',      cls: 'bg-purple-500/15 text-purple-300 border-purple-500/25' },
-  entreprise: { label: 'Entreprise / Groupe', ar: 'شركات / مجموعات', cls: 'bg-blue-500/15 text-blue-400 border-blue-500/25' },
+  entree:     { label: 'Entrée de gamme', ar: 'اقتصادي',  en: 'Entry-level', cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25' },
+  medium:     { label: 'Médium',          ar: 'متوسط',     en: 'Mid-range',   cls: 'bg-gold-500/15 text-gold-400 border-gold-500/25' },
+  premium:    { label: 'Premium',         ar: 'فاخر',      en: 'Premium',     cls: 'bg-purple-500/15 text-purple-300 border-purple-500/25' },
+  entreprise: { label: 'Entreprise / Groupe', ar: 'شركات / مجموعات', en: 'Business / Group', cls: 'bg-blue-500/15 text-blue-400 border-blue-500/25' },
 };
 
 // Composants inclus → icône
 const INCLUSIONS = [
-  { key: 'inc_car',       icon: Car,        label: 'Voiture',     ar: 'سيارة' },
-  { key: 'inc_apartment', icon: Building2,  label: 'Appartement', ar: 'شقة' },
-  { key: 'inc_villa',     icon: Home,       label: 'Villa',       ar: 'فيلا' },
-  { key: 'inc_jetski',    icon: Waves,      label: 'Jet ski',     ar: 'جت سكي' },
-  { key: 'inc_driver',    icon: UserCheck,  label: 'Chauffeur',   ar: 'سائق' },
+  { key: 'inc_car',       icon: Car,        label: 'Voiture',     ar: 'سيارة', en: 'Car' },
+  { key: 'inc_apartment', icon: Building2,  label: 'Appartement', ar: 'شقة', en: 'Apartment' },
+  { key: 'inc_villa',     icon: Home,       label: 'Villa',       ar: 'فيلا', en: 'Villa' },
+  { key: 'inc_jetski',    icon: Waves,      label: 'Jet ski',     ar: 'جت سكي', en: 'Jet ski' },
+  { key: 'inc_driver',    icon: UserCheck,  label: 'Chauffeur',   ar: 'سائق', en: 'Driver' },
 ];
 
 // Dispo du pack = dérivée de l'inventaire réel lié (véhicule + bien).
@@ -69,7 +69,7 @@ function PackCard({ p, lang }) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/30 to-transparent" />
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
-          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-md ${tier.cls}`}>{lang === 'ar' ? tier.ar : tier.label}</span>
+          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-md ${tier.cls}`}>{lang === 'ar' ? tier.ar : lang === 'en' ? tier.en : tier.label}</span>
           {p.featured && available && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950 flex items-center gap-1"><Star size={10} className="fill-current" /> {lang === 'ar' ? 'مميز' : lang === 'en' ? 'Popular' : 'Populaire'}</span>}
           {!available && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-red-500/20 text-red-300 border border-red-500/25 backdrop-blur-md ml-auto">{lang === 'ar' ? 'غير متوفر حاليا' : lang === 'en' ? 'Unavailable' : 'Indisponible'}</span>}
         </div>
@@ -88,9 +88,9 @@ function PackCard({ p, lang }) {
       <div className="p-4 flex flex-col gap-3 flex-1">
         {/* Inclusions */}
         <div className="flex flex-wrap gap-1.5">
-          {incs.map(({ key, icon: Icon, label, ar }) => (
+          {incs.map(({ key, icon: Icon, label, ar, en }) => (
             <span key={key} className="inline-flex items-center gap-1 text-[11px] text-white/55 bg-white/[0.04] border border-white/[0.06] rounded-lg px-2 py-1">
-              <Icon size={12} className="text-gold-500/80" /> {lang === 'ar' ? ar : label}
+              <Icon size={12} className="text-gold-500/80" /> {lang === 'ar' ? ar : lang === 'en' ? en : label}
             </span>
           ))}
         </div>
@@ -169,7 +169,7 @@ export default function PacksPage({ packs }) {
                   <div className="flex flex-wrap gap-2">
                     {tierKeys.map(k => (
                       <button key={k} onClick={() => setTier(k)} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${tier === k ? 'bg-gold-500 text-noir-950' : 'bg-white/[0.04] border border-white/[0.07] text-white/40 hover:text-white/70'}`}>
-                        {k === 'Tous' ? (lang === 'ar' ? 'الكل' : lang === 'en' ? 'All' : 'Tous') : (lang === 'ar' ? TIERS[k].ar : TIERS[k].label)}
+                        {k === 'Tous' ? (lang === 'ar' ? 'الكل' : lang === 'en' ? 'All' : 'Tous') : (lang === 'ar' ? TIERS[k].ar : lang === 'en' ? TIERS[k].en : TIERS[k].label)}
                       </button>
                     ))}
                   </div>
