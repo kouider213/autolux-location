@@ -492,8 +492,10 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                     className="absolute inset-0 w-full h-full object-cover object-center"
                     loading="eager" fetchPriority="high" decoding="async" style={{ display: 'block' }} />
                 )
-              ) : heroCar?.image_url && (
-                <img src={heroCar.image_url} alt={heroCar.name}
+              ) : (
+                /* Photo hero par défaut : Mercedes S580 FIK (remplace l'ancienne).
+                   Surchargée si settings.hero_media_url est défini en admin. */
+                <img src="/hero-home.jpg" alt="Fik Conciergerie — Mercedes premium à Oran"
                   className="absolute inset-0 w-full h-full object-cover object-center"
                   loading="eager" fetchPriority="high" decoding="async"
                   style={{ display: 'block' }} />
