@@ -3,8 +3,8 @@
 import { supabaseAdmin } from '../../lib/supabase';
 import { notifyTelegram, buildNotif } from '../../lib/telegramNotify';
 
-const VALID_CAT = new Set(['immo_location', 'immo_vente', 'voiture_vente', 'voiture_location', 'pack']);
-const CAT_FR = { immo_location: 'Immo location', immo_vente: 'Immo vente', voiture_vente: 'Voiture vente', voiture_location: 'Voiture location', pack: 'Pack séjour' };
+const VALID_CAT = new Set(['immo_location', 'immo_vente', 'voiture_vente', 'voiture_location', 'pack', 'entreprise']);
+const CAT_FR = { immo_location: 'Immo location', immo_vente: 'Immo vente', voiture_vente: 'Voiture vente', voiture_location: 'Voiture location', pack: 'Pack séjour', entreprise: 'Entreprise / B2B' };
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });

@@ -50,6 +50,7 @@ export default function Navbar({ scrollContainerRef }) {
     { href: '/commande-vehicule', label: t('nav.order') },
     { href: '/immo',              label: t('nav.immo') },
     { href: '/packs',             label: lang === 'ar' ? 'الباقات' : 'Packs' },
+    { href: '/entreprises',       label: lang === 'ar' ? 'الشركات' : lang === 'en' ? 'Business' : 'Entreprises' },
     { href: '/investir',          label: lang === 'ar' ? 'استثمر في وهران' : lang === 'en' ? 'Invest' : 'Investir' },
     { href: '/mes-reservations',  label: lang === 'ar' ? 'تتبّع طلبي' : lang === 'en' ? 'Track' : 'Suivi' },
     { href: '/reviews',           label: t('nav.reviews') },
