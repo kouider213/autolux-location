@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   notifyTelegram(buildNotif({
     icon: '🔔', type: 'Nouveau LEAD — ' + (CAT_FR[b.category] || 'Demande'),
     name: b.client_name, phone: b.client_phone, email: b.client_email, lang: b.lang,
-    lines: [b.criteria ? `📌 ${b.criteria}` : '', b.budget_max ? `💰 ${b.budget_max} ${b.currency || 'DZD'}` : '', b.city ? `📍 ${b.city}` : ''],
+    lines: [b.criteria ? `📌 ${b.criteria}` : '', b.notes ? `📝 ${b.notes}` : '', b.budget_max ? `💰 ${b.budget_max} ${b.currency || 'DZD'}` : '', b.city ? `📍 ${b.city}` : ''],
     adminPath: '/admin/leads',
   })).catch(() => {});
 
