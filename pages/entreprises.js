@@ -107,27 +107,50 @@ export default function Entreprises() {
           'Corporate packs in Oran for your staff and delegations: car (luxury/van), housing, driver, guide and support with Algerian companies. On quote, company invoicing.',
         )} />
         <link rel="canonical" href={`${BASE}/entreprises`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={L('Fik Conciergerie — Service dédié aux entreprises à Oran', 'فيك — خدمة مخصصة للشركات في وهران', 'Fik Conciergerie — Corporate service in Oran')} />
+        <meta property="og:description" content={L('Véhicule avec chauffeur, logement et accompagnement clé en main pour vos équipes et partenaires à Oran.', 'سيارة مع سائق، سكن ومرافقة لفرقكم في وهران.', 'Car with driver, housing and full support for your teams and partners in Oran.')} />
+        <meta property="og:image" content={`${BASE}/entreprises-hero.jpg`} />
+        <meta property="og:url" content={`${BASE}/entreprises`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={`${BASE}/entreprises-hero.jpg`} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       </Head>
       <Navbar />
 
       <main className="min-h-screen bg-[#080808] text-white">
-        {/* Hero */}
-        <section className="relative overflow-hidden px-5 pt-28 pb-16 text-center">
+        {/* Hero — photo chauffeur + van FIK (service dédié aux sociétés) */}
+        <section className="relative overflow-hidden min-h-[82vh] flex items-center">
+          {/* Image de fond */}
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/entreprises-hero.jpg)', backgroundPosition: 'center 30%' }} />
+          {/* Overlays pour lisibilité + raccord avec le fond noir */}
+          <div className={`absolute inset-0 ${rtl ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-black/92 via-black/70 to-black/25`} />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-black/40" />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-500/60 to-transparent" />
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold-500/30 bg-gold-500/[0.06] text-gold-400 text-xs font-body tracking-widest uppercase mb-6">
-            <Building2 size={14} /><T>Solutions Entreprises</T>
-          </div>
-          <h1 className="font-display text-4xl md:text-6xl font-black leading-tight max-w-3xl mx-auto">
-            <T>Vos équipes à Oran,</T>{' '}
-            <span className="bg-gradient-to-br from-gold-300 to-gold-500 bg-clip-text text-transparent"><T>prises en charge de A à Z</T></span>
-          </h1>
-          <p className="mt-6 text-white/60 max-w-2xl mx-auto text-base md:text-lg font-body leading-relaxed">
-            <T>Pour les sociétés (énergie, BTP, multinationales) et leurs partenaires algériens : véhicule, logement, chauffeur et accompagnement clé en main. Un seul interlocuteur, facturation société, discrétion totale.</T>
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3 justify-center">
-            <a href="#devis" className="btn-gold py-3 px-7 text-sm font-body"><Send size={15} />{L('Demander un devis', 'اطلب عرض سعر', 'Request a quote')}</a>
-            <a href={waLink(settings, waMsg)} target="_blank" rel="noopener noreferrer" className="btn-ghost py-3 px-7 text-sm font-body"><MessageCircle size={15} />WhatsApp</a>
+
+          <div className={`relative z-10 w-full max-w-6xl mx-auto px-5 md:px-10 py-28 ${rtl ? 'text-right' : 'text-left'}`}>
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold-500/40 bg-gold-500/[0.08] text-gold-400 text-xs font-body tracking-widest uppercase mb-6 backdrop-blur-sm">
+                <Building2 size={14} /><T>Service dédié aux entreprises</T>
+              </div>
+              <h1 className="font-display text-4xl md:text-6xl font-black leading-[1.05] drop-shadow-[0_2px_20px_rgba(0,0,0,0.6)]">
+                <T>Vos équipes à Oran,</T>{' '}
+                <span className="bg-gradient-to-br from-gold-200 to-gold-500 bg-clip-text text-transparent"><T>prises en charge de A à Z</T></span>
+              </h1>
+              <p className="mt-6 text-white/75 text-base md:text-lg font-body leading-relaxed max-w-xl drop-shadow-[0_1px_10px_rgba(0,0,0,0.6)]">
+                <T>Pour les sociétés (énergie, BTP, multinationales) et leurs partenaires algériens : véhicule avec chauffeur, logement et accompagnement clé en main. Un seul interlocuteur, facturation société, discrétion totale.</T>
+              </p>
+              {/* Réassurance corporate */}
+              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs md:text-sm text-white/70 font-body">
+                {['Chauffeur professionnel', 'Facturation société', 'Confidentialité', 'Disponible 7j/7'].map((t) => (
+                  <span key={t} className="inline-flex items-center gap-1.5"><Check size={14} className="text-gold-400" /><T>{t}</T></span>
+                ))}
+              </div>
+              <div className={`mt-8 flex flex-wrap gap-3 ${rtl ? 'justify-end' : ''}`}>
+                <a href="#devis" className="btn-gold py-3 px-7 text-sm font-body"><Send size={15} />{L('Demander un devis', 'اطلب عرض سعر', 'Request a quote')}</a>
+                <a href={waLink(settings, waMsg)} target="_blank" rel="noopener noreferrer" className="btn-ghost py-3 px-7 text-sm font-body backdrop-blur-sm"><MessageCircle size={15} />WhatsApp</a>
+              </div>
+            </div>
           </div>
         </section>
 
