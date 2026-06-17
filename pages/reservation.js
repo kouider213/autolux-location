@@ -404,10 +404,24 @@ export default function ReservationPage({ cars: initialCars }) {
           <div className="max-w-lg mx-auto">
 
             {/* Header */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <span className="section-badge mb-4 inline-block">{t('res.badge')}</span>
               <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">{t('res.title')}</h1>
               <p className="text-white/35 text-sm">{t('res.subtitle')}</p>
+            </div>
+
+            {/* Bandeau réassurance */}
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mb-8">
+              {[
+                ar ? 'بدون كفالة' : lang === 'en' ? 'No deposit' : 'Sans caution',
+                ar ? '7/7' : lang === 'en' ? '7/7' : '7j/7',
+                ar ? 'توصيل واستلام' : lang === 'en' ? 'Delivery & return' : 'Livraison & retour',
+                ar ? 'ردّ سريع واتساب' : lang === 'en' ? 'Fast WhatsApp reply' : 'Réponse rapide WhatsApp',
+              ].map((txt) => (
+                <span key={txt} className="inline-flex items-center gap-1.5 text-white/45 text-xs">
+                  <Check size={13} className="text-gold-400" />{txt}
+                </span>
+              ))}
             </div>
 
             {/* Step pills */}
