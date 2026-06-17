@@ -438,14 +438,6 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
     return sorted[0]?.url || fallback || null;
   };
 
-  const heroCar = (
-    cars?.find(c => c.image_url && c.name?.toLowerCase().includes('mercedes')) ||
-    cars?.find(c => c.image_url && c.name?.toLowerCase().includes('alpine'))   ||
-    cars?.find(c => c.image_url && c.name?.toLowerCase().includes('clio 7'))   ||
-    cars?.find(c => c.image_url && c.name?.toLowerCase().includes('clio'))     ||
-    cars?.find(c => c.image_url) || null
-  );
-
   const avgRating = reviews.length > 0
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : '5.0';
 
@@ -556,15 +548,6 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   <Car size={15} />{t('hero.fleet')}
                 </Link>
               </div>
-
-              {/* Car badge */}
-              {heroCar && (
-                <div className="hero-css-sub absolute bottom-6 right-5 text-right pointer-events-none">
-                  <p className="text-white/20 text-[10px] tracking-widest uppercase font-body">{localizeValue(heroCar.category, lang)}</p>
-                  <p className="text-white/55 font-display font-bold text-sm">{heroCar.name}</p>
-                  <p className="text-gold-400 font-display font-bold text-lg">{Number(heroCar.resale_price).toLocaleString('fr-FR')} {heroCar.currency === 'EUR' ? '€' : 'DA'}<span className="text-white/25 text-xs font-body">/j</span></p>
-                </div>
-              )}
 
               {/* Scroll hint */}
               <div className="hero-css-hint absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-white/25 pointer-events-none">
