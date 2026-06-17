@@ -38,6 +38,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getSettings, useSettings, waNumber } from '../lib/settings';
 import { useLang, localizeValue } from '../lib/i18n';
+import { cText } from '../lib/content';
 import { useTranslated } from '../lib/autoTranslate';
 
 /* ── Social icons (footer) — lit les réseaux depuis les paramètres ── */
@@ -567,7 +568,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
             <div className="text-center mb-12">
               <span className="section-badge mb-5 inline-block">{t('home.adv')}</span>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
-                {t('home.why1')} <span className="text-gold-gradient italic">{t('home.why2')}</span>
+                {cText(settings, 'home_why_title', lang, t('home.why1'))} <span className="text-gold-gradient italic">{t('home.why2')}</span>
               </h2>
             </div>
             <BenefitsCarousel benefits={BENEFITS} />
@@ -582,7 +583,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
             <div className="text-center mb-14">
               <span className="section-badge mb-5 inline-block">{t('poles.badge')}</span>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
-                {t('poles.title1')} <span className="text-gold-gradient italic">{t('poles.title2')}</span>
+                {cText(settings, 'home_services_title', lang, t('poles.title1'))} <span className="text-gold-gradient italic">{t('poles.title2')}</span>
               </h2>
               <p className="text-white/35 mt-4 max-w-lg mx-auto font-body">
                 {t('poles.subtitle')}

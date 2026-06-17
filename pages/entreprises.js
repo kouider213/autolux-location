@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
 import { useSettings, waLink } from '../lib/settings';
+import { cText, cImg } from '../lib/content';
 
 const BASE = 'https://fikconciergerie.com';
 
@@ -145,15 +146,15 @@ export default function Entreprises() {
               <Building2 size={14} />{L('Service dédié aux entreprises', 'خدمة مخصّصة للشركات', 'Dedicated corporate service')}
             </div>
             <h1 className="font-display text-4xl md:text-6xl font-black leading-[1.05]">
-              {L('Vos équipes à Oran,', 'فرقكم في وهران،', 'Your teams in Oran,')}{' '}
-              <span className="bg-gradient-to-br from-gold-200 to-gold-500 bg-clip-text text-transparent">{L('prises en charge de A à Z', 'تكفّل كامل من الألف إلى الياء', 'fully taken care of, A to Z')}</span>
+              {cText(settings, 'ent_hero_title_a', lang, L('Vos équipes à Oran,', 'فرقكم في وهران،', 'Your teams in Oran,'))}{' '}
+              <span className="bg-gradient-to-br from-gold-200 to-gold-500 bg-clip-text text-transparent">{cText(settings, 'ent_hero_title_b', lang, L('prises en charge de A à Z', 'تكفّل كامل من الألف إلى الياء', 'fully taken care of, A to Z'))}</span>
             </h1>
             <p className="mt-6 text-white/70 text-base md:text-lg font-body leading-relaxed max-w-2xl">
-              {L(
+              {cText(settings, 'ent_hero_sub', lang, L(
                 'Pour les sociétés (énergie, BTP, multinationales) et leurs partenaires algériens : véhicule avec chauffeur, logement et accompagnement clé en main. Un seul interlocuteur, facturation société, discrétion totale.',
                 'للشركات (الطاقة، البناء، المتعدّدة الجنسيات) وشركائها الجزائريين: سيارة مع سائق، سكن ومرافقة متكاملة. مُحاور واحد، فاتورة للشركة، سرّية تامة.',
                 'For companies (energy, construction, multinationals) and their Algerian partners: car with driver, housing and full turnkey support. One single contact, company invoicing, total discretion.',
-              )}
+              ))}
             </p>
             <div className={`mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs md:text-sm text-white/70 font-body ${rtl ? 'justify-end' : ''}`}>
               {REASSURE.map((r) => (
@@ -168,7 +169,7 @@ export default function Entreprises() {
           {/* Photo COMPLÈTE — jamais recadrée (object-contain, fond noir) */}
           <div className="mt-4 px-5 pb-4">
             <div className="max-w-5xl mx-auto rounded-3xl overflow-hidden border border-white/10 bg-black">
-              <img src="/entreprises-hero.jpg" alt="Fik Conciergerie — service entreprise avec chauffeur à Oran"
+              <img src={cImg(settings, 'ent_hero_img', '/entreprises-hero.jpg')} alt="Fik Conciergerie — service entreprise avec chauffeur à Oran"
                 className="w-full h-auto block" loading="eager" />
             </div>
           </div>
@@ -177,12 +178,12 @@ export default function Entreprises() {
         {/* Packs */}
         <section className="px-5 pb-8 max-w-6xl mx-auto">
           <div className="grid md:grid-cols-3 gap-5">
-            {PACKS.map((p) => (
+            {PACKS.map((p, i) => (
               <div key={p.key} className={`relative rounded-3xl border p-6 bg-[#111] ${p.featured ? 'border-gold-500/50 shadow-[0_0_40px_rgba(201,162,39,0.12)]' : 'border-white/10'}`}>
                 {p.featured && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gold-500 text-black text-[10px] font-bold tracking-wider uppercase">{L('Le plus demandé', 'الأكثر طلبا', 'Most popular')}</div>}
                 <div className="text-xs font-body tracking-widest uppercase mb-1" style={{ color: p.color }}>{pick(p.tier)}</div>
-                <div className="font-display text-3xl font-black mb-2" style={{ color: p.color }}>{p.name}</div>
-                <p className="text-white/55 text-sm font-body mb-5 min-h-[40px]">{pick(p.tagline)}</p>
+                <div className="font-display text-3xl font-black mb-2" style={{ color: p.color }}>{cText(settings, `ent_pack${i + 1}_name`, lang, p.name)}</div>
+                <p className="text-white/55 text-sm font-body mb-5 min-h-[40px]">{cText(settings, `ent_pack${i + 1}_desc`, lang, pick(p.tagline))}</p>
                 <ul className="space-y-3 mb-6">
                   {p.items.map((it, i) => {
                     const Icon = it.icon;
