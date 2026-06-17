@@ -28,10 +28,16 @@ export default function App({ Component, pageProps }) {
   // immo, conditions, FAQ, contact WhatsApp). Plus de bulle d'assistance.
   // Si on veut le réactiver un jour : recharger le script du widget ici.
   useEffect(() => {
-    const widget = document.getElementById('ibr-widget-root') || document.querySelector('[id^="ibr-"]');
-    if (widget) widget.remove();
-    const script = document.getElementById('ibr-widget-script');
-    if (script) script.remove();
+    // Filet de sécurité : tue tout résidu du vieux widget chatbot servi par un
+    // HTML en cache (service worker). Retire TOUS les éléments + scripts "ibr-*".
+    const kill = () => {
+      document.querySelectorAll('[id^="ibr-"]').forEach((el) => el.remove());
+      document.querySelectorAll('script[src*="widget.js"]').forEach((el) => el.remove());
+    };
+    kill();
+    // Re-tente après hydratation au cas où un script async l'aurait ré-injecté.
+    const t = setTimeout(kill, 800);
+    return () => clearTimeout(t);
   }, [router.pathname]);
 
     return (

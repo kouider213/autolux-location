@@ -50,7 +50,6 @@ export default function Document() {
       <body>
         <Main />
         <NextScript />
-        <script src="/widget.js" async />
       </body>
     </Html>
   );
