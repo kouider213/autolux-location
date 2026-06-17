@@ -308,7 +308,10 @@ export default function ReservationPage({ cars: initialCars }) {
   if (done && selectedCar) {
     return (
       <>
-        <Head><title>Réservation confirmée — Fik Conciergerie</title></Head>
+        <Head>
+          <title>Réservation confirmée — Fik Conciergerie</title>
+          <meta name="robots" content="noindex" />
+        </Head>
         <div className="grain min-h-screen bg-[#0e0e0e]">
           <Navbar />
           <div className="flex flex-col items-center justify-center min-h-screen px-5 text-center">
@@ -374,6 +377,7 @@ export default function ReservationPage({ cars: initialCars }) {
               </div>
             </div>
           </div>
+          <Footer />
         </div>
       </>
     );
@@ -381,7 +385,18 @@ export default function ReservationPage({ cars: initialCars }) {
 
   return (
     <>
-      <Head><title>Réservation — Fik Conciergerie</title></Head>
+      <Head>
+        <title>{lang === 'ar' ? 'حجز سيارة في وهران — فيك كونسيرجري' : lang === 'en' ? 'Book a Car in Oran — Fik Conciergerie' : 'Réserver une voiture à Oran — Fik Conciergerie'}</title>
+        <meta name="description" content={lang === 'ar'
+          ? 'احجز سيارتك في وهران بدون كفالة. اختر السيارة والتواريخ، التوصيل والاستلام يُدبَّران لك. 7/7.'
+          : lang === 'en'
+          ? 'Book your car in Oran without a deposit. Pick your vehicle and dates — delivery and return handled for you. 7/7, fast WhatsApp reply.'
+          : 'Réservez votre voiture à Oran sans caution. Choisissez le véhicule et les dates, livraison et retour gérés pour vous. 7j/7, réponse rapide sur WhatsApp.'} />
+        <link rel="canonical" href="https://fikconciergerie.com/reservation" />
+        <meta property="og:title" content="Réserver une voiture à Oran — Fik Conciergerie" />
+        <meta property="og:description" content="Réservation simple, sans caution. Véhicule + dates, on s'occupe du reste." />
+        <meta property="og:url" content="https://fikconciergerie.com/reservation" />
+      </Head>
 
       <div className="grain min-h-screen bg-[#0e0e0e]">
         <Navbar />
