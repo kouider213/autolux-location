@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   const { client_email, client_name, client_phone, car_name, start_date, end_date, total, currency, booking_id, lang } = req.body || {};
 
   // Notif Telegram à Kouider (toujours, même sans email client)
-  notifyTelegram(buildNotif({
+  await notifyTelegram(buildNotif({
     icon: '🚗', type: 'Nouvelle RÉSERVATION',
     name: client_name, phone: client_phone, email: client_email, lang,
     lines: [car_name ? `🚘 ${car_name}` : '', (start_date || end_date) ? `📅 ${start_date || '?'} → ${end_date || '?'}` : '', total ? `💰 ${total} ${currency === 'DZD' ? 'DA' : '€'}` : ''],

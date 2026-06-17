@@ -29,12 +29,16 @@ export default async function handler(req, res) {
   }).select('id').single();
   if (error) return res.status(500).json({ error: error.message });
 
-  notifyTelegram(buildNotif({
-    icon: '🔔', type: 'Nouveau LEAD — ' + (CAT_FR[b.category] || 'Demande'),
-    name: b.client_name, phone: b.client_phone, email: b.client_email, lang: b.lang,
-    lines: [b.criteria ? `📌 ${b.criteria}` : '', b.notes ? `📝 ${b.notes}` : '', b.budget_max ? `💰 ${b.budget_max} ${b.currency || 'DZD'}` : '', b.city ? `📍 ${b.city}` : ''],
-    adminPath: '/admin/leads',
-  })).catch(() => {});
+  // AWAIT obligatoire : en serverless, un fetch non-attendu est tué quand la réponse part
+  // → Telegram ne partait pas. On attend l'envoi avant de répondre.
+  try {
+    await notifyTelegram(buildNotif({
+      icon: '🔔', type: 'Nouveau LEAD — ' + (CAT_FR[b.category] || 'Demande'),
+      name: b.client_name, phone: b.client_phone, email: b.client_email, lang: b.lang,
+      lines: [b.criteria ? `📌 ${b.criteria}` : '', b.notes ? `📝 ${b.notes}` : '', b.budget_max ? `💰 ${b.budget_max} ${b.currency || 'DZD'}` : '', b.city ? `📍 ${b.city}` : ''],
+      adminPath: '/admin/leads',
+    }));
+  } catch { /* non-bloquant */ }
 
   // Push aussi sur l'app Dzaryx (en plus de Telegram) — notif fiable même si Telegram KO.
   try {

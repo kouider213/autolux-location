@@ -34,7 +34,7 @@ export default async function handler(req, res) {
   if (error) return res.status(500).json({ error: error.message });
 
   // Notif Telegram à Kouider (avis à modérer)
-  notifyTelegram(buildNotif({
+  await notifyTelegram(buildNotif({
     icon: '⭐', type: `Nouvel AVIS ${'★'.repeat(r)} ${verified ? '(vérifié)' : '(à modérer)'}`,
     name, lines: [comment ? `💬 ${String(comment).slice(0, 200)}` : ''], adminPath: '/admin/reviews',
   })).catch(() => {});

@@ -33,7 +33,7 @@ export default async function handler(req, res) {
   }
 
   if (isNew) {
-    notifyTelegram(buildNotif({ icon: '📧', type: 'Nouvel ABONNÉ newsletter', email: clean, lang, adminPath: '/admin/newsletter' })).catch(() => {});
+    await notifyTelegram(buildNotif({ icon: '📧', type: 'Nouvel ABONNÉ newsletter', email: clean, lang, adminPath: '/admin/newsletter' }));
   }
 
   // Email de bienvenue (non bloquant) — dans la langue d'inscription

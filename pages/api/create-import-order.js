@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     } catch { /* ignore */ }
   }
 
-  notifyTelegram(buildNotif({
+  await notifyTelegram(buildNotif({
     icon: '🛳️', type: `Nouvelle COMMANDE IMPORT — ${data.order_ref}`,
     name: b.client_name, phone: b.client_phone, email: b.client_email, lang: b.lang,
     lines: [[b.vehicle_brand, b.vehicle_model, b.vehicle_year].filter(Boolean).join(' ') ? `🚗 ${[b.vehicle_brand, b.vehicle_model, b.vehicle_year].filter(Boolean).join(' ')}` : '', b.budget ? `💰 ${b.budget} ${b.currency || 'EUR'}` : '', b.country_origin ? `🌐 ${b.country_origin}` : ''],

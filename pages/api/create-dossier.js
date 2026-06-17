@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     } catch { /* ignore */ }
   }
 
-  notifyTelegram(buildNotif({
+  await notifyTelegram(buildNotif({
     icon: '📁', type: `Nouveau DOSSIER ${KIND_FR[kind]} — ${data.ref}`,
     name: b.client_name, phone: b.client_phone, email: b.client_email, lang: b.lang,
     lines: [b.subject ? `📌 ${b.subject}` : '', b.budget ? `💰 ${b.budget} ${b.currency || 'DZD'}` : ''],
