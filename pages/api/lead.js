@@ -36,5 +36,21 @@ export default async function handler(req, res) {
     adminPath: '/admin/leads',
   })).catch(() => {});
 
+  // Push aussi sur l'app Dzaryx (en plus de Telegram) — notif fiable même si Telegram KO.
+  try {
+    const catLabel = CAT_FR[b.category] || 'Demande';
+    const msg = [
+      `🔔 Nouvelle demande — ${catLabel}`,
+      `👤 ${b.client_name} | 📞 ${b.client_phone}`,
+      b.criteria ? `📌 ${b.criteria}` : '',
+      b.notes ? `📝 ${b.notes}` : '',
+      `→ Voir dans DEMANDES`,
+    ].filter(Boolean).join('\n');
+    await fetch(`${req.headers['x-forwarded-proto'] || 'https'}://${req.headers['host']}/api/notify-dzaryx`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'new_lead', data: { message: msg } }),
+    });
+  } catch { /* non-bloquant */ }
+
   return res.status(200).json({ ok: true, id: data.id });
 }
