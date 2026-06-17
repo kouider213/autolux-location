@@ -158,7 +158,8 @@ export default function ReservationPage({ cars: initialCars }) {
   const selectedCar = cars.find(c => c.id === form.carId) || null;
   const days = (() => {
     if (!form.startDate || !form.endDate) return 0;
-    const d = Math.round((new Date(form.endDate) - new Date(form.startDate)) / 86400000);
+    // Jours INCLUS : le jour de départ ET le jour de retour comptent (24/07→08/08 = 16j).
+    const d = Math.round((new Date(form.endDate) - new Date(form.startDate)) / 86400000) + 1;
     return d > 0 ? d : 0;
   })();
   const total = selectedCar && days > 0 ? selectedCar.resale_price * days : 0;

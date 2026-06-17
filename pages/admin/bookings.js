@@ -196,7 +196,7 @@ export default function BookingsPage() {
   };
 
   const saveEdits = async () => {
-    const days = edit.start && edit.end ? Math.round((new Date(edit.end) - new Date(edit.start)) / 86400000) : selected.nb_days;
+    const days = edit.start && edit.end ? Math.round((new Date(edit.end) - new Date(edit.start)) / 86400000) + 1 : selected.nb_days; // jours inclus
     await patchBooking({
       start_date: edit.start || selected.start_date,
       end_date:   edit.end   || selected.end_date,
