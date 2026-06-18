@@ -497,7 +497,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
 
             {/* Overlays — minimal, just enough for text readability */}
             <div className="absolute inset-0 bg-black/30 pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent pointer-events-none" />
             <div className="absolute inset-0 opacity-[0.015] pointer-events-none"
               style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px)', backgroundSize: '70px 70px' }} />
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent" />
@@ -519,13 +519,13 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               {/* Headline bottom-left — CSS animated */}
               <div className="absolute left-5 md:left-12 bottom-[30%] right-5 pointer-events-none">
                 <div className="overflow-hidden">
-                  <h1 className="hero-css-line1 font-display font-black text-hero-gradient leading-[0.88]"
+                  <h1 className="hero-css-line1 font-display font-black text-hero-gradient leading-[0.88] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)]"
                     style={{ fontSize: 'clamp(50px, 9vw, 116px)' }}>
                     {heroTitleTr || t('hero.line1')}
                   </h1>
                 </div>
                 <div className="overflow-hidden">
-                  <h1 className="hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88]"
+                  <h1 className="hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)]"
                     style={{ fontSize: 'clamp(50px, 9vw, 116px)' }}>
                     {t('hero.line2')}
                   </h1>
