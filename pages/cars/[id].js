@@ -125,7 +125,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                 className="w-11 h-11 flex items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.05] hover:bg-white/10 text-white/50 hover:text-white transition-all flex-shrink-0">
                 <MessageCircle size={18} />
               </a>
-              <Link href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
+              <Link href={`/reservation?car=${car.id}`}
                 className="btn-gold py-3 px-5 text-sm flex-1 justify-center max-w-[200px]">
                 <CalendarCheck size={15} />{availMode ? t('b.check') : t("common.book")}
               </Link>
@@ -250,13 +250,13 @@ export default function CarDetail({ car, photos: initialPhotos }) {
               <div className="flex flex-col sm:flex-row gap-3 mt-auto pt-2">
                 {availMode ? (
                   <Link
-                    href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
+                    href={`/reservation?car=${car.id}`}
                     className="btn-gold flex-1 py-4 text-base justify-center">
                     <CalendarCheck size={18} />{t('b.check')}
                   </Link>
                 ) : car.available !== false ? (
                   <Link
-                    href={`/reservation?car=${car.id}&name=${encodeURIComponent(car.name)}&prix=${car.resale_price||''}`}
+                    href={`/reservation?car=${car.id}`}
                     className="btn-gold flex-1 py-4 text-base justify-center">
                     <CalendarCheck size={18} />{t("d.book_this")}
                   </Link>

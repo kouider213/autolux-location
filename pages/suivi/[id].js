@@ -91,7 +91,8 @@ export default function SuiviPage() {
 
   const days = (() => {
     if (!booking.start_date || !booking.end_date) return 0;
-    return Math.round((new Date(booking.end_date) - new Date(booking.start_date)) / 86400000);
+    // Jours INCLUS : jour de départ + jour de retour comptent (24/07→08/08 = 16j).
+    return Math.max(1, Math.round((new Date(booking.end_date) - new Date(booking.start_date)) / 86400000) + 1);
   })();
 
   const whatsappMsg = `Bonjour Fik Conciergerie, je souhaite avoir des informations sur ma réservation #${booking.id?.substring(0,8).toUpperCase()}.`;
@@ -313,6 +314,15 @@ export default function SuiviPage() {
             className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#1ebe5a] text-white font-semibold py-3.5 rounded-xl transition-colors shadow-[0_4px_16px_rgba(37,211,102,0.25)]">
             <MessageCircle size={17} />{L('Contacter Fik Conciergerie', 'تواصل مع Fik Conciergerie', 'Contact Fik Conciergerie')}
           </a>
+
+          {/* Re-réserver via cette résa : seul flux qui pré-remplit les infos client */}
+          {booking.car_id && (
+            <Link
+              href={`/reservation?car=${booking.car_id}&name=${encodeURIComponent(booking.client_name || '')}&phone=${encodeURIComponent(booking.client_phone || '')}${booking.client_passport ? `&passport=${encodeURIComponent(booking.client_passport)}` : ''}`}
+              className="flex items-center justify-center gap-2 w-full mt-3 border border-gold-500/30 bg-gold-500/[0.06] hover:bg-gold-500/10 text-gold-300 font-semibold py-3.5 rounded-xl transition-colors">
+              <Calendar size={17} />{L('Réserver à nouveau', 'احجز مرّة أخرى', 'Book again')}
+            </Link>
+          )}
 
           <p className="text-center text-white/20 text-xs mt-4">
             {L('Cette page se met à jour automatiquement en temps réel.', 'تتحدّث هذه الصفحة تلقائياً ولحظياً.', 'This page updates automatically in real time.')}
