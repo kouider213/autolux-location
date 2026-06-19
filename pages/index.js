@@ -525,8 +525,8 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   </h1>
                 </div>
                 <div className="overflow-hidden -mt-[0.1em]">
-                  <h1 className="hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)] py-[0.1em] pr-[0.1em]"
-                    style={{ fontSize: 'clamp(50px, 9vw, 116px)' }}>
+                  <h1 className="hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88] drop-shadow-[0_2px_3px_rgba(0,0,0,0.9)] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)] py-[0.1em] pr-[0.1em]"
+                    style={{ fontSize: 'clamp(50px, 9vw, 116px)', background: 'linear-gradient(135deg,#f0d35a 0%,#d9a916 45%,#b8860b 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                     {t('hero.line2')}
                   </h1>
                 </div>
