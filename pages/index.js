@@ -524,8 +524,8 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                     {heroTitleTr || t('hero.line1')}
                   </h1>
                 </div>
-                <div className="overflow-hidden">
-                  <h1 className="hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)]"
+                <div className="overflow-hidden -mt-[0.1em]">
+                  <h1 className="hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)] py-[0.1em] pr-[0.1em]"
                     style={{ fontSize: 'clamp(50px, 9vw, 116px)' }}>
                     {t('hero.line2')}
                   </h1>
