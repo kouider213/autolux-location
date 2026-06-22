@@ -43,7 +43,7 @@ export default function App({ Component, pageProps }) {
     return (
           <>
             <Head>
-              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
               <meta name="theme-color" content="#080808" />
               <link rel="manifest" href="/manifest.json" />
               {/* Polices Google — preconnect + stylesheet (remplace l'@import CSS render-blocking) */}

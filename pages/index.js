@@ -471,7 +471,9 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
         <Navbar />
 
         {/* ══ HERO — CSS animated, instant ══ */}
-        <div className="relative min-h-screen overflow-hidden">
+        {/* min-h-screen = 100vh fallback ; min-h-[100svh] = hauteur RÉELLE visible iOS
+           (corrige le chevauchement brand/titre sur iPhone 17 Safari/Chrome) */}
+        <div className="relative min-h-screen min-h-[100svh] overflow-hidden">
 
             {/* Background image/video — settings.hero_media_url override, sinon heroCar */}
             <div className="absolute inset-0 bg-[#0a0a0a]">

@@ -78,6 +78,7 @@ export default function Navbar({ scrollContainerRef }) {
     <nav
       style={{
         top: 'var(--annc-h, 0px)',
+        paddingTop: 'env(safe-area-inset-top, 0px)',
         backgroundColor: scrolled ? '#080808' : 'transparent',
         borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : 'none',
         boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.7)' : 'none',
