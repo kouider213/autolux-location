@@ -44,7 +44,7 @@ export default function FavorisPage() {
   const FavCard = ({ img, name, sub, price, href, bookHref, onRemove }) => (
     <div className="bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden group">
       <Link href={href} className="block relative aspect-video overflow-hidden">
-        {img ? <img src={img} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        {img ? <img src={img} alt={name} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
              : <div className="w-full h-full bg-[#111]" />}
         <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onRemove(); }}
           aria-label={L('Retirer', 'إزالة', 'Remove')}

@@ -143,7 +143,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
                     <button key={i} onClick={() => setActive(i)} className={`relative flex-shrink-0 w-16 h-12 rounded-xl overflow-hidden border-2 transition-all ${i === active ? 'border-gold-500' : 'border-white/[0.06] opacity-60 hover:opacity-100'}`}>
                       {/\.(mp4|webm|mov|m4v)(\?|$)/i.test(s)
                         ? <><video src={s} muted className="w-full h-full object-cover" /><span className="absolute inset-0 flex items-center justify-center text-white text-lg">▶</span></>
-                        : <img src={s} alt={`${pack.title} ${i + 1}`} className="w-full h-full object-cover" />}
+                        : <img src={s} alt={`${pack.title} ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />}
                     </button>
                   ))}
                 </div>
@@ -184,7 +184,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
                     {pack.car && (
                       <Link href={`/cars/${pack.car.id}`} className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/25 rounded-xl overflow-hidden transition-all">
                         <div className="h-28 bg-[#0e0e0e] overflow-hidden">
-                          {pack.car.image_url ? <img src={pack.car.image_url} alt={pack.car.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <div className="w-full h-full flex items-center justify-center"><Car size={26} className="text-white/10" /></div>}
+                          {pack.car.image_url ? <img src={pack.car.image_url} alt={pack.car.name} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <div className="w-full h-full flex items-center justify-center"><Car size={26} className="text-white/10" /></div>}
                         </div>
                         <div className="p-3">
                           <div className="flex items-center gap-1.5 text-gold-500/80 text-[10px] uppercase tracking-wide mb-1"><Car size={11} /> {lang === 'ar' ? 'السيارة' : lang === 'en' ? 'Vehicle' : 'Véhicule'}</div>
@@ -196,7 +196,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
                     {pack.property && (
                       <Link href={`/immo/${pack.property.id}`} className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/25 rounded-xl overflow-hidden transition-all">
                         <div className="h-28 bg-[#0e0e0e] overflow-hidden">
-                          {pack.property.image_url ? <img src={pack.property.image_url} alt={pack.property.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <div className="w-full h-full flex items-center justify-center"><Home size={26} className="text-white/10" /></div>}
+                          {pack.property.image_url ? <img src={pack.property.image_url} alt={pack.property.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <div className="w-full h-full flex items-center justify-center"><Home size={26} className="text-white/10" /></div>}
                         </div>
                         <div className="p-3">
                           <div className="flex items-center gap-1.5 text-gold-500/80 text-[10px] uppercase tracking-wide mb-1"><Home size={11} /> {lang === 'ar' ? 'العقار' : lang === 'en' ? 'Property' : 'Bien immo'}</div>

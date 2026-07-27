@@ -174,7 +174,7 @@ export default function PropertyDetail({ property, photos }) {
                           <span className="absolute inset-0 flex items-center justify-center text-white text-lg">▶</span>
                         </>
                       ) : (
-                        <img src={src} alt={`${i+1}`} className="w-full h-full object-cover" />
+                        <img src={src} alt={`${i+1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                       )}
                     </button>
                   ))}

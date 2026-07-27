@@ -151,7 +151,7 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
                     <button key={i} onClick={() => setActive(i)} className={`relative flex-shrink-0 w-16 h-12 rounded-xl overflow-hidden border-2 transition-all ${i === active ? 'border-gold-500' : 'border-white/[0.06] opacity-60 hover:opacity-100'}`}>
                       {/\.(mp4|webm|mov|m4v)(\?|$)/i.test(s)
                         ? <><video src={s} muted className="w-full h-full object-cover" /><span className="absolute inset-0 flex items-center justify-center text-white text-lg">▶</span></>
-                        : <img src={s} alt={`${vehicle.model} ${i + 1}`} className="w-full h-full object-cover" />}
+                        : <img src={s} alt={`${vehicle.model} ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />}
                     </button>
                   ))}
                 </div>
