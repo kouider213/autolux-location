@@ -9,6 +9,7 @@ import { LangProvider } from '../lib/i18n';
 import AnnouncementBanner from '../components/AnnouncementBanner';
 import CookieBanner from '../components/CookieBanner';
 import FloatingWhatsApp from '../components/FloatingWhatsApp';
+import Analytics from '../components/Analytics';
 
 const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { ssr: false });
 
@@ -115,6 +116,7 @@ export default function App({ Component, pageProps }) {
               }) }} />
               <title>Fik Conciergerie Oran — Voiture, Immobilier, Import & Séjour clé en main</title>
       </Head>
+        <Analytics />
         <LangProvider>
           {!router.pathname.startsWith('/admin') && <AnnouncementBanner />}
           <Component {...pageProps} />

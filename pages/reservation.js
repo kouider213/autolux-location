@@ -9,6 +9,7 @@ import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
+import { trackEvent } from '../lib/tracker';
 import { format, isWithinInterval, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
 import { fr, arDZ, enUS } from 'date-fns/locale';
 
@@ -265,6 +266,10 @@ export default function ReservationPage({ cars: initialCars }) {
         newBookingId = inserted?.id || null;
         setBookingId(newBookingId);
       }
+      // Conversion tracking (GA4 + Meta Pixel) — non-bloquant
+      trackEvent('reservation_complete', {
+        value: total, currency: selectedCar?.currency || 'DZD', car: selectedCar?.name || null,
+      });
       // Email "demande reçue" (si email) + notif Telegram à Kouider (toujours) — non bloquant
       fetch('/api/booking-received', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },

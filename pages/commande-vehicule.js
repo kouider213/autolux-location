@@ -9,6 +9,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
+import { trackEvent } from '../lib/tracker';
 
 const ACOMPTE_PCT = 50; // % acompte affiché
 
@@ -164,6 +165,8 @@ export default function CommandeVehiculePage() {
     const wmsg = buildMessage() + (ref ? `\n\n${ar ? 'رقم طلبي' : lang === 'en' ? 'My order no.' : 'N° de ma commande'} : ${ref}` : '');
     window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(wmsg)}`, '_blank');
     if (ref) { setResult({ ref }); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    // Conversion tracking (GA4 + Meta Pixel) — non-bloquant
+    trackEvent('import_order', { budget: form.budget || null, marque: form.marque || null });
   };
 
   const copyRef = () => { if (result?.ref) { navigator.clipboard.writeText(result.ref); } };
