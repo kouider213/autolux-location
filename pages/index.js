@@ -194,7 +194,7 @@ function CarCarousel({ cars }) {
   };
 
   return (
-    <div className="relative" style={{ height: '90vh', maxHeight: 700 }}>
+    <div className="relative h-[90vh] max-h-[700px] md:h-[520px] md:max-h-[520px]">
       {/* Car slides */}
       <div className="absolute inset-0 overflow-hidden rounded-2xl">
         <AnimatePresence mode="wait" custom={dir}>
@@ -325,7 +325,7 @@ function ShowcaseCarousel({ items, render }) {
     exit:   (d) => ({ x: d > 0 ? '-100%' : '100%', opacity: 0, scale: 0.95 }),
   };
   return (
-    <div className="relative" style={{ height: '90vh', maxHeight: 700 }}>
+    <div className="relative h-[90vh] max-h-[700px] md:h-[520px] md:max-h-[520px]">
       <div className="absolute inset-0 overflow-hidden rounded-2xl">
         <AnimatePresence mode="wait" custom={dir}>
           <motion.div key={idx} custom={dir} variants={variants} initial="enter" animate="center" exit="exit"
