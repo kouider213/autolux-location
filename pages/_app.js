@@ -17,8 +17,8 @@ export default function App({ Component, pageProps }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Track initial page
-    trackPageView(router.pathname);
+    // Track initial page — chemin + paramètres (ex. /entreprises?ref=… des mails de démarchage Dzaryx)
+    trackPageView(window.location.pathname + window.location.search);
     // Track on route change
     const handleRouteChange = (url) => trackPageView(url);
     router.events.on('routeChangeComplete', handleRouteChange);
