@@ -103,10 +103,71 @@ body {
 
 /* ── Badges / Tags ── */
 .section-badge {
-  @apply inline-flex items-center gap-1.5
-         bg-gold-500/10 border border-gold-500/20
-         text-gold-400 text-xs font-semibold tracking-widest uppercase
-         rounded-full px-4 py-1.5;
+  @apply relative inline-flex items-center gap-2
+         bg-gradient-to-r from-gold-500/[0.04] via-gold-500/[0.12] to-gold-500/[0.04]
+         border border-gold-500/25
+         text-gold-300 text-[11px] font-semibold tracking-[0.25em] uppercase
+         rounded-full px-5 py-1.5 backdrop-blur-sm;
+}
+.section-badge::before, .section-badge::after {
+  content: ''; width: 4px; height: 4px; border-radius: 9999px;
+  background: #e2b614; box-shadow: 0 0 8px rgba(226,182,20,0.8); flex-shrink: 0;
+}
+
+/* ── Surfaces premium ── */
+/* Cadre à bordure dégradée or (fond sombre + liseré lumineux) */
+.gold-frame {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(160deg, #141414, #0b0b0b) padding-box,
+    linear-gradient(160deg, rgba(245,226,122,0.45), rgba(226,182,20,0.08) 35%, rgba(255,255,255,0.04) 60%, rgba(226,182,20,0.35)) border-box;
+}
+.glass {
+  @apply bg-white/[0.04] backdrop-blur-xl border border-white/[0.09];
+}
+/* Carte qui s'illumine au survol (PC) */
+.lux-card {
+  @apply relative overflow-hidden rounded-3xl border border-white/[0.07]
+         bg-gradient-to-b from-[#121212] to-[#0b0b0b]
+         transition-all duration-500;
+}
+.lux-card::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 0%), rgba(226,182,20,0.10), transparent 40%);
+  opacity: 0; transition: opacity .5s;
+}
+@media (hover: hover) {
+  .lux-card:hover { border-color: rgba(226,182,20,0.35); transform: translateY(-6px); box-shadow: 0 30px 60px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(226,182,20,0.08); }
+  .lux-card:hover::before { opacity: 1; }
+}
+/* Grands chiffres en contour doré */
+.num-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(226,182,20,0.55);
+}
+/* Rangées qui défilent au doigt (mobile) */
+.snap-row {
+  @apply flex gap-3 overflow-x-auto snap-x snap-mandatory -mx-5 px-5 pb-2;
+  scrollbar-width: none;
+  scroll-padding-inline: 1.25rem;
+}
+.snap-row::-webkit-scrollbar { display: none; }
+@media (min-width: 768px) { .snap-row { scroll-padding-inline: 0; } }
+.snap-row > * { @apply snap-start flex-shrink-0; }
+/* Ligne de lumière qui traverse les boutons or */
+.btn-gold { position: relative; overflow: hidden; isolation: isolate; }
+.btn-gold::after {
+  content: ''; position: absolute; inset: -2px auto -2px -60%; width: 40%; z-index: -1;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.55), transparent);
+  transform: skewX(-20deg); transition: left .7s ease;
+}
+.btn-gold:hover::after { left: 130%; }
+/* Titre de section : sous-ligne or */
+.title-rule { @apply block w-16 h-px mx-auto mt-6 bg-gradient-to-r from-transparent via-gold-500 to-transparent; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.animate-marquee { animation: marquee 40s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee, .animate-float, .animate-pulse-gold { animation: none !important; }
 }
 
 .tag-category {

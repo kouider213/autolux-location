@@ -5,7 +5,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Shield, Zap, Car, Star, ChevronDown, ArrowRight, ChevronLeft, ChevronRight,
   Users, MapPin, CalendarCheck, Fuel, MessageCircle, Sparkles, Building2, Tag,
-  Instagram, Music2, Facebook, Gauge, Package, Waves, UserCheck, Hotel, Ship,
+  Instagram, Music2, Facebook, Gauge, Package, Waves, UserCheck, Hotel, Ship, Check, Plane, Clock, Quote,
 } from 'lucide-react';
 
 /* ── Packs : config affichage home ── */
@@ -74,70 +74,29 @@ const BENEFITS = [
   { icon: Users,         num:'06', tk:'ben6t', dk:'ben6d' },
 ];
 
-/* ── Benefits carousel ── */
-function BenefitsCarousel({ benefits }) {
+/* ── Avantages : défilement au doigt (téléphone), 2 colonnes (tablette), 3 colonnes (PC) ── */
+// Halo or qui suit la souris sur les cartes .lux-card
+const glow = (e) => {
+  const r = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+  e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+};
+
+function BenefitsGrid({ benefits }) {
   const { t } = useLang();
-  const [idx, setIdx] = useState(0);
-  const pausedRef  = useRef(false);
-  const touchStart = useRef(0);
-  const touchMoved = useRef(false);
-
-  const next = () => setIdx(i => (i + 1) % benefits.length);
-  const prev = () => setIdx(i => (i - 1 + benefits.length) % benefits.length);
-  const goTo = (i) => { setIdx(i); pausedRef.current = true; setTimeout(() => { pausedRef.current = false; }, 5000); };
-
-  // Autoplay 4s — paused after manual interaction (ref = no re-render)
-  useEffect(() => {
-    const timer = setInterval(() => { if (!pausedRef.current) setIdx(i => (i + 1) % benefits.length); }, 4000);
-    return () => clearInterval(timer);
-  }, [benefits.length]);
-
-  const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; touchMoved.current = false; };
-  const onTouchMove  = (e) => { if (Math.abs(e.touches[0].clientX - touchStart.current) > 8) touchMoved.current = true; };
-  const onTouchEnd   = (e) => {
-    const diff = touchStart.current - e.changedTouches[0].clientX;
-    pausedRef.current = true; setTimeout(() => { pausedRef.current = false; }, 5000);
-    if (Math.abs(diff) > 35) { diff > 0 ? next() : prev(); }
-    else if (!touchMoved.current) next(); // tap = advance
-  };
-
   return (
-    <div className="relative w-full select-none"
-      onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
-      style={{ touchAction: 'pan-y' }}>
-      {/* Toutes les slides empilées dans la même case de grille : la hauteur = la plus longue (dans la langue affichée),
-          contenu calé en haut → plus de grand vide au-dessus des slides courtes. */}
-      <div className="grid">
-        {benefits.map((b, i) => (
-          <div key={i} aria-hidden={i !== idx}
-            className={`[grid-area:1/1] flex justify-center px-6 md:px-16 py-10 md:py-12 transition-opacity duration-200 ease-out ${i === idx ? 'opacity-100' : 'opacity-0 invisible'}`}>
-            <div className="max-w-lg text-center">
-              <div className="w-[72px] h-[72px] bg-gold-500/[0.08] border border-gold-500/25 rounded-2xl flex items-center justify-center mx-auto mb-7">
-                <b.icon size={30} className="text-gold-400" />
-              </div>
-              <p className="text-white/60 text-xs tracking-[0.3em] uppercase font-body mb-4">{b.num} / 06</p>
-              <h2 className="font-display font-black text-white mb-5 leading-tight" style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>{t(b.tk)}</h2>
-              <p className="text-white/70 text-base md:text-xl font-body leading-relaxed">{t(b.dk)}</p>
-              <div className="w-12 h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent mx-auto mt-7" />
-            </div>
+    <div className="snap-row md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 lg:gap-5 md:overflow-visible">
+      {benefits.map((b) => (
+        <div key={b.num} onMouseMove={glow}
+          className="lux-card w-[80%] sm:w-[60%] md:w-auto p-6 lg:p-8">
+          <span className="num-outline absolute top-3 right-5 font-display font-black text-6xl lg:text-7xl leading-none select-none pointer-events-none">{b.num}</span>
+          <div className="relative w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-gradient-to-br from-gold-400/20 to-gold-700/5 border border-gold-500/30 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(226,182,20,0.12)]">
+            <b.icon size={22} className="text-gold-300" />
           </div>
-        ))}
-      </div>
-
-      {/* Arrows desktop */}
-      <button onClick={prev} aria-label="Précédent" className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/[0.04] hover:bg-gold-500 hover:text-noir-950 border border-white/10 rounded-full items-center justify-center text-white/50 transition-all"><ChevronLeft size={18} /></button>
-      <button onClick={next} aria-label="Suivant" className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/[0.04] hover:bg-gold-500 hover:text-noir-950 border border-white/10 rounded-full items-center justify-center text-white/50 transition-all"><ChevronRight size={18} /></button>
-
-      {/* Dots */}
-      <div className="flex justify-center gap-2 mt-8 relative z-10">
-        {benefits.map((_, i) => (
-          <button key={i} onClick={() => goTo(i)} aria-label={`Slide ${i + 1}`} className="p-2 -m-1.5 group/dot">
-            <span className={`block rounded-full transition-all ${i === idx ? 'w-8 h-2 bg-gold-500' : 'w-2 h-2 bg-white/20 group-hover/dot:bg-white/40'}`} />
-          </button>
-        ))}
-      </div>
-
-      <div className="md:hidden mt-4 text-center text-white/25 text-xs">{t('cc.swipe')}</div>
+          <h3 className="relative font-display font-bold text-white text-xl lg:text-2xl mb-2.5 leading-snug">{t(b.tk)}</h3>
+          <p className="relative text-white/50 text-sm lg:text-[15px] leading-relaxed">{t(b.dk)}</p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -185,9 +144,10 @@ function CarCarousel({ cars }) {
   };
 
   return (
-    <div className="relative h-[90vh] max-h-[700px] md:h-[520px] md:max-h-[520px]">
+    <div>
+    <div className="relative h-[520px] lg:h-[560px] rounded-3xl gold-frame p-px">
       {/* Car slides */}
-      <div className="absolute inset-0 overflow-hidden rounded-2xl">
+      <div className="absolute inset-px overflow-hidden rounded-[23px]">
         <AnimatePresence mode="wait" custom={dir}>
           <motion.div
             key={idx}
@@ -288,14 +248,43 @@ function CarCarousel({ cars }) {
         <ChevronRight size={18} />
       </button>
 
-      {/* Dots */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-        {cars.map((_, i) => (
-          <button key={i} onClick={() => goTo(i)} aria-label={`${i + 1} / ${cars.length}`}
-            className={`rounded-full transition-all duration-300 ${i === idx ? 'w-6 h-1.5 bg-gold-500' : 'w-1.5 h-1.5 bg-white/30'}`} />
+    </div>
+
+      {/* Miniatures cliquables */}
+      <div className="mt-4 flex gap-3 overflow-x-auto no-scrollbar pb-1">
+        {cars.map((c, i) => (
+          <button key={c.id} onClick={() => goTo(i)} aria-label={c.name}
+            className={`group relative flex-shrink-0 w-36 lg:w-40 h-24 rounded-xl overflow-hidden border transition-all ${i === idx ? 'border-gold-400 ring-2 ring-gold-500/30' : 'border-white/10 opacity-60 hover:opacity-100'}`}>
+            {c.image_url ? <img src={c.image_url} alt="" loading="lazy" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[#141414]" />}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
+            <span className="absolute bottom-1.5 left-2 right-2 text-left text-white text-[11px] font-semibold truncate">{c.name}</span>
+          </button>
         ))}
       </div>
     </div>
+  );
+}
+
+/* ── Carte voiture compacte (rangée au doigt sur téléphone) ── */
+function CarMiniCard({ car }) {
+  const { t, lang } = useLang();
+  return (
+    <Link href={`/cars/${car.id}`} className="relative w-[78%] sm:w-[46%] h-[340px] rounded-3xl overflow-hidden gold-frame p-px">
+      <div className="relative w-full h-full rounded-[23px] overflow-hidden">
+        {car.image_url ? <img src={car.image_url} alt={car.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+          : <div className="absolute inset-0 bg-[#141414] flex items-center justify-center"><Car size={60} className="text-white/10" /></div>}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+        <span className="absolute top-3 left-3 tag-category">{localizeValue(car.category, lang)}</span>
+        <div className="absolute bottom-0 inset-x-0 p-5">
+          <h3 className="font-display font-black text-white text-2xl leading-tight">{car.name}</h3>
+          <p className="text-white/50 text-xs mt-1">{localizeValue(car.fuel, lang)} · {car.seats} {t('b.places')}{car.transmission ? ` · ${localizeValue(car.transmission, lang)}` : ''}</p>
+          <div className="flex items-end justify-between mt-3">
+            <span className="font-display font-black text-gold-gradient text-3xl leading-none">{Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}<span className="text-white/40 text-xs font-body font-normal ml-1">{t('cc.perday')}</span></span>
+            <span className="w-10 h-10 rounded-full bg-gold-500 text-noir-950 flex items-center justify-center"><ArrowRight size={16} /></span>
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }
 
@@ -434,6 +423,17 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
   // GSAP removed — CSS animations handle hero entry, no scroll-driven opacity issues
 
   const ease = [0.16, 1, 0.3, 1];
+  const fleet = (cars || []).filter(c => c.available !== false).slice().sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+  const L = (fr, en, ar) => (lang === 'ar' ? ar : lang === 'en' ? en : fr);
+  const ratingAvg = reviewStats?.count > 0 ? reviewStats.avg.toFixed(1) : avgRating;
+  const ratingCount = reviewStats?.count > 0 ? reviewStats.count : reviews.length;
+  const heroRating = `${ratingAvg}/5 · ${ratingCount} ${t('rv.word')}`;
+  const heroChips = [
+    { Icon: Star,   label: heroRating },
+    { Icon: Shield, label: L('Sans caution', 'No deposit', 'بدون ضمان') },
+    { Icon: Plane,  label: L('Livraison aéroport', 'Airport delivery', 'توصيل للمطار') },
+    { Icon: Gauge,  label: L('Kilométrage illimité', 'Unlimited mileage', 'كيلومترات غير محدودة') },
+  ];
 
   return (
     <>
@@ -509,18 +509,19 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 <p className="text-white/35 text-xs tracking-[0.25em] uppercase font-body text-center">Conciergerie Premium · Oran</p>
               </div>
 
-              <div className="px-5 md:px-12 max-w-7xl w-full mx-auto [@media(max-height:560px)]:mt-auto">
+              <div className="px-5 md:px-12 max-w-7xl w-full mx-auto [@media(max-height:560px)]:mt-auto lg:grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_390px] lg:gap-10 lg:items-end">
+                <div>
                 {/* Headline — CSS animated */}
                 <div className="pointer-events-none">
                   <div className="overflow-hidden">
                     <h1 className="hero-css-line1 font-display font-black text-hero-gradient leading-[0.88] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)]"
-                      style={{ fontSize: 'clamp(46px, 9vw, 116px)' }}>
+                      style={{ fontSize: 'clamp(46px, 8.4vw, 112px)' }}>
                       {heroTitleTr || t('hero.line1')}
                     </h1>
                   </div>
                   <div className="overflow-hidden -mt-[0.1em]">
                     <h1 className="hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88] drop-shadow-[0_2px_3px_rgba(0,0,0,0.9)] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)] py-[0.1em] pr-[0.1em]"
-                      style={{ fontSize: 'clamp(46px, 9vw, 116px)', background: 'linear-gradient(135deg,#f0d35a 0%,#d9a916 45%,#b8860b 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', WebkitTextStroke: '0.6px #d9a916' }}>
+                      style={{ fontSize: 'clamp(46px, 8.4vw, 112px)', background: 'linear-gradient(135deg,#f0d35a 0%,#d9a916 45%,#b8860b 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', WebkitTextStroke: '0.6px #d9a916' }}>
                       {t('hero.line2')}
                     </h1>
                   </div>
@@ -528,9 +529,9 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
 
                 {/* Subtitle */}
                 <div className="hero-css-sub mt-3 md:mt-5 pointer-events-none">
-                  <p className="text-white/60 text-base md:text-xl font-body max-w-md leading-relaxed">
+                  <p className="text-white/70 text-base md:text-xl font-body max-w-md leading-relaxed">
                     {heroSubtitleTr || t('hero.subtitle')}
-                    <span className="block text-white/35 text-sm md:text-base mt-0.5">{t('hero.tags')}</span>
+                    <span className="block text-white/40 text-sm md:text-base mt-0.5">{t('hero.tags')}</span>
                   </p>
                 </div>
 
@@ -539,9 +540,47 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   <Link href="/reservation" className="btn-gold text-sm md:text-base px-6 md:px-8 py-3 md:py-4">
                     <CalendarCheck size={16} />{t('nav.book')}
                   </Link>
-                  <Link href="/cars" className="btn-outline text-sm md:text-base px-5 md:px-7 py-3 md:py-4">
+                  <Link href="/cars" className="inline-flex items-center justify-center gap-2 glass rounded-xl text-white hover:text-gold-300 hover:border-gold-500/40 font-semibold text-sm md:text-base px-5 md:px-7 py-3 md:py-4 transition-all">
                     <Car size={15} />{t('hero.fleet')}
                   </Link>
+                </div>
+
+                {/* Badges de confiance — défilent au doigt sur téléphone, en ligne sur tablette/PC */}
+                <div className="hero-css-hint mt-6 md:mt-8 -mx-5 px-5 md:mx-0 md:px-0 flex gap-2 overflow-x-auto no-scrollbar lg:hidden">
+                  {heroChips.map(({ Icon, label }) => (
+                    <span key={label} className="glass flex-shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-white/80 text-xs md:text-sm font-medium">
+                      <Icon size={13} className="text-gold-400" />{label}
+                    </span>
+                  ))}
+                </div>
+                </div>
+
+                {/* PC : carte « réservation express » en verre */}
+                <div className="hero-css-cta hidden lg:block">
+                  <div className="glass !bg-black/45 rounded-3xl p-6 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9)] relative overflow-hidden">
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-400/70 to-transparent" />
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex gap-0.5">{Array.from({ length: 5 }).map((_, i) => <Star key={i} size={13} className="text-gold-400 fill-gold-400" />)}</div>
+                      <span className="text-white/70 text-xs font-semibold">{heroRating}</span>
+                    </div>
+                    <p className="font-display text-2xl font-bold text-white leading-tight mt-3">{L('Réservez en 2 minutes', 'Book in 2 minutes', 'احجز في دقيقتين')}</p>
+                    <p className="text-white/45 text-sm mt-1.5 mb-5">{L('Confirmation WhatsApp sous 1 h, 7j/7.', 'WhatsApp confirmation within 1 h, 7/7.', 'تأكيد عبر واتساب خلال ساعة، 7/7.')}</p>
+                    <ul className="space-y-2.5 mb-6">
+                      {heroChips.slice(1).map(({ Icon, label }) => (
+                        <li key={label} className="flex items-center gap-3 text-white/80 text-sm">
+                          <span className="w-7 h-7 rounded-lg bg-gold-500/10 border border-gold-500/25 flex items-center justify-center flex-shrink-0"><Icon size={13} className="text-gold-400" /></span>
+                          {label}
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Link href="/reservation" className="btn-gold py-3 text-sm"><CalendarCheck size={15} />{t('nav.book')}</Link>
+                      <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#25D366]/40 text-[#4ade80] hover:bg-[#25D366]/10 text-sm font-semibold py-3 transition-colors">
+                        <MessageCircle size={15} />WhatsApp
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -559,14 +598,14 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
             style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px)', backgroundSize: '70px 70px' }} />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none"
             style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.05) 0%,transparent 65%)' }} />
-          <div className="relative max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <span className="section-badge mb-5 inline-block">{t('home.adv')}</span>
+          <div className="relative max-w-6xl mx-auto">
+            <div className="text-center mb-10 md:mb-14">
+              <span className="section-badge mb-5">{t('home.adv')}</span>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-white mt-4">
                 {cText(settings, 'home_why_title', lang, t('home.why1'))} <span className="text-gold-gradient italic">{t('home.why2')}</span>
               </h2>
             </div>
-            <BenefitsCarousel benefits={BENEFITS} />
+            <BenefitsGrid benefits={BENEFITS} />
           </div>
         </section>
 
@@ -585,41 +624,45 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-5">
               {[
-                { icon: Car,       title: t('poles.rental.title'),       desc: t('poles.rental.desc'),       href: '/cars',               cta: t('poles.rental.cta'),       color: 'gold' },
-                { icon: Tag,       title: t('poles.sale.title'),         desc: t('poles.sale.desc'),         href: '/vente-voitures',     cta: t('poles.sale.cta'),         color: 'purple' },
-                { icon: Ship,      title: t('poles.import.title'),       desc: t('poles.import.desc'),       href: '/commande-vehicule',  cta: t('poles.import.cta'),       color: 'gold' },
-                { icon: Building2, title: t('poles.immo.title'),         desc: t('poles.immo.desc'),         href: '/immo',               cta: t('poles.immo.cta'),         color: 'blue' },
-                { icon: Package,   title: t('poles.packs.title'),        desc: t('poles.packs.desc'),        href: '/packs',              cta: t('poles.packs.cta'),        color: 'purple' },
-                { icon: Sparkles,  title: t('poles.conciergerie.title'), desc: t('poles.conciergerie.desc'), href: '/contact',            cta: t('poles.conciergerie.cta'), color: 'blue' },
-              ].map((p, i) => {
-                const c = {
-                  gold:   { ring: 'group-hover:border-gold-500/40',   ico: 'bg-gold-500/10 border-gold-500/25 text-gold-400',     glow: 'bg-gold-500/[0.06]' },
-                  blue:   { ring: 'group-hover:border-blue-500/40',   ico: 'bg-blue-500/10 border-blue-500/25 text-blue-400',     glow: 'bg-blue-500/[0.06]' },
-                  purple: { ring: 'group-hover:border-purple-500/40', ico: 'bg-purple-500/10 border-purple-500/25 text-purple-300', glow: 'bg-purple-500/[0.06]' },
-                }[p.color];
-                return (
-                  <motion.div key={i}
-                    initial={{ opacity: 1, y: 0 }} whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.12, ease }}>
-                    {/* Mobile : icône à gauche, texte à droite (2× moins haut) ; PC : carte verticale */}
-                    <Link href={p.href} className={`group relative flex md:block gap-4 h-full bg-[#0f0f0f] border border-white/[0.06] ${c.ring} rounded-2xl p-5 md:p-7 overflow-hidden transition-all duration-300 hover:-translate-y-1.5`}>
-                      <div className={`absolute -top-12 -right-12 w-40 h-40 rounded-full ${c.glow} blur-3xl pointer-events-none`} />
-                      <div className={`relative flex-shrink-0 w-12 h-12 md:w-14 md:h-14 ${c.ico} border rounded-2xl flex items-center justify-center md:mb-6 group-hover:scale-110 transition-transform`}>
-                        <p.icon size={22} />
-                      </div>
-                      <div className="relative min-w-0">
-                        <h3 className="font-display font-bold text-white text-lg md:text-xl mb-1.5 md:mb-3">{p.title}</h3>
-                        <p className="text-white/40 text-sm leading-relaxed mb-3 md:mb-6">{p.desc}</p>
-                        <span className="inline-flex items-center gap-1.5 text-gold-400 text-sm font-semibold group-hover:gap-2.5 transition-all">
-                          {p.cta} <ArrowRight size={14} />
-                        </span>
-                      </div>
-                    </Link>
-                  </motion.div>
-                );
-              })}
+                { icon: Car,       title: t('poles.rental.title'),       desc: t('poles.rental.desc'),       href: '/cars',               cta: t('poles.rental.cta') },
+                { icon: Tag,       title: t('poles.sale.title'),         desc: t('poles.sale.desc'),         href: '/vente-voitures',     cta: t('poles.sale.cta') },
+                { icon: Ship,      title: t('poles.import.title'),       desc: t('poles.import.desc'),       href: '/commande-vehicule',  cta: t('poles.import.cta') },
+                { icon: Building2, title: t('poles.immo.title'),         desc: t('poles.immo.desc'),         href: '/immo',               cta: t('poles.immo.cta') },
+                { icon: Package,   title: t('poles.packs.title'),        desc: t('poles.packs.desc'),        href: '/packs',              cta: t('poles.packs.cta') },
+                { icon: Sparkles,  title: t('poles.conciergerie.title'), desc: t('poles.conciergerie.desc'), href: '/contact',            cta: t('poles.conciergerie.cta') },
+              ].map((p, i) => i === 0 ? (
+                /* Carte vedette : photo plein cadre (2×2 sur PC, pleine largeur sur tablette) */
+                <Link key={i} href={p.href} onMouseMove={glow}
+                  className="lux-card group md:col-span-2 lg:row-span-2 min-h-[260px] md:min-h-[320px] lg:min-h-0 flex flex-col justify-end p-6 md:p-8 lg:p-10">
+                  <img src={cars?.find(c => c.featured && c.image_url)?.image_url || '/hero-home.jpg'} alt="" loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/10" />
+                  <div className="relative">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-500 text-noir-950 text-[11px] font-black uppercase tracking-wider px-3 py-1 mb-4">
+                      <p.icon size={12} /> {cars?.length || ''} {L('véhicules', 'vehicles', 'سيارة')}
+                    </span>
+                    <h3 className="font-display font-black text-white text-3xl md:text-4xl lg:text-5xl mb-3 leading-none">{p.title}</h3>
+                    <p className="text-white/65 text-sm md:text-base leading-relaxed mb-5 max-w-md">{p.desc}</p>
+                    <span className="btn-gold py-2.5 px-5 text-sm">{p.cta} <ArrowRight size={14} /></span>
+                  </div>
+                </Link>
+              ) : (
+                <Link key={i} href={p.href} onMouseMove={glow}
+                  className={`lux-card group flex md:block gap-4 p-5 md:p-7 ${i === 5 ? 'md:col-span-2 lg:col-span-1' : ''}`}>
+                  <div className="relative flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-gold-400/20 to-gold-700/5 border border-gold-500/30 text-gold-300 flex items-center justify-center md:mb-6 group-hover:scale-110 transition-transform">
+                    <p.icon size={22} />
+                  </div>
+                  <div className="relative min-w-0">
+                    <h3 className="font-display font-bold text-white text-lg md:text-xl mb-1.5 md:mb-2.5">{p.title}</h3>
+                    <p className="text-white/45 text-sm leading-relaxed mb-3 md:mb-5">{p.desc}</p>
+                    <span className="inline-flex items-center gap-1.5 text-gold-400 text-sm font-semibold group-hover:gap-2.5 transition-all">
+                      {p.cta} <ArrowRight size={14} />
+                    </span>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
         </section>
@@ -636,50 +679,41 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               <p className="text-white/35 mt-4 max-w-md mx-auto font-body">{t('home.steps_sub')}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 relative">
-              {/* Connector */}
-              <div className="hidden md:block absolute top-14 left-1/3 right-1/3 h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
-
+            {/* Téléphone : frise verticale ; tablette/PC : 3 colonnes reliées par une ligne or */}
+            <div className="relative grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-5 lg:gap-8">
+              <div className="md:hidden absolute left-[27px] top-6 bottom-6 w-px bg-gradient-to-b from-gold-500/60 via-gold-500/25 to-transparent" />
+              <div className="hidden md:block absolute top-[44px] left-[16%] right-[16%] h-px bg-gradient-to-r from-gold-500/10 via-gold-500/50 to-gold-500/10" />
               {[
                 { num: '01', tk: 'stp1t', dk: 'stp1d', icon: Car, link: '/cars', ck: 'stp1c' },
                 { num: '02', tk: 'stp2t', dk: 'stp2d', icon: CalendarCheck, link: '/reservation', ck: 'nav.book_now' },
                 { num: '03', tk: 'stp3t', dk: 'stp3d', icon: MapPin, link: null, ck: null },
               ].map((step, i) => (
-                <motion.div key={i}
-                  className="relative flex md:flex-col items-start md:items-center text-left md:text-center gap-4 md:gap-0 p-5 md:p-8 bg-[#0f0f0f] border border-white/[0.06] rounded-2xl hover:border-gold-500/20 transition-all duration-300 group"
-                  initial={{ opacity: 1, y: 0 }} whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.15, ease }}>
-
-                  {/* Step icon */}
-                  <div className="relative flex-shrink-0 md:mb-6">
-                    <div className="w-14 h-14 md:w-[72px] md:h-[72px] bg-[#161616] border border-gold-500/20 group-hover:border-gold-500/40 rounded-2xl flex items-center justify-center transition-colors">
-                      <step.icon size={28} className="text-gold-400" />
-                    </div>
-                    <div className="absolute -top-2 -right-2 w-7 h-7 bg-gold-500 rounded-full flex items-center justify-center text-[11px] font-black text-noir-950 shadow-[0_0_12px_rgba(226,182,20,0.4)]">
-                      {step.num.replace('0','')}
+                <div key={i} className="relative flex md:flex-col md:items-center md:text-center gap-5 md:gap-0 py-4 md:py-0 group">
+                  <div className="relative z-10 flex-shrink-0 md:mb-7">
+                    <div className="w-14 h-14 md:w-[88px] md:h-[88px] rounded-full bg-[#0b0b0b] border border-gold-500/40 group-hover:border-gold-400 shadow-[0_0_0_6px_#080808,0_0_40px_rgba(226,182,20,0.15)] flex items-center justify-center transition-colors">
+                      <step.icon size={24} className="text-gold-300 md:w-8 md:h-8" />
                     </div>
                   </div>
-
                   <div className="min-w-0 flex-1 flex flex-col md:items-center">
-                  <h3 className="font-display font-bold text-white text-lg md:text-xl mb-1.5 md:mb-3">{t(step.tk)}</h3>
-                  <p className="text-white/40 text-sm leading-relaxed font-body mb-3 md:mb-5 flex-1">{t(step.dk).replace('{adresse}', settings.address || DEFAULT_SETTINGS.address)}</p>
-
-                  {step.link && step.ck && (
-                    <Link href={step.link} className="text-gold-500 text-xs font-semibold hover:text-gold-400 transition-colors flex items-center gap-1 group/link">
-                      {t(step.ck)} <ArrowRight size={11} className="group-hover/link:translate-x-1 transition-transform" />
-                    </Link>
-                  )}
+                    <span className="num-outline font-display font-black text-4xl md:text-6xl leading-none mb-1 md:mb-3">{step.num}</span>
+                    <h3 className="font-display font-bold text-white text-xl md:text-2xl mb-2">{t(step.tk)}</h3>
+                    <p className="text-white/50 text-sm leading-relaxed font-body mb-3 md:max-w-[260px]">{t(step.dk).replace('{adresse}', settings.address || DEFAULT_SETTINGS.address)}</p>
+                    {step.link && step.ck && (
+                      <Link href={step.link} className="text-gold-400 text-sm font-semibold hover:text-gold-300 transition-colors inline-flex items-center gap-1.5 group/link">
+                        {t(step.ck)} <ArrowRight size={13} className="group-hover/link:translate-x-1 transition-transform" />
+                      </Link>
+                    )}
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
         {/* ══ VÉHICULES INTERACTIFS ══ */}
-        <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#080808]">
+        <section className="py-16 md:py-24 px-5 relative overflow-hidden bg-[#080808]">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
-          <div className="relative z-10 max-w-5xl mx-auto">
+          <div className="relative z-10 max-w-6xl mx-auto">
             <motion.div className="mb-10"
               initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
               viewport={{ once:true }} transition={{ duration:0.7, ease }}>
@@ -698,7 +732,12 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               <motion.div
                 initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ duration:0.7, delay:0.15, ease }}>
-                <CarCarousel cars={cars.filter(c => c.available !== false).slice().sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))} />
+                <div className="md:hidden snap-row">
+                  {fleet.map(c => <CarMiniCard key={c.id} car={c} />)}
+                </div>
+                <div className="hidden md:block">
+                  <CarCarousel cars={fleet} />
+                </div>
               </motion.div>
             )}
           </div>
@@ -846,22 +885,23 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 {t('home.stats_t1')} <span className="text-gold-gradient italic">{t('home.stats_t2')}</span>
               </h2>
             </motion.div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
               {[
                 { val:cars?.length||14,                        suffix:'',  label:t('st.veh'), desc:t('st.veh_d') },
                 { val:Number(settings.stat_clients)||500,      suffix:'+', label:t('st.cli'), desc:t('st.cli_d') },
                 { val:0,                                       suffix:'€', label:t('st.cau'), desc:t('st.cau_d') },
                 { val:Number(settings.stat_satisfaction)||98,  suffix:'%', label:t('st.sat'), desc:t('st.sat_d') },
               ].map((s, i) => (
-                <motion.div key={i} className="text-center"
+                <motion.div key={i} onMouseMove={glow} className="lux-card text-center px-3 py-7 md:py-10"
                   initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
                   viewport={{ once:true }} transition={{ duration:0.7, delay:i*0.1, ease }}>
-                  <div className="font-display font-black text-gold-gradient leading-none mb-3"
-                       style={{ fontSize:'clamp(44px,6vw,80px)' }}>
+                  <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-gold-400/60 to-transparent" />
+                  <div className="relative font-display font-black text-gold-gradient leading-none mb-3"
+                       style={{ fontSize:'clamp(40px,6vw,76px)' }}>
                     <AnimCounter to={s.val} suffix={s.suffix}/>
                   </div>
-                  <div className="text-white font-semibold text-sm md:text-base font-body mb-1">{s.label}</div>
-                  <div className="text-white/30 text-xs md:text-sm font-body">{s.desc}</div>
+                  <div className="relative text-white font-semibold text-sm md:text-base font-body mb-1">{s.label}</div>
+                  <div className="relative text-white/35 text-xs md:text-sm font-body">{s.desc}</div>
                 </motion.div>
               ))}
             </div>
@@ -891,26 +931,28 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 </div>
               </motion.div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {reviews.slice(0,3).map((review,i) => (
-                  <motion.div key={review.id} className="card-dark p-6 relative overflow-hidden"
-                    initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
-                    viewport={{ once:true }} transition={{ duration:0.65, delay:i*0.12, ease }}
-                    whileHover={{ y:-4, transition:{duration:0.2} }}>
-                    <span className="absolute top-3 right-4 font-display text-8xl text-gold-500/[0.05] leading-none select-none pointer-events-none">"</span>
+              {/* Téléphone : défilement au doigt (6 avis) · tablette : 2×2 · PC : 3 colonnes */}
+              <div className="snap-row md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-5 md:overflow-visible">
+                {reviews.slice(0,6).map((review,i) => (
+                  <div key={review.id} onMouseMove={glow}
+                    className={`lux-card w-[85%] sm:w-[60%] md:w-auto p-6 md:p-7 ${i >= 4 ? 'md:hidden' : i === 3 ? 'lg:hidden' : ''}`}>
+                    <Quote size={34} className="absolute top-5 right-5 text-gold-500/15 fill-gold-500/10" />
                     <div className="flex gap-0.5 mb-4">
                       {Array.from({length:5}).map((_,j)=>(
                         <Star key={j} size={12} className={j < review.rating ? 'text-gold-500 fill-gold-500':'text-white/10'} />
                       ))}
                     </div>
-                    <p dir="auto" className="text-white/55 text-sm leading-relaxed italic mb-5 font-body">“{review.comment}”</p>
+                    <p dir="auto" className="relative text-white/70 text-[15px] leading-relaxed mb-5 font-body">“{review.comment}”</p>
                     <div className="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
                       <div className="w-9 h-9 bg-gradient-to-br from-gold-500/25 to-gold-700/15 border border-gold-500/20 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-gold-400 font-bold text-sm">{review.client_name?.[0]?.toUpperCase()}</span>
                       </div>
-                      <p dir="auto" className="text-white font-medium text-sm font-body">{review.client_name}</p>
+                      <div className="min-w-0">
+                        <p dir="auto" className="text-white font-medium text-sm font-body truncate">{review.client_name}</p>
+                        <p className="text-gold-500/60 text-[11px] flex items-center gap-1"><Check size={10} />{L('Client vérifié', 'Verified client', 'عميل موثق')}</p>
+                      </div>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
               <div className="text-center mt-10">
@@ -927,8 +969,11 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/20 to-transparent" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full pointer-events-none"
                style={{ background:'radial-gradient(circle,rgba(226,182,20,0.07) 0%,transparent 65%)' }} />
-          <div className="relative z-10 max-w-3xl mx-auto text-center">
-            <motion.div initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
+          <div className="relative z-10 max-w-5xl mx-auto text-center gold-frame rounded-[32px] overflow-hidden px-5 py-14 md:px-12 md:py-20">
+            <img src={settings.hero_media_url && !/\.(mp4|webm|mov|m4v)(\?|$)/i.test(settings.hero_media_url) ? settings.hero_media_url : '/hero-home.jpg'} alt="" loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover opacity-[0.18]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0b0b0b]/70 via-[#0b0b0b]/80 to-[#0b0b0b]" />
+            <motion.div className="relative" initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
               viewport={{ once:true }} transition={{ duration:0.8, ease }}>
               <motion.div className="w-20 h-20 bg-gold-500/[0.08] border border-gold-500/20 rounded-2xl flex items-center justify-center mx-auto mb-10"
                 animate={{ y:[0,-10,0] }} transition={{ duration:3.5, repeat:Infinity, ease:'easeInOut' }}>
@@ -937,7 +982,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               <h2 className="font-display text-4xl md:text-7xl font-bold text-white mb-6 leading-[0.9]">
                 {t('home.cta_t1')}<br /><span className="text-gold-gradient italic">{t('home.cta_t2')}</span>
               </h2>
-              <p className="text-white/35 text-lg md:text-xl mb-12 font-body leading-relaxed">
+              <p className="text-white/55 text-base md:text-xl mb-10 md:mb-12 font-body leading-relaxed max-w-2xl mx-auto">
                 {t('home.cta_sub')}
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
