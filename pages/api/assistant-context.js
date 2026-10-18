@@ -87,7 +87,7 @@ export default async function handler(req, res) {
   }
   if (immo.length) {
     L.push('## BIENS IMMOBILIERS');
-    immo.forEach(p => L.push(`- ${p.title} — ${(p.transaction === 'vente' ? 'À vendre' : 'À louer')} ${p.price ? p.price.toLocaleString() + ' ' + cur(p.currency) + (p.transaction === 'vente' ? '' : '/mois') : 'prix sur demande'} · ${[p.district, p.city].filter(Boolean).join(', ')} ${p.bedrooms ? p.bedrooms + ' ch' : ''} ${p.surface ? p.surface + ' m²' : ''}`.replace(/\s+/g, ' ').trim()));
+    immo.forEach(p => L.push(`- ${p.title} — ${(p.transaction === 'vente' ? 'À vendre' : 'À louer')} ${p.price ? p.price.toLocaleString() + ' ' + cur(p.currency) + (p.transaction === 'vente' ? '' : p.price_type === 'jour' ? '/jour' : '/mois') : 'prix sur demande'} · ${[p.district, p.city].filter(Boolean).join(', ')} ${p.bedrooms ? p.bedrooms + ' ch' : ''} ${p.surface ? p.surface + ' m²' : ''}`.replace(/\s+/g, ' ').trim()));
     L.push('');
   }
 

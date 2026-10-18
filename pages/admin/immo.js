@@ -22,7 +22,7 @@ const STATUSES = [
 
 const emptyForm = {
   title: '', type: 'appartement', transaction: 'location',
-  price: '', currency: 'EUR', city: 'Oran', district: '', address: '',
+  price: '', per: 'mois', currency: 'EUR', city: 'Oran', district: '', address: '',
   surface: '', rooms: '', bedrooms: '', bathrooms: '', floor: '',
   charges_included: false, charges_amount: '', deposit: '', min_duration: '',
   status: 'disponible', featured: false, description: '', conditions: '',
@@ -57,7 +57,7 @@ export default function AdminImmoPage() {
   const openEdit = (p) => {
     setForm({
       title: p.title, type: p.type, transaction: p.transaction || 'location',
-      price: p.price || '', currency: p.currency || 'EUR', city: p.city || 'Oran',
+      price: p.price || '', per: p.price_type === 'jour' ? 'jour' : 'mois', currency: p.currency || 'EUR', city: p.city || 'Oran',
       district: p.district || '', address: p.address || '',
       surface: p.surface || '', rooms: p.rooms || '', bedrooms: p.bedrooms || '',
       bathrooms: p.bathrooms || '', floor: p.floor ?? '',
@@ -126,8 +126,8 @@ export default function AdminImmoPage() {
       const payload = {
         title: form.title.trim(), name: form.title.trim(), // name = ancienne colonne NOT NULL
         type: form.type, transaction: form.transaction,
-        // price_type gardé pour compat affichage existant
-        price_type: form.transaction === 'vente' ? 'vente' : 'location',
+        // location : 'jour' ou 'mois' (le site affiche /jour ou /mois)
+        price_type: form.transaction === 'vente' ? 'total' : form.per,
         price: num(form.price), currency: form.currency,
         city: form.city || 'Oran', district: form.district || null, address: form.address || null,
         surface: num(form.surface), rooms: num(form.rooms),
@@ -264,7 +264,8 @@ export default function AdminImmoPage() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="col-span-2"><label className="label-dark">Prix</label><input type="number" value={form.price} onChange={set('price')} placeholder="25000" className="input-dark w-full text-sm" /></div>
+                  <div className={form.transaction === 'vente' ? 'col-span-2' : ''}><label className="label-dark">Prix</label><input type="number" value={form.price} onChange={set('price')} placeholder="25000" className="input-dark w-full text-sm" /></div>
+                  {form.transaction !== 'vente' && <div><label className="label-dark">Par</label><select value={form.per} onChange={set('per')} className="input-dark w-full text-sm"><option value="mois">Mois</option><option value="jour">Jour</option></select></div>}
                   <div><label className="label-dark">Devise</label><select value={form.currency} onChange={set('currency')} className="input-dark w-full text-sm">{CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
                 </div>
 

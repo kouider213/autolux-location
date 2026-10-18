@@ -52,7 +52,8 @@ export default function PropertyDetail({ property, photos }) {
   const available = (property.status || 'disponible') === 'disponible';
   const st = STATUS_BADGE[property.status] || STATUS_BADGE.disponible;
   const stLabel = STB[property.status] || STB.disponible;
-  const priceTxt = property.price ? `${Number(property.price).toLocaleString()} ${cur(property.currency)}${isSale ? '' : '/mois'}` : 'Prix sur demande';
+  const perTxt = property.price_type === 'jour' ? '/jour' : '/mois';
+  const priceTxt = property.price ? `${Number(property.price).toLocaleString()} ${cur(property.currency)}${isSale ? '' : perTxt}` : 'Prix sur demande';
 
   const whatsappMsg = lang === 'ar'
     ? `مرحباً Fik Conciergerie،\n\nأنا مهتم بالعقار:\n*${property.title}*\n${property.price ? `السعر: ${priceTxt}` : 'السعر عند الطلب'}\n\nيرجى التواصل معي.`
@@ -200,7 +201,7 @@ export default function PropertyDetail({ property, photos }) {
                 {property.price ? (
                   <div className="flex items-baseline gap-1">
                     <span className="font-display font-black text-gold-400 text-4xl leading-none">{Number(property.price).toLocaleString()} {cur(property.currency)}</span>
-                    {!isSale && <span className="text-white/30 text-sm">/mois</span>}
+                    {!isSale && <span className="text-white/30 text-sm">{perTxt}</span>}
                   </div>
                 ) : (
                   <div className="text-white/40 text-lg">Prix sur demande</div>

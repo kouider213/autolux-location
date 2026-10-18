@@ -137,7 +137,7 @@ function PropertyCard({ property: p }) {
             <div className="flex items-baseline gap-1">
               <span className="font-display font-black text-xl text-gold-400 leading-none tabular-nums">{Number(p.price).toLocaleString()}</span>
               <span className="text-gold-500/50 text-sm">{cur(p.currency)}</span>
-              {!isSale && <span className="text-white/25 text-[10px]">{t('b.per_month')}</span>}
+              {!isSale && <span className="text-white/25 text-[10px]">{t(p.price_type === 'jour' ? 'b.per_day' : 'b.per_month')}</span>}
             </div>
           ) : <span className="text-white/30 text-sm">{t('b.price_request')}</span>}
         </div>

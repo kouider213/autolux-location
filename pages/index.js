@@ -802,7 +802,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                     {(p.bedrooms || p.rooms) && <><span className="text-white/20">·</span><span className="text-white/50 text-sm font-body">{p.bedrooms || p.rooms} {t('d.rooms')}</span></>}
                   </>,
                   price: p.price ? `${Number(p.price).toLocaleString('fr-FR')} ${curSym(p.currency)}` : t('b.price_request'),
-                  priceSuffix: p.price && !isSale ? t('b.per_month') : null,
+                  priceSuffix: p.price && !isSale ? t(p.price_type === 'jour' ? 'b.per_day' : 'b.per_month') : null,
                   cta: isSale ? t('home.buy') : t('home.view'), ctaIcon: <ArrowRight size={15} />,
                 };
               }} />
