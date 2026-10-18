@@ -34,10 +34,10 @@ export default function Footer() {
     <footer className="relative border-t border-white/[0.07] bg-[#040404]">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/20 to-transparent" />
       <div className="max-w-7xl mx-auto px-5 pt-14 pb-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 md:gap-10 mb-12">
 
           {/* Brand */}
-          <div className="md:col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <img src={settings.logo_url || '/logo.png'} alt="Fik Conciergerie" className="w-10 h-10 object-contain" />
               <div>
@@ -99,7 +99,7 @@ export default function Footer() {
           </div>
 
           {/* Contact */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">{t('foot.contact')}</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">

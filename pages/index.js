@@ -157,7 +157,8 @@ function AnimCounter({ to, suffix }) {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [to]);
-  return <>{v}{suffix}</>;
+  // « + » rogné dans la police décorative (« 500| ») → police du texte
+  return <>{v}{suffix === '+' ? <span className="font-body font-bold ml-0.5">+</span> : suffix}</>;
 }
 
 /* ── Interactive car carousel ── */
@@ -369,16 +370,14 @@ function ShowcaseCarousel({ items, render }) {
 /* ── Coming soon block ── */
 function ComingSoon({ icon, title, desc, cta, href }) {
   return (
-    <div className="relative rounded-2xl border border-white/[0.07] bg-gradient-to-b from-[#141414] to-[#0d0d0d] overflow-hidden" style={{ minHeight: 360 }}>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.05) 0%,transparent 65%)' }} />
-      <div className="relative flex flex-col items-center justify-center text-center px-6 py-16 h-full">
-        <div className="w-20 h-20 bg-gold-500/[0.08] border border-gold-500/20 rounded-3xl flex items-center justify-center mb-6">{icon}</div>
-        <span className="inline-block bg-gold-500/10 border border-gold-500/20 text-gold-400 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">Coming soon</span>
-        <h3 className="font-display text-2xl md:text-3xl font-bold text-white mb-3">{title}</h3>
-        <p className="text-white/40 text-sm max-w-md leading-relaxed mb-7">{desc}</p>
-        <Link href={href} className="btn-outline px-7 py-3 text-sm">{cta}<ArrowRight size={14} /></Link>
+    <Link href={href} className="group flex md:flex-col gap-4 rounded-2xl border border-white/[0.07] hover:border-gold-500/25 bg-gradient-to-b from-[#141414] to-[#0d0d0d] p-5 transition-colors">
+      <div className="w-11 h-11 flex-shrink-0 bg-gold-500/[0.08] border border-gold-500/20 rounded-xl flex items-center justify-center">{icon}</div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-display text-lg font-bold text-white mb-1">{title}</h3>
+        <p className="text-white/40 text-sm leading-relaxed mb-3">{desc}</p>
+        <span className="inline-flex items-center gap-1.5 text-gold-400 text-sm font-semibold group-hover:gap-2.5 transition-all">{cta}<ArrowRight size={13} /></span>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -586,7 +585,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
               {[
                 { icon: Car,       title: t('poles.rental.title'),       desc: t('poles.rental.desc'),       href: '/cars',               cta: t('poles.rental.cta'),       color: 'gold' },
                 { icon: Tag,       title: t('poles.sale.title'),         desc: t('poles.sale.desc'),         href: '/vente-voitures',     cta: t('poles.sale.cta'),         color: 'purple' },
@@ -604,16 +603,19 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   <motion.div key={i}
                     initial={{ opacity: 1, y: 0 }} whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.12, ease }}>
-                    <Link href={p.href} className={`group relative block h-full bg-[#0f0f0f] border border-white/[0.06] ${c.ring} rounded-2xl p-7 overflow-hidden transition-all duration-300 hover:-translate-y-1.5`}>
+                    {/* Mobile : icône à gauche, texte à droite (2× moins haut) ; PC : carte verticale */}
+                    <Link href={p.href} className={`group relative flex md:block gap-4 h-full bg-[#0f0f0f] border border-white/[0.06] ${c.ring} rounded-2xl p-5 md:p-7 overflow-hidden transition-all duration-300 hover:-translate-y-1.5`}>
                       <div className={`absolute -top-12 -right-12 w-40 h-40 rounded-full ${c.glow} blur-3xl pointer-events-none`} />
-                      <div className={`relative w-14 h-14 ${c.ico} border rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                        <p.icon size={24} />
+                      <div className={`relative flex-shrink-0 w-12 h-12 md:w-14 md:h-14 ${c.ico} border rounded-2xl flex items-center justify-center md:mb-6 group-hover:scale-110 transition-transform`}>
+                        <p.icon size={22} />
                       </div>
-                      <h3 className="relative font-display font-bold text-white text-xl mb-3">{p.title}</h3>
-                      <p className="relative text-white/40 text-sm leading-relaxed mb-6">{p.desc}</p>
-                      <span className="relative inline-flex items-center gap-1.5 text-gold-400 text-sm font-semibold group-hover:gap-2.5 transition-all">
-                        {p.cta} <ArrowRight size={14} />
-                      </span>
+                      <div className="relative min-w-0">
+                        <h3 className="font-display font-bold text-white text-lg md:text-xl mb-1.5 md:mb-3">{p.title}</h3>
+                        <p className="text-white/40 text-sm leading-relaxed mb-3 md:mb-6">{p.desc}</p>
+                        <span className="inline-flex items-center gap-1.5 text-gold-400 text-sm font-semibold group-hover:gap-2.5 transition-all">
+                          {p.cta} <ArrowRight size={14} />
+                        </span>
+                      </div>
                     </Link>
                   </motion.div>
                 );
@@ -634,7 +636,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               <p className="text-white/35 mt-4 max-w-md mx-auto font-body">{t('home.steps_sub')}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 relative">
               {/* Connector */}
               <div className="hidden md:block absolute top-14 left-1/3 right-1/3 h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
 
@@ -644,13 +646,13 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 { num: '03', tk: 'stp3t', dk: 'stp3d', icon: MapPin, link: null, ck: null },
               ].map((step, i) => (
                 <motion.div key={i}
-                  className="relative flex flex-col items-center text-center p-8 bg-[#0f0f0f] border border-white/[0.06] rounded-2xl hover:border-gold-500/20 transition-all duration-300 group"
+                  className="relative flex md:flex-col items-start md:items-center text-left md:text-center gap-4 md:gap-0 p-5 md:p-8 bg-[#0f0f0f] border border-white/[0.06] rounded-2xl hover:border-gold-500/20 transition-all duration-300 group"
                   initial={{ opacity: 1, y: 0 }} whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.15, ease }}>
 
                   {/* Step icon */}
-                  <div className="relative mb-6">
-                    <div className="w-[72px] h-[72px] bg-[#161616] border border-gold-500/20 group-hover:border-gold-500/40 rounded-2xl flex items-center justify-center transition-colors">
+                  <div className="relative flex-shrink-0 md:mb-6">
+                    <div className="w-14 h-14 md:w-[72px] md:h-[72px] bg-[#161616] border border-gold-500/20 group-hover:border-gold-500/40 rounded-2xl flex items-center justify-center transition-colors">
                       <step.icon size={28} className="text-gold-400" />
                     </div>
                     <div className="absolute -top-2 -right-2 w-7 h-7 bg-gold-500 rounded-full flex items-center justify-center text-[11px] font-black text-noir-950 shadow-[0_0_12px_rgba(226,182,20,0.4)]">
@@ -658,14 +660,16 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                     </div>
                   </div>
 
-                  <h3 className="font-display font-bold text-white text-xl mb-3">{t(step.tk)}</h3>
-                  <p className="text-white/40 text-sm leading-relaxed font-body mb-5 flex-1">{t(step.dk)}</p>
+                  <div className="min-w-0 flex-1 flex flex-col md:items-center">
+                  <h3 className="font-display font-bold text-white text-lg md:text-xl mb-1.5 md:mb-3">{t(step.tk)}</h3>
+                  <p className="text-white/40 text-sm leading-relaxed font-body mb-3 md:mb-5 flex-1">{t(step.dk)}</p>
 
                   {step.link && step.ck && (
                     <Link href={step.link} className="text-gold-500 text-xs font-semibold hover:text-gold-400 transition-colors flex items-center gap-1 group/link">
                       {t(step.ck)} <ArrowRight size={11} className="group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                   )}
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -700,8 +704,8 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
           </div>
         </section>
 
-        {/* ══ VÉHICULES À VENDRE ══ */}
-        <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#050505]">
+        {/* ══ VÉHICULES À VENDRE ══ (masquée tant qu'il n'y a rien : voir « Bientôt chez Fik ») */}
+        {saleAvailable.length > 0 && <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#050505]">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
           <div className="relative z-10 max-w-5xl mx-auto">
             <div className="mb-10">
@@ -726,14 +730,12 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 price: v.price ? `${Number(v.price).toLocaleString('fr-FR')} ${curSym(v.currency)}` : t('b.price_request'),
                 href2: null, cta: t('home.view'), ctaIcon: <ArrowRight size={15} />,
               })} />
-            ) : (
-              <ComingSoon icon={<Tag size={32} className="text-gold-400" />} title={t('home.sale_soon_t')} desc={t('home.sale_soon_d')} cta={t('sale.sell_cta')} href="/vente-voitures" />
-            )}
+            ) : null}
           </div>
-        </section>
+        </section>}
 
         {/* ══ IMMOBILIER ══ */}
-        <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#080808]">
+        {immoAvailable.length > 0 && <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#080808]">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
           <div className="relative z-10 max-w-5xl mx-auto">
             <div className="mb-10">
@@ -765,14 +767,12 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   cta: isSale ? t('home.buy') : t('home.view'), ctaIcon: <ArrowRight size={15} />,
                 };
               }} />
-            ) : (
-              <ComingSoon icon={<Building2 size={32} className="text-gold-400" />} title={t('home.immo_soon_t')} desc={t('home.immo_soon_d')} cta={t('immo.propose')} href="/immo" />
-            )}
+            ) : null}
           </div>
-        </section>
+        </section>}
 
         {/* ══ PACKS SÉJOUR ══ */}
-        <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#050505]">
+        {packsAvailable.length > 0 && <section className="py-16 md:py-20 px-5 relative overflow-hidden bg-[#050505]">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.05) 0%,transparent 65%)' }} />
           <div className="relative z-10 max-w-5xl mx-auto">
@@ -808,11 +808,29 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   cta: lang === 'ar' ? 'اكتشف' : lang === 'en' ? 'Discover' : 'Découvrir', ctaIcon: <ArrowRight size={15} />,
                 };
               }} />
-            ) : (
-              <ComingSoon icon={<Package size={32} className="text-gold-400" />} title={lang === 'ar' ? 'باقات قريبا' : lang === 'en' ? 'Packs soon' : 'Packs bientôt'} desc={lang === 'ar' ? 'باقات إقامة مخصصة قريبا.' : lang === 'en' ? 'Turnkey stay packs coming soon.' : 'Des packs séjour clé en main arrivent très bientôt.'} cta={lang === 'ar' ? 'اكتشف' : lang === 'en' ? 'Discover' : 'Découvrir'} href="/packs" />
-            )}
+            ) : null}
           </div>
-        </section>
+        </section>}
+
+        {/* ══ BIENTÔT CHEZ FIK ══ — une seule bande compacte pour les rubriques encore vides */}
+        {(saleAvailable.length === 0 || immoAvailable.length === 0 || packsAvailable.length === 0) && (
+          <section className="py-14 md:py-16 px-5 relative bg-[#050505]">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-8">
+                <span className="section-badge mb-4 inline-block">{lang === 'ar' ? 'قادم' : lang === 'en' ? 'Up next' : 'À venir'}</span>
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-white mt-3">
+                  {lang === 'ar' ? 'قريباً عند' : lang === 'en' ? 'Coming soon at' : 'Bientôt chez'} <span className="text-gold-gradient italic">Fik</span>
+                </h2>
+              </div>
+              <div className="grid gap-3 md:grid-cols-3">
+                {saleAvailable.length === 0 && <ComingSoon icon={<Tag size={20} className="text-gold-400" />} title={t('home.sale_t1') + ' ' + t('home.sale_t2')} desc={t('home.sale_soon_d')} cta={t('sale.sell_cta')} href="/vente-voitures" />}
+                {immoAvailable.length === 0 && <ComingSoon icon={<Building2 size={20} className="text-gold-400" />} title={t('home.immo_t1') + ' ' + t('home.immo_t2')} desc={t('home.immo_soon_d')} cta={t('immo.propose')} href="/immo" />}
+                {packsAvailable.length === 0 && <ComingSoon icon={<Package size={20} className="text-gold-400" />} title={lang === 'ar' ? 'باقات الإقامة' : lang === 'en' ? 'Stay packs' : 'Packs séjour'} desc={lang === 'ar' ? 'سيارة + سكن + جت سكي + سائق في باقة واحدة.' : lang === 'en' ? 'Car, villa, jet ski, driver — all in one turnkey pack.' : 'Voiture, villa, jet ski, chauffeur — réunis dans un seul pack clé en main.'} cta={lang === 'ar' ? 'اكتشف' : lang === 'en' ? 'Discover' : 'Découvrir'} href="/packs" />}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* ══ STATS ══ */}
         <section ref={statsRef} className="relative py-16 md:py-24 px-5 overflow-hidden bg-[#050505]">
@@ -869,7 +887,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                       <Star key={i} size={14} className={i < Math.round(avgRating) ? 'text-gold-500 fill-gold-500':'text-white/15'} />
                     ))}
                   </div>
-                  <span className="text-white/35 text-sm font-body">{avgRating}{t("rv.outof")} · {reviews.length} {t("rv.word")}</span>
+                  <span className="text-white/35 text-sm font-body">{reviewStats?.count > 0 ? reviewStats.avg.toFixed(1) : avgRating}{t("rv.outof")} · {reviewStats?.count > 0 ? reviewStats.count : reviews.length} {t("rv.word")}</span>
                 </div>
               </motion.div>
 

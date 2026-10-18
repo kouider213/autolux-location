@@ -263,23 +263,23 @@ export default function Entreprises() {
                 </div>
                 <div>
                   <div className="text-white/45 text-xs font-body mb-1.5">{L('Dates de mission', 'تواريخ المهمّة', 'Mission dates')}</div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="block">
-                      <span className="sr-only">{L('Du', 'من', 'From')}</span>
-                      <input type="date" value={form.from} onChange={set('from')} aria-label={L('Début de mission', 'بداية المهمّة', 'Mission start')} className="input-dark w-full" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className="flex items-center gap-2">
+                      <span className="w-8 flex-shrink-0 text-white/40 text-xs font-body">{L('Du', 'من', 'From')}</span>
+                      <input type="date" value={form.from} onChange={set('from')} min={new Date().toISOString().slice(0, 10)} aria-label={L('Début de mission', 'بداية المهمّة', 'Mission start')} className="input-dark w-full" />
                     </label>
-                    <label className="block">
-                      <span className="sr-only">{L('Au', 'إلى', 'To')}</span>
+                    <label className="flex items-center gap-2">
+                      <span className="w-8 flex-shrink-0 text-white/40 text-xs font-body">{L('Au', 'إلى', 'To')}</span>
                       <input type="date" value={form.to} min={form.from || undefined} onChange={set('to')} aria-label={L('Fin de mission', 'نهاية المهمّة', 'Mission end')} className="input-dark w-full" />
                     </label>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-[1fr_7.5rem] gap-3">
                   <select value={form.pack} onChange={set('pack')} className="input-dark w-full">
                     <option value="">{L('Pack souhaité', 'الباقة', 'Pack')}</option>
                     {PACKS.map((p) => <option key={p.key} value={p.name.fr}>{pick(p.name)}</option>)}
                   </select>
-                  <input value={form.people} onChange={set('people')} inputMode="numeric" placeholder={L('Nb personnes', 'عدد الأشخاص', 'People')} className="input-dark w-full" />
+                  <input value={form.people} onChange={set('people')} inputMode="numeric" placeholder={L('Personnes', 'الأشخاص', 'People')} className="input-dark w-full" />
                 </div>
                 <textarea value={form.needs} onChange={set('needs')} rows={3} placeholder={L('Vos besoins (véhicules, logement, chauffeur…)', 'احتياجاتكم', 'Your needs (vehicles, housing, driver…)')} className="input-dark w-full resize-none" />
                 {err && <p className="text-red-400 text-sm font-body">{err}</p>}

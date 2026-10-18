@@ -87,6 +87,8 @@ export default function Navbar({ scrollContainerRef }) {
         // marge du haut + encoche iPhone (l'ancien paddingTop inline annulait le py-* → logo collé en haut de l'écran)
         paddingTop: `calc(env(safe-area-inset-top, 0px) + ${scrolled ? 12 : 20}px)`,
         backgroundColor: scrolled ? '#080808' : 'transparent',
+        // En haut de page : voile sombre pour garder le menu lisible sur une photo claire (ciel, drapeau)
+        backgroundImage: scrolled ? 'none' : 'linear-gradient(to bottom, rgba(0,0,0,0.65), rgba(0,0,0,0))',
         borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : 'none',
         boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.7)' : 'none',
       }}

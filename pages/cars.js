@@ -111,10 +111,11 @@ export default function CarsPage({ cars: initialCars }) {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              {/* Mobile : une seule ligne qui défile ; PC : retour à la ligne */}
+              <div className="flex gap-2 overflow-x-auto md:flex-wrap md:overflow-visible -mx-1 px-1 pb-1 no-scrollbar">
                 {CATEGORIES.map(cat => (
                   <button key={cat} onClick={() => setFilter(cat)}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 capitalize ${
+                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 capitalize ${
                       filter === cat
                         ? 'bg-gold-500 text-noir-950 shadow-[0_4px_14px_rgba(226,182,20,0.35)]'
                         : 'bg-white/[0.04] border border-white/[0.07] text-white/40 hover:text-white/70 hover:border-white/15'
@@ -203,11 +204,11 @@ function CarCard({ car, bookedUntil, t, lang, availMode, wa, isFav, onFav }) {
 
         {/* Top badges */}
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-black/50 backdrop-blur-md border border-white/[0.08] text-white/50 capitalize">
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md border border-white/[0.1] text-white/75 capitalize">
             {localizeValue(car.category, lang)}
           </span>
           {availMode ? (
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500/20 text-gold-300 border border-gold-500/25 backdrop-blur-md">
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-black/70 text-gold-300 border border-gold-500/40 backdrop-blur-md">
               {t('d.on_demand')}
             </span>
           ) : available ? (

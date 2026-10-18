@@ -71,14 +71,16 @@ export default function InvestirPage() {
             {/* Offres */}
             <h2 className="font-display text-2xl md:text-3xl font-bold text-white text-center mb-2"><T>Ce qu'on fait pour toi</T></h2>
             <p className="text-white/30 text-center text-sm mb-10"><T>Un seul interlocuteur de confiance, sur place à Oran.</T></p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-20">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-20">
               {OFFERS.map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="bg-[#111]/80 border border-white/[0.07] rounded-2xl p-6 hover:border-gold-500/30 transition-colors">
-                  <div className="w-12 h-12 bg-gold-500/10 border border-gold-500/20 rounded-xl flex items-center justify-center mb-4">
+                <div key={title} className="flex sm:block gap-4 bg-[#111]/80 border border-white/[0.07] rounded-2xl p-5 sm:p-6 hover:border-gold-500/30 transition-colors">
+                  <div className="flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 bg-gold-500/10 border border-gold-500/20 rounded-xl flex items-center justify-center sm:mb-4">
                     <Icon size={20} className="text-gold-400" />
                   </div>
-                  <h3 className="text-white font-bold text-lg mb-2"><T>{title}</T></h3>
-                  <p className="text-white/45 text-sm leading-relaxed"><T>{desc}</T></p>
+                  <div className="min-w-0">
+                    <h3 className="text-white font-bold text-lg mb-1 sm:mb-2"><T>{title}</T></h3>
+                    <p className="text-white/45 text-sm leading-relaxed"><T>{desc}</T></p>
+                  </div>
                 </div>
               ))}
             </div>

@@ -345,3 +345,7 @@ body {
 .blog-content a { color:#e2b614; text-decoration:underline; }
 .blog-content strong { color:#fff; }
 .blog-content[dir="rtl"] ul, .blog-content[dir="rtl"] ol { margin:0 1.2rem 1rem 0; }
+
+/* Ligne de filtres qui défile au doigt sans barre visible */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

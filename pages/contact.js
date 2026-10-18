@@ -47,6 +47,12 @@ const WHY_US = [
   { icon: Star,   tk: 'wu6t', dk: 'wu6d', color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20' },
 ];
 
+// Le « + » de la police décorative est rogné (« 500| ») : on l'écrit dans la police du texte.
+function PlusFix({ value }) {
+  const v = String(value ?? '');
+  return v.endsWith('+') ? <>{v.slice(0, -1)}<span className="font-body font-bold ml-0.5">+</span></> : v;
+}
+
 const STATS = [
   // Mêmes chiffres que l'accueil (réglages admin) — plus de 150+/4.9 ici contre 500+/98 % sur l'accueil.
   { vk: 'ct.s1v', lk: 'ct.s1', v: (st) => `${Number(st.stat_clients) || 500}+` },
@@ -93,7 +99,7 @@ export default function ContactPage() {
           <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
             {STATS.map(s => (
               <div key={s.lk} className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5 text-center">
-                <div className="font-display font-black text-3xl text-gold-400 mb-1">{s.v ? s.v(settings) : t(s.vk)}</div>
+                <div className="font-display font-black text-3xl text-gold-400 mb-1"><PlusFix value={s.v ? s.v(settings) : t(s.vk)} /></div>
                 <div className="text-white/35 text-xs">{t(s.lk)}</div>
               </div>
             ))}
@@ -147,7 +153,7 @@ export default function ContactPage() {
               )}
 
               {/* Adresse */}
-              <a href="https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria" target="_blank" rel="noopener noreferrer"
+              <a href={settings.maps_url || "https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria"} target="_blank" rel="noopener noreferrer"
                 className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/20 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1">
                 <div className="w-14 h-14 bg-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center">
                   <MapPin size={24} className="text-gold-400" />
@@ -206,7 +212,7 @@ export default function ContactPage() {
             <div className="bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden">
               <div className="p-5 border-b border-white/[0.05] flex items-center justify-between">
                 <h2 className="text-white font-semibold">{t('ct.zone')}</h2>
-                <a href="https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria" target="_blank" rel="noopener noreferrer"
+                <a href={settings.maps_url || "https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria"} target="_blank" rel="noopener noreferrer"
                   className="btn-gold text-xs py-2 px-4">
                   {t('ct.open_gps')}
                 </a>
@@ -234,16 +240,18 @@ export default function ContactPage() {
                 {t('ct.why_sub')}
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
               {WHY_US.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.tk} className={`bg-[#141414] border ${item.bg} rounded-2xl p-6 group hover:scale-[1.02] transition-transform duration-300`}>
-                    <div className={`w-12 h-12 ${item.bg} border rounded-2xl flex items-center justify-center mb-4`}>
-                      <Icon size={22} className={item.color} />
+                  <div key={item.tk} className={`flex sm:block gap-4 bg-[#141414] border ${item.bg} rounded-2xl p-5 sm:p-6 group hover:scale-[1.02] transition-transform duration-300`}>
+                    <div className={`flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 ${item.bg} border rounded-2xl flex items-center justify-center sm:mb-4`}>
+                      <Icon size={20} className={item.color} />
                     </div>
-                    <h3 className="text-white font-bold text-base mb-2">{t(item.tk)}</h3>
-                    <p className="text-white/40 text-sm leading-relaxed">{t(item.dk)}</p>
+                    <div className="min-w-0">
+                      <h3 className="text-white font-bold text-base mb-1 sm:mb-2">{t(item.tk)}</h3>
+                      <p className="text-white/40 text-sm leading-relaxed">{t(item.dk)}</p>
+                    </div>
                   </div>
                 );
               })}

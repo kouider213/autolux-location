@@ -16,6 +16,7 @@ export default function ReviewsPage({ reviews: initialReviews }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted]   = useState(false);
   const [hovered, setHovered]       = useState(0);
+  const [shown, setShown]           = useState(12);   // 12 avis puis « Voir plus » (41 avis = 12 000 px sur mobile)
 
   // Refresh client-side (comme la home) — évite la page figée par ISR
   useEffect(() => {
@@ -105,11 +106,12 @@ export default function ReviewsPage({ reviews: initialReviews }) {
                   <Star size={24} className="text-white/20" />
                 </div>
                 <p className="text-white/40 mb-1">{t('rv.none')}</p>
-                <p className="text-white/25 text-sm">Soyez le premier à partager votre expérience !</p>
+                <p className="text-white/25 text-sm">{lang === 'ar' ? 'كن أول من يشارك تجربته!' : lang === 'en' ? 'Be the first to share your experience!' : 'Soyez le premier à partager votre expérience !'}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-16">
-                {reviews.map(review => (
+              <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 mb-8">
+                {reviews.slice(0, shown).map(review => (
                   <div key={review.id} className="card-dark p-6 relative overflow-hidden group hover:border-gold-500/15 hover:-translate-y-1 transition-all duration-300">
                     {/* Big quote */}
                     <span className="absolute top-3 right-4 font-display text-8xl text-gold-500/[0.06] leading-none select-none pointer-events-none">"</span>
@@ -139,7 +141,7 @@ export default function ReviewsPage({ reviews: initialReviews }) {
                         </p>
                         {review.created_at && (
                           <p className="text-white/25 text-xs">
-                            {new Date(review.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+                            {new Date(review.created_at).toLocaleDateString(lang === 'ar' ? 'ar-DZ' : lang === 'en' ? 'en-GB' : 'fr-FR', { month: 'long', year: 'numeric' })}
                           </p>
                         )}
                       </div>
@@ -147,6 +149,14 @@ export default function ReviewsPage({ reviews: initialReviews }) {
                   </div>
                 ))}
               </div>
+              <div className="text-center mb-16">
+                {shown < reviews.length && (
+                  <button onClick={() => setShown(n => n + 12)} className="btn-outline px-7 py-3 text-sm">
+                    {lang === 'ar' ? 'عرض المزيد من التقييمات' : lang === 'en' ? 'Show more reviews' : "Voir plus d'avis"} ({reviews.length - shown})
+                  </button>
+                )}
+              </div>
+              </>
             )}
 
             {/* Submit form */}
