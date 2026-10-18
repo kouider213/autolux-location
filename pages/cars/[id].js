@@ -135,7 +135,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
 
         {/* Main content */}
         <div className="px-5 pb-36 md:pb-24 max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.25fr_1fr] gap-6 md:gap-8 lg:gap-12 items-start">
 
             {/* Left — image gallery */}
             <div className="space-y-3">
@@ -145,7 +145,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                 const src = allPhotos[activePhoto] || null;
                 return (
                   <>
-                    <div className="relative rounded-2xl overflow-hidden bg-[#141414] border border-white/[0.06]" style={{ aspectRatio: '16/10' }}>
+                    <div className="relative rounded-3xl overflow-hidden bg-[#141414] gold-frame p-px aspect-[4/3] md:aspect-[16/10] lg:aspect-[4/3]">
                       {src ? (
                         /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src)
                           ? <video src={src} controls playsInline className="w-full h-full object-cover object-center bg-black" />
@@ -168,7 +168,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                       <div className="flex gap-2 overflow-x-auto pb-1">
                         {allPhotos.map((s, i) => (
                           <button key={i} onClick={() => setActive(i)}
-                            className={`relative flex-shrink-0 w-16 h-12 rounded-xl overflow-hidden border-2 transition-all ${i === activePhoto ? 'border-gold-500' : 'border-white/[0.06] opacity-60 hover:opacity-100'}`}>
+                            className={`relative flex-shrink-0 w-20 h-14 md:w-24 md:h-16 rounded-xl overflow-hidden border-2 transition-all ${i === activePhoto ? 'border-gold-500' : 'border-white/[0.06] opacity-60 hover:opacity-100'}`}>
                             {/\.(mp4|webm|mov|m4v)(\?|$)/i.test(s)
                               ? <><video src={s} muted className="w-full h-full object-cover" /><span className="absolute inset-0 flex items-center justify-center text-white text-lg">▶</span></>
                               : <img src={s} alt={`${car.name} ${i+1}`} className="w-full h-full object-cover" />}
@@ -184,7 +184,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
               {/* Perks */}
               <div className="grid grid-cols-2 gap-2">
                 {perks.map((p, i) => (
-                  <div key={i} className="flex items-center gap-2.5 bg-[#141414] border border-white/[0.05] rounded-xl px-4 py-3">
+                  <div key={i} className="flex items-center gap-2.5 glass rounded-xl px-4 py-3">
                     <CheckCircle size={14} className="text-gold-500 flex-shrink-0" />
                     <span className="text-white/55 text-xs font-body">{p}</span>
                   </div>
@@ -193,12 +193,12 @@ export default function CarDetail({ car, photos: initialPhotos }) {
             </div>
 
             {/* Right — details */}
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 lg:sticky lg:top-28 lg:gold-frame lg:rounded-3xl lg:p-8">
 
               {/* Name + price */}
               <div>
                 <p className="text-white/30 text-xs tracking-widest uppercase font-body mb-2">{localizeValue(car.category, lang)}</p>
-                <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 leading-tight">
+                <h1 className="font-body text-4xl md:text-5xl font-semibold tracking-tight text-white mb-3 leading-tight">
                   {car.name}
                 </h1>
                 <div className="mb-4"><ShareButtons title={car.name} /></div>
@@ -218,10 +218,10 @@ export default function CarDetail({ car, photos: initialPhotos }) {
               </div>
 
               {/* Specs grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3">
                 {specs.map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="bg-[#141414] border border-white/[0.06] rounded-xl p-4">
-                    <Icon size={16} className="text-gold-500 mb-2" />
+                  <div key={label} className="bg-white/[0.03] border border-white/[0.07] hover:border-gold-500/30 transition-colors rounded-2xl p-4">
+                    <span className="w-8 h-8 rounded-lg bg-gold-500/10 border border-gold-500/25 flex items-center justify-center mb-3"><Icon size={15} className="text-gold-400" /></span>
                     <p className="text-white/30 text-xs font-body mb-0.5">{label}</p>
                     <p className="text-white font-semibold text-sm capitalize font-body">{value}</p>
                   </div>

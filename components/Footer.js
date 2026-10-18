@@ -166,7 +166,7 @@ export default function Footer() {
 
         {/* Signature géante en contour or */}
         <p aria-hidden="true" className="num-outline font-display font-black text-center leading-none mt-10 select-none whitespace-nowrap opacity-60"
-          style={{ fontSize: 'clamp(40px, 11.5vw, 170px)' }}>
+          style={{ fontSize: 'clamp(34px, 10vw, 140px)' }}>
           Fik Conciergerie
         </p>
       </div>

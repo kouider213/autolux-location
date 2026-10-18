@@ -1,5 +1,14 @@
 /* Polices chargées via <link> + preconnect dans pages/_app.js (plus rapide que @import render-blocking). */
 
+/* « € » de Jost : dans Bodoni Moda il ressemble à un « C » (« 25 C »). Placé en tête de la pile font-display. */
+@font-face {
+  font-family: 'FikEuro';
+  src: url('/fonts/fik-euro.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+20AC;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -114,6 +123,7 @@ body {
   background: #e2b614; box-shadow: 0 0 8px rgba(226,182,20,0.8); flex-shrink: 0;
 }
 
+@layer components {
 /* ── Surfaces premium ── */
 /* Cadre à bordure dégradée or (fond sombre + liseré lumineux) */
 .gold-frame {
@@ -154,6 +164,8 @@ body {
 .snap-row::-webkit-scrollbar { display: none; }
 @media (min-width: 768px) { .snap-row { scroll-padding-inline: 0; } }
 .snap-row > * { @apply snap-start flex-shrink-0; }
+}
+
 /* Ligne de lumière qui traverse les boutons or */
 .btn-gold { position: relative; overflow: hidden; isolation: isolate; }
 .btn-gold::after {

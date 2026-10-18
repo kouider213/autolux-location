@@ -1,8 +1,11 @@
+import { useRouter } from 'next/router';
 import { useSettings, waLink } from '../lib/settings';
 
 // Bouton WhatsApp flottant, présent sur toutes les pages (coin bas-droit).
 export default function FloatingWhatsApp() {
   const settings = useSettings();
+  // Fiche voiture : barre « Réserver » collée en bas sur téléphone → on remonte le bouton au-dessus
+  const lift = /^\/cars\/[^/?]+/.test(useRouter().asPath || '');
   const href = waLink(settings, 'Bonjour Fik Conciergerie, je vous contacte depuis votre site.');
 
   return (
@@ -11,7 +14,7 @@ export default function FloatingWhatsApp() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Contacter sur WhatsApp"
-      className="fixed z-[60] bottom-5 right-5 md:bottom-6 md:right-6 w-14 h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-[0_6px_24px_rgba(37,211,102,0.45)] hover:scale-105 active:scale-95 transition-transform"
+      className={`fixed z-[60] ${lift ? 'bottom-24' : 'bottom-5'} right-5 md:bottom-6 md:right-6 w-14 h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-[0_6px_24px_rgba(37,211,102,0.45)] hover:scale-105 active:scale-95 transition-transform`}
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <span className="absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-40 animate-ping" />

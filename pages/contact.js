@@ -39,12 +39,12 @@ function SocialSection() {
 }
 
 const WHY_US = [
-  { icon: Shield, tk: 'wu1t', dk: 'wu1d', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-  { icon: Zap,    tk: 'wu2t', dk: 'wu2d', color: 'text-gold-400',    bg: 'bg-gold-500/10 border-gold-500/20' },
-  { icon: Clock,  tk: 'wu3t', dk: 'wu3d', color: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/20' },
-  { icon: Heart,  tk: 'wu4t', dk: 'wu4d', color: 'text-pink-400',    bg: 'bg-pink-500/10 border-pink-500/20' },
-  { icon: Car,    tk: 'wu5t', dk: 'wu5d', color: 'text-purple-400',  bg: 'bg-purple-500/10 border-purple-500/20' },
-  { icon: Star,   tk: 'wu6t', dk: 'wu6d', color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20' },
+  { icon: Shield, tk: 'wu1t', dk: 'wu1d' },
+  { icon: Zap,    tk: 'wu2t', dk: 'wu2d' },
+  { icon: Clock,  tk: 'wu3t', dk: 'wu3d' },
+  { icon: Heart,  tk: 'wu4t', dk: 'wu4d' },
+  { icon: Car,    tk: 'wu5t', dk: 'wu5d' },
+  { icon: Star,   tk: 'wu6t', dk: 'wu6d' },
 ];
 
 // Le « + » de la police décorative est rogné (« 500| ») : on l'écrit dans la police du texte.
@@ -96,34 +96,36 @@ export default function ContactPage() {
 
         {/* Stats */}
         <div className="px-5 mb-20">
-          <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             {STATS.map(s => (
-              <div key={s.lk} className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5 text-center">
-                <div className="font-display font-black text-3xl text-gold-400 mb-1"><PlusFix value={s.v ? s.v(settings) : t(s.vk)} /></div>
+              <div key={s.lk} className="lux-card p-5 md:p-7 text-center">
+                <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-gold-400/60 to-transparent" />
+                <div className="font-display font-black text-3xl md:text-4xl text-gold-gradient mb-1"><PlusFix value={s.v ? s.v(settings) : t(s.vk)} /></div>
                 <div className="text-white/35 text-xs">{t(s.lk)}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Contact cards */}
+        {/* Contact cards (+ carte à droite sur PC) */}
         <div className="px-5 mb-20">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-10">
               <span className="section-badge mb-4 inline-block">{t('ct.join')}</span>
               <h2 className="font-display text-3xl font-bold text-white">{t('ct.contact')}</h2>
             </div>
-            <div className="grid sm:grid-cols-2 gap-5">
+            <div className="lg:grid lg:grid-cols-[1.2fr_1fr] lg:gap-6">
+            <div className="grid sm:grid-cols-2 gap-3 sm:gap-5">
 
               {/* WhatsApp — principal */}
               <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer"
-                className="relative group bg-[#141414] border border-white/[0.06] hover:border-[#25D366]/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+                className="lux-card group !border-[#25D366]/25 p-6 flex flex-col gap-4">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#25D366]/[0.03] to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="w-14 h-14 bg-[#25D366]/10 border border-[#25D366]/20 rounded-2xl flex items-center justify-center">
                   <MessageCircle size={24} className="text-[#25D366]" />
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg mb-1">WhatsApp</h3>
+                  <h3 className="font-display text-white font-bold text-xl mb-1">WhatsApp</h3>
                   <p dir="ltr" className="text-[#25D366] font-semibold text-sm mb-2">{settings.phone || formatIntl(WHATSAPP)}</p>
                   <p className="text-white/35 text-sm">{t('ct.wa_d')}</p>
                 </div>
@@ -135,12 +137,12 @@ export default function ContactPage() {
               {/* Email (devis écrits, entreprises) */}
               {siteEmails(settings).length > 0 && (
                 <div
-                  className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/20 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1">
+                  className="lux-card group p-6 flex flex-col gap-4">
                   <div className="w-14 h-14 bg-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center">
                     <Mail size={24} className="text-gold-400" />
                   </div>
                   <div>
-                    <h3 className="text-white font-bold text-lg mb-1">Email</h3>
+                    <h3 className="font-display text-white font-bold text-xl mb-1">Email</h3>
                     {siteEmails(settings).map(em => (
                       <a key={em} href={`mailto:${em}`} dir="ltr" className="block text-gold-400 hover:text-gold-300 font-semibold text-sm mb-1 break-all">{em}</a>
                     ))}
@@ -154,12 +156,12 @@ export default function ContactPage() {
 
               {/* Adresse */}
               <a href={settings.maps_url || "https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria"} target="_blank" rel="noopener noreferrer"
-                className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/20 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1">
+                className="lux-card group p-6 flex flex-col gap-4">
                 <div className="w-14 h-14 bg-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center">
                   <MapPin size={24} className="text-gold-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg mb-1">{t('ct.loc')}</h3>
+                  <h3 className="font-display text-white font-bold text-xl mb-1">{t('ct.loc')}</h3>
                   <p className="text-gold-400 font-semibold text-sm mb-2">{t('ct.loc_v')}</p>
                   <p className="text-white/35 text-sm">{t('ct.loc_d')}</p>
                 </div>
@@ -169,23 +171,44 @@ export default function ContactPage() {
               </a>
 
               {/* Horaires */}
-              <div className="bg-[#141414] border border-white/[0.06] rounded-2xl p-6 flex flex-col gap-4">
-                <div className="w-14 h-14 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-center">
-                  <Clock size={24} className="text-blue-400" />
+              <div className="lux-card p-6 flex flex-col gap-4">
+                <div className="w-14 h-14 bg-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center">
+                  <Clock size={24} className="text-gold-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg mb-1">{t('ct.dispo')}</h3>
-                  <p className="text-blue-400 font-semibold text-sm mb-2">{t('ct.dispo_v')}</p>
+                  <h3 className="font-display text-white font-bold text-xl mb-1">{t('ct.dispo')}</h3>
+                  <p className="text-gold-400 font-semibold text-sm mb-2">{t('ct.dispo_v')}</p>
                   <p className="text-white/35 text-sm">{t('ct.dispo_d')}</p>
                 </div>
                 <div className="mt-auto flex flex-col gap-1.5">
                   {[t('ct.h1'), t('ct.h2')].map(h => (
                     <div key={h} className="flex items-center gap-2 text-white/40 text-xs">
-                      <CheckCircle size={10} className="text-blue-400 flex-shrink-0" />{h}
+                      <CheckCircle size={10} className="text-gold-400 flex-shrink-0" />{h}
                     </div>
                   ))}
                 </div>
               </div>
+            </div>
+
+
+            {/* Carte — à côté des cartes sur PC, dessous sur tablette/téléphone */}
+            <div className="mt-5 lg:mt-0 gold-frame rounded-3xl overflow-hidden flex flex-col min-h-[340px]">
+              <div className="p-5 border-b border-white/[0.06] flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="text-white font-semibold">{t('ct.zone')}</h2>
+                  <p className="text-white/40 text-xs truncate">{settings.address}</p>
+                </div>
+                <a href={settings.maps_url || `https://maps.google.com/maps?q=${encodeURIComponent(settings.address || 'Oran')}`} target="_blank" rel="noopener noreferrer"
+                  className="btn-gold text-xs py-2 px-4 flex-shrink-0">
+                  {t('ct.open_gps')}
+                </a>
+              </div>
+              <iframe
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(settings.address || 'Oran, Algérie')}&output=embed&z=15`}
+                className="w-full flex-1 min-h-[280px] grayscale-[0.4] invert-[0.92] hue-rotate-180 contrast-[0.9]" style={{ border: 0 }}
+                allowFullScreen loading="lazy" title="Fik Conciergerie Oran"
+              />
+            </div>
             </div>
 
             {/* Numéros associés (optionnels) */}
@@ -206,31 +229,9 @@ export default function ContactPage() {
           </div>
         </div>
 
-        {/* Google Maps */}
-        <div className="px-5 mb-20">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden">
-              <div className="p-5 border-b border-white/[0.05] flex items-center justify-between">
-                <h2 className="text-white font-semibold">{t('ct.zone')}</h2>
-                <a href={settings.maps_url || "https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria"} target="_blank" rel="noopener noreferrer"
-                  className="btn-gold text-xs py-2 px-4">
-                  {t('ct.open_gps')}
-                </a>
-              </div>
-              <div style={{ height: '320px' }}>
-                <iframe
-                  src="https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria&output=embed&z=14"
-                  width="100%" height="100%" style={{ border: 0 }}
-                  allowFullScreen loading="lazy" title="Fik Conciergerie Oran"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Pourquoi nous */}
         <div className="px-5 mb-20">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <span className="section-badge mb-4 inline-block">{t('ct.diff')}</span>
               <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
@@ -244,13 +245,13 @@ export default function ContactPage() {
               {WHY_US.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.tk} className={`flex sm:block gap-4 bg-[#141414] border ${item.bg} rounded-2xl p-5 sm:p-6 group hover:scale-[1.02] transition-transform duration-300`}>
-                    <div className={`flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 ${item.bg} border rounded-2xl flex items-center justify-center sm:mb-4`}>
-                      <Icon size={20} className={item.color} />
+                  <div key={item.tk} className="lux-card flex sm:block gap-4 p-5 sm:p-7">
+                    <div className="relative flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-gold-400/20 to-gold-700/5 border border-gold-500/30 rounded-2xl flex items-center justify-center sm:mb-5">
+                      <Icon size={20} className="text-gold-300" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-white font-bold text-base mb-1 sm:mb-2">{t(item.tk)}</h3>
-                      <p className="text-white/40 text-sm leading-relaxed">{t(item.dk)}</p>
+                      <h3 className="font-display text-white font-bold text-lg mb-1 sm:mb-2">{t(item.tk)}</h3>
+                      <p className="text-white/50 text-sm leading-relaxed">{t(item.dk)}</p>
                     </div>
                   </div>
                 );

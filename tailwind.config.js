@@ -34,7 +34,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        display: ['Bodoni Moda', 'Playfair Display', 'var(--font-display)', 'serif'],
+        display: ['FikEuro', 'Bodoni Moda', 'Playfair Display', 'var(--font-display)', 'serif'],
         body: ['Jost', 'DM Sans', 'var(--font-body)', 'sans-serif'],
       },
       animation: {
