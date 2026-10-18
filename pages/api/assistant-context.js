@@ -72,7 +72,7 @@ export default async function handler(req, res) {
   L.push('- Kilométrage illimité sur toute l\'Algérie.');
   L.push('- Assurance incluse, climatisation et chauffage inclus.');
   L.push('- Âge minimum : 35 ans (exigence assurance, non négociable).');
-  L.push('- Prise en charge : agence de Hay Badr, rue Derbouz Draoua (Oran) ou directement à l\'aéroport d\'Oran (livraison gratuite). Pas de livraison à domicile.');
+  L.push('- Prise en charge : agence de Hay Badr, rue Derbouz Draoua Houari (Oran) ou directement à l\'aéroport d\'Oran (livraison gratuite). Pas de livraison à domicile.');
   L.push('');
 
   if (cars.length) {
