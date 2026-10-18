@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../../lib/supabase';
 import { sendEmail, bookingReceivedEmail } from '../../lib/email';
+import { rentalDays } from '../../lib/date';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -40,8 +41,7 @@ export default async function handler(req, res) {
   }
   // ──────────────────────────────────────────────────────────
 
-  const msPerDay = 1000 * 60 * 60 * 24;
-  const nbDays = Math.round((new Date(endDate) - new Date(startDate)) / msPerDay) + 1;
+  const nbDays = rentalDays(String(startDate).slice(0, 10), String(endDate).slice(0, 10));
 
   let finalPrice, profit;
   if (userRole === 'kouider') {

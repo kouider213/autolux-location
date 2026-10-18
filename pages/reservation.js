@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 import { trackEvent } from '../lib/tracker';
+import { rentalDays } from '../lib/date';
 import { format, isWithinInterval, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
 import { fr, arDZ, enUS } from 'date-fns/locale';
 
@@ -159,9 +160,8 @@ export default function ReservationPage({ cars: initialCars }) {
   const selectedCar = cars.find(c => c.id === form.carId) || null;
   const days = (() => {
     if (!form.startDate || !form.endDate) return 0;
-    // Jours INCLUS : le jour de départ ET le jour de retour comptent (24/07→08/08 = 16j).
-    const d = Math.round((new Date(form.endDate) - new Date(form.startDate)) / 86400000) + 1;
-    return d > 0 ? d : 0;
+    // Blocs de 24 h : 3→7 nov = 4 jours (même règle que Dzaryx).
+    return rentalDays(form.startDate, form.endDate);
   })();
   const total = selectedCar && days > 0 ? selectedCar.resale_price * days : 0;
   const today = new Date(); today.setHours(0, 0, 0, 0);

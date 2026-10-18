@@ -6,6 +6,7 @@ import InspectionTool from '../../components/InspectionTool';
 import TranslateToFr from '../../components/TranslateToFr';
 import { supabase } from '../../lib/supabase';
 import { generateContract } from '../../lib/pdf';
+import { rentalDays } from '../../lib/date';
 import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck, Wallet, FileSignature, Save, Plus, Minus, Copy, Loader2, Camera, Star } from 'lucide-react';
 
 const STATUS_FLOW = ['PENDING', 'ACCEPTED', 'ACTIVE', 'COMPLETED', 'REJECTED'];
@@ -196,7 +197,7 @@ export default function BookingsPage() {
   };
 
   const saveEdits = async () => {
-    const days = edit.start && edit.end ? Math.round((new Date(edit.end) - new Date(edit.start)) / 86400000) + 1 : selected.nb_days; // jours inclus
+    const days = edit.start && edit.end ? rentalDays(edit.start, edit.end) : selected.nb_days; // blocs de 24 h
     await patchBooking({
       start_date: edit.start || selected.start_date,
       end_date:   edit.end   || selected.end_date,

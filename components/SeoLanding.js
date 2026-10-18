@@ -50,7 +50,7 @@ export default function SeoLanding({
       <Head>
         <title>{metaTitle}</title>
         <meta name="description" content={metaDesc} />
-        <link rel="canonical" href={`${BASE}/${slug}`} />
+        <link rel="canonical" href={`${BASE}/${slug}`} key="canonical" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       </Head>
 

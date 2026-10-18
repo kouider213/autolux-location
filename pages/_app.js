@@ -11,10 +11,16 @@ import CookieBanner from '../components/CookieBanner';
 import FloatingWhatsApp from '../components/FloatingWhatsApp';
 import Analytics from '../components/Analytics';
 
+// Pages privées / sans intérêt pour Google : noindex (espace client, admin, suivis, 404)
+const PRIVATE = /^\/(admin|login|reset-password|favoris|mes-reservations|suivi|suivi-dossier|suivi-import|avis|sign|404)(\/|$)/;
+
 const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { ssr: false });
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
+  const path = router.asPath === '/' ? '' : router.asPath.split(/[?#]/)[0];
+  const pageUrl = `https://fikconciergerie.com${path}`;
+  const noindex = PRIVATE.test(router.pathname);
 
   useEffect(() => {
     // Track initial page — chemin + paramètres (ex. /entreprises?ref=… des mails de démarchage Dzaryx)
@@ -68,13 +74,14 @@ export default function App({ Component, pageProps }) {
               <meta name="description" content="Fik Conciergerie à Oran : votre conciergerie premium clé en main. Location & vente de voitures, immobilier, importation de véhicules, packs séjour et services sur-mesure. Sans caution, 7j/7, FR/AR/EN." />
               <meta name="keywords" content="conciergerie Oran, conciergerie Algérie, location voiture Oran, vente voiture Oran, immobilier Oran, importation voiture Algérie, packs séjour Oran, conciergerie diaspora, Fik Conciergerie, services sur-mesure Oran" />
               <meta name="author" content="Fik Conciergerie" />
-              <meta name="robots" content="index, follow" />
+              <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} key="robots" />
               <meta name="google-site-verification" content="L2kJSkOT3PzBoRuGg8ZnP0iLPZf1Qa-lxPMR2aiEMrk" />
-              <link rel="canonical" href={`https://fikconciergerie.com${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
-              {/* hreflang FR/AR — même URL, langue bascule côté client */}
-              <link rel="alternate" hrefLang="fr" href={`https://fikconciergerie.com${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
-              <link rel="alternate" hrefLang="ar" href={`https://fikconciergerie.com${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
-              <link rel="alternate" hrefLang="x-default" href={`https://fikconciergerie.com${router.asPath === '/' ? '' : router.asPath.split('?')[0]}`} />
+              <link rel="canonical" href={pageUrl} key="canonical" />
+              {/* hreflang : la langue se choisit par ?lang= (lib/i18n.js) → 3 URLs distinctes pour Google */}
+              <link rel="alternate" hrefLang="fr" href={pageUrl} />
+              <link rel="alternate" hrefLang="ar" href={`${pageUrl || 'https://fikconciergerie.com/'}?lang=ar`} />
+              <link rel="alternate" hrefLang="en" href={`${pageUrl || 'https://fikconciergerie.com/'}?lang=en`} />
+              <link rel="alternate" hrefLang="x-default" href={pageUrl} />
               {/* Géolocalisation Oran (SEO local) */}
               <meta name="geo.region" content="DZ-31" />
               <meta name="geo.placename" content="Oran" />
@@ -85,7 +92,7 @@ export default function App({ Component, pageProps }) {
               <meta property="og:site_name"   content="Fik Conciergerie" />
               <meta property="og:title"       content="Fik Conciergerie Oran — Voiture, Immobilier, Import & Séjour clé en main" />
               <meta property="og:description" content="Votre conciergerie premium à Oran : location & vente de voitures, immobilier, importation de véhicules, packs séjour et services sur-mesure. Sans caution, 7j/7." />
-              <meta property="og:url"         content="https://fikconciergerie.com" />
+              <meta property="og:url"         content={pageUrl || 'https://fikconciergerie.com'} key="og-url" />
               <meta property="og:image"       content="https://fikconciergerie.com/api/og" key="og-image" />
               <meta property="og:image:width"  content="1200" />
               <meta property="og:image:height" content="630" />
@@ -111,7 +118,7 @@ export default function App({ Component, pageProps }) {
                 geo: { '@type': 'GeoCoordinates', latitude: 35.6976, longitude: -0.6369 },
                 areaServed: { '@type': 'City', name: 'Oran' },
                 openingHours: 'Mo-Su 00:00-23:59',
-                email: 'Fikconciergerie@gmail.com',
+                email: 'contact@fikconciergerie.com',
                 sameAs: ['https://www.instagram.com/fik_conciergerie', 'https://www.facebook.com/share/1KLWrMo7GW/', 'https://www.tiktok.com/@fik_conciergerie', 'https://maps.app.goo.gl/RGrRY3mUDy8MfQNv5'],
               }) }} />
               <title>Fik Conciergerie Oran — Voiture, Immobilier, Import & Séjour clé en main</title>

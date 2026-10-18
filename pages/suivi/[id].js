@@ -8,6 +8,7 @@ import Footer from '../../components/Footer';
 import { supabase } from '../../lib/supabase';
 import { useSettings, waNumber } from '../../lib/settings';
 import { useLang } from '../../lib/i18n';
+import { rentalDays } from '../../lib/date';
 
 const sevColor = { grave: '#ef4444', moyen: '#f59e0b', leger: '#eab308', aucun: '#22c55e' };
 const curSym = (c) => (c === 'DZD' || c === 'DA' ? 'DA' : '€');
@@ -91,8 +92,8 @@ export default function SuiviPage() {
 
   const days = (() => {
     if (!booking.start_date || !booking.end_date) return 0;
-    // Jours INCLUS : jour de départ + jour de retour comptent (24/07→08/08 = 16j).
-    return Math.max(1, Math.round((new Date(booking.end_date) - new Date(booking.start_date)) / 86400000) + 1);
+    if (Number(booking.nb_days) > 0) return Number(booking.nb_days);
+    return rentalDays(booking.start_date, booking.end_date);
   })();
 
   const whatsappMsg = `Bonjour Fik Conciergerie, je souhaite avoir des informations sur ma réservation #${booking.id?.substring(0,8).toUpperCase()}.`;
