@@ -152,7 +152,7 @@ export default function Entreprises() {
       </Head>
       <Navbar />
 
-      <main className="min-h-screen bg-[#080808] text-white overflow-x-hidden">
+      <main className="min-h-screen bg-[#080808] text-white overflow-x-clip">
         {/* Hero — téléphone/tablette : texte puis photo ; PC : texte à gauche, photo COMPLÈTE (jamais recadrée) à droite */}
         <section className="relative">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-500/60 to-transparent" />
