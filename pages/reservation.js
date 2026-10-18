@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Fragment } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { Car, User, Check, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Phone, FileText, Loader2, Home, CalendarDays, Info, Search, RefreshCw } from 'lucide-react';
@@ -107,6 +107,14 @@ export default function ReservationPage({ cars: initialCars }) {
   const [loadingCal, setLoadingCal]     = useState(false);
 
   const [dateRange, setDateRange] = useState([null, null]);
+  const [picking, setPicking]     = useState(true);
+  // Tablette/PC : 2 mois côte à côte
+  const [wide, setWide]           = useState(false);
+  useEffect(() => {
+    const m = window.matchMedia('(min-width: 768px)');
+    const f = () => setWide(m.matches); f();
+    m.addEventListener('change', f); return () => m.removeEventListener('change', f);
+  }, []);
   const [startDate, endDate]      = dateRange;
 
   const [form, setForm] = useState({
@@ -126,7 +134,7 @@ export default function ReservationPage({ cars: initialCars }) {
   useEffect(() => {
     if (!preselectedId || !cars.length) return;
     const found = cars.find(c => String(c.id) === String(preselectedId));
-    if (found) setForm(f => ({ ...f, carId: found.id }));
+    if (found) { setForm(f => ({ ...f, carId: found.id })); setPicking(false); }
   }, [preselectedId, cars]);
 
   // Pré-remplit les infos client depuis l'URL (re-réservation : pas besoin de tout retaper)
@@ -388,6 +396,31 @@ export default function ReservationPage({ cars: initialCars }) {
     );
   }
 
+  const L = (frT, enT, arT) => (lang === 'ar' ? arT : lang === 'en' ? enT : frT);
+  const dloc = lang === 'ar' ? arDZ : lang === 'en' ? enUS : fr;
+  const nice = (d) => { try { const x = format(parseISO(d), 'EEE d MMM', { locale: dloc }); return x.charAt(0).toUpperCase() + x.slice(1); } catch { return d; } };
+  const scrollErr = () => setTimeout(() => document.getElementById('res-err')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+  const goStep2 = () => {
+    if (validateStep1()) { setStep(2); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    else scrollErr();
+  };
+  const submit = () => { handleSubmit(); scrollErr(); };
+  const selectCar = (id) => {
+    setDateRange([null, null]); setErr1('');
+    setForm(f => ({ ...f, carId: id, startDate: '', endDate: '' }));
+    setPicking(false);
+    setTimeout(() => document.getElementById('res-dates')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  };
+  const showGrid = picking || !selectedCar;
+  const SecTitle = ({ n, children, right }) => (
+    <div className="flex items-center justify-between gap-3 mb-4">
+      <h2 className="flex items-center gap-3 text-white font-semibold text-lg">
+        <span className="font-display text-2xl text-gold-gradient leading-none">{n}</span>{children}
+      </h2>
+      {right}
+    </div>
+  );
+
   return (
     <>
       <Head>
@@ -403,125 +436,135 @@ export default function ReservationPage({ cars: initialCars }) {
         <meta property="og:url" content="https://fikconciergerie.com/reservation" />
       </Head>
 
-      <div className="grain min-h-screen bg-[#0e0e0e]">
+      <div className="grain min-h-screen bg-[#0e0e0e] relative overflow-hidden">
+        <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-gold-500/[0.07] blur-[120px]" />
         <Navbar />
-        <div className="pt-24 pb-24 px-5">
-          <div className="max-w-lg mx-auto">
+        <div className="relative pt-24 md:pt-28 pb-32 lg:pb-24 px-5">
+          <div className="max-w-6xl mx-auto">
 
-            {/* Header */}
-            <div className="text-center mb-6">
+            {/* En-tête */}
+            <div className="text-center mb-7 md:mb-9">
               <span className="section-badge mb-4 inline-block">{t('res.badge')}</span>
-              <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">{t('res.title')}</h1>
-              <p className="text-white/35 text-sm">{t('res.subtitle')}</p>
+              <h1 className="font-display text-4xl md:text-6xl font-bold text-white mb-3 tracking-tight">{t('res.title')}</h1>
+              <p className="text-white/45 text-sm md:text-base">{t('res.subtitle')}</p>
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
+                {[
+                  L('Sans caution', 'No deposit', 'بدون كفالة'),
+                  L('7j/7', '7/7', '7/7'),
+                  L('Livraison & retour', 'Delivery & return', 'توصيل واستلام'),
+                  L('Réponse rapide WhatsApp', 'Fast WhatsApp reply', 'ردّ سريع واتساب'),
+                ].map((txt) => (
+                  <span key={txt} className="inline-flex items-center gap-1.5 text-white/60 text-xs px-3 py-1.5 rounded-full border border-gold-500/15 bg-gold-500/[0.04]">
+                    <Check size={12} className="text-gold-400" />{txt}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            {/* Bandeau réassurance */}
-            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mb-8">
-              {[
-                ar ? 'بدون كفالة' : lang === 'en' ? 'No deposit' : 'Sans caution',
-                ar ? '7/7' : lang === 'en' ? '7/7' : '7j/7',
-                ar ? 'توصيل واستلام' : lang === 'en' ? 'Delivery & return' : 'Livraison & retour',
-                ar ? 'ردّ سريع واتساب' : lang === 'en' ? 'Fast WhatsApp reply' : 'Réponse rapide WhatsApp',
-              ].map((txt) => (
-                <span key={txt} className="inline-flex items-center gap-1.5 text-white/45 text-xs">
-                  <Check size={13} className="text-gold-400" />{txt}
-                </span>
-              ))}
-            </div>
-
-            {/* Step pills */}
-            <div className="flex items-center justify-center gap-2 mb-8">
-              {[{n:1,l:t('res.step1')},{n:2,l:t('res.step2')}].map((s, i) => (
-                <div key={s.n} className="flex items-center gap-2">
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    step === s.n ? 'bg-gold-500/20 border border-gold-500/40 text-gold-400' :
-                    step > s.n  ? 'bg-gold-500/10 text-gold-600 border border-gold-500/20' :
-                                  'bg-white/[0.04] text-white/25 border border-white/[0.08]'
-                  }`}>
-                    {step > s.n ? <Check size={11} /> : <span>{s.n}</span>}
-                    <span className="hidden sm:inline">{s.l}</span>
+            {/* Étapes */}
+            <div className="flex items-center justify-center gap-3 mb-8 md:mb-12">
+              {[{ n: 1, l: t('res.step1') }, { n: 2, l: t('res.step2') }].map((s, i) => (
+                <Fragment key={s.n}>
+                  <div className="flex items-center gap-2.5">
+                    <span className={`w-9 h-9 rounded-full grid place-items-center text-sm font-bold transition-all duration-500 ${
+                      step >= s.n ? 'bg-gradient-to-br from-gold-300 to-gold-600 text-noir-950 shadow-[0_0_24px_rgba(226,182,20,0.35)]' : 'border border-white/15 text-white/35'}`}>
+                      {step > s.n ? <Check size={15} /> : s.n}
+                    </span>
+                    <span className={`text-sm font-medium ${step >= s.n ? 'text-white' : 'text-white/35'}`}>{s.l}</span>
                   </div>
-                  {i === 0 && <div className={`w-8 h-px ${step > 1 ? 'bg-gold-500/40' : 'bg-white/[0.08]'}`} />}
-                </div>
+                  {i === 0 && (
+                    <div className="w-10 sm:w-24 h-px bg-white/10 relative overflow-hidden">
+                      <div className={`absolute inset-y-0 left-0 bg-gold-500 transition-all duration-700 ${step > 1 ? 'w-full' : 'w-0'}`} />
+                    </div>
+                  )}
+                </Fragment>
               ))}
             </div>
 
-            {/* Card */}
-            <div className="relative">
-              <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-gold-500/10 via-white/[0.02] to-transparent pointer-events-none" />
-              <div className="relative bg-[#141414] border border-white/[0.06] rounded-2xl p-6">
+            <div className="grid lg:grid-cols-[minmax(0,1fr)_380px] gap-8 items-start">
 
-                {/* ══ STEP 1 ══ */}
+              {/* ── Colonne principale ── */}
+              <div className="min-w-0">
+
+                {/* ══ ÉTAPE 1 ══ */}
                 {step === 1 && (
-                  <div className="space-y-6">
-                    <div>
-                      <h2 className="text-white font-semibold text-lg mb-1">{t("res.s1t")}</h2>
-                      <p className="text-white/30 text-xs">{t("res.s1d")}</p>
-                    </div>
+                  <div className="space-y-10">
+                    <section>
+                      <SecTitle n="01" right={!showGrid && (
+                        <button onClick={() => setPicking(true)} className="text-gold-400 text-sm font-medium hover:text-gold-300 inline-flex items-center gap-1">
+                          <RefreshCw size={13} />{L('Changer', 'Change', 'تغيير')}
+                        </button>
+                      )}>{L('Votre véhicule', 'Your vehicle', 'سيارتك')}</SecTitle>
 
-                    {/* Car selector */}
-                    <div>
-                      <label className="label-dark">{t("res.vehicle")}</label>
-                      <div className="relative">
-                        <Car size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
-                        <select value={form.carId} onChange={e => { set('carId')(e); setDateRange([null, null]); setForm(f => ({ ...f, carId: e.target.value, startDate: '', endDate: '' })); }}
-                          className="input-dark appearance-none cursor-pointer" style={{ paddingLeft: '2.75rem' }}>
-                          <option value="">{t("res.select")}</option>
-                          {cars.map(car => (
-                            <option key={car.id} value={car.id}>{car.name} — {fmt(car.resale_price)} {sym(car.currency)}{t('res.perday')}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
+                      {showGrid ? (
+                        <>
+                          <div className="snap-row md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:mx-0 md:px-0 md:pb-0">
+                            {cars.map(car => {
+                              const on = car.id === form.carId;
+                              return (
+                                <button key={car.id} type="button" onClick={() => selectCar(car.id)}
+                                  className={`group relative text-left rounded-2xl overflow-hidden border bg-[#111] transition-all duration-300 w-[74%] sm:w-[45%] md:w-auto ${
+                                    on ? 'border-gold-500/70 shadow-[0_0_0_1px_rgba(226,182,20,0.45),0_24px_48px_-24px_rgba(226,182,20,0.45)]' : 'border-white/[0.07] hover:border-gold-500/40 hover:-translate-y-1'}`}>
+                                  <div className="relative aspect-[16/10] bg-[#1a1a1a] overflow-hidden">
+                                    {car.image_url
+                                      ? <img src={car.image_url} alt={car.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                      : <div className="w-full h-full grid place-items-center"><Car size={28} className="text-gold-500/30" /></div>}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                                    {car.category && <span className="absolute bottom-2.5 left-3 text-[10px] uppercase tracking-[0.2em] text-gold-300/90">{car.category}</span>}
+                                    {on && <span className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-gold-500 text-noir-950 grid place-items-center"><Check size={15} /></span>}
+                                  </div>
+                                  <div className="p-3.5">
+                                    <p className="text-white font-semibold text-sm truncate">{car.name}</p>
+                                    <div className="flex items-baseline justify-between gap-2 mt-1">
+                                      <span className="text-white/35 text-xs truncate">{car.seats ? `${car.seats} ${L('places', 'seats', 'مقاعد')}` : ''}{car.fuel ? ` · ${car.fuel}` : ''}</span>
+                                      <span className="text-gold-400 font-bold text-sm whitespace-nowrap">{fmt(car.resale_price)} {sym(car.currency)}<span className="text-white/30 font-normal text-[11px]">{t('res.perday')}</span></span>
+                                    </div>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                          {!cars.length && (
+                            <div className="flex items-center gap-3 glass rounded-2xl p-4">
+                              <Info size={16} className="text-white/30 flex-shrink-0" />
+                              <p className="text-white/40 text-sm">{t('res.select_see')}</p>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="gold-frame rounded-3xl overflow-hidden flex flex-col sm:flex-row">
+                          <div className="relative sm:w-64 md:w-72 aspect-[16/9] sm:aspect-auto sm:min-h-[150px] bg-[#1a1a1a] flex-shrink-0">
+                            {selectedCar.image_url
+                              ? <img src={selectedCar.image_url} alt={selectedCar.name} className="absolute inset-0 w-full h-full object-cover" />
+                              : <div className="absolute inset-0 grid place-items-center"><Car size={32} className="text-gold-500/30" /></div>}
+                            <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-transparent via-transparent to-black/40" />
+                          </div>
+                          <div className="flex-1 p-5 md:p-6 flex flex-col justify-center">
+                            <p className="text-gold-400/80 text-[10px] uppercase tracking-[0.25em] mb-1">{selectedCar.category}</p>
+                            <p className="font-display text-2xl md:text-3xl text-white font-bold leading-tight">{selectedCar.name}</p>
+                            <div className="flex flex-wrap gap-1.5 mt-3">
+                              {[selectedCar.seats && `${selectedCar.seats} ${L('places', 'seats', 'مقاعد')}`, selectedCar.fuel, selectedCar.transmission, L('Sans caution', 'No deposit', 'بدون كفالة')].filter(Boolean).map(x => (
+                                <span key={x} className="text-[11px] text-white/60 px-2.5 py-1 rounded-full bg-white/[0.05] border border-white/[0.07]">{x}</span>
+                              ))}
+                            </div>
+                            <p className="mt-3 text-gold-400 font-bold text-xl">{fmt(selectedCar.resale_price)} {sym(selectedCar.currency)}<span className="text-white/35 text-sm font-normal">{t('res.perday')}</span></p>
+                          </div>
+                        </div>
+                      )}
+                    </section>
 
-                    {/* Selected car preview */}
-                    {selectedCar && (
-                      <div className="flex items-center gap-4 bg-[#1e1e1e] border border-gold-500/15 rounded-xl p-4">
-                        <div className="w-16 h-12 bg-[#252525] rounded-lg overflow-hidden flex-shrink-0">
-                          {selectedCar.image_url
-                            ? <img src={selectedCar.image_url} alt={selectedCar.name} className="w-full h-full object-cover" />
-                            : <div className="w-full h-full flex items-center justify-center"><Car size={18} className="text-gold-500/40" /></div>
-                          }
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white font-semibold text-sm truncate">{selectedCar.name}</p>
-                          <p className="text-white/35 text-xs capitalize mt-0.5">{selectedCar.category} · {selectedCar.seats}p · {selectedCar.fuel}</p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <div className="text-gold-400 font-bold">{fmt(selectedCar.resale_price)} {sym(selectedCar.currency)}</div>
-                          <div className="text-white/25 text-xs">{t('res.perday')}</div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Calendar — shown when car selected */}
-                    {selectedCar && (
-                      <div>
-                        <div className="flex items-center justify-between mb-3">
-                          <label className="label-dark mb-0 flex items-center gap-2">
-                            <CalendarDays size={13} />{t("res.dates")}
-                          </label>
-                          {loadingCal && <span className="text-white/30 text-xs animate-pulse">{t('res.loading')}</span>}
-                        </div>
-
-                        {/* Legend */}
+                    {/* Dates */}
+                    {selectedCar && !picking && (
+                      <section id="res-dates" className="scroll-mt-28">
+                        <SecTitle n="02" right={loadingCal && <span className="text-white/30 text-xs animate-pulse">{t('res.loading')}</span>}>
+                          {L('Vos dates', 'Your dates', 'تواريخك')}
+                        </SecTitle>
                         <div className="flex items-center gap-4 mb-3">
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-3 h-3 bg-gold-500 rounded-sm" />
-                            <span className="text-white/40 text-xs">{t("res.selected")}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-3 h-3 bg-red-500/30 rounded-sm border border-red-500/20" />
-                            <span className="text-white/40 text-xs">{t("res.indispo")}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-3 h-3 bg-white/10 rounded-sm" />
-                            <span className="text-white/40 text-xs">{t("res.dispo")}</span>
-                          </div>
+                          {[['bg-gold-500', t('res.selected')], ['bg-red-500/30 border border-red-500/20', t('res.indispo')], ['bg-white/10', t('res.dispo')]].map(([c, l]) => (
+                            <span key={l} className="flex items-center gap-1.5 text-white/40 text-xs"><span className={`w-3 h-3 rounded-sm ${c}`} />{l}</span>
+                          ))}
                         </div>
-
-                        {/* DatePicker inline range */}
-                        <div className="w-full overflow-hidden rounded-2xl">
+                        <div className={`w-full overflow-hidden rounded-2xl ${wide ? 'dp-two' : ''}`}>
                           <DatePicker
                             selectsRange
                             startDate={startDate}
@@ -538,36 +581,21 @@ export default function ReservationPage({ cars: initialCars }) {
                             filterDate={filterDate}
                             dayClassName={getDayClass}
                             minDate={today}
-                            locale={lang === 'ar' ? arDZ : lang === 'en' ? enUS : fr}
+                            locale={dloc}
                             inline
+                            monthsShown={wide ? 2 : 1}
                             calendarStartDay={1}
                           />
                         </div>
 
-                        {/* Selected range display */}
                         {form.startDate && (
-                          <div className="mt-3 bg-[#1e1e1e] border border-white/[0.06] rounded-xl p-3 flex items-center justify-between">
-                            <div className="text-center">
-                              <p className="text-white/30 text-xs mb-0.5">{t("res.depart")}</p>
-                              <p className="text-gold-400 font-semibold text-sm">{form.startDate}</p>
-                            </div>
-                            <ChevronRight size={14} className="text-white/20" />
-                            <div className="text-center">
-                              <p className="text-white/30 text-xs mb-0.5">{t("res.retour")}</p>
-                              <p className={`font-semibold text-sm ${form.endDate ? 'text-gold-400' : 'text-white/25'}`}>
-                                {form.endDate || '—'}
-                              </p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-white/30 text-xs mb-0.5">{t("res.duree")}</p>
-                              <p className="text-white font-semibold text-sm">{days > 0 ? `${days}j` : '—'}</p>
-                            </div>
-                            {days > 0 && (
-                              <div className="text-center">
-                                <p className="text-white/30 text-xs mb-0.5">{t("res.total")}</p>
-                                <p className="text-gold-400 font-bold text-sm">{fmt(total)} {sym(selectedCar?.currency)}</p>
+                          <div className="mt-4 grid grid-cols-3 gap-2">
+                            {[[t('res.depart'), nice(form.startDate)], [t('res.retour'), form.endDate ? nice(form.endDate) : '—'], [t('res.duree'), days > 0 ? `${days} ${t('res.days')}` : '—']].map(([l, v]) => (
+                              <div key={l} className="glass rounded-xl px-3 py-2.5 text-center">
+                                <p className="text-white/35 text-[11px] mb-0.5">{l}</p>
+                                <p className="text-white font-semibold text-sm">{v}</p>
                               </div>
-                            )}
+                            ))}
                           </div>
                         )}
 
@@ -577,41 +605,37 @@ export default function ReservationPage({ cars: initialCars }) {
                             <p className="text-red-400/80 text-sm">{t('res.conflict')}</p>
                           </div>
                         )}
-                      </div>
-                    )}
-
-                    {!selectedCar && (
-                      <div className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-xl p-4">
-                        <Info size={16} className="text-white/20 flex-shrink-0" />
-                        <p className="text-white/30 text-sm">{t("res.select_see")}</p>
-                      </div>
+                      </section>
                     )}
 
                     {err1 && (
-                      <div className="flex items-center gap-2 bg-red-500/[0.07] border border-red-500/20 rounded-xl p-3">
+                      <div id="res-err" className="flex items-center gap-2 bg-red-500/[0.07] border border-red-500/20 rounded-xl p-3">
                         <AlertCircle size={14} className="text-red-400 flex-shrink-0" />
                         <p className="text-red-400/80 text-sm">{err1}</p>
                       </div>
                     )}
 
-                    <button onClick={() => { if (validateStep1()) setStep(2); }}
-                      className="btn-gold w-full py-3.5">
-                      {t("res.continue")} <ChevronRight size={15} />
-                    </button>
+                    <div className="hidden lg:block">
+                      <button onClick={goStep2} className="btn-gold w-full py-4 text-base">
+                        {t('res.continue')} <ChevronRight size={16} />
+                      </button>
+                    </div>
                   </div>
                 )}
 
-                {/* ══ STEP 2 ══ */}
+                {/* ══ ÉTAPE 2 ══ */}
                 {step === 2 && (
-                  <div className="space-y-5">
-                    <div className="flex items-center gap-3 mb-1">
-                      <button onClick={() => setStep(1)}
-                        className="w-8 h-8 rounded-lg bg-white/[0.05] hover:bg-white/[0.09] flex items-center justify-center text-white/50 hover:text-white transition-all">
-                        <ChevronLeft size={15} />
+                  <div className="gold-frame rounded-3xl p-5 md:p-8 space-y-5">
+                    <div className="flex items-center gap-3 mb-2">
+                      <button onClick={() => setStep(1)} aria-label={L('Retour', 'Back', 'رجوع')}
+                        className="w-9 h-9 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] flex items-center justify-center text-white/50 hover:text-white transition-all">
+                        <ChevronLeft size={16} />
                       </button>
                       <div>
-                        <h2 className="text-white font-semibold text-lg leading-tight">{t("res.s2t")}</h2>
-                        <p className="text-white/30 text-xs">{t('res.required')}</p>
+                        <h2 className="flex items-center gap-3 text-white font-semibold text-lg leading-tight">
+                          <span className="font-display text-2xl text-gold-gradient leading-none">03</span>{t('res.s2t')}
+                        </h2>
+                        <p className="text-white/30 text-xs mt-0.5">{t('res.required')}</p>
                       </div>
                     </div>
 
@@ -619,37 +643,36 @@ export default function ReservationPage({ cars: initialCars }) {
                       <div className="flex items-start gap-2 bg-gold-500/[0.06] border border-gold-500/20 rounded-xl p-3.5">
                         <RefreshCw size={14} className="text-gold-400 flex-shrink-0 mt-0.5" />
                         <p className="text-white/55 text-xs leading-relaxed">
-                          {lang === 'ar'
-                            ? 'تم ملء معلوماتك مسبقاً من حجزك السابق. تحقّق منها وعدّلها إذا لزم (العمر، رقم الجواز…).'
-                            : lang === 'en'
-                            ? 'Your details are pre-filled from your previous booking. Check and edit them if needed (age, passport number…).'
-                            : 'Vos infos sont pré-remplies depuis votre précédente réservation. Vérifiez-les et modifiez-les si besoin (âge, n° passeport…).'}
+                          {L('Vos infos sont pré-remplies depuis votre précédente réservation. Vérifiez-les et modifiez-les si besoin (âge, n° passeport…).',
+                             'Your details are pre-filled from your previous booking. Check and edit them if needed (age, passport number…).',
+                             'تم ملء معلوماتك مسبقاً من حجزك السابق. تحقّق منها وعدّلها إذا لزم (العمر، رقم الجواز…).')}
                         </p>
                       </div>
                     )}
 
-                    <div>
-                      <label className="label-dark">{t("res.fullname")}</label>
-                      <div className="relative">
-                        <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
-                        <input type="text" value={form.name} onChange={set('name')}
-                          placeholder={t("res.ph_name")} className="input-dark" style={{ paddingLeft: '2.75rem' }} autoComplete="name" />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="label-dark">{t("res.phone")}</label>
+                        <label className="label-dark">{t('res.fullname')}</label>
                         <div className="relative">
-                          <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
-                          <input type="tel" value={form.phone} onChange={set('phone')}
-                            placeholder={t("res.ph_phone")} className="input-dark" style={{ paddingLeft: '2.75rem' }} autoComplete="tel" />
+                          <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
+                          <input type="text" value={form.name} onChange={set('name')}
+                            placeholder={t('res.ph_name')} className="input-dark" style={{ paddingLeft: '2.75rem' }} autoComplete="name" />
                         </div>
                       </div>
-                      <div>
-                        <label className="label-dark">{t("res.age")}</label>
-                        <input type="number" value={form.age} onChange={set('age')}
-                          placeholder={t("res.ph_age")} min="18" max="99" className="input-dark" />
+                      <div className="grid grid-cols-[1fr_96px] gap-3">
+                        <div>
+                          <label className="label-dark">{t('res.phone')}</label>
+                          <div className="relative">
+                            <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
+                            <input type="tel" value={form.phone} onChange={set('phone')}
+                              placeholder={t('res.ph_phone')} className="input-dark" style={{ paddingLeft: '2.75rem' }} autoComplete="tel" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="label-dark">{t('res.age')}</label>
+                          <input type="number" value={form.age} onChange={set('age')}
+                            placeholder={t('res.ph_age')} min="18" max="99" className="input-dark" />
+                        </div>
                       </div>
                     </div>
 
@@ -657,95 +680,140 @@ export default function ReservationPage({ cars: initialCars }) {
                       <div className="flex items-start gap-3 bg-red-500/[0.07] border border-red-500/20 rounded-xl p-4">
                         <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-red-400 font-semibold text-sm mb-1.5">{t("res.agemin")}</p>
-                          <p className="text-red-400/70 text-xs leading-relaxed">
-                            {t('res.age_expl')}
-                          </p>
-                          <p className="text-red-400/45 text-xs mt-2">{t("res.agemin_d")}</p>
+                          <p className="text-red-400 font-semibold text-sm mb-1.5">{t('res.agemin')}</p>
+                          <p className="text-red-400/70 text-xs leading-relaxed">{t('res.age_expl')}</p>
+                          <p className="text-red-400/45 text-xs mt-2">{t('res.agemin_d')}</p>
                         </div>
                       </div>
                     )}
 
-                    <div>
-                      <label className="label-dark flex items-center gap-2">
-                        {t("res.email")}
-                        <span className="text-gold-400/70 text-[10px] font-normal normal-case">
-                          {lang === 'ar' ? '— لاستلام رقم الحجز والمتابعة' : lang === 'en' ? '— to receive your booking number & tracking' : '— pour recevoir votre n° de réservation et le suivi'}
-                        </span>
-                      </label>
-                      <input type="email" value={form.email} onChange={set('email')}
-                        placeholder={t("res.ph_email")} className="input-dark" autoComplete="email" />
-                    </div>
-
-                    <div>
-                      <label className="label-dark">{t("res.passport")}</label>
-                      <div className="relative">
-                        <FileText size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
-                        <input type="text" value={form.passport} onChange={set('passport')}
-                          placeholder={t("res.ph_passport")} className="input-dark" style={{ paddingLeft: '2.75rem' }} />
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="label-dark">{t('res.email')}</label>
+                        <input type="email" value={form.email} onChange={set('email')}
+                          placeholder={t('res.ph_email')} className="input-dark" autoComplete="email" />
+                        <p className="text-gold-400/60 text-[11px] mt-1.5">
+                          {L('Pour recevoir votre n° de réservation et le suivi', 'To receive your booking number & tracking', 'لاستلام رقم الحجز والمتابعة')}
+                        </p>
                       </div>
-                      <p className="text-white/35 text-xs mt-1.5 leading-relaxed">
-                        {lang === 'ar'
-                          ? '📸 ستُطلب منك صور جواز السفر والرخصة في خطوة العقد — احرص على أن تكون الوثائق سارية (غير منتهية). يمكنك تعديل عمرك ورقم جوازك هنا.'
-                          : lang === 'en'
-                          ? '📸 Passport & licence photos will be requested at the contract step — make sure your documents are valid (not expired). You can edit your age and passport number here.'
-                          : '📸 Les photos du passeport et du permis vous seront demandées à l\'étape du contrat — assurez-vous que vos documents sont valides (non périmés). Vous pouvez modifier votre âge et votre n° de passeport ici.'}
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className="label-dark">{t("res.notes")}</label>
-                      <textarea value={form.notes} onChange={set('notes')} rows={3}
-                        placeholder={t("res.ph_notes")}
-                        className="input-dark resize-none" />
-                    </div>
-
-                    <div>
-                      <label className="label-dark">{lang === 'ar' ? 'رمز الإحالة (اختياري)' : lang === 'en' ? 'Referral code (optional)' : 'Code parrainage (optionnel)'}</label>
-                      <input value={form.referral} onChange={set('referral')}
-                        placeholder={lang === 'ar' ? 'إن كان لديك رمز' : lang === 'en' ? 'If you have a code' : 'Si vous avez un code'}
-                        className="input-dark" />
-                    </div>
-
-                    {selectedCar && (
-                      <div className="bg-[#1a1a1a] border border-white/[0.06] rounded-xl p-4 space-y-2">
-                        <p className="text-white/25 text-xs uppercase tracking-widest font-medium mb-2">{t("res.recap")}</p>
-                        {[
-                          [t('res.vehicle'), selectedCar.name],
-                          [t('res.dates'),   `${form.startDate} → ${form.endDate}`],
-                          [t('res.duree'),   `${days} ${t('res.days')}`],
-                          [t('res.total'),   `${fmt(total)} ${sym(selectedCar?.currency)}`],
-                        ].map(([l, v]) => (
-                          <div key={l} className="flex justify-between text-sm">
-                            <span className="text-white/35">{l}</span>
-                            <span className="text-white/80 font-medium">{v}</span>
-                          </div>
-                        ))}
+                      <div>
+                        <label className="label-dark">{t('res.passport')}</label>
+                        <div className="relative">
+                          <FileText size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
+                          <input type="text" value={form.passport} onChange={set('passport')}
+                            placeholder={t('res.ph_passport')} className="input-dark" style={{ paddingLeft: '2.75rem' }} />
+                        </div>
                       </div>
-                    )}
+                    </div>
+                    <p className="text-white/35 text-xs leading-relaxed -mt-1">
+                      {L('📸 Les photos du passeport et du permis vous seront demandées à l\'étape du contrat — assurez-vous que vos documents sont valides (non périmés).',
+                         '📸 Passport & licence photos will be requested at the contract step — make sure your documents are valid (not expired).',
+                         '📸 ستُطلب منك صور جواز السفر والرخصة في خطوة العقد — احرص على أن تكون الوثائق سارية (غير منتهية).')}
+                    </p>
+
+                    <div className="grid md:grid-cols-[1fr_220px] gap-4">
+                      <div>
+                        <label className="label-dark">{t('res.notes')}</label>
+                        <textarea value={form.notes} onChange={set('notes')} rows={3}
+                          placeholder={t('res.ph_notes')} className="input-dark resize-none" />
+                      </div>
+                      <div>
+                        <label className="label-dark">{L('Code parrainage (optionnel)', 'Referral code (optional)', 'رمز الإحالة (اختياري)')}</label>
+                        <input value={form.referral} onChange={set('referral')}
+                          placeholder={L('Si vous avez un code', 'If you have a code', 'إن كان لديك رمز')} className="input-dark" />
+                      </div>
+                    </div>
 
                     {err2 && (
-                      <div className="flex items-center gap-2 bg-red-500/[0.07] border border-red-500/20 rounded-xl p-3">
+                      <div id="res-err" className="flex items-center gap-2 bg-red-500/[0.07] border border-red-500/20 rounded-xl p-3">
                         <AlertCircle size={14} className="text-red-400 flex-shrink-0" />
                         <p className="text-red-400/80 text-sm">{err2}</p>
                       </div>
                     )}
 
-                    <button onClick={handleSubmit} disabled={loading || ageTooYoung}
-                      className="btn-gold w-full py-4 text-base disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0">
-                      {loading
-                        ? <><Loader2 size={16} className="animate-spin" />{t('res.sending')}</>
-                        : <><MessageCircle size={17} />{t("res.send_wa")}</>
-                      }
-                    </button>
-                    <p className="text-center text-white/20 text-xs">
-                      {t('res.wa_auto')}
-                    </p>
+                    <div className="hidden lg:block pt-1">
+                      <button onClick={submit} disabled={loading || ageTooYoung}
+                        className="btn-gold w-full py-4 text-base disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+                        {loading ? <><Loader2 size={16} className="animate-spin" />{t('res.sending')}</> : <><MessageCircle size={17} />{t('res.send_wa')}</>}
+                      </button>
+                    </div>
+                    <p className="text-center text-white/25 text-xs">{t('res.wa_auto')}</p>
                   </div>
                 )}
               </div>
+
+              {/* ── Récapitulatif (PC) / sous le formulaire (tablette) ── */}
+              <aside className="hidden md:block lg:sticky lg:top-28">
+                <div className="gold-frame rounded-3xl overflow-hidden">
+                  <div className="relative h-44 bg-[#151515]">
+                    {selectedCar?.image_url
+                      ? <img src={selectedCar.image_url} alt={selectedCar.name} className="absolute inset-0 w-full h-full object-cover" />
+                      : <div className="absolute inset-0 grid place-items-center"><Car size={40} className="text-gold-500/20" /></div>}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-black/30 to-transparent" />
+                    <div className="absolute bottom-4 left-5 right-5">
+                      <p className="text-gold-400/80 text-[10px] uppercase tracking-[0.25em]">{t('res.recap')}</p>
+                      <p className="font-display text-2xl text-white font-bold truncate">{selectedCar ? selectedCar.name : L('Choisissez un véhicule', 'Choose a vehicle', 'اختر سيارة')}</p>
+                    </div>
+                  </div>
+                  <div className="p-5 space-y-3">
+                    {[
+                      [t('res.depart'), form.startDate ? nice(form.startDate) : '—'],
+                      [t('res.retour'), form.endDate ? nice(form.endDate) : '—'],
+                      [t('res.duree'),  days > 0 ? `${days} ${t('res.days')}` : '—'],
+                      [L('Prix / jour', 'Price / day', 'السعر / يوم'), selectedCar ? `${fmt(selectedCar.resale_price)} ${sym(selectedCar.currency)}` : '—'],
+                    ].map(([l, v]) => (
+                      <div key={l} className="flex justify-between text-sm">
+                        <span className="text-white/40">{l}</span>
+                        <span className="text-white/85 font-medium">{v}</span>
+                      </div>
+                    ))}
+                    <div className="h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent my-1" />
+                    <div className="flex items-end justify-between">
+                      <span className="text-white/50 text-sm">{t('res.total')}</span>
+                      {total > 0
+                        ? <span className="font-display text-4xl font-bold text-gold-gradient leading-none">{fmt(total)}<span className="text-lg ml-1">{sym(selectedCar?.currency)}</span></span>
+                        : <span className="text-white/30 text-sm">{L('Choisissez vos dates', 'Pick your dates', 'اختر تواريخك')}</span>}
+                    </div>
+                    <ul className="pt-3 space-y-2">
+                      {[L('Sans caution', 'No deposit', 'بدون كفالة'), L('Kilométrage illimité', 'Unlimited mileage', 'كيلومترات غير محدودة'), L('Assurance incluse', 'Insurance included', 'التأمين مشمول'), L('Livraison possible à l\'aéroport', 'Airport delivery available', 'توصيل ممكن إلى المطار')].map(x => (
+                        <li key={x} className="flex items-center gap-2 text-white/55 text-xs"><Check size={13} className="text-gold-400" />{x}</li>
+                      ))}
+                    </ul>
+                    <a href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer"
+                      className="mt-2 flex items-center justify-center gap-2 text-xs text-white/50 hover:text-gold-400 py-2.5 rounded-xl border border-white/[0.07] transition-colors">
+                      <MessageCircle size={14} />{L('Une question ? Écrivez-nous', 'A question? Message us', 'سؤال؟ راسلنا')}
+                    </a>
+                  </div>
+                </div>
+              </aside>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Barre d'action fixe (téléphone + tablette) */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 border-t border-gold-500/20 bg-[#0b0b0b]/90 backdrop-blur-xl px-4 pt-3"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}>
+        <div className="max-w-2xl mx-auto flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            {total > 0 ? (
+              <>
+                <p className="text-white/40 text-[11px] truncate">{selectedCar?.name} · {days} {t('res.days')}</p>
+                <p className="font-display text-2xl font-bold text-gold-gradient leading-tight">{fmt(total)} {sym(selectedCar?.currency)}</p>
+              </>
+            ) : (
+              <p className="text-white/55 text-sm truncate">
+                {selectedCar ? L('Choisissez vos dates', 'Pick your dates', 'اختر تواريخك') : L('Choisissez un véhicule', 'Choose a vehicle', 'اختر سيارة')}
+              </p>
+            )}
+          </div>
+          {step === 1 ? (
+            <button onClick={goStep2} className="btn-gold px-6 py-3.5 flex-shrink-0">{t('res.continue')} <ChevronRight size={15} /></button>
+          ) : (
+            <button onClick={submit} disabled={loading || ageTooYoung} className="btn-gold px-5 py-3.5 flex-shrink-0 disabled:opacity-40">
+              {loading ? <Loader2 size={16} className="animate-spin" /> : <MessageCircle size={16} />}{L('Envoyer', 'Send', 'إرسال')}
+            </button>
+          )}
         </div>
       </div>
       <Footer />
