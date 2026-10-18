@@ -50,7 +50,7 @@ export default async function handler(req, res) {
       rental_rules: {
         caution: false, acompte: '3 jours', km: 'illimité (toute l\'Algérie)',
         assurance: true, clim: true, age_min: 35,
-        livraison: 'aéroport d\'Oran offerte ou retrait magasin',
+        livraison: 'aéroport d\'Oran offerte ou retrait à l\'agence de Hay Badr',
       },
       cars, vehicles_for_sale: sale, properties: immo, conditions, faq,
     });
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
   L.push('- Kilométrage illimité sur toute l\'Algérie.');
   L.push('- Assurance incluse, climatisation et chauffage inclus.');
   L.push('- Âge minimum : 35 ans (exigence assurance, non négociable).');
-  L.push('- Livraison gratuite à l\'aéroport d\'Oran, ou retrait au magasin.');
+  L.push('- Prise en charge : agence de Hay Badr (Oran) ou directement à l\'aéroport d\'Oran (livraison gratuite). Pas de livraison à domicile.');
   L.push('');
 
   if (cars.length) {

@@ -43,7 +43,7 @@ export default function LoginPage() {
         const d = await r.json();
         if (r.ok && d.email) email = d.email;
       }
-      if (!email.includes('@')) { toast.error('Entre ton email ou nom d\'utilisateur'); setLoading(false); return; }
+      if (!email.includes('@')) { toast.error('Entrez votre email ou nom d\'utilisateur'); setLoading(false); return; }
       const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
       if (error) toast.error(error.message);
       else toast.success('Lien de réinitialisation envoyé par email');
