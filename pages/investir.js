@@ -8,17 +8,17 @@ import { useLang } from '../lib/i18n';
 import { T } from '../lib/autoTranslate';
 
 const STEPS = [
-  { icon: MessageCircle, title: 'Tu nous contactes', desc: 'Depuis l\'étranger, par WhatsApp. On comprend ton projet : louer, acheter, investir.' },
-  { icon: Building2,     title: 'On sélectionne', desc: 'On te propose des biens vérifiés à Oran (photos, vidéos, emplacement Google Maps).' },
-  { icon: ShieldCheck,   title: 'On sécurise',   desc: 'Visite, négociation, papiers, état des lieux — on gère tout sur place pour toi.' },
-  { icon: KeyRound,      title: 'Clé en main',   desc: 'Gestion locative, entretien, encaissement. Tu suis tout à distance.' },
+  { icon: MessageCircle, title: 'Vous nous contactez', desc: 'Depuis l\'étranger, par WhatsApp. Nous étudions votre projet : louer, acheter, investir.' },
+  { icon: Building2,     title: 'Nous sélectionnons', desc: 'Nous vous proposons des biens vérifiés à Oran (photos, vidéos, emplacement Google Maps).' },
+  { icon: ShieldCheck,   title: 'Nous sécurisons', desc: 'Visite, négociation, papiers, état des lieux — nous gérons tout sur place pour vous.' },
+  { icon: KeyRound,      title: 'Clé en main',   desc: 'Gestion locative, entretien, encaissement. Vous suivez tout à distance.' },
 ];
 
 const OFFERS = [
-  { icon: Home,        title: 'Immobilier locatif', desc: 'Achète un bien à Oran, on le loue et le gère pour toi. Revenu passif, zéro souci.' },
+  { icon: Home,        title: 'Immobilier locatif', desc: 'Achetez un bien à Oran, nous le louons et le gérons pour vous. Revenu passif, zéro souci.' },
   { icon: TrendingUp,  title: 'Achat / Revente',    desc: 'Accompagnement complet à l\'achat ou à la vente d\'un bien : estimation, papiers, sécurité.' },
-  { icon: Car,         title: 'Véhicules',          desc: 'Location à ton arrivée ou achat d\'un véhicule — livré et prêt, sans caution.' },
-  { icon: Plane,       title: 'Conciergerie séjour', desc: 'Tu viens en vacances ? Logement, voiture, services : tout prêt avant d\'atterrir.' },
+  { icon: Car,         title: 'Véhicules',          desc: 'Location à votre arrivée ou achat d\'un véhicule — livré et prêt, sans caution.' },
+  { icon: Plane,       title: 'Conciergerie séjour', desc: 'Vous venez en vacances ? Logement, voiture, services : tout est prêt avant votre atterrissage.' },
 ];
 
 export default function InvestirPage() {
@@ -55,7 +55,7 @@ export default function InvestirPage() {
               {ed('inv_title_a', 'Investir à Oran,')} <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{ed('inv_title_b', "depuis n'importe où")}</span>
             </h1>
             <p className="text-white/40 max-w-xl mx-auto text-base leading-relaxed mb-8">
-              {ed('inv_sub', "Tu vis à l'étranger et tu veux investir, acheter, louer ou passer des vacances au pays ? On est tes yeux et tes mains à Oran. Confiance, transparence, clé en main.")}
+              {ed('inv_sub', "Vous vivez à l'étranger et souhaitez investir, acheter, louer ou passer des vacances au pays ? Nous sommes vos yeux et vos mains à Oran. Confiance, transparence, clé en main.")}
             </p>
             <a href={wa('Bonjour Fik Conciergerie, je vis à l\'étranger et je souhaite investir / acheter / louer à Oran. Pouvez-vous m\'accompagner ?')}
               target="_blank" rel="noopener noreferrer"
@@ -69,7 +69,7 @@ export default function InvestirPage() {
           <div className="max-w-6xl mx-auto">
 
             {/* Offres */}
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-white text-center mb-2"><T>Ce qu'on fait pour toi</T></h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-white text-center mb-2"><T>Ce que nous faisons pour vous</T></h2>
             <p className="text-white/30 text-center text-sm mb-10"><T>Un seul interlocuteur de confiance, sur place à Oran.</T></p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-20">
               {OFFERS.map(({ icon: Icon, title, desc }) => (
@@ -103,7 +103,7 @@ export default function InvestirPage() {
               <ShieldCheck size={32} className="text-gold-400 mx-auto mb-5" />
               <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-4"><T>Pourquoi nous faire confiance</T></h2>
               <p className="text-white/45 max-w-2xl mx-auto text-sm leading-relaxed mb-8">
-                <T>Biens vérifiés, vidéos et emplacement réel sur carte, accompagnement papiers, et un suivi transparent à distance. On traite ton investissement comme le nôtre.</T>
+                <T>Biens vérifiés, vidéos et emplacement réel sur carte, accompagnement papiers, et un suivi transparent à distance. Nous traitons votre investissement comme le nôtre.</T>
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <Link href="/immo" className="inline-flex items-center gap-2 btn-gold py-3 px-6"><Building2 size={15} /> <T>Voir les biens</T></Link>

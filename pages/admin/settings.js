@@ -206,7 +206,7 @@ export default function AdminSettingsPage() {
                 <Field label="WhatsApp associé 2 (optionnel)" icon={MessageCircle} hint="3e numéro — affiché sur Contact. Vide = masqué."><input value={form.whatsapp3 || ''} onChange={up('whatsapp3')} disabled={!isSuper} inputMode="numeric" placeholder="213..." className={`${inputCls} disabled:opacity-50`} /></Field>
                 <Field label="Email principal" icon={Mail}><input value={form.email || ''} onChange={up('email')} placeholder="contact@..." className={inputCls} /></Field>
                 <Field label="Email 2 (optionnel)" icon={Mail} hint="Affiché à côté de l'email principal (pied de page, Contact, À propos). Vide = masqué."><input value={form.email2 || ''} onChange={up('email2')} placeholder="...@gmail.com" className={inputCls} /></Field>
-                <Field label="Adresse" icon={MapPin}><input value={form.address || ''} onChange={up('address')} className={inputCls} /></Field>
+                <Field label="Adresse de l'agence" icon={MapPin} hint="Lieu de remise des clés — repris sur l'accueil, À propos et mentions légales"><input value={form.address || ''} onChange={up('address')} className={inputCls} /></Field>
                 <div className="sm:col-span-2"><Field label="Lien Google Maps" icon={MapPin} hint="Colle le lien de partage Google Maps de ton agence"><input value={form.maps_url || ''} onChange={up('maps_url')} className={inputCls} /></Field></div>
               </div>
             </section>

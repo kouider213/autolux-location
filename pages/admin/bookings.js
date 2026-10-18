@@ -685,7 +685,7 @@ export default function BookingsPage() {
                     <div className="pt-3 border-t border-white/[0.06]">
                       <div className="grid grid-cols-1 gap-2 mb-2">
                         <input value={pickup} onChange={e => setPickup(e.target.value)}
-                          placeholder="Lieu de récupération (déf. agence Hay Badr)" className="input-dark w-full text-sm py-2" />
+                          placeholder="Lieu de récupération (vide = adresse de l'agence)" className="input-dark w-full text-sm py-2" />
                         <input value={dropoff} onChange={e => setDropoff(e.target.value)}
                           placeholder="Lieu de restitution (déf. = récupération)" className="input-dark w-full text-sm py-2" />
                       </div>

@@ -36,7 +36,7 @@ const packAvailHome = (p) => {
 };
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { getSettings, useSettings, waNumber } from '../lib/settings';
+import { getSettings, useSettings, waNumber, DEFAULT_SETTINGS } from '../lib/settings';
 import { useLang, localizeValue } from '../lib/i18n';
 import { cText } from '../lib/content';
 import { useTranslated } from '../lib/autoTranslate';
@@ -662,7 +662,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
 
                   <div className="min-w-0 flex-1 flex flex-col md:items-center">
                   <h3 className="font-display font-bold text-white text-lg md:text-xl mb-1.5 md:mb-3">{t(step.tk)}</h3>
-                  <p className="text-white/40 text-sm leading-relaxed font-body mb-3 md:mb-5 flex-1">{t(step.dk)}</p>
+                  <p className="text-white/40 text-sm leading-relaxed font-body mb-3 md:mb-5 flex-1">{t(step.dk).replace('{adresse}', settings.address || DEFAULT_SETTINGS.address)}</p>
 
                   {step.link && step.ck && (
                     <Link href={step.link} className="text-gold-500 text-xs font-semibold hover:text-gold-400 transition-colors flex items-center gap-1 group/link">
