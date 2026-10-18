@@ -98,12 +98,14 @@ body {
 }
 
 /* ── Inputs ── */
+@layer components {
 .input-dark {
   @apply w-full bg-[#1e1e1e] border border-white/[0.08] rounded-xl px-4 py-3.5
          text-white placeholder-white/25
          focus:outline-none focus:border-gold-500/60 focus:bg-[#222]
          focus:shadow-[0_0_0_3px_rgba(226,182,20,0.08)]
          transition-all duration-200;
+}
 }
 
 .label-dark {
@@ -433,3 +435,19 @@ body {
 /* Ligne de filtres qui défile au doigt sans barre visible */
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ── Admin : cartes et tableaux noir & or (toutes les pages admin) ── */
+.admin-ui .bg-\[\#141414\] {
+  background: linear-gradient(165deg, #151515 0%, #0e0e0e 100%);
+}
+.admin-ui .rounded-2xl.bg-\[\#141414\] {
+  box-shadow: inset 0 1px 0 rgba(245,226,122,0.06), 0 18px 40px -24px rgba(0,0,0,0.9);
+  transition: border-color .3s, box-shadow .3s;
+}
+@media (hover: hover) {
+  .admin-ui .rounded-2xl.bg-\[\#141414\]:hover { border-color: rgba(226,182,20,0.22); }
+}
+.admin-ui table thead th { color: rgba(226,182,20,0.55); letter-spacing: .14em; }
+.admin-ui table tbody tr { transition: background .2s; }
+.admin-ui table tbody tr:hover { background: rgba(226,182,20,0.035); }
+.admin-ui .input-dark:focus { border-color: rgba(226,182,20,0.5); box-shadow: 0 0 0 3px rgba(226,182,20,0.08); }

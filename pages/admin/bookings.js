@@ -366,7 +366,7 @@ export default function BookingsPage() {
               <p className="text-white/30 text-sm">Aucune réservation</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid xl:grid-cols-2 gap-3 items-start">
               {filtered.map(b => {
                 const days   = calcDays(b);
                 const total  = Number(b.final_price || 0);
