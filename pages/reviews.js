@@ -120,8 +120,8 @@ export default function ReviewsPage({ reviews: initialReviews }) {
                       ))}
                     </div>
 
-                    <p className="text-white/55 text-sm leading-relaxed mb-5 italic relative z-10">
-                      "{review.comment}"
+                    <p dir="auto" className="text-white/55 text-sm leading-relaxed mb-5 italic relative z-10">
+                      “{review.comment}”
                     </p>
 
                     <div className="flex items-center gap-3 pt-4 border-t border-white/[0.06]">

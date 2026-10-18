@@ -2,7 +2,7 @@
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Menu, X, LayoutDashboard, LogOut, LogIn, CalendarCheck, Heart } from 'lucide-react';
+import { Menu, X, LayoutDashboard, LogOut, LogIn, CalendarCheck, Heart, ChevronDown } from 'lucide-react';
 import { useLang } from '../lib/i18n';
 import { useSettings } from '../lib/settings';
 import { useFavorites } from '../lib/favorites';
@@ -59,6 +59,12 @@ export default function Navbar({ scrollContainerRef }) {
     { href: '/conditions',        label: t('nav.conditions') },
     { href: '/contact',           label: t('nav.contact') },
   ];
+  // Barre PC : les pages principales visibles, le reste dans « Plus » (14 liens ne tiennent pas sur une ligne).
+  const PRIMARY = ['/cars', '/vente-voitures', '/immo', '/packs', '/entreprises', '/contact'];
+  const primaryLinks = links.filter(l => PRIMARY.includes(l.href));
+  const moreLinks = links.filter(l => l.href !== '/' && !PRIMARY.includes(l.href));
+  const moreActive = moreLinks.some(l => l.href === router.pathname);
+  const moreLabel = lang === 'ar' ? 'المزيد' : lang === 'en' ? 'More' : 'Plus';
 
   const LangToggle = ({ className = '' }) => (
     <div className={`flex items-center gap-0.5 bg-white/[0.05] rounded-xl p-0.5 ${className}`} aria-label="Langue">
@@ -78,12 +84,13 @@ export default function Navbar({ scrollContainerRef }) {
     <nav
       style={{
         top: 'var(--annc-h, 0px)',
-        paddingTop: 'env(safe-area-inset-top, 0px)',
+        // marge du haut + encoche iPhone (l'ancien paddingTop inline annulait le py-* → logo collé en haut de l'écran)
+        paddingTop: `calc(env(safe-area-inset-top, 0px) + ${scrolled ? 12 : 20}px)`,
         backgroundColor: scrolled ? '#080808' : 'transparent',
         borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : 'none',
         boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.7)' : 'none',
       }}
-      className={`fixed left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'py-3' : 'py-5'}`}>
+      className={`fixed left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'pb-3' : 'pb-5'}`}>
       <div className="max-w-7xl mx-auto px-5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
           <div className="relative w-10 h-10 flex-shrink-0">
@@ -95,19 +102,19 @@ export default function Navbar({ scrollContainerRef }) {
             />
           </div>
           <div className="leading-none">
-            <span className="font-display font-bold text-lg text-white block leading-tight">
+            <span className="font-display font-bold text-base min-[400px]:text-lg text-white block leading-tight whitespace-nowrap">
               Fik <span className="text-gold-500">Conciergerie</span>
             </span>
-            <span className="text-white/20 text-[9px] tracking-widest uppercase font-body">Conciergerie Premium</span>
+            <span className="hidden min-[400px]:block text-white/20 text-[9px] tracking-widest uppercase font-body whitespace-nowrap">Conciergerie Premium</span>
           </div>
         </Link>
 
-        <div className="hidden md:flex items-center gap-1">
-          {links.map(link => {
+        <div className="hidden xl:flex items-center gap-0.5">
+          {primaryLinks.map(link => {
             const active = router.pathname === link.href;
             return (
               <Link key={link.href} href={link.href}
-                className={`relative px-4 py-2 text-sm font-medium font-body rounded-lg transition-all duration-200 ${
+                className={`relative px-3 py-2 text-sm font-medium font-body rounded-lg whitespace-nowrap transition-all duration-200 ${
                   active ? 'text-gold-400' : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
                 }`}>
                 {link.label}
@@ -115,9 +122,32 @@ export default function Navbar({ scrollContainerRef }) {
               </Link>
             );
           })}
+          <div className="relative group">
+            <button type="button" aria-haspopup="true"
+              className={`flex items-center gap-1 px-3 py-2 text-sm font-medium font-body rounded-lg whitespace-nowrap transition-all duration-200 ${
+                moreActive ? 'text-gold-400' : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+              }`}>
+              {moreLabel}<ChevronDown size={14} className="transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
+            </button>
+            <div className="absolute top-full end-0 pt-2 invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:visible group-focus-within:opacity-100 group-focus-within:translate-y-0 transition-all duration-200">
+              <div className="min-w-[200px] bg-[#0d0d0d] border border-white/[0.08] rounded-xl p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.7)]">
+                {moreLinks.map(link => {
+                  const active = router.pathname === link.href;
+                  return (
+                    <Link key={link.href} href={link.href}
+                      className={`block px-3.5 py-2.5 rounded-lg text-sm font-body whitespace-nowrap transition-all ${
+                        active ? 'bg-gold-500/10 text-gold-400' : 'text-white/60 hover:text-white hover:bg-white/[0.05]'
+                      }`}>
+                      {link.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden xl:flex items-center gap-2">
           <Link href="/favoris" title={favLabel} aria-label={favLabel}
             className="relative w-10 h-10 flex items-center justify-center rounded-xl text-white/55 hover:text-red-400 hover:bg-white/[0.04] transition-all">
             <Heart size={18} className={favCount > 0 ? 'fill-red-500 text-red-500' : ''} />
@@ -137,16 +167,17 @@ export default function Navbar({ scrollContainerRef }) {
           )}
         </div>
 
-        <div className="md:hidden flex items-center gap-2">
+        <div className="xl:hidden flex items-center gap-2">
+          <span className="hidden md:block"><Link href="/reservation" className="btn-gold text-sm py-2 px-4 font-body"><CalendarCheck size={14} />{t('nav.book')}</Link></span>
           <LangToggle className="!py-1.5 !px-2.5 text-xs" />
-          <button onClick={() => setMenuOpen(v => !v)}
+          <button onClick={() => setMenuOpen(v => !v)} aria-label={menuOpen ? 'Fermer le menu' : 'Menu'} aria-expanded={menuOpen}
             className="w-10 h-10 flex items-center justify-center rounded-xl text-white/60 hover:text-white hover:bg-white/[0.06] transition-all">
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
 
-      <div className={`md:hidden overflow-hidden transition-all duration-300 ${menuOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'}`}>
+      <div className={`xl:hidden overflow-hidden transition-all duration-300 ${menuOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'}`}>
         <div className="bg-[#080808]/98 backdrop-blur-xl border-t border-white/[0.05] px-5 py-4 space-y-1 max-h-[80vh] overflow-y-auto">
           {links.map(link => {
             const active = router.pathname === link.href;

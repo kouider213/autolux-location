@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { MessageCircle, MapPin, Clock, Shield, Star, Zap, Heart, Car, CheckCircle, ArrowRight, Phone, Instagram, Music2, Facebook } from 'lucide-react';
+import { MessageCircle, MapPin, Clock, Shield, Star, Zap, Heart, Car, CheckCircle, ArrowRight, Phone, Instagram, Music2, Facebook, Mail } from 'lucide-react';
 import { getSettings, useSettings, waNumber } from '../lib/settings';
 import { useLang } from '../lib/i18n';
+import { formatIntl } from '../lib/format';
 
 function SocialSection() {
   const { t } = useLang();
@@ -47,9 +48,10 @@ const WHY_US = [
 ];
 
 const STATS = [
-  { vk: 'ct.s1v', lk: 'ct.s1' },
+  // Mêmes chiffres que l'accueil (réglages admin) — plus de 150+/4.9 ici contre 500+/98 % sur l'accueil.
+  { vk: 'ct.s1v', lk: 'ct.s1', v: (st) => `${Number(st.stat_clients) || 500}+` },
   { vk: 'ct.s2v', lk: 'ct.s2' },
-  { vk: 'ct.s3v', lk: 'ct.s3' },
+  { vk: 'ct.s3v', lk: 'st.sat', v: (st) => `${Number(st.stat_satisfaction) || 98}%` },
   { vk: 'ct.s4v', lk: 'ct.s4' },
 ];
 
@@ -91,7 +93,7 @@ export default function ContactPage() {
           <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
             {STATS.map(s => (
               <div key={s.lk} className="bg-[#141414] border border-white/[0.06] rounded-2xl p-5 text-center">
-                <div className="font-display font-black text-3xl text-gold-400 mb-1">{t(s.vk)}</div>
+                <div className="font-display font-black text-3xl text-gold-400 mb-1">{s.v ? s.v(settings) : t(s.vk)}</div>
                 <div className="text-white/35 text-xs">{t(s.lk)}</div>
               </div>
             ))}
@@ -105,7 +107,7 @@ export default function ContactPage() {
               <span className="section-badge mb-4 inline-block">{t('ct.join')}</span>
               <h2 className="font-display text-3xl font-bold text-white">{t('ct.contact')}</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-5">
+            <div className="grid sm:grid-cols-2 gap-5">
 
               {/* WhatsApp — principal */}
               <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer"
@@ -116,13 +118,31 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-white font-bold text-lg mb-1">WhatsApp</h3>
-                  <p className="text-[#25D366] font-semibold text-sm mb-2">{settings.phone || `+${WHATSAPP}`}</p>
+                  <p dir="ltr" className="text-[#25D366] font-semibold text-sm mb-2">{settings.phone || formatIntl(WHATSAPP)}</p>
                   <p className="text-white/35 text-sm">{t('ct.wa_d')}</p>
                 </div>
                 <div className="flex items-center gap-1.5 text-[#25D366]/70 text-xs font-medium mt-auto">
                   {t('ct.open_wa')} <ArrowRight size={12} />
                 </div>
               </a>
+
+              {/* Email (devis écrits, entreprises) */}
+              {settings.email && (
+                <a href={`mailto:${settings.email}`}
+                  className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/20 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1">
+                  <div className="w-14 h-14 bg-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center">
+                    <Mail size={24} className="text-gold-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-lg mb-1">Email</h3>
+                    <p dir="ltr" className="text-gold-400 font-semibold text-sm mb-2 break-all">{settings.email}</p>
+                    <p className="text-white/35 text-sm">{t('ct.mail_d')}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-gold-400/70 text-xs font-medium mt-auto">
+                    {t('ct.write')} <ArrowRight size={12} />
+                  </div>
+                </a>
+              )}
 
               {/* Adresse */}
               <a href="https://maps.google.com/maps?q=M8GM%2BQMV+Oran+Algeria" target="_blank" rel="noopener noreferrer"

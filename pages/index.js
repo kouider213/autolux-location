@@ -81,7 +81,6 @@ function BenefitsCarousel({ benefits }) {
   const pausedRef  = useRef(false);
   const touchStart = useRef(0);
   const touchMoved = useRef(false);
-  const slide = benefits[idx];
 
   const next = () => setIdx(i => (i + 1) % benefits.length);
   const prev = () => setIdx(i => (i - 1 + benefits.length) % benefits.length);
@@ -106,34 +105,23 @@ function BenefitsCarousel({ benefits }) {
     <div className="relative w-full select-none"
       onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
       style={{ touchAction: 'pan-y' }}>
-      <AnimatePresence initial={false}>
-        <motion.div key={idx}
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="absolute inset-0">
-          <div className="flex items-center justify-center px-6 py-12 h-full">
+      {/* Toutes les slides empilées dans la même case de grille : la hauteur = la plus longue (dans la langue affichée),
+          contenu calé en haut → plus de grand vide au-dessus des slides courtes. */}
+      <div className="grid">
+        {benefits.map((b, i) => (
+          <div key={i} aria-hidden={i !== idx}
+            className={`[grid-area:1/1] flex justify-center px-6 md:px-16 py-10 md:py-12 transition-opacity duration-200 ease-out ${i === idx ? 'opacity-100' : 'opacity-0 invisible'}`}>
             <div className="max-w-lg text-center">
               <div className="w-[72px] h-[72px] bg-gold-500/[0.08] border border-gold-500/25 rounded-2xl flex items-center justify-center mx-auto mb-7">
-                <slide.icon size={30} className="text-gold-400" />
+                <b.icon size={30} className="text-gold-400" />
               </div>
-              <p className="text-white/60 text-xs tracking-[0.3em] uppercase font-body mb-4">{slide.num} / 06</p>
-              <h2 className="font-display font-black text-white mb-5 leading-tight" style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>{t(slide.tk)}</h2>
-              <p className="text-white/70 text-base md:text-xl font-body leading-relaxed">{t(slide.dk)}</p>
+              <p className="text-white/60 text-xs tracking-[0.3em] uppercase font-body mb-4">{b.num} / 06</p>
+              <h2 className="font-display font-black text-white mb-5 leading-tight" style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>{t(b.tk)}</h2>
+              <p className="text-white/70 text-base md:text-xl font-body leading-relaxed">{t(b.dk)}</p>
               <div className="w-12 h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent mx-auto mt-7" />
             </div>
           </div>
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Spacer to give the absolute slide a height */}
-      <div className="invisible px-6 py-12" aria-hidden>
-        <div className="max-w-lg text-center mx-auto">
-          <div className="w-[72px] h-[72px] mb-7" />
-          <p className="text-xs mb-4">00 / 06</p>
-          <h2 className="font-display font-black mb-5" style={{ fontSize: 'clamp(30px, 5vw, 60px)' }}>Service personnalisé</h2>
-          <p className="text-base md:text-xl leading-relaxed">Chaque véhicule est nettoyé et contrôlé avant chaque location aucune surprise garantie.</p>
-          <div className="h-px mt-7" />
-        </div>
+        ))}
       </div>
 
       {/* Arrows desktop */}
@@ -143,7 +131,9 @@ function BenefitsCarousel({ benefits }) {
       {/* Dots */}
       <div className="flex justify-center gap-2 mt-8 relative z-10">
         {benefits.map((_, i) => (
-          <button key={i} onClick={() => goTo(i)} aria-label={`Slide ${i + 1}`} className={`rounded-full transition-all ${i === idx ? 'w-8 h-2 bg-gold-500' : 'w-2 h-2 bg-white/20 hover:bg-white/40'}`} />
+          <button key={i} onClick={() => goTo(i)} aria-label={`Slide ${i + 1}`} className="p-2 -m-1.5 group/dot">
+            <span className={`block rounded-full transition-all ${i === idx ? 'w-8 h-2 bg-gold-500' : 'w-2 h-2 bg-white/20 group-hover/dot:bg-white/40'}`} />
+          </button>
         ))}
       </div>
 
@@ -288,19 +278,19 @@ function CarCarousel({ cars }) {
       </div>
 
       {/* Navigation arrows */}
-      <button onClick={prev}
-        className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:border-gold-500 hover:text-noir-950 transition-all duration-200">
+      <button onClick={prev} aria-label="Précédent"
+        className="absolute left-3 top-1/2 md:top-[30%] -translate-y-1/2 z-20 w-11 h-11 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:border-gold-500 hover:text-noir-950 transition-all duration-200">
         <ChevronLeft size={18} />
       </button>
-      <button onClick={next}
-        className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:border-gold-500 hover:text-noir-950 transition-all duration-200">
+      <button onClick={next} aria-label="Suivant"
+        className="absolute right-3 top-1/2 md:top-[30%] -translate-y-1/2 z-20 w-11 h-11 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:border-gold-500 hover:text-noir-950 transition-all duration-200">
         <ChevronRight size={18} />
       </button>
 
       {/* Dots */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
         {cars.map((_, i) => (
-          <button key={i} onClick={() => goTo(i)}
+          <button key={i} onClick={() => goTo(i)} aria-label={`${i + 1} / ${cars.length}`}
             className={`rounded-full transition-all duration-300 ${i === idx ? 'w-6 h-1.5 bg-gold-500' : 'w-1.5 h-1.5 bg-white/30'}`} />
         ))}
       </div>
@@ -365,8 +355,8 @@ function ShowcaseCarousel({ items, render }) {
           </motion.div>
         </AnimatePresence>
       </div>
-      <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:border-gold-500 hover:text-noir-950 transition-all"><ChevronLeft size={18} /></button>
-      <button onClick={next} className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:border-gold-500 hover:text-noir-950 transition-all"><ChevronRight size={18} /></button>
+      <button onClick={prev} aria-label="Précédent" className="absolute left-3 top-1/2 md:top-[30%] -translate-y-1/2 z-20 w-11 h-11 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:border-gold-500 hover:text-noir-950 transition-all"><ChevronLeft size={18} /></button>
+      <button onClick={next} aria-label="Suivant" className="absolute right-3 top-1/2 md:top-[30%] -translate-y-1/2 z-20 w-11 h-11 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:border-gold-500 hover:text-noir-950 transition-all"><ChevronRight size={18} /></button>
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
         {items.map((_, i) => (
           <button key={i} onClick={() => goTo(i)} className={`rounded-full transition-all duration-300 ${i === idx ? 'w-6 h-1.5 bg-gold-500' : 'w-1.5 h-1.5 bg-white/30'}`} />
@@ -505,55 +495,59 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent" />
 
             {/* ── Hero content ── */}
-            <div className="gsap-hero-content absolute inset-0">
+            {/* En flux (colonne) et non plus en positions absolues : logo au centre de l'espace libre, titre + texte + boutons
+                en bas. Rien ne peut plus se chevaucher, quelle que soit la taille d'écran (téléphone, tablette, PC, paysage). */}
+            <div className="gsap-hero-content relative min-h-screen min-h-[100svh] flex flex-col pt-24 pb-16 md:pb-20">
 
-              {/* Brand badge — center, CSS animated */}
-              <div className="hero-css-brand absolute inset-0 flex items-center justify-center flex-col gap-3 pointer-events-none" style={{ paddingBottom: '20%' }}>
+              {/* Brand badge — center, CSS animated (masqué si l'écran est trop bas, ex. téléphone en paysage) */}
+              <div className="hero-css-brand flex-1 min-h-[150px] flex items-center justify-center flex-col gap-3 pointer-events-none [@media(max-height:560px)]:hidden">
                 <img
                   src="/logo.png"
                   alt="Fik Conciergerie"
-                  className="w-20 h-20 object-contain drop-shadow-[0_0_30px_rgba(226,182,20,0.7)] animate-float"
+                  className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-[0_0_30px_rgba(226,182,20,0.7)] animate-float"
                 />
                 <p className="font-display text-xl font-bold text-white tracking-wide">Fik Conciergerie</p>
-                <p className="text-white/35 text-xs tracking-[0.25em] uppercase font-body">Conciergerie Premium · Oran</p>
+                <p className="text-white/35 text-xs tracking-[0.25em] uppercase font-body text-center">Conciergerie Premium · Oran</p>
               </div>
 
-              {/* Headline bottom-left — CSS animated */}
-              <div className="absolute left-5 md:left-12 bottom-[30%] right-5 pointer-events-none">
-                <div className="overflow-hidden">
-                  <h1 className="hero-css-line1 font-display font-black text-hero-gradient leading-[0.88] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)]"
-                    style={{ fontSize: 'clamp(50px, 9vw, 116px)' }}>
-                    {heroTitleTr || t('hero.line1')}
-                  </h1>
+              <div className="px-5 md:px-12 max-w-7xl w-full mx-auto [@media(max-height:560px)]:mt-auto">
+                {/* Headline — CSS animated */}
+                <div className="pointer-events-none">
+                  <div className="overflow-hidden">
+                    <h1 className="hero-css-line1 font-display font-black text-hero-gradient leading-[0.88] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)]"
+                      style={{ fontSize: 'clamp(46px, 9vw, 116px)' }}>
+                      {heroTitleTr || t('hero.line1')}
+                    </h1>
+                  </div>
+                  <div className="overflow-hidden -mt-[0.1em]">
+                    <h1 className="hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88] drop-shadow-[0_2px_3px_rgba(0,0,0,0.9)] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)] py-[0.1em] pr-[0.1em]"
+                      style={{ fontSize: 'clamp(46px, 9vw, 116px)', background: 'linear-gradient(135deg,#f0d35a 0%,#d9a916 45%,#b8860b 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', WebkitTextStroke: '0.6px #d9a916' }}>
+                      {t('hero.line2')}
+                    </h1>
+                  </div>
                 </div>
-                <div className="overflow-hidden -mt-[0.1em]">
-                  <h1 className="hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88] drop-shadow-[0_2px_3px_rgba(0,0,0,0.9)] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)] py-[0.1em] pr-[0.1em]"
-                    style={{ fontSize: 'clamp(50px, 9vw, 116px)', background: 'linear-gradient(135deg,#f0d35a 0%,#d9a916 45%,#b8860b 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', WebkitTextStroke: '0.6px #d9a916' }}>
-                    {t('hero.line2')}
-                  </h1>
+
+                {/* Subtitle */}
+                <div className="hero-css-sub mt-3 md:mt-5 pointer-events-none">
+                  <p className="text-white/60 text-base md:text-xl font-body max-w-md leading-relaxed">
+                    {heroSubtitleTr || t('hero.subtitle')}
+                    <span className="block text-white/35 text-sm md:text-base mt-0.5">{t('hero.tags')}</span>
+                  </p>
                 </div>
-              </div>
 
-              {/* Subtitle */}
-              <div className="hero-css-sub absolute left-5 md:left-12 bottom-[20%] right-5 pointer-events-none">
-                <p className="text-white/60 text-base md:text-xl font-body max-w-md leading-relaxed">
-                  {heroSubtitleTr || t('hero.subtitle')}
-                  <span className="block text-white/35 text-sm md:text-base mt-0.5">{t('hero.tags')}</span>
-                </p>
-              </div>
-
-              {/* CTAs */}
-              <div className="hero-css-cta absolute left-5 md:left-12 bottom-[8%] flex gap-3 flex-wrap">
-                <Link href="/reservation" className="btn-gold text-sm md:text-base px-6 md:px-8 py-3 md:py-4">
-                  <CalendarCheck size={16} />{t('nav.book')}
-                </Link>
-                <Link href="/cars" className="btn-outline text-sm md:text-base px-5 md:px-7 py-3 md:py-4">
-                  <Car size={15} />{t('hero.fleet')}
-                </Link>
+                {/* CTAs */}
+                <div className="hero-css-cta mt-6 md:mt-8 flex gap-3 flex-wrap">
+                  <Link href="/reservation" className="btn-gold text-sm md:text-base px-6 md:px-8 py-3 md:py-4">
+                    <CalendarCheck size={16} />{t('nav.book')}
+                  </Link>
+                  <Link href="/cars" className="btn-outline text-sm md:text-base px-5 md:px-7 py-3 md:py-4">
+                    <Car size={15} />{t('hero.fleet')}
+                  </Link>
+                </div>
               </div>
 
               {/* Scroll hint */}
-              <div className="hero-css-hint absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-white/25 pointer-events-none">
+              <div className="hero-css-hint hidden md:flex absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-1.5 text-white/25 pointer-events-none">
                 <span className="text-[8px] tracking-[0.3em] uppercase font-body">{t('home.scroll')}</span>
                 <ChevronDown size={12} className="animate-bounce" />
               </div>
@@ -891,12 +885,12 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                         <Star key={j} size={12} className={j < review.rating ? 'text-gold-500 fill-gold-500':'text-white/10'} />
                       ))}
                     </div>
-                    <p className="text-white/55 text-sm leading-relaxed italic mb-5 font-body">"{review.comment}"</p>
+                    <p dir="auto" className="text-white/55 text-sm leading-relaxed italic mb-5 font-body">“{review.comment}”</p>
                     <div className="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
                       <div className="w-9 h-9 bg-gradient-to-br from-gold-500/25 to-gold-700/15 border border-gold-500/20 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-gold-400 font-bold text-sm">{review.client_name?.[0]?.toUpperCase()}</span>
                       </div>
-                      <p className="text-white font-medium text-sm font-body">{review.client_name}</p>
+                      <p dir="auto" className="text-white font-medium text-sm font-body">{review.client_name}</p>
                     </div>
                   </motion.div>
                 ))}
