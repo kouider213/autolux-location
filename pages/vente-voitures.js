@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Tag, Fuel, Gauge, Calendar, MapPin, Search, X, ArrowRight, Star, MessageCircle, Heart } from 'lucide-react';
+import { Tag, Fuel, Gauge, Calendar, MapPin, Search, X, ArrowRight, Star, MessageCircle, Heart, Camera, HeartHandshake, Megaphone } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
@@ -13,10 +13,69 @@ const STATUS_BADGE = {
   disponible:  { label: '● Disponible', cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/25' },
   reserve:     { label: 'Réservé',      cls: 'bg-amber-500/15 text-amber-400 border-amber-500/20' },
   vendu:       { label: 'Vendu',        cls: 'bg-red-500/15 text-red-400 border-red-500/20' },
-  coming_soon: { label: 'Bientôt',      cls: 'bg-blue-500/15 text-blue-400 border-blue-500/20' },
+  coming_soon: { label: 'Bientôt',      cls: 'bg-gold-500/15 text-gold-300 border-gold-500/25' },
 };
 
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
+
+// Aucune annonce publiée → deux parcours : « Je cherche » (recherche sur mesure → WhatsApp) et « Je vends » (3 étapes).
+// PC : côte à côte ; tablette/téléphone : empilés.
+function SaleEmpty({ lang, whatsapp, proposeMsg }) {
+  const L = (fr, ar, en) => (lang === 'ar' ? ar : lang === 'en' ? en : fr);
+  const [model, setModel] = useState('');
+  const [budget, setBudget] = useState('');
+  const [fuel, setFuel] = useState('');
+  const FUELS = [['essence', L('Essence', 'بنزين', 'Petrol')], ['diesel', L('Diesel', 'ديزل', 'Diesel')], ['hybride', L('Hybride', 'هجين', 'Hybrid')]];
+  const msg = L(
+    `Bonjour Fik Conciergerie, je cherche une voiture à acheter${model ? ` : ${model}` : ''}${fuel ? `, ${fuel}` : ''}${budget ? `, budget max ${budget}` : ''}. Pouvez-vous m'aider à la trouver ?`,
+    `مرحبا فيك كونسيرجري، أبحث عن سيارة للشراء${model ? `: ${model}` : ''}${fuel ? `، ${fuel}` : ''}${budget ? `، الميزانية القصوى ${budget}` : ''}. هل يمكنكم مساعدتي؟`,
+    `Hello Fik Conciergerie, I'm looking to buy a car${model ? `: ${model}` : ''}${fuel ? `, ${fuel}` : ''}${budget ? `, max budget ${budget}` : ''}. Can you help me find it?`,
+  );
+  const STEPS = [
+    { icon: Camera, h: L('Envoyez les infos', 'أرسل المعلومات', 'Send the details'), p: L('Photos, modèle, année, kilométrage et prix souhaité.', 'صور، الطراز، السنة، الكيلومترات والسعر.', 'Photos, model, year, mileage and asking price.') },
+    { icon: Megaphone, h: L('On publie et on diffuse', 'ننشر ونروّج', 'We publish & promote'), p: L('Annonce soignée sur le site et nos réseaux.', 'إعلان احترافي على الموقع وشبكاتنا.', 'Polished listing on our site and social media.') },
+    { icon: HeartHandshake, h: L('On gère les acheteurs', 'نتكفّل بالمشترين', 'We handle buyers'), p: L('Appels, visites, négociation : vous ne recevez que les sérieux.', 'المكالمات، المعاينات، التفاوض: لا يصلك إلا الجادّون.', 'Calls, viewings, negotiation: only serious buyers reach you.') },
+  ];
+  return (
+    <div className="grid lg:grid-cols-2 gap-5 lg:gap-8">
+      {/* Je cherche */}
+      <div className="gold-frame rounded-3xl p-6 md:p-9 flex flex-col">
+        <div className="text-gold-400 text-[11px] font-semibold uppercase tracking-[0.25em] mb-3">{L('Acheteur', 'مشترٍ', 'Buyer')}</div>
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">{L('Je cherche ', 'أبحث عن ', "I'm looking for ")}<span className="text-gold-gradient">{L('une voiture', 'سيارة', 'a car')}</span></h2>
+        <p className="text-white/50 text-sm md:text-base mb-7">{L('Dites-nous ce que vous voulez, on la trouve pour vous à Oran.', 'قل لنا ما تريد، ونجدها لك في وهران.', 'Tell us what you want, we find it for you in Oran.')}</p>
+        <div className="space-y-3 flex-1">
+          <div className="grid sm:grid-cols-2 gap-3">
+            <input value={model} onChange={(e) => setModel(e.target.value)} placeholder={L('Marque / modèle (ex. Clio 5)', 'العلامة / الطراز', 'Make / model (e.g. Clio 5)')} className="input-dark w-full" />
+            <input value={budget} onChange={(e) => setBudget(e.target.value)} placeholder={L('Budget max (€ ou DA)', 'الميزانية القصوى', 'Max budget (€ or DA)')} className="input-dark w-full" />
+          </div>
+          <div className="flex flex-wrap gap-2 pt-1">
+            {FUELS.map(([k, lbl]) => (
+              <button key={k} type="button" onClick={() => setFuel(fuel === k ? '' : k)}
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${fuel === k ? 'bg-gold-500 text-noir-950' : 'bg-white/[0.04] border border-white/[0.08] text-white/55 hover:text-white'}`}>{lbl}</button>
+            ))}
+          </div>
+        </div>
+        <a href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener noreferrer" className="btn-gold w-full py-4 text-sm justify-center mt-7"><Search size={16} />{L('Lancer ma recherche', 'ابدأ البحث', 'Start my search')}</a>
+      </div>
+      {/* Je vends */}
+      <div className="lux-card p-6 md:p-9 flex flex-col">
+        <div className="text-white/45 text-[11px] font-semibold uppercase tracking-[0.25em] mb-3">{L('Vendeur', 'بائع', 'Seller')}</div>
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">{L('Je vends ', 'أبيع ', "I'm selling ")}<span className="text-gold-gradient">{L('ma voiture', 'سيارتي', 'my car')}</span></h2>
+        <p className="text-white/50 text-sm md:text-base mb-7">{L('Confiez-nous la vente, on s’occupe de tout.', 'اترك لنا البيع، ونتكفّل بكل شيء.', 'Leave the sale to us, we handle everything.')}</p>
+        <ol className="space-y-4 flex-1">
+          {STEPS.map((st, i) => { const Icon = st.icon; return (
+            <li key={i} className="flex items-start gap-4">
+              <span className="relative w-11 h-11 rounded-2xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-gold-400 flex-shrink-0"><Icon size={18} />
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-gold-500 text-black text-[10px] font-bold flex items-center justify-center">{i + 1}</span></span>
+              <span><span className="block text-white font-semibold">{st.h}</span><span className="block text-white/50 text-sm leading-relaxed">{st.p}</span></span>
+            </li>
+          ); })}
+        </ol>
+        <a href={`https://wa.me/${whatsapp}?text=${proposeMsg}`} target="_blank" rel="noopener noreferrer" className="btn-ghost w-full py-4 text-sm justify-center mt-7"><MessageCircle size={16} />{L('Proposer mon véhicule', 'اعرض سيارتي', 'List my vehicle')}</a>
+      </div>
+    </div>
+  );
+}
 
 function VehicleCard({ v }) {
   const { t } = useLang();
@@ -31,7 +90,7 @@ function VehicleCard({ v }) {
   const stLabel = STB[v.status] || STB.disponible;
 
   return (
-    <div className="group relative bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-gold-500/25 hover:-translate-y-2 hover:shadow-[0_28px_60px_rgba(0,0,0,0.7)] transition-all duration-500">
+    <div className="group lux-card">
       <Link href={`/vente-voitures/${v.id}`} className="block relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
         {photo ? (
           <img src={photo} alt={`${v.brand} ${v.model}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
@@ -75,7 +134,7 @@ function VehicleCard({ v }) {
 }
 
 export default function VenteVoituresPage({ vehicles }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const WHATSAPP = waNumber(useSettings());
   const [search, setSearch]   = useState('');
   const [fuel, setFuel]       = useState('Tous');
@@ -117,13 +176,13 @@ export default function VenteVoituresPage({ vehicles }) {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/25 to-transparent" />
           <div className="absolute top-20 left-1/3 w-72 h-72 bg-gold-500/[0.05] rounded-full blur-[100px] pointer-events-none" />
           <div className="relative max-w-7xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
+            <div className="section-badge mb-6">
               <Tag size={11} /> {t('sale.badge')}
             </div>
             <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-none mb-5">
-              {t('sale.title1')} <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{t('sale.title2')}</span>
+              {t('sale.title1')} <span className="text-gold-gradient italic">{t('sale.title2')}</span>
             </h1>
-            <p className="text-white/35 max-w-lg mx-auto text-base leading-relaxed">
+            <p className="text-white/55 max-w-lg mx-auto text-base md:text-lg leading-relaxed">
               {t('sale.subtitle')}
             </p>
           </div>
@@ -132,8 +191,8 @@ export default function VenteVoituresPage({ vehicles }) {
         <div className="pb-28 px-5">
           <div className="max-w-7xl mx-auto">
 
-            {/* Propose your vehicle CTA */}
-            <div className="mb-8 bg-gradient-to-r from-gold-500/10 to-transparent border border-gold-500/20 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            {/* Propose your vehicle CTA (le composant « Je vends » le remplace quand il n'y a pas d'annonce) */}
+            {hasListings && <div className="mb-8 bg-gradient-to-r from-gold-500/10 to-transparent border border-gold-500/20 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-11 h-11 bg-gold-500/15 border border-gold-500/25 rounded-xl flex items-center justify-center flex-shrink-0"><Tag size={18} className="text-gold-400" /></div>
                 <div>
@@ -142,7 +201,7 @@ export default function VenteVoituresPage({ vehicles }) {
                 </div>
               </div>
               <a href={`https://wa.me/${WHATSAPP}?text=${proposeMsg}`} target="_blank" rel="noopener noreferrer" className="btn-gold py-2.5 px-6 text-sm whitespace-nowrap flex items-center gap-2"><MessageCircle size={14} /> {t('sale.sell_cta')}</a>
-            </div>
+            </div>}
 
             {hasListings ? (
               <>
@@ -185,13 +244,7 @@ export default function VenteVoituresPage({ vehicles }) {
                 )}
               </>
             ) : (
-              /* Coming soon */
-              <div className="text-center py-20 max-w-lg mx-auto">
-                <div className="w-20 h-20 bg-gold-500/[0.08] border border-gold-500/20 rounded-3xl flex items-center justify-center mx-auto mb-7"><Tag size={32} className="text-gold-400" /></div>
-                <h2 className="font-display text-3xl font-bold text-white mb-3">{t('sale.soon_title')}</h2>
-                <p className="text-white/40 leading-relaxed mb-8">{t('sale.soon_desc')}</p>
-                <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Bonjour, je suis intéressé(e) par vos véhicules à vendre.')}`} target="_blank" rel="noopener noreferrer" className="btn-gold px-8 py-3.5 text-sm inline-flex items-center gap-2"><MessageCircle size={15} /> {t('common.contact_wa')}</a>
-              </div>
+              <SaleEmpty lang={lang} whatsapp={WHATSAPP} proposeMsg={proposeMsg} />
             )}
           </div>
         </div>
