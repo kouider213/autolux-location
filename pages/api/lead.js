@@ -9,14 +9,16 @@ const CAT_FR = { immo_location: 'Immo location', immo_vente: 'Immo vente', voitu
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
   const b = req.body || {};
-  if (!b.client_name?.trim() || !b.client_phone?.trim()) return res.status(400).json({ error: 'nom + téléphone requis' });
+  // Téléphone requis, sauf pour une entreprise qui laisse son email pro (devis B2B répondu par mail).
+  const hasContact = b.client_phone?.trim() || (b.category === 'entreprise' && /@/.test(b.client_email || ''));
+  if (!b.client_name?.trim() || !hasContact) return res.status(400).json({ error: 'nom + téléphone requis' });
 
   const admin = supabaseAdmin();
   if (!admin) return res.status(500).json({ error: 'config serveur manquante' });
 
   const { data, error } = await admin.from('client_leads').insert({
     client_name: b.client_name.trim(),
-    client_phone: b.client_phone.trim(),
+    client_phone: (b.client_phone || '').trim(),
     category: VALID_CAT.has(b.category) ? b.category : 'immo_vente',
     criteria: b.criteria || null,
     budget_max: b.budget_max ? Number(b.budget_max) : null,
@@ -45,7 +47,7 @@ export default async function handler(req, res) {
     const catLabel = CAT_FR[b.category] || 'Demande';
     const msg = [
       `🔔 Nouvelle demande — ${catLabel}`,
-      `👤 ${b.client_name} | 📞 ${b.client_phone}`,
+      `👤 ${b.client_name} | ${b.client_phone ? `📞 ${b.client_phone}` : `✉️ ${b.client_email}`}`,
       b.criteria ? `📌 ${b.criteria}` : '',
       b.notes ? `📝 ${b.notes}` : '',
       `→ Voir dans DEMANDES`,

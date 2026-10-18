@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { useState } from 'react';
-import { Building2, Check, Car, Home, UserCog, MessageCircle, Send, ShieldCheck, Briefcase } from 'lucide-react';
+import { Building2, Check, Car, Home, UserCog, MessageCircle, Send, ShieldCheck, Briefcase, FileDown } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
@@ -8,14 +8,16 @@ import { useSettings, waLink } from '../lib/settings';
 import { cText, cImg } from '../lib/content';
 
 const BASE = 'https://fikconciergerie.com';
+const CONTACT_EMAIL = 'contact@fikconciergerie.com';
 
 // Page B2B — offres entreprises (sociétés type Total qui collaborent avec des sociétés algériennes).
-// 3 packs (sur devis) + formulaire de demande de devis → lead category 'entreprise'.
+// 3 packs (sur devis) + formulaire de demande de devis → lead category 'entreprise' + plaquette PDF (FR/EN).
+// Un seul nom par pack (Essentiel / Premium / Signature) — plus de double nom métal + niveau.
 // Champs traduits en dur (FR/AR/EN) — pas de dépendance à la traduction runtime.
 const PACKS = [
   {
-    key: 'platinium', name: 'Platinium', color: '#9ca3af',
-    tier: { fr: 'Essentiel', ar: 'أساسي', en: 'Essential' },
+    key: 'essentiel', color: '#9ca3af',
+    name: { fr: 'Essentiel', ar: 'أساسي', en: 'Essential' },
     tagline: { fr: 'Mobilité + logement pour vos équipes', ar: 'تنقّل + سكن لفرقكم', en: 'Mobility + housing for your teams' },
     items: [
       { icon: Car,  fr: 'Voiture de location fiable, livrée prête', ar: 'سيارة كراء موثوقة، تُسلَّم جاهزة', en: 'Reliable rental car, delivered ready' },
@@ -24,8 +26,8 @@ const PACKS = [
     ],
   },
   {
-    key: 'gold', name: 'Gold', color: '#fbbf24', featured: true,
-    tier: { fr: 'Premium', ar: 'بريميوم', en: 'Premium' },
+    key: 'premium', color: '#fbbf24', featured: true,
+    name: { fr: 'Premium', ar: 'بريميوم', en: 'Premium' },
     tagline: { fr: 'Confort supérieur pour cadres et délégations', ar: 'راحة فائقة للإطارات والوفود', en: 'Premium comfort for executives & delegations' },
     items: [
       { icon: Car,  fr: 'Voiture de luxe OU van (groupe / matériel)', ar: 'سيارة فاخرة أو فان (مجموعة/معدات)', en: 'Luxury car OR van (group / equipment)' },
@@ -34,8 +36,8 @@ const PACKS = [
     ],
   },
   {
-    key: 'diamant', name: 'Diamant', color: '#22d3ee',
-    tier: { fr: 'Signature', ar: 'سيغنتشر', en: 'Signature' },
+    key: 'signature', color: '#22d3ee',
+    name: { fr: 'Signature', ar: 'سيغنتشر', en: 'Signature' },
     tagline: { fr: 'Clé en main total : on gère tout sur place', ar: 'حلّ متكامل: نتكفّل بكل شيء على عين المكان', en: 'Fully turnkey: we handle everything on the ground' },
     items: [
       { icon: Car,  fr: 'Voiture de luxe avec chauffeur', ar: 'سيارة فاخرة مع سائق', en: 'Luxury car with driver' },
@@ -66,7 +68,9 @@ export default function Entreprises() {
     { h: { fr: 'Connaissance du terrain', ar: 'معرفة الميدان', en: 'Local know-how' }, p: { fr: 'On connaît Oran et les usages locaux. On facilite vos déplacements et vos relations avec les sociétés algériennes.', ar: 'نعرف وهران والعادات المحلية. نُسهّل تنقّلاتكم وعلاقاتكم مع الشركات الجزائرية.', en: 'We know Oran and local customs. We ease your travel and your relations with Algerian companies.' } },
   ];
 
-  const [form, setForm] = useState({ company: '', name: '', phone: '', email: '', pack: '', duration: '', people: '', needs: '' });
+  const [form, setForm] = useState({ company: '', name: '', phone: '', email: '', pack: '', from: '', to: '', people: '', needs: '' });
+  // Plaquette 2 pages à faire suivre en interne (service achats) — pas de version arabe → FR.
+  const brochure = lang === 'en' ? '/plaquette-fik-entreprises-en.pdf' : '/plaquette-fik-entreprises-fr.pdf';
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [err, setErr] = useState('');
@@ -80,14 +84,15 @@ export default function Entreprises() {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!form.company.trim() || !form.name.trim() || !form.phone.trim()) {
-      setErr(L('Société, nom et téléphone requis.', 'الشركة، الاسم والهاتف إجبارية.', 'Company, name and phone required.'));
+    // Entreprise : l'email pro est le canal de réponse (devis écrit) ; le téléphone reste facultatif.
+    if (!form.company.trim() || !form.name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      setErr(L('Société, nom et email professionnel valide requis.', 'الشركة، الاسم وبريد مهني صحيح إجبارية.', 'Company, name and a valid work email required.'));
       return;
     }
     setSending(true); setErr('');
     const criteria = `🏢 ${form.company}${form.pack ? ` — Pack ${form.pack}` : ''}`;
     const notes = [
-      form.duration ? `Durée: ${form.duration}` : '',
+      form.from || form.to ? `Mission: ${form.from || '?'} → ${form.to || '?'}` : '',
       form.people ? `Personnes: ${form.people}` : '',
       form.needs ? `Besoins: ${form.needs}` : '',
     ].filter(Boolean).join(' · ');
@@ -96,7 +101,7 @@ export default function Entreprises() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           client_name: `${form.name} (${form.company})`,
-          client_phone: form.phone, client_email: form.email,
+          client_phone: form.phone.trim(), client_email: form.email.trim(),
           category: 'entreprise', criteria, notes, city: 'Oran', lang,
         }),
       });
@@ -111,7 +116,7 @@ export default function Entreprises() {
     '@context': 'https://schema.org', '@type': 'Service',
     name: 'Offres entreprises — mobilité & logement Oran',
     description: "Packs entreprises à Oran : voiture, logement, chauffeur, guide et accompagnement pour les sociétés et leurs collaborateurs.",
-    provider: { '@type': 'LocalBusiness', name: 'Fik Conciergerie', address: { '@type': 'PostalAddress', addressLocality: 'Oran', addressCountry: 'DZ' } },
+    provider: { '@type': 'LocalBusiness', name: 'Fik Conciergerie', email: CONTACT_EMAIL, address: { '@type': 'PostalAddress', addressLocality: 'Oran', addressCountry: 'DZ' } },
     areaServed: { '@type': 'City', name: 'Oran' }, url: `${BASE}/entreprises`,
   };
 
@@ -124,7 +129,11 @@ export default function Entreprises() {
           'باقات الشركات في وهران: سيارة، سكن، سائق ومرافقة. عرض سعر وفاتورة للشركة.',
           'Corporate packs in Oran for your staff and delegations: car (luxury/van), housing, driver, guide and support with Algerian companies. On quote, company invoicing.',
         )} />
-        <link rel="canonical" href={`${BASE}/entreprises`} />
+        <link rel="canonical" href={`${BASE}/entreprises${lang === 'fr' ? '' : `?lang=${lang}`}`} />
+        <link rel="alternate" hrefLang="fr" href={`${BASE}/entreprises`} />
+        <link rel="alternate" hrefLang="en" href={`${BASE}/entreprises?lang=en`} />
+        <link rel="alternate" hrefLang="ar" href={`${BASE}/entreprises?lang=ar`} />
+        <link rel="alternate" hrefLang="x-default" href={`${BASE}/entreprises`} />
         <meta property="og:type" content="website" />
         <meta property="og:title" content={L('Fik Conciergerie — Service dédié aux entreprises à Oran', 'فيك — خدمة مخصصة للشركات في وهران', 'Fik Conciergerie — Corporate service in Oran')} />
         <meta property="og:description" content={L('Véhicule avec chauffeur, logement et accompagnement clé en main pour vos équipes et partenaires à Oran.', 'سيارة مع سائق، سكن ومرافقة لفرقكم في وهران.', 'Car with driver, housing and full support for your teams and partners in Oran.')} />
@@ -164,6 +173,7 @@ export default function Entreprises() {
             <div className={`mt-8 flex flex-wrap gap-3 ${rtl ? 'justify-end' : ''}`}>
               <a href="#devis" className="btn-gold py-3 px-7 text-sm font-body"><Send size={15} />{L('Demander un devis', 'اطلب عرض سعر', 'Request a quote')}</a>
               <a href={waLink(settings, waMsg)} target="_blank" rel="noopener noreferrer" className="btn-ghost py-3 px-7 text-sm font-body"><MessageCircle size={15} />WhatsApp</a>
+              <a href={brochure} target="_blank" rel="noopener" className="btn-ghost py-3 px-7 text-sm font-body"><FileDown size={15} />{L('Plaquette PDF', 'الكتيّب PDF', 'PDF brochure')}</a>
             </div>
           </div>
           {/* Photo COMPLÈTE — jamais recadrée (object-contain, fond noir) */}
@@ -181,8 +191,8 @@ export default function Entreprises() {
             {PACKS.map((p, i) => (
               <div key={p.key} className={`relative rounded-3xl border p-6 bg-[#111] ${p.featured ? 'border-gold-500/50 shadow-[0_0_40px_rgba(201,162,39,0.12)]' : 'border-white/10'}`}>
                 {p.featured && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gold-500 text-black text-[10px] font-bold tracking-wider uppercase">{L('Le plus demandé', 'الأكثر طلبا', 'Most popular')}</div>}
-                <div className="text-xs font-body tracking-widest uppercase mb-1" style={{ color: p.color }}>{pick(p.tier)}</div>
-                <div className="font-display text-3xl font-black mb-2" style={{ color: p.color }}>{cText(settings, `ent_pack${i + 1}_name`, lang, p.name)}</div>
+                <div className="text-xs font-body tracking-widest uppercase mb-1 text-white/40">Pack {i + 1}</div>
+                <div className="font-display text-3xl font-black mb-2" style={{ color: p.color }}>{cText(settings, `ent_pack${i + 1}_name`, lang, pick(p.name))}</div>
                 <p className="text-white/55 text-sm font-body mb-5 min-h-[40px]">{cText(settings, `ent_pack${i + 1}_desc`, lang, pick(p.tagline))}</p>
                 <ul className="space-y-3 mb-6">
                   {p.items.map((it, i) => {
@@ -195,7 +205,7 @@ export default function Entreprises() {
                     );
                   })}
                 </ul>
-                <a href="#devis" onClick={() => setForm((f) => ({ ...f, pack: p.name }))}
+                <a href="#devis" onClick={() => setForm((f) => ({ ...f, pack: p.name.fr }))}
                   className="block text-center py-3 rounded-xl text-sm font-body font-semibold border transition-all"
                   style={{ borderColor: `${p.color}55`, color: p.color, background: `${p.color}12` }}>
                   {L('Demander ce pack', 'اطلب هذه الباقة', 'Request this pack')}
@@ -205,6 +215,11 @@ export default function Entreprises() {
           </div>
           <p className="text-center text-white/40 text-xs font-body mt-5">
             {L('Tous les packs sont sur devis et personnalisables selon la durée, le nombre de personnes et vos besoins.', 'كل الباقات حسب عرض السعر وقابلة للتخصيص حسب المدّة وعدد الأشخاص واحتياجاتكم.', 'All packs are on quote and customizable based on duration, number of people and your needs.')}
+          </p>
+          <p className="text-center mt-3">
+            <a href={brochure} target="_blank" rel="noopener" className="inline-flex items-center gap-2 text-gold-400 text-sm font-body underline underline-offset-4">
+              <FileDown size={15} />{L('Télécharger la plaquette entreprise (PDF, 2 pages) — à transmettre à votre service achats', 'تحميل كتيّب الشركات (PDF، صفحتان)', 'Download the corporate brochure (PDF, 2 pages) — to share with your procurement team')}
+            </a>
           </p>
         </section>
 
@@ -226,7 +241,11 @@ export default function Entreprises() {
         <section id="devis" className="px-5 pb-24 max-w-2xl mx-auto scroll-mt-24">
           <div className="rounded-3xl border border-gold-500/25 bg-gradient-to-b from-[#141414] to-[#0c0c0c] p-7">
             <h2 className="font-display text-2xl font-bold mb-1">{L('Demander un devis entreprise', 'اطلب عرض سعر للشركة', 'Request a corporate quote')}</h2>
-            <p className="text-white/50 text-sm font-body mb-6">{L('Réponse rapide. Aucun engagement.', 'ردّ سريع. دون أي التزام.', 'Fast reply. No commitment.')}</p>
+            <p className="text-white/50 text-sm font-body mb-6">
+              {L('Réponse rapide. Aucun engagement.', 'ردّ سريع. دون أي التزام.', 'Fast reply. No commitment.')}{' '}
+              {L('Ou écrivez-nous :', 'أو راسلونا:', 'Or email us:')}{' '}
+              <a href={`mailto:${CONTACT_EMAIL}`} className="text-gold-400 underline underline-offset-4">{CONTACT_EMAIL}</a>
+            </p>
             {done ? (
               <div className="text-center py-10">
                 <div className="w-14 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center mx-auto mb-4 text-emerald-400"><Check size={26} /></div>
@@ -237,20 +256,32 @@ export default function Entreprises() {
             ) : (
               <form onSubmit={submit} className="space-y-3">
                 <input value={form.company} onChange={set('company')} placeholder={L('Nom de la société *', 'اسم الشركة *', 'Company name *')} className="input-dark w-full" />
+                <input value={form.name} onChange={set('name')} placeholder={L('Votre nom et fonction *', 'اسمك ووظيفتك *', 'Your name and job title *')} className="input-dark w-full" />
                 <div className="grid sm:grid-cols-2 gap-3">
-                  <input value={form.name} onChange={set('name')} placeholder={L('Votre nom *', 'اسمك *', 'Your name *')} className="input-dark w-full" />
-                  <input value={form.phone} onChange={set('phone')} inputMode="tel" placeholder={L('Téléphone / WhatsApp *', 'الهاتف *', 'Phone / WhatsApp *')} className="input-dark w-full" />
+                  <input value={form.email} onChange={set('email')} type="email" inputMode="email" placeholder={L('Email professionnel *', 'البريد المهني *', 'Work email *')} className="input-dark w-full" />
+                  <input value={form.phone} onChange={set('phone')} inputMode="tel" placeholder={L('Téléphone (facultatif)', 'الهاتف (اختياري)', 'Phone (optional)')} className="input-dark w-full" />
                 </div>
-                <input value={form.email} onChange={set('email')} inputMode="email" placeholder={L('Email professionnel', 'البريد المهني', 'Work email')} className="input-dark w-full" />
-                <div className="grid sm:grid-cols-3 gap-3">
+                <div>
+                  <div className="text-white/45 text-xs font-body mb-1.5">{L('Dates de mission', 'تواريخ المهمّة', 'Mission dates')}</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="block">
+                      <span className="sr-only">{L('Du', 'من', 'From')}</span>
+                      <input type="date" value={form.from} onChange={set('from')} aria-label={L('Début de mission', 'بداية المهمّة', 'Mission start')} className="input-dark w-full" />
+                    </label>
+                    <label className="block">
+                      <span className="sr-only">{L('Au', 'إلى', 'To')}</span>
+                      <input type="date" value={form.to} min={form.from || undefined} onChange={set('to')} aria-label={L('Fin de mission', 'نهاية المهمّة', 'Mission end')} className="input-dark w-full" />
+                    </label>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
                   <select value={form.pack} onChange={set('pack')} className="input-dark w-full">
                     <option value="">{L('Pack souhaité', 'الباقة', 'Pack')}</option>
-                    {PACKS.map((p) => <option key={p.key} value={p.name}>{p.name}</option>)}
+                    {PACKS.map((p) => <option key={p.key} value={p.name.fr}>{pick(p.name)}</option>)}
                   </select>
-                  <input value={form.duration} onChange={set('duration')} placeholder={L('Durée (ex: 3 mois)', 'المدة', 'Duration')} className="input-dark w-full" />
                   <input value={form.people} onChange={set('people')} inputMode="numeric" placeholder={L('Nb personnes', 'عدد الأشخاص', 'People')} className="input-dark w-full" />
                 </div>
-                <textarea value={form.needs} onChange={set('needs')} rows={3} placeholder={L('Vos besoins (véhicules, logement, chauffeur, dates…)', 'احتياجاتكم', 'Your needs (vehicles, housing, driver, dates…)')} className="input-dark w-full resize-none" />
+                <textarea value={form.needs} onChange={set('needs')} rows={3} placeholder={L('Vos besoins (véhicules, logement, chauffeur…)', 'احتياجاتكم', 'Your needs (vehicles, housing, driver…)')} className="input-dark w-full resize-none" />
                 {err && <p className="text-red-400 text-sm font-body">{err}</p>}
                 <button type="submit" disabled={sending} className="btn-gold w-full py-3.5 text-sm font-body disabled:opacity-50">
                   <Send size={15} />{sending ? L('Envoi…', 'جارٍ الإرسال…', 'Sending…') : L('Envoyer la demande', 'إرسال الطلب', 'Send request')}
