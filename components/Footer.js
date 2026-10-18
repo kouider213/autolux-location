@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { MapPin, MessageCircle, Star, Instagram, Music2, Facebook, Mail } from 'lucide-react';
 import { useLang } from '../lib/i18n';
-import { useSettings, waNumber } from '../lib/settings';
+import { useSettings, waNumber, siteEmails } from '../lib/settings';
 import NewsletterSignup from './NewsletterSignup';
 import { GOOGLE_MAPS_URL } from '../lib/google';
 import { formatIntl } from '../lib/format';
@@ -112,12 +112,12 @@ export default function Footer() {
                 <MessageCircle size={13} className="text-gold-500 flex-shrink-0" />
                 <a href={`https://wa.me/${WHATSAPP}`} dir="ltr" className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors">{formatIntl(WHATSAPP)}</a>
               </li>
-              {settings.email && (
-                <li className="flex items-center gap-3">
+              {siteEmails(settings).map(em => (
+                <li key={em} className="flex items-center gap-3">
                   <Mail size={13} className="text-gold-500 flex-shrink-0" />
-                  <a href={`mailto:${settings.email}`} dir="ltr" className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors break-all">{settings.email}</a>
+                  <a href={`mailto:${em}`} dir="ltr" className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors break-all">{em}</a>
                 </li>
-              )}
+              ))}
               <li className="flex items-center gap-3">
                 <Star size={13} className="text-gold-500 flex-shrink-0" />
                 <span className="text-white/35 text-sm font-body">{t('foot.hours')}</span>

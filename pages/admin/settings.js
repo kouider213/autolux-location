@@ -124,7 +124,10 @@ export default function AdminSettingsPage() {
 
   useEffect(() => {
     supabase.from('site_settings').select('*').eq('id', 1).single()
-      .then(({ data }) => { if (data) setForm({ ...DEFAULT_SETTINGS, ...data }); setLoad(false); })
+      .then(({ data }) => {
+        if (data) setForm({ ...DEFAULT_SETTINGS, ...data, email2: typeof data.content?.email2 === 'string' ? data.content.email2 : DEFAULT_SETTINGS.email2 });
+        setLoad(false);
+      })
       .catch(() => setLoad(false));
   }, []);
 
@@ -142,8 +145,11 @@ export default function AdminSettingsPage() {
 
   const save = async () => {
     setSaving(true);
+    // 2e email : stocké dans content.email2 → on relit content pour ne pas écraser les textes de « Contenu du site »
+    const { data: cur } = await supabase.from('site_settings').select('content').eq('id', 1).single();
     const payload = {
       id: 1,
+      content: { ...(cur?.content || {}), email2: (form.email2 || '').trim() },
       // Numéros WhatsApp : modifiables uniquement par l'admin suprême (sinon non inclus → valeurs gardées)
       ...(isSuper ? { whatsapp: cleanWa(form.whatsapp), whatsapp2: cleanWa(form.whatsapp2), whatsapp3: cleanWa(form.whatsapp3) } : {}),
       logo_url: form.logo_url || '',
@@ -198,7 +204,8 @@ export default function AdminSettingsPage() {
                 <Field label="Téléphone affiché" icon={Phone}><input value={form.phone || ''} onChange={up('phone')} placeholder="+213 ..." className={inputCls} /></Field>
                 <Field label="WhatsApp associé 1 (optionnel)" icon={MessageCircle} hint="2e numéro — affiché sur Contact. Vide = masqué."><input value={form.whatsapp2 || ''} onChange={up('whatsapp2')} disabled={!isSuper} inputMode="numeric" placeholder="213..." className={`${inputCls} disabled:opacity-50`} /></Field>
                 <Field label="WhatsApp associé 2 (optionnel)" icon={MessageCircle} hint="3e numéro — affiché sur Contact. Vide = masqué."><input value={form.whatsapp3 || ''} onChange={up('whatsapp3')} disabled={!isSuper} inputMode="numeric" placeholder="213..." className={`${inputCls} disabled:opacity-50`} /></Field>
-                <Field label="Email" icon={Mail}><input value={form.email || ''} onChange={up('email')} placeholder="contact@..." className={inputCls} /></Field>
+                <Field label="Email principal" icon={Mail}><input value={form.email || ''} onChange={up('email')} placeholder="contact@..." className={inputCls} /></Field>
+                <Field label="Email 2 (optionnel)" icon={Mail} hint="Affiché à côté de l'email principal (pied de page, Contact, À propos). Vide = masqué."><input value={form.email2 || ''} onChange={up('email2')} placeholder="...@gmail.com" className={inputCls} /></Field>
                 <Field label="Adresse" icon={MapPin}><input value={form.address || ''} onChange={up('address')} className={inputCls} /></Field>
                 <div className="sm:col-span-2"><Field label="Lien Google Maps" icon={MapPin} hint="Colle le lien de partage Google Maps de ton agence"><input value={form.maps_url || ''} onChange={up('maps_url')} className={inputCls} /></Field></div>
               </div>

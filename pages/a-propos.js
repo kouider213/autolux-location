@@ -3,7 +3,7 @@ import LegalBody from '../components/LegalBody';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
-import { useSettings, waNumber } from '../lib/settings';
+import { useSettings, waNumber, siteEmails } from '../lib/settings';
 import { useLang } from '../lib/i18n';
 import { useTranslated } from '../lib/autoTranslate';
 import { getLegal } from '../lib/legal';
@@ -44,7 +44,7 @@ Tout se fait simplement, par WhatsApp : vous nous contactez, nous nous occupons 
 
 ## Nous contacter
 📍 ${s.address || 'Hay Badr, Oran, Algérie'}
-💬 WhatsApp : +${wa}${s.email ? `\n✉️ ${s.email}` : ''}`;
+💬 WhatsApp : +${wa}${siteEmails(s).map(e => `\n✉️ ${e}`).join('')}`;
 
   return (
     <LegalPage title={title} subtitle={subtitle}>

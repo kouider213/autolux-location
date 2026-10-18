@@ -1,7 +1,7 @@
 import LegalPage from '../components/LegalPage';
 import LegalBody from '../components/LegalBody';
 import { useState, useEffect } from 'react';
-import { useSettings, waNumber } from '../lib/settings';
+import { useSettings, waNumber, siteEmails } from '../lib/settings';
 import { useLang } from '../lib/i18n';
 import { useTranslated } from '../lib/autoTranslate';
 import { getLegal } from '../lib/legal';
@@ -23,7 +23,7 @@ export default function MentionsLegales() {
   const bodyFr = `## Éditeur du site
 Fik Conciergerie — conciergerie (location de véhicules, vente, immobilier, packs séjour).
 Siège : ${s.address || 'Hay Badr, Oran, Algérie'}.
-Contact : WhatsApp +${wa}${s.email ? ` — ${s.email}` : ''}.
+Contact : WhatsApp +${wa}${siteEmails(s).map(e => ` — ${e}`).join('')}.
 Numéro de registre de commerce (RC) et identifiant fiscal (NIF) communiqués sur demande dans le cadre de toute relation contractuelle.
 
 ## Hébergement

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { MessageCircle, MapPin, Clock, Shield, Star, Zap, Heart, Car, CheckCircle, ArrowRight, Phone, Instagram, Music2, Facebook, Mail } from 'lucide-react';
-import { getSettings, useSettings, waNumber } from '../lib/settings';
+import { getSettings, useSettings, waNumber, siteEmails } from '../lib/settings';
 import { useLang } from '../lib/i18n';
 import { formatIntl } from '../lib/format';
 
@@ -127,21 +127,23 @@ export default function ContactPage() {
               </a>
 
               {/* Email (devis écrits, entreprises) */}
-              {settings.email && (
-                <a href={`mailto:${settings.email}`}
+              {siteEmails(settings).length > 0 && (
+                <div
                   className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/20 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1">
                   <div className="w-14 h-14 bg-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center">
                     <Mail size={24} className="text-gold-400" />
                   </div>
                   <div>
                     <h3 className="text-white font-bold text-lg mb-1">Email</h3>
-                    <p dir="ltr" className="text-gold-400 font-semibold text-sm mb-2 break-all">{settings.email}</p>
-                    <p className="text-white/35 text-sm">{t('ct.mail_d')}</p>
+                    {siteEmails(settings).map(em => (
+                      <a key={em} href={`mailto:${em}`} dir="ltr" className="block text-gold-400 hover:text-gold-300 font-semibold text-sm mb-1 break-all">{em}</a>
+                    ))}
+                    <p className="text-white/35 text-sm mt-1">{t('ct.mail_d')}</p>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gold-400/70 text-xs font-medium mt-auto">
+                  <a href={`mailto:${siteEmails(settings)[0]}`} className="flex items-center gap-1.5 text-gold-400/70 hover:text-gold-400 text-xs font-medium mt-auto">
                     {t('ct.write')} <ArrowRight size={12} />
-                  </div>
-                </a>
+                  </a>
+                </div>
               )}
 
               {/* Adresse */}
