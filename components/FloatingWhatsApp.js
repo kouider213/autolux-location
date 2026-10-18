@@ -6,7 +6,8 @@ export default function FloatingWhatsApp() {
   const settings = useSettings();
   // Fiche voiture : barre « Réserver » collée en bas sur téléphone → on remonte le bouton au-dessus
   const path = useRouter().asPath || '';
-  const lift = /^\/cars\/[^/?]+/.test(path);
+  // Packs : barre « Votre pack » fixe sur téléphone (composeur)
+  const lift = /^\/cars\/[^/?]+/.test(path) || /^\/packs\/?(\?|#|$)/.test(path);
   // Réservation : barre d'action fixe jusqu'à 1024 px
   const liftRes = /^\/reservation/.test(path);
   const href = waLink(settings, 'Bonjour Fik Conciergerie, je vous contacte depuis votre site.');
