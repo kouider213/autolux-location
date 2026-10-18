@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { useState } from 'react';
-import { Building2, Check, Car, Home, UserCog, MessageCircle, Send, ShieldCheck, Briefcase, FileDown } from 'lucide-react';
+import { Building2, Check, Car, Home, UserCog, MessageCircle, Send, ShieldCheck, Briefcase, FileDown, Mail } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useLang } from '../lib/i18n';
@@ -16,7 +16,7 @@ const CONTACT_EMAIL = 'contact@fikconciergerie.com';
 // Champs traduits en dur (FR/AR/EN) — pas de dépendance à la traduction runtime.
 const PACKS = [
   {
-    key: 'essentiel', color: '#9ca3af',
+    key: 'essentiel', color: '#d4d4d8',
     name: { fr: 'Essentiel', ar: 'أساسي', en: 'Essential' },
     tagline: { fr: 'Mobilité + logement pour vos équipes', ar: 'تنقّل + سكن لفرقكم', en: 'Mobility + housing for your teams' },
     items: [
@@ -26,7 +26,7 @@ const PACKS = [
     ],
   },
   {
-    key: 'premium', color: '#fbbf24', featured: true,
+    key: 'premium', color: '#e2b614', featured: true,
     name: { fr: 'Premium', ar: 'بريميوم', en: 'Premium' },
     tagline: { fr: 'Confort supérieur pour cadres et délégations', ar: 'راحة فائقة للإطارات والوفود', en: 'Premium comfort for executives & delegations' },
     items: [
@@ -36,7 +36,7 @@ const PACKS = [
     ],
   },
   {
-    key: 'signature', color: '#22d3ee',
+    key: 'signature', color: '#f5e27a',
     name: { fr: 'Signature', ar: 'سيغنتشر', en: 'Signature' },
     tagline: { fr: 'Clé en main total : on gère tout sur place', ar: 'حلّ متكامل: نتكفّل بكل شيء على عين المكان', en: 'Fully turnkey: we handle everything on the ground' },
     items: [
@@ -66,6 +66,13 @@ export default function Entreprises() {
     { h: { fr: 'Un seul interlocuteur', ar: 'مُحاور واحد', en: 'One single contact' }, p: { fr: 'Voiture, logement, chauffeur, démarches : tout est centralisé. Vos équipes arrivent, tout est prêt.', ar: 'سيارة، سكن، سائق، الإجراءات: كل شيء مُجمَّع. تصل فرقكم وكل شيء جاهز.', en: 'Car, housing, driver, paperwork: all centralized. Your teams arrive, everything is ready.' } },
     { h: { fr: 'Facturation & contrat société', ar: 'فوترة وعقد للشركة', en: 'Company invoicing & contract' }, p: { fr: "Devis clair, contrat, facturation au nom de l'entreprise. Conforme et traçable.", ar: 'عرض سعر واضح، عقد، فاتورة باسم الشركة. مطابق وقابل للتتبّع.', en: 'Clear quote, contract, invoicing in the company name. Compliant and traceable.' } },
     { h: { fr: 'Connaissance du terrain', ar: 'معرفة الميدان', en: 'Local know-how' }, p: { fr: 'On connaît Oran et les usages locaux. On facilite vos déplacements et vos relations avec les sociétés algériennes.', ar: 'نعرف وهران والعادات المحلية. نُسهّل تنقّلاتكم وعلاقاتكم مع الشركات الجزائرية.', en: 'We know Oran and local customs. We ease your travel and your relations with Algerian companies.' } },
+  ];
+
+  const STEPS = [
+    { h: { fr: 'Vous nous écrivez', ar: 'تراسلوننا', en: 'You write to us' }, p: { fr: 'Dates, nombre de personnes, besoins : un message suffit.', ar: 'التواريخ، عدد الأشخاص، الاحتياجات: رسالة واحدة تكفي.', en: 'Dates, headcount, needs: one message is enough.' } },
+    { h: { fr: 'Devis sur mesure', ar: 'عرض سعر مخصّص', en: 'Tailored quote' }, p: { fr: 'Une proposition claire au nom de votre société.', ar: 'عرض واضح باسم شركتكم.', en: 'A clear proposal in your company name.' } },
+    { h: { fr: 'On prépare tout', ar: 'نحضّر كل شيء', en: 'We prepare everything' }, p: { fr: 'Véhicules, logement, chauffeur : tout est prêt avant l\'arrivée.', ar: 'السيارات، السكن، السائق: كل شيء جاهز قبل الوصول.', en: 'Vehicles, housing, driver: all ready before arrival.' } },
+    { h: { fr: 'Vos équipes arrivent', ar: 'تصل فرقكم', en: 'Your teams arrive' }, p: { fr: 'Accueil à Oran et un seul interlocuteur pendant toute la mission.', ar: 'استقبال في وهران ومُحاور واحد طوال المهمّة.', en: 'Welcome in Oran and one single contact for the whole mission.' } },
   ];
 
   const [form, setForm] = useState({ company: '', name: '', phone: '', email: '', pack: '', from: '', to: '', people: '', needs: '' });
@@ -145,107 +152,175 @@ export default function Entreprises() {
       </Head>
       <Navbar />
 
-      <main className="min-h-screen bg-[#080808] text-white">
-        {/* Hero — texte + photo COMPLÈTE (non recadrée) du chauffeur + van FIK */}
-        <section className="relative overflow-hidden">
+      <main className="min-h-screen bg-[#080808] text-white overflow-x-hidden">
+        {/* Hero — téléphone/tablette : texte puis photo ; PC : texte à gauche, photo COMPLÈTE (jamais recadrée) à droite */}
+        <section className="relative">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-500/60 to-transparent" />
-          {/* Bloc texte */}
-          <div className={`max-w-6xl mx-auto px-5 md:px-10 pt-28 pb-8 ${rtl ? 'text-right' : 'text-left'}`}>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold-500/40 bg-gold-500/[0.08] text-gold-400 text-xs font-body tracking-widest uppercase mb-6">
-              <Building2 size={14} />{L('Service dédié aux entreprises', 'خدمة مخصّصة للشركات', 'Dedicated corporate service')}
+          <div className="orb w-[520px] h-[520px] bg-gold-500/[0.07] -top-40 -right-40 hidden lg:block" />
+          <div className="relative max-w-7xl mx-auto px-5 md:px-10 pt-28 lg:pt-36 pb-10 lg:pb-20 grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            <div className={`lg:col-span-6 ${rtl ? 'text-right' : 'text-left'}`}>
+              <div className="section-badge mb-6"><Building2 size={13} />{L('Service dédié aux entreprises', 'خدمة مخصّصة للشركات', 'Dedicated corporate service')}</div>
+              <h1 className="font-display text-[2.4rem] leading-[1.05] md:text-[3.25rem] lg:text-[4.2rem] font-black">
+                {cText(settings, 'ent_hero_title_a', lang, L('Vos équipes à Oran,', 'فرقكم في وهران،', 'Your teams in Oran,'))}{' '}
+                <span className="text-gold-gradient">{cText(settings, 'ent_hero_title_b', lang, L('prises en charge de A à Z', 'تكفّل كامل من الألف إلى الياء', 'fully taken care of, A to Z'))}</span>
+              </h1>
+              <p className="mt-6 text-white/65 text-base md:text-lg font-body leading-relaxed max-w-xl">
+                {cText(settings, 'ent_hero_sub', lang, L(
+                  'Pour les sociétés (énergie, BTP, multinationales) et leurs partenaires algériens : véhicule avec chauffeur, logement et accompagnement clé en main. Un seul interlocuteur, facturation société, discrétion totale.',
+                  'للشركات (الطاقة، البناء، المتعدّدة الجنسيات) وشركائها الجزائريين: سيارة مع سائق، سكن ومرافقة متكاملة. مُحاور واحد، فاتورة للشركة، سرّية تامة.',
+                  'For companies (energy, construction, multinationals) and their Algerian partners: car with driver, housing and full turnkey support. One single contact, company invoicing, total discretion.',
+                ))}
+              </p>
+              {/* Réassurances : grille 2×2 en pastilles sur téléphone, ligne sur tablette/PC */}
+              <div className="mt-7 grid grid-cols-2 gap-2 md:flex md:flex-wrap md:gap-2.5">
+                {REASSURE.map((r) => (
+                  <span key={r.fr} className="glass rounded-xl md:rounded-full px-3 py-2 md:px-4 inline-flex items-center gap-2 text-xs md:text-[13px] text-white/80 font-body">
+                    <span className="w-5 h-5 rounded-full bg-gold-500/15 flex items-center justify-center text-gold-400 flex-shrink-0"><Check size={12} /></span>{pick(r)}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-8 flex flex-col sm:flex-row flex-wrap gap-3">
+                <a href="#devis" className="btn-gold py-3.5 px-8 text-sm font-body justify-center"><Send size={15} />{L('Demander un devis', 'اطلب عرض سعر', 'Request a quote')}</a>
+                <div className="grid grid-cols-2 sm:flex gap-3">
+                  <a href={waLink(settings, waMsg)} target="_blank" rel="noopener noreferrer" className="btn-ghost py-3.5 px-6 text-sm font-body justify-center"><MessageCircle size={15} />WhatsApp</a>
+                  <a href={brochure} target="_blank" rel="noopener" className="btn-ghost py-3.5 px-6 text-sm font-body justify-center"><FileDown size={15} />{L('Plaquette PDF', 'الكتيّب PDF', 'PDF brochure')}</a>
+                </div>
+              </div>
             </div>
-            <h1 className="font-display text-4xl md:text-6xl font-black leading-[1.05]">
-              {cText(settings, 'ent_hero_title_a', lang, L('Vos équipes à Oran,', 'فرقكم في وهران،', 'Your teams in Oran,'))}{' '}
-              <span className="bg-gradient-to-br from-gold-200 to-gold-500 bg-clip-text text-transparent">{cText(settings, 'ent_hero_title_b', lang, L('prises en charge de A à Z', 'تكفّل كامل من الألف إلى الياء', 'fully taken care of, A to Z'))}</span>
-            </h1>
-            <p className="mt-6 text-white/70 text-base md:text-lg font-body leading-relaxed max-w-2xl">
-              {cText(settings, 'ent_hero_sub', lang, L(
-                'Pour les sociétés (énergie, BTP, multinationales) et leurs partenaires algériens : véhicule avec chauffeur, logement et accompagnement clé en main. Un seul interlocuteur, facturation société, discrétion totale.',
-                'للشركات (الطاقة، البناء، المتعدّدة الجنسيات) وشركائها الجزائريين: سيارة مع سائق، سكن ومرافقة متكاملة. مُحاور واحد، فاتورة للشركة، سرّية تامة.',
-                'For companies (energy, construction, multinationals) and their Algerian partners: car with driver, housing and full turnkey support. One single contact, company invoicing, total discretion.',
-              ))}
-            </p>
-            <div className={`mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs md:text-sm text-white/70 font-body ${rtl ? 'justify-end' : ''}`}>
-              {REASSURE.map((r) => (
-                <span key={r.fr} className="inline-flex items-center gap-1.5"><Check size={14} className="text-gold-400" />{pick(r)}</span>
-              ))}
-            </div>
-            <div className={`mt-8 flex flex-wrap gap-3 ${rtl ? 'justify-end' : ''}`}>
-              <a href="#devis" className="btn-gold py-3 px-7 text-sm font-body"><Send size={15} />{L('Demander un devis', 'اطلب عرض سعر', 'Request a quote')}</a>
-              <a href={waLink(settings, waMsg)} target="_blank" rel="noopener noreferrer" className="btn-ghost py-3 px-7 text-sm font-body"><MessageCircle size={15} />WhatsApp</a>
-              <a href={brochure} target="_blank" rel="noopener" className="btn-ghost py-3 px-7 text-sm font-body"><FileDown size={15} />{L('Plaquette PDF', 'الكتيّب PDF', 'PDF brochure')}</a>
-            </div>
-          </div>
-          {/* Photo COMPLÈTE — jamais recadrée (object-contain, fond noir) */}
-          <div className="mt-4 px-5 pb-4">
-            <div className="max-w-5xl mx-auto rounded-3xl overflow-hidden border border-white/10 bg-black">
-              <img src={cImg(settings, 'ent_hero_img', '/entreprises-hero.jpg')} alt="Fik Conciergerie — service entreprise avec chauffeur à Oran"
-                className="w-full h-auto block" loading="eager" />
+            <div className="lg:col-span-6 relative">
+              <div className="gold-frame rounded-[28px] p-1.5 md:p-2 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.9)]">
+                <div className="rounded-[22px] overflow-hidden bg-black">
+                  <img src={cImg(settings, 'ent_hero_img', '/entreprises-hero.jpg')} alt="Fik Conciergerie — service entreprise avec chauffeur à Oran"
+                    className="w-full h-auto block" loading="eager" />
+                </div>
+              </div>
+              {/* Pastille flottante (tablette/PC) */}
+              <div className={`hidden md:flex absolute -bottom-5 ${rtl ? 'right-6' : 'left-6'} glass rounded-2xl px-4 py-3 items-center gap-3 shadow-2xl`}>
+                <div className="w-10 h-10 rounded-xl bg-gold-500/15 border border-gold-500/30 flex items-center justify-center text-gold-400"><Briefcase size={18} /></div>
+                <div>
+                  <div className="text-white text-sm font-body font-semibold">{L('Facturation société', 'فاتورة للشركة', 'Company invoicing')}</div>
+                  <div className="text-white/50 text-xs font-body">{L('Devis · contrat · facture', 'عرض سعر · عقد · فاتورة', 'Quote · contract · invoice')}</div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Packs */}
-        <section className="px-5 pb-8 max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-5">
+        {/* Comment ça marche — frise 4 étapes (verticale téléphone, 2×2 tablette, ligne reliée PC) */}
+        <section className="px-5 md:px-10 py-12 lg:py-16 border-y border-white/[0.06] bg-[#0b0b0b]">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-10">
+              <div className="section-badge mb-4">{L('Comment ça marche', 'كيف يعمل', 'How it works')}</div>
+              <h2 className="font-display text-2xl md:text-4xl font-bold">{L('Quatre étapes, zéro souci', 'أربع خطوات، بدون عناء', 'Four steps, zero hassle')}</h2>
+            </div>
+            <ol className="relative grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+              <div className="hidden lg:block absolute top-8 left-[12%] right-[12%] h-px bg-gradient-to-r from-gold-500/0 via-gold-500/50 to-gold-500/0" />
+              {STEPS.map((s, i) => (
+                <li key={i} className="relative flex lg:flex-col lg:text-center items-start lg:items-center gap-4 rounded-2xl lg:rounded-none p-4 lg:p-0 bg-white/[0.02] lg:bg-transparent border border-white/[0.06] lg:border-0">
+                  <div className="relative z-10 w-12 h-12 lg:w-16 lg:h-16 rounded-2xl gold-frame flex items-center justify-center flex-shrink-0">
+                    <span className="font-display text-xl lg:text-2xl font-black text-gold-gradient">{i + 1}</span>
+                  </div>
+                  <div>
+                    <div className="font-display text-lg font-bold mb-1">{pick(s.h)}</div>
+                    <p className="text-white/55 text-sm font-body leading-relaxed lg:max-w-[230px]">{pick(s.p)}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* Packs — défilement au doigt sur téléphone, 3 colonnes tablette/PC (Premium surélevé sur PC) */}
+        <section className="px-5 md:px-10 pt-16 lg:pt-24 pb-8 max-w-7xl mx-auto">
+          <div className="text-center mb-10 lg:mb-14">
+            <div className="section-badge mb-4">{L('Nos packs', 'باقاتنا', 'Our packs')}</div>
+            <h2 className="font-display text-3xl md:text-5xl font-bold">{L('Choisissez votre ', 'اختاروا ', 'Choose your ')}<span className="text-gold-gradient">{L('niveau de service', 'مستوى الخدمة', 'service level')}</span></h2>
+          </div>
+          <div className="snap-row md:grid md:grid-cols-3 md:gap-4 lg:gap-6 md:overflow-visible md:mx-0 md:px-0 lg:items-center">
             {PACKS.map((p, i) => (
-              <div key={p.key} className={`relative rounded-3xl border p-6 bg-[#111] ${p.featured ? 'border-gold-500/50 shadow-[0_0_40px_rgba(201,162,39,0.12)]' : 'border-white/10'}`}>
-                {p.featured && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gold-500 text-black text-[10px] font-bold tracking-wider uppercase">{L('Le plus demandé', 'الأكثر طلبا', 'Most popular')}</div>}
-                <div className="text-xs font-body tracking-widest uppercase mb-1 text-white/40">Pack {i + 1}</div>
-                <div className="font-display text-3xl font-black mb-2" style={{ color: p.color }}>{cText(settings, `ent_pack${i + 1}_name`, lang, pick(p.name))}</div>
-                <p className="text-white/55 text-sm font-body mb-5 min-h-[40px]">{cText(settings, `ent_pack${i + 1}_desc`, lang, pick(p.tagline))}</p>
-                <ul className="space-y-3 mb-6">
-                  {p.items.map((it, i) => {
+              <div key={p.key} className={`relative w-[84%] sm:w-[60%] md:w-auto rounded-3xl p-6 lg:p-8 flex flex-col ${p.featured ? 'gold-frame shadow-[0_0_60px_rgba(226,182,20,0.14)] lg:py-11' : 'lux-card'}`}>
+                {p.featured && <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-gold-500 text-black text-[10px] font-bold tracking-wider uppercase">{L('Le plus demandé', 'الأكثر طلبا', 'Most popular')}</div>}
+                <div className="num-outline font-display text-5xl lg:text-6xl font-black leading-none mb-3">0{i + 1}</div>
+                <div className="font-display text-3xl lg:text-[2.1rem] font-black mb-2" style={{ color: p.color }}>{cText(settings, `ent_pack${i + 1}_name`, lang, pick(p.name))}</div>
+                <p className="text-white/55 text-sm font-body mb-6 md:min-h-[40px]">{cText(settings, `ent_pack${i + 1}_desc`, lang, pick(p.tagline))}</p>
+                <div className="h-px bg-gradient-to-r from-white/0 via-white/10 to-white/0 mb-6" />
+                <ul className="space-y-3.5 mb-8 flex-1">
+                  {p.items.map((it, j) => {
                     const Icon = it.icon;
                     return (
-                      <li key={i} className="flex items-start gap-3 text-sm text-white/80 font-body">
-                        <span className="mt-0.5 shrink-0" style={{ color: p.color }}><Icon size={16} /></span>
-                        <span>{pick(it)}</span>
+                      <li key={j} className="flex items-start gap-3 text-sm text-white/80 font-body">
+                        <span className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ color: p.color, background: `${p.color}14` }}><Icon size={15} /></span>
+                        <span className="pt-1">{pick(it)}</span>
                       </li>
                     );
                   })}
                 </ul>
                 <a href="#devis" onClick={() => setForm((f) => ({ ...f, pack: p.name.fr }))}
-                  className="block text-center py-3 rounded-xl text-sm font-body font-semibold border transition-all"
-                  style={{ borderColor: `${p.color}55`, color: p.color, background: `${p.color}12` }}>
+                  className={p.featured ? 'btn-gold w-full py-3.5 text-sm font-body justify-center' : 'btn-ghost w-full py-3.5 text-sm font-body justify-center'}>
                   {L('Demander ce pack', 'اطلب هذه الباقة', 'Request this pack')}
                 </a>
               </div>
             ))}
           </div>
-          <p className="text-center text-white/40 text-xs font-body mt-5">
+          <p className="text-center text-white/40 text-xs font-body mt-6">
             {L('Tous les packs sont sur devis et personnalisables selon la durée, le nombre de personnes et vos besoins.', 'كل الباقات حسب عرض السعر وقابلة للتخصيص حسب المدّة وعدد الأشخاص واحتياجاتكم.', 'All packs are on quote and customizable based on duration, number of people and your needs.')}
-          </p>
-          <p className="text-center mt-3">
-            <a href={brochure} target="_blank" rel="noopener" className="inline-flex items-center gap-2 text-gold-400 text-sm font-body underline underline-offset-4">
-              <FileDown size={15} />{L('Télécharger la plaquette entreprise (PDF, 2 pages) — à transmettre à votre service achats', 'تحميل كتيّب الشركات (PDF، صفحتان)', 'Download the corporate brochure (PDF, 2 pages) — to share with your procurement team')}
-            </a>
           </p>
         </section>
 
-        {/* Pourquoi nous */}
-        <section className="px-5 py-14 max-w-5xl mx-auto">
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-10">{L('Pourquoi les entreprises nous choisissent', 'لماذا تختارنا الشركات', 'Why companies choose us')}</h2>
-          <div className="grid md:grid-cols-3 gap-5">
+        {/* Pourquoi nous — PC : titre collant à gauche + liste numérotée à droite */}
+        <section className="px-5 md:px-10 py-16 lg:py-24 max-w-7xl mx-auto grid lg:grid-cols-12 gap-10">
+          <div className={`lg:col-span-5 ${rtl ? 'text-right' : 'text-center lg:text-left'}`}>
+            <div className="lg:sticky lg:top-28">
+              <div className="section-badge mb-4">{L('Pourquoi Fik', 'لماذا فيك', 'Why Fik')}</div>
+              <h2 className="font-display text-3xl md:text-5xl font-bold leading-tight">{L('Pourquoi les entreprises ', 'لماذا تختارنا ', 'Why companies ')}<span className="text-gold-gradient">{L('nous choisissent', 'الشركات', 'choose us')}</span></h2>
+              <a href={brochure} target="_blank" rel="noopener" className="hidden lg:inline-flex mt-8 items-center gap-3 gold-frame rounded-2xl px-5 py-4 group">
+                <span className="w-10 h-10 rounded-xl bg-gold-500/15 flex items-center justify-center text-gold-400"><FileDown size={18} /></span>
+                <span>
+                  <span className="block text-white text-sm font-body font-semibold group-hover:text-gold-300 transition-colors">{L('Plaquette entreprise (PDF, 2 pages)', 'كتيّب الشركات (PDF، صفحتان)', 'Corporate brochure (PDF, 2 pages)')}</span>
+                  <span className="block text-white/45 text-xs font-body">{L('À transmettre à votre service achats', 'لإرسالها إلى مصلحة المشتريات', 'To share with your procurement team')}</span>
+                </span>
+              </a>
+            </div>
+          </div>
+          <div className="lg:col-span-7 grid md:grid-cols-3 lg:grid-cols-1 gap-4 lg:gap-5">
             {WHY.map((w, i) => (
-              <div key={i} className="rounded-2xl border border-white/10 bg-[#111] p-6">
-                <div className="w-10 h-10 rounded-xl bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400 mb-4"><Check size={18} /></div>
-                <div className="font-display text-lg font-bold mb-2">{pick(w.h)}</div>
-                <p className="text-white/55 text-sm font-body leading-relaxed">{pick(w.p)}</p>
+              <div key={i} className="lux-card p-6 lg:p-8 flex flex-col lg:flex-row gap-4 lg:gap-7 lg:items-center">
+                <div className="num-outline font-display text-5xl lg:text-7xl font-black leading-none flex-shrink-0 lg:w-24">0{i + 1}</div>
+                <div>
+                  <div className="font-display text-lg lg:text-2xl font-bold mb-2">{pick(w.h)}</div>
+                  <p className="text-white/55 text-sm lg:text-base font-body leading-relaxed">{pick(w.p)}</p>
+                </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Formulaire devis */}
-        <section id="devis" className="px-5 pb-24 max-w-2xl mx-auto scroll-mt-24">
-          <div className="rounded-3xl border border-gold-500/25 bg-gradient-to-b from-[#141414] to-[#0c0c0c] p-7">
-            <h2 className="font-display text-2xl font-bold mb-1">{L('Demander un devis entreprise', 'اطلب عرض سعر للشركة', 'Request a corporate quote')}</h2>
-            <p className="text-white/50 text-sm font-body mb-6">
-              {L('Réponse rapide. Aucun engagement.', 'ردّ سريع. دون أي التزام.', 'Fast reply. No commitment.')}{' '}
-              {L('Ou écrivez-nous :', 'أو راسلونا:', 'Or email us:')}{' '}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="text-gold-400 underline underline-offset-4">{CONTACT_EMAIL}</a>
-            </p>
+        {/* Formulaire devis — PC : encart contact à gauche, formulaire à droite */}
+        <section id="devis" className="px-5 md:px-10 pb-24 max-w-6xl mx-auto scroll-mt-24 grid lg:grid-cols-12 gap-6 lg:gap-10 items-start">
+          <aside className={`lg:col-span-4 order-2 lg:order-1 ${rtl ? 'text-right' : ''}`}>
+            <div className="hidden lg:block mb-6">
+              <h2 className="font-display text-3xl font-bold leading-tight mb-3">{L('Parlons de votre ', 'لنتحدث عن ', "Let's talk about your ")}<span className="text-gold-gradient">{L('mission', 'مهمّتكم', 'mission')}</span></h2>
+              <p className="text-white/55 text-sm font-body leading-relaxed">{L('Réponse rapide. Aucun engagement.', 'ردّ سريع. دون أي التزام.', 'Fast reply. No commitment.')}</p>
+            </div>
+            <div className="grid sm:grid-cols-3 lg:grid-cols-1 gap-3">
+              <a href={`mailto:${CONTACT_EMAIL}`} className="glass rounded-2xl p-4 flex items-center gap-3 hover:border-gold-500/40 transition-colors">
+                <span className="w-10 h-10 rounded-xl bg-gold-500/15 flex items-center justify-center text-gold-400 flex-shrink-0"><Mail size={17} /></span>
+                <span className="min-w-0"><span className="block text-white/45 text-[11px] font-body uppercase tracking-wider">Email</span><span className="block text-white text-sm font-body truncate">{CONTACT_EMAIL}</span></span>
+              </a>
+              <a href={waLink(settings, waMsg)} target="_blank" rel="noopener noreferrer" className="glass rounded-2xl p-4 flex items-center gap-3 hover:border-gold-500/40 transition-colors">
+                <span className="w-10 h-10 rounded-xl bg-gold-500/15 flex items-center justify-center text-gold-400 flex-shrink-0"><MessageCircle size={17} /></span>
+                <span><span className="block text-white/45 text-[11px] font-body uppercase tracking-wider">WhatsApp</span><span className="block text-white text-sm font-body">{L('Réponse directe', 'ردّ مباشر', 'Direct reply')}</span></span>
+              </a>
+              <a href={brochure} target="_blank" rel="noopener" className="glass rounded-2xl p-4 flex items-center gap-3 hover:border-gold-500/40 transition-colors">
+                <span className="w-10 h-10 rounded-xl bg-gold-500/15 flex items-center justify-center text-gold-400 flex-shrink-0"><FileDown size={17} /></span>
+                <span><span className="block text-white/45 text-[11px] font-body uppercase tracking-wider">PDF</span><span className="block text-white text-sm font-body">{L('Plaquette entreprise', 'كتيّب الشركات', 'Corporate brochure')}</span></span>
+              </a>
+            </div>
+          </aside>
+          <div className="lg:col-span-8 order-1 lg:order-2 gold-frame rounded-3xl p-6 md:p-9">
+            <h2 className="font-display text-2xl md:text-3xl font-bold mb-1">{L('Demander un devis entreprise', 'اطلب عرض سعر للشركة', 'Request a corporate quote')}</h2>
+            <p className="text-white/50 text-sm font-body mb-7 lg:hidden">{L('Réponse rapide. Aucun engagement.', 'ردّ سريع. دون أي التزام.', 'Fast reply. No commitment.')}</p>
+            <div className="hidden lg:block h-6" />
             {done ? (
               <div className="text-center py-10">
                 <div className="w-14 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center mx-auto mb-4 text-emerald-400"><Check size={26} /></div>
@@ -255,8 +330,10 @@ export default function Entreprises() {
               </div>
             ) : (
               <form onSubmit={submit} className="space-y-3">
+<div className="grid sm:grid-cols-2 gap-3">
                 <input value={form.company} onChange={set('company')} placeholder={L('Nom de la société *', 'اسم الشركة *', 'Company name *')} className="input-dark w-full" />
                 <input value={form.name} onChange={set('name')} placeholder={L('Votre nom et fonction *', 'اسمك ووظيفتك *', 'Your name and job title *')} className="input-dark w-full" />
+                </div>
                 <div className="grid sm:grid-cols-2 gap-3">
                   <input value={form.email} onChange={set('email')} type="email" inputMode="email" placeholder={L('Email professionnel *', 'البريد المهني *', 'Work email *')} className="input-dark w-full" />
                   <input value={form.phone} onChange={set('phone')} inputMode="tel" placeholder={L('Téléphone (facultatif)', 'الهاتف (اختياري)', 'Phone (optional)')} className="input-dark w-full" />
