@@ -1,8 +1,10 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import { CalendarCheck, Clock, TrendingUp, Banknote, AlertCircle, ArrowRight, ChevronUp, ChevronDown } from 'lucide-react';
+import Link from 'next/link';
+import { CalendarCheck, Clock, TrendingUp, Banknote, AlertCircle, ArrowRight, ChevronUp, ChevronDown, ArrowRightCircle, ArrowLeftCircle, Car, Phone, AlertTriangle } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import { toYMD, rentalDays } from '../../lib/date';
 
 const STATUS = {
   PENDING:   { label: 'En attente',  bg: 'bg-amber-500/15',   text: 'text-amber-400',   dot: 'bg-amber-400' },
@@ -91,6 +93,78 @@ function FinanceCard({ title, rows, accent, accentColor }) {
   );
 }
 
+const LIVE = ['PENDING', 'ACCEPTED', 'CONFIRMED', 'ACTIVE'];
+const telHref = (p) => `tel:${String(p || '').replace(/[^\d+]/g, '')}`;
+
+// Ce qui se passe aujourd'hui/demain : départs, retours, voitures dehors, retards
+function TodayPanel({ bookings }) {
+  const today = toYMD(new Date());
+  const tomorrow = toYMD(new Date(Date.now() + 86400000));
+  const live = bookings.filter(b => LIVE.includes(b.status));
+  const cols = [
+    { key: 'dep', title: 'Départs', Icon: ArrowRightCircle, tone: 'text-emerald-400',
+      rows: live.filter(b => b.start_date === today || b.start_date === tomorrow).sort((a, b) => a.start_date.localeCompare(b.start_date)),
+      when: b => (b.start_date === today ? "Aujourd'hui" : 'Demain') },
+    { key: 'ret', title: 'Retours', Icon: ArrowLeftCircle, tone: 'text-blue-400',
+      rows: live.filter(b => b.status !== 'PENDING' && (b.end_date === today || b.end_date === tomorrow)).sort((a, b) => a.end_date.localeCompare(b.end_date)),
+      when: b => (b.end_date === today ? "Aujourd'hui" : 'Demain') },
+    { key: 'out', title: 'Voitures dehors', Icon: Car, tone: 'text-gold-400',
+      rows: live.filter(b => b.status !== 'PENDING' && b.start_date <= today && b.end_date > today),
+      when: b => `retour ${b.end_date.slice(8, 10)}/${b.end_date.slice(5, 7)}` },
+  ];
+  const late = live.filter(b => b.status === 'ACTIVE' && b.end_date && b.end_date < today);
+
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="h-px w-6 bg-gradient-to-r from-gold-500/40 to-transparent" />
+        <span className="text-white/30 text-[10px] font-black uppercase tracking-[0.15em]">Aujourd'hui & demain</span>
+        <Link href="/admin/planning" className="ml-auto flex items-center gap-1 text-gold-500/50 hover:text-gold-400 text-xs font-semibold transition-colors">
+          Planning <ArrowRight size={11} />
+        </Link>
+      </div>
+      {late.length > 0 && (
+        <div className="mb-3 flex items-start gap-2.5 bg-red-500/10 border border-red-500/25 rounded-xl px-4 py-3 text-sm text-red-300">
+          <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+          <span><b>{late.length} retour{late.length > 1 ? 's' : ''} en retard</b> (toujours « En cours ») : {late.map(b => `${b.client_name} — ${b.cars?.name || '?'}`).join(' · ')}</span>
+        </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {cols.map(({ key, title, Icon, tone, rows, when }) => (
+          <div key={key} className="bg-[#141414] border border-white/[0.07] rounded-2xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Icon size={15} className={tone} />
+              <span className="text-white/70 text-sm font-semibold">{title}</span>
+              <span className={`ml-auto text-xs font-black tabular-nums ${rows.length ? tone : 'text-white/20'}`}>{rows.length}</span>
+            </div>
+            {rows.length === 0 ? (
+              <p className="text-white/20 text-xs py-3 text-center">Rien de prévu</p>
+            ) : (
+              <ul className="space-y-2">
+                {rows.slice(0, 6).map(b => (
+                  <li key={b.id} className="flex items-center gap-2.5 bg-white/[0.03] rounded-xl px-3 py-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-white text-xs font-semibold truncate">{b.client_name}{b.status === 'PENDING' && <span className="ml-1.5 text-amber-400 font-normal">· à confirmer</span>}</p>
+                      <p className="text-white/30 text-[11px] truncate">{b.cars?.name || '—'} · {when(b)}</p>
+                    </div>
+                    {b.client_phone && (
+                      <a href={telHref(b.client_phone)} aria-label={`Appeler ${b.client_name}`}
+                        className="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg bg-white/[0.05] text-white/40 hover:text-gold-400 transition-colors">
+                        <Phone size={12} />
+                      </a>
+                    )}
+                  </li>
+                ))}
+                {rows.length > 6 && <li className="text-white/25 text-[11px] text-center">+ {rows.length - 6} autres</li>}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [profile, setProfile]       = useState(null);
   const [recentBookings, setRecent] = useState([]);
@@ -125,11 +199,7 @@ export default function AdminDashboard() {
 
   const getNbDays = (b) => {
     if (b.nb_days && Number(b.nb_days) > 0) return Number(b.nb_days);
-    if (b.start_date && b.end_date) {
-      const d = Math.round((new Date(b.end_date) - new Date(b.start_date)) / 86400000);
-      return d > 0 ? d : 1;
-    }
-    return 1;
+    return rentalDays(b.start_date, b.end_date) || 1;
   };
 
   const getPrixHouariJour = (b) => {
@@ -190,16 +260,18 @@ export default function AdminDashboard() {
                 </p>
               </div>
               {pending.length > 0 && (
-                <a href="/admin/bookings"
+                <Link href="/admin/bookings"
                   className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/25 rounded-xl px-3 py-2 text-amber-400 text-xs font-bold hover:bg-amber-500/15 transition-all">
                   <AlertCircle size={13} className="animate-pulse" />
                   {pending.length} en attente
-                </a>
+                </Link>
               )}
             </div>
 
+            <TodayPanel bookings={allBookings} />
+
             {/* KPIs */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <KpiCard Icon={CalendarCheck} accentColor="blue"    label="Réservations"   value={allBookings.length} sub={`${thisMonth.length} ce mois`} />
               <KpiCard Icon={Clock}         accentColor="amber"   label="En attente"     value={pending.length}    sub="À confirmer" />
               <KpiCard Icon={Banknote}      accentColor="gold"    label="CA ce mois"     value={fmt(thisCA)}       sub={`vs ${fmt(lastCA)}`} delta={caDelta} />
@@ -254,10 +326,10 @@ export default function AdminDashboard() {
                   <div className="h-px w-6 bg-gradient-to-r from-gold-500/40 to-transparent" />
                   <span className="text-white/30 text-[10px] font-black uppercase tracking-[0.15em]">Réservations récentes</span>
                 </div>
-                <a href="/admin/bookings"
+                <Link href="/admin/bookings"
                   className="flex items-center gap-1 text-gold-500/50 hover:text-gold-400 text-xs font-semibold transition-colors">
                   Voir tout <ArrowRight size={11} />
-                </a>
+                </Link>
               </div>
 
               <div className="relative bg-[#141414] border border-white/[0.07] rounded-2xl overflow-hidden">
