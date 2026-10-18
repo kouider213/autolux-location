@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import {
   Building2, MapPin, Maximize, BedDouble, Bath, Search, X, ArrowRight,
-  Star, MessageCircle, Home, Key, TrendingUp, Megaphone, Briefcase, Calculator, Heart,
+  Star, MessageCircle, Home, Key, TrendingUp, Megaphone, Briefcase, Calculator, Heart, Check,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -19,8 +19,70 @@ const STATUS_BADGE = {
   disponible:  { label: '● Disponible', cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/25' },
   loue:        { label: 'Loué',         cls: 'bg-amber-500/15 text-amber-400 border-amber-500/20' },
   vendu:       { label: 'Vendu',        cls: 'bg-red-500/15 text-red-400 border-red-500/20' },
-  coming_soon: { label: 'Bientôt',      cls: 'bg-blue-500/15 text-blue-400 border-blue-500/20' },
+  coming_soon: { label: 'Bientôt',      cls: 'bg-gold-500/15 text-gold-300 border-gold-500/25' },
 };
+
+// Aucun bien publié → « Je cherche un bien » (louer/acheter, type, quartier, budget → WhatsApp pré-rempli)
+// + encart propriétaires. PC : 7/5 colonnes ; tablette/téléphone : empilés.
+function ImmoFinder({ lang, whatsapp }) {
+  const L = (fr, ar, en) => (lang === 'ar' ? ar : lang === 'en' ? en : fr);
+  const [txn, setTxn] = useState('louer');
+  const [type, setType] = useState('appartement');
+  const [area, setArea] = useState('');
+  const [budget, setBudget] = useState('');
+  const TXN = [['louer', L('Louer', 'كراء', 'Rent')], ['acheter', L('Acheter', 'شراء', 'Buy')]];
+  const TYPES = [['appartement', L('Appartement', 'شقة', 'Apartment'), Building2], ['villa', L('Villa / maison', 'فيلا / منزل', 'Villa / house'), Home], ['local', L('Local pro', 'محل مهني', 'Commercial'), Briefcase]];
+  const typeLbl = (TYPES.find((x) => x[0] === type) || [])[1] || '';
+  const txnLbl = (TXN.find((x) => x[0] === txn) || [])[1] || '';
+  const msg = L(
+    `Bonjour Fik Conciergerie, je cherche à ${txnLbl.toLowerCase()} : ${typeLbl.toLowerCase()} à Oran${area ? ` (${area})` : ''}${budget ? `, budget ${budget}` : ''}. Avez-vous quelque chose ?`,
+    `مرحبا فيك كونسيرجري، أبحث عن ${txnLbl}: ${typeLbl} في وهران${area ? ` (${area})` : ''}${budget ? `، الميزانية ${budget}` : ''}. هل لديكم شيء؟`,
+    `Hello Fik Conciergerie, I'm looking to ${txnLbl.toLowerCase()}: ${typeLbl.toLowerCase()} in Oran${area ? ` (${area})` : ''}${budget ? `, budget ${budget}` : ''}. Do you have anything?`,
+  );
+  return (
+    <div className="grid lg:grid-cols-12 gap-5 lg:gap-8 items-stretch">
+      <div className="lg:col-span-7 gold-frame rounded-3xl p-6 md:p-9">
+        <div className="text-gold-400 text-[11px] font-semibold uppercase tracking-[0.25em] mb-3">{L('Recherche sur mesure', 'بحث مخصّص', 'Tailored search')}</div>
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">{L('Je cherche ', 'أبحث عن ', "I'm looking for ")}<span className="text-gold-gradient">{L('un bien', 'عقار', 'a property')}</span></h2>
+        <p className="text-white/50 text-sm md:text-base mb-7">{L('Nos premiers biens arrivent. Dites-nous ce que vous cherchez, on vous prévient en priorité.', 'عقاراتنا الأولى قادمة. أخبرنا بما تبحث عنه ونُعلمك أولاً.', 'Our first listings are on the way. Tell us what you need and we will tell you first.')}</p>
+        {/* Louer / Acheter */}
+        <div className="inline-flex p-1 rounded-full bg-white/[0.04] border border-white/[0.08] mb-5">
+          {TXN.map(([k, lbl]) => (
+            <button key={k} type="button" onClick={() => setTxn(k)} className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${txn === k ? 'bg-gold-500 text-noir-950' : 'text-white/55 hover:text-white'}`}>{lbl}</button>
+          ))}
+        </div>
+        {/* Type de bien */}
+        <div className="grid grid-cols-3 gap-2 md:gap-3 mb-4">
+          {TYPES.map(([k, lbl, Icon]) => (
+            <button key={k} type="button" onClick={() => setType(k)} aria-pressed={type === k}
+              className={`rounded-2xl p-3 md:p-4 flex flex-col items-center gap-2 text-center border transition-all ${type === k ? 'border-gold-500/60 bg-gold-500/10 text-white' : 'border-white/[0.08] bg-white/[0.02] text-white/55 hover:text-white'}`}>
+              <Icon size={22} className={type === k ? 'text-gold-400' : ''} />
+              <span className="text-xs md:text-sm font-semibold leading-tight">{lbl}</span>
+            </button>
+          ))}
+        </div>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <input value={area} onChange={(e) => setArea(e.target.value)} placeholder={L('Quartier (ex. Akid Lotfi)', 'الحي', 'Area (e.g. Akid Lotfi)')} className="input-dark w-full" />
+          <input value={budget} onChange={(e) => setBudget(e.target.value)} placeholder={L('Budget (€ ou DA)', 'الميزانية', 'Budget (€ or DA)')} className="input-dark w-full" />
+        </div>
+        <a href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener noreferrer" className="btn-gold w-full py-4 text-sm justify-center mt-6"><Search size={16} />{L('Envoyer ma recherche', 'أرسل بحثي', 'Send my search')}</a>
+      </div>
+      <a href="#proprietaires" className="lg:col-span-5 lux-card p-6 md:p-9 flex flex-col justify-between group min-h-[220px]">
+        <div>
+          <div className="w-14 h-14 rounded-2xl bg-gold-500/10 border border-gold-500/25 flex items-center justify-center text-gold-400 mb-6"><Key size={24} /></div>
+          <div className="text-white/45 text-[11px] font-semibold uppercase tracking-[0.25em] mb-3">{L('Propriétaires', 'المُلّاك', 'Owners')}</div>
+          <h3 className="font-display text-2xl md:text-3xl font-bold text-white mb-3">{L('Vous avez un bien à louer ou vendre ?', 'لديك عقار للكراء أو البيع؟', 'Have a property to rent or sell?')}</h3>
+          <ul className="space-y-2 text-white/55 text-sm">
+            {[L('Mise en ligne et photos', 'النشر والصور', 'Listing & photos'), L('Visites et contacts gérés', 'إدارة المعاينات والاتصالات', 'Viewings & contacts handled'), L('Estimation gratuite', 'تقدير مجاني', 'Free valuation')].map((x) => (
+              <li key={x} className="flex items-center gap-2"><Check size={14} className="text-gold-400" />{x}</li>
+            ))}
+          </ul>
+        </div>
+        <span className="mt-8 inline-flex items-center gap-2 text-gold-400 text-sm font-semibold">{L('Découvrir nos offres', 'اكتشف عروضنا', 'See our offers')} <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" /></span>
+      </a>
+    </div>
+  );
+}
 
 function PropertyCard({ property: p }) {
   const { t } = useLang();
@@ -97,7 +159,7 @@ const OWNER_OFFERS = [
 
 export default function ImmoPage({ properties }) {
   const WHATSAPP = waNumber(useSettings());
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [search, setSearch]   = useState('');
   const [txn, setTxn]         = useState('Tous');   // Tous | location | vente
   const [type, setType]       = useState('Tous');
@@ -145,9 +207,9 @@ export default function ImmoPage({ properties }) {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/25 to-transparent" />
           <div className="absolute top-20 right-1/3 w-72 h-72 bg-gold-500/[0.05] rounded-full blur-[100px] pointer-events-none" />
           <div className="relative max-w-7xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6"><Building2 size={11} /> {t('immo.badge')}</div>
-            <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-none mb-5">{t('immo.title1')} <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{t('immo.title2')}</span></h1>
-            <p className="text-white/35 max-w-lg mx-auto text-base leading-relaxed">{t('immo.subtitle')}</p>
+            <div className="section-badge mb-6"><Building2 size={11} /> {t('immo.badge')}</div>
+            <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-none mb-5">{t('immo.title1')} <span className="text-gold-gradient italic">{t('immo.title2')}</span></h1>
+            <p className="text-white/55 max-w-lg mx-auto text-base md:text-lg leading-relaxed">{t('immo.subtitle')}</p>
           </div>
         </div>
 
@@ -201,37 +263,37 @@ export default function ImmoPage({ properties }) {
                 )}
               </>
             ) : (
-              <div className="text-center py-16 max-w-lg mx-auto mb-8">
-                <div className="w-20 h-20 bg-gold-500/[0.08] border border-gold-500/20 rounded-3xl flex items-center justify-center mx-auto mb-7"><Building2 size={32} className="text-gold-400" /></div>
-                <h2 className="font-display text-3xl font-bold text-white mb-3">{t('immo.cs_t')}</h2>
-                <p className="text-white/40 leading-relaxed mb-8">{t('immo.cs_d')}</p>
-                <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(t('immo.cs_wa'))}`} target="_blank" rel="noopener noreferrer" className="btn-gold px-8 py-3.5 text-sm inline-flex items-center gap-2"><MessageCircle size={15} /> {t('immo.contact')}</a>
-              </div>
+              <ImmoFinder lang={lang} whatsapp={WHATSAPP} />
             )}
 
             {/* ── ESPACE PROPRIÉTAIRES ── */}
-            <section className="mt-20 pt-16 border-t border-white/[0.06]">
+            <section id="proprietaires" className="mt-20 lg:mt-28 pt-16 border-t border-white/[0.06] scroll-mt-24">
               <div className="text-center mb-12">
-                <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5"><Key size={11} /> {t('immo.owners_badge')}</div>
-                <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-3">{t('immo.owners_title1')} <span className="text-gold-gradient italic">{t('immo.owners_title2')}</span></h2>
-                <p className="text-white/35 max-w-xl mx-auto">{t('immo.owners_desc')}</p>
+                <div className="section-badge mb-5"><Key size={11} /> {t('immo.owners_badge')}</div>
+                <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-3">{t('immo.owners_title1')} <span className="text-gold-gradient italic">{t('immo.owners_title2')}</span></h2>
+                <p className="text-white/50 max-w-xl mx-auto">{t('immo.owners_desc')}</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+              <div className="snap-row md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:overflow-visible md:mx-0 md:px-0 mb-10">
                 {OWNER_OFFERS.map((o, i) => (
-                  <div key={i} className="bg-[#141414] border border-white/[0.06] rounded-2xl p-6 hover:border-gold-500/20 transition-all group">
-                    <div className="w-12 h-12 bg-gold-500/10 border border-gold-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><o.icon size={20} className="text-gold-400" /></div>
-                    <h3 className="text-white font-bold text-base mb-2">{t(o.tk)}</h3>
+                  <div key={i} className="lux-card w-[78%] sm:w-[55%] md:w-auto p-6 lg:p-7 group">
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="w-12 h-12 bg-gold-500/10 border border-gold-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"><o.icon size={20} className="text-gold-400" /></div>
+                      <span className="num-outline font-display text-5xl font-black leading-none">0{i + 1}</span>
+                    </div>
+                    <h3 className="font-display text-white font-bold text-lg mb-2">{t(o.tk)}</h3>
                     <p className="text-white/40 text-sm leading-relaxed">{t(o.dk)}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-gradient-to-b from-[#141414] to-[#111] border border-white/[0.07] rounded-3xl p-8 text-center max-w-2xl mx-auto">
-                <TrendingUp size={28} className="text-gold-400 mx-auto mb-4" />
-                <h3 className="text-white font-bold text-xl mb-2">{t('immo.estimate_title')}</h3>
-                <p className="text-white/40 text-sm mb-6 max-w-md mx-auto">{t('immo.estimate_desc')}</p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <div className="gold-frame rounded-3xl p-7 md:p-10 flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10 text-center lg:text-left">
+                <div className="w-16 h-16 rounded-2xl bg-gold-500/10 border border-gold-500/25 flex items-center justify-center mx-auto lg:mx-0 flex-shrink-0"><TrendingUp size={28} className="text-gold-400" /></div>
+                <div className="flex-1">
+                  <h3 className="font-display text-white font-bold text-2xl md:text-3xl mb-2">{t('immo.estimate_title')}</h3>
+                  <p className="text-white/50 text-sm md:text-base max-w-xl mx-auto lg:mx-0">{t('immo.estimate_desc')}</p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center flex-shrink-0">
                   <a href={`https://wa.me/${WHATSAPP}?text=${ownerMsg}`} target="_blank" rel="noopener noreferrer" className="btn-gold px-7 py-3.5 text-sm justify-center"><Briefcase size={15} /> {t('immo.propose')}</a>
                   <a href={`https://wa.me/${WHATSAPP}?text=${estimateMsg}`} target="_blank" rel="noopener noreferrer" className="btn-outline px-7 py-3.5 text-sm justify-center"><Calculator size={15} /> {t('immo.estimate')}</a>
                 </div>
