@@ -27,6 +27,7 @@ const NAV = [
   { href: '/admin/conditions',  label: 'Conditions',         icon: FileText },
   { href: '/admin/pages',       label: 'Pages du site',      icon: FileText },
   { href: '/admin/contenu',     label: 'Contenu (textes/photos)', icon: Globe },
+  { href: '/admin/textes',      label: 'Textes du site',         icon: Globe },
   { href: '/admin/faq',         label: 'FAQ',                icon: HelpCircle },
   { href: '/admin/blog',        label: 'Blog',               icon: Newspaper },
   { href: '/admin/newsletter',  label: 'Newsletter',         icon: Mail },

@@ -42,7 +42,10 @@ export default function AdminContenu() {
     if (!supabase) return;
     setSaving(true);
     try {
-      const { error } = await supabase.from('site_settings').update({ content }).eq('id', 1);
+      // Relit content : garde les textes (« Textes du site ») et l'email 2 enregistrés ailleurs entre-temps.
+      const { data: cur } = await supabase.from('site_settings').select('content').eq('id', 1).single();
+      const fresh = cur?.content || {};
+      const { error } = await supabase.from('site_settings').update({ content: { ...content, i18n: fresh.i18n, email2: fresh.email2 } }).eq('id', 1);
       if (error) throw new Error(error.message + ' — lance la migration 0032_site_content.sql');
       toast.success('Contenu enregistré ✅');
     } catch (e) { toast.error(e.message); }
