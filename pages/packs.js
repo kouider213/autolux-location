@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useTranslated } from '../lib/autoTranslate';
 import { useSettings, waNumber } from '../lib/settings';
+import { cText } from '../lib/content';
 import { useFavorites } from '../lib/favorites';
 
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
@@ -115,7 +116,8 @@ function PackCard({ p, lang }) {
 
 export default function PacksPage({ packs }) {
   const { lang } = useLang();
-  const WHATSAPP = waNumber(useSettings());
+  const settings = useSettings();
+  const WHATSAPP = waNumber(settings);
   const [search, setSearch] = useState('');
   const [tier, setTier]     = useState('Tous');
   const hasPacks = packs && packs.length > 0;
@@ -145,15 +147,17 @@ export default function PacksPage({ packs }) {
           <div className="absolute top-20 left-1/3 w-72 h-72 bg-gold-500/[0.05] rounded-full blur-[100px] pointer-events-none" />
           <div className="relative max-w-7xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
-              <Sparkles size={11} /> {lang === 'ar' ? 'باقات كل شيء في واحد' : lang === 'en' ? 'All-in-one packs' : 'Packs tout-en-un'}
+              <Sparkles size={11} /> {cText(settings, 'packs_badge', lang, lang === 'ar' ? 'باقات كل شيء في واحد' : lang === 'en' ? 'All-in-one packs' : 'Packs tout-en-un')}
             </div>
             <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-none mb-5">
-              {lang === 'ar' ? 'باقات' : lang === 'en' ? 'Our' : 'Nos'} <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{lang === 'ar' ? 'الإقامة' : lang === 'en' ? 'stay packs' : 'Packs séjour'}</span>
+              {cText(settings, 'packs_title_a', lang, lang === 'ar' ? 'باقات' : lang === 'en' ? 'Our' : 'Nos')} <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{cText(settings, 'packs_title_b', lang, lang === 'ar' ? 'الإقامة' : lang === 'en' ? 'stay packs' : 'Packs séjour')}</span>
             </h1>
             <p className="text-white/35 max-w-xl mx-auto text-base leading-relaxed">
-              {lang === 'ar'
+              {cText(settings, 'packs_sub', lang, lang === 'ar'
                 ? 'سيارة + سكن + جت سكي + سائق. كل شيء في باقة واحدة، حسب ميزانيتك.'
-                : 'Voiture, immobilier, jet ski, chauffeur — tout réuni en un seul pack, du séjour malin au sur-mesure entreprise.'}
+                : lang === 'en'
+                  ? 'Car, accommodation, jet ski, driver — all in one pack, from a smart getaway to tailor-made for companies.'
+                  : 'Voiture, immobilier, jet ski, chauffeur — tout réuni en un seul pack, du séjour malin au sur-mesure entreprise.')}
             </p>
           </div>
         </div>

@@ -10,17 +10,17 @@ import {
 
 /* ── Packs : config affichage home ── */
 const PACK_TIERS_HOME = {
-  entree:     { label: 'Entrée de gamme', ar: 'اقتصادي',  cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/25' },
-  medium:     { label: 'Médium',          ar: 'متوسط',     cls: 'bg-gold-500/20 text-gold-300 border-gold-500/25' },
-  premium:    { label: 'Premium',         ar: 'فاخر',      cls: 'bg-purple-500/20 text-purple-300 border-purple-500/25' },
-  entreprise: { label: 'Entreprise / Groupe', ar: 'شركات', cls: 'bg-blue-500/20 text-blue-300 border-blue-500/25' },
+  entree:     { label: 'Entrée de gamme', ar: 'اقتصادي', en: 'Budget',  cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/25' },
+  medium:     { label: 'Médium',          ar: 'متوسط',          en: 'Mid-range',     cls: 'bg-gold-500/20 text-gold-300 border-gold-500/25' },
+  premium:    { label: 'Premium',         ar: 'فاخر',         en: 'Premium',      cls: 'bg-purple-500/20 text-purple-300 border-purple-500/25' },
+  entreprise: { label: 'Entreprise / Groupe', ar: 'شركات', en: 'Company / Group', cls: 'bg-blue-500/20 text-blue-300 border-blue-500/25' },
 };
 const PACK_INC_HOME = [
-  { key: 'inc_car',       icon: Car,       label: 'Voiture',     ar: 'سيارة' },
-  { key: 'inc_apartment', icon: Building2, label: 'Appartement', ar: 'شقة' },
-  { key: 'inc_villa',     icon: Hotel,     label: 'Villa',       ar: 'فيلا' },
-  { key: 'inc_jetski',    icon: Waves,     label: 'Jet ski',     ar: 'جت سكي' },
-  { key: 'inc_driver',    icon: UserCheck, label: 'Chauffeur',   ar: 'سائق' },
+  { key: 'inc_car',       icon: Car,       label: 'Voiture',     ar: 'سيارة', en: 'Car' },
+  { key: 'inc_apartment', icon: Building2, label: 'Appartement', ar: 'شقة', en: 'Apartment' },
+  { key: 'inc_villa',     icon: Hotel,     label: 'Villa',       ar: 'فيلا', en: 'Villa' },
+  { key: 'inc_jetski',    icon: Waves,     label: 'Jet ski',     ar: 'جت سكي', en: 'Jet ski' },
+  { key: 'inc_driver',    icon: UserCheck, label: 'Chauffeur',   ar: 'سائق', en: 'Driver' },
 ];
 const packPriceHome = (p, lang) => {
   if (!p.price || p.price_type === 'sur_devis') return lang === 'ar' ? 'حسب الطلب' : lang === 'en' ? 'On quote' : 'Sur devis';
@@ -798,11 +798,11 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   emptyIcon: <Package size={100} className="text-white/[0.05]" />,
                   title: p.title,
                   badges: <>
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${tier.cls}`}>{lang === 'ar' ? tier.ar : tier.label}</span>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${tier.cls}`}>{tier[lang] || tier.label}</span>
                     {p.featured && <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-500 text-noir-950">{t('b.featured')}</span>}
                   </>,
-                  specs: incs.map(({ key, icon: Icon, label, ar }) => (
-                    <span key={key} className="flex items-center gap-1.5 text-white/50 text-sm font-body"><Icon size={12} className="text-gold-500/60" />{lang === 'ar' ? ar : label}</span>
+                  specs: incs.map(({ key, icon: Icon, label, ar, en }) => (
+                    <span key={key} className="flex items-center gap-1.5 text-white/50 text-sm font-body"><Icon size={12} className="text-gold-500/60" />{({ ar, en })[lang] || label}</span>
                   )),
                   price: packPriceHome(p, lang),
                   cta: lang === 'ar' ? 'اكتشف' : lang === 'en' ? 'Discover' : 'Découvrir', ctaIcon: <ArrowRight size={15} />,

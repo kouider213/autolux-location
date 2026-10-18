@@ -58,7 +58,7 @@ export default function AdminContenu() {
     <AdminLayout title="Contenu du site">
       <Head><title>Contenu — Admin</title></Head>
       <div className="max-w-2xl mx-auto pb-28">
-        <p className="text-white/40 text-sm mb-6">Modifie les textes et photos des pages. Laisse vide pour garder le texte par défaut du site.</p>
+        <p className="text-white/40 text-sm mb-6">Modifie les textes et photos des pages. Laisse vide pour garder le texte par défaut du site. Pour tous les autres textes (menu, boutons, accueil, réservation, contact…), va dans « Textes du site ».</p>
 
         {loading ? (
           <div className="flex items-center gap-2 text-white/40 text-sm"><Loader2 size={16} className="animate-spin" />Chargement…</div>

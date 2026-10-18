@@ -17,18 +17,18 @@ import { useSettings, waNumber } from '../../lib/settings';
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
 const TIERS = {
-  entree:     { label: 'Entrée de gamme', ar: 'اقتصادي',  cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25' },
-  medium:     { label: 'Médium',          ar: 'متوسط',     cls: 'bg-gold-500/15 text-gold-400 border-gold-500/25' },
-  premium:    { label: 'Premium',         ar: 'فاخر',      cls: 'bg-purple-500/15 text-purple-300 border-purple-500/25' },
-  entreprise: { label: 'Entreprise / Groupe', ar: 'شركات / مجموعات', cls: 'bg-blue-500/15 text-blue-400 border-blue-500/25' },
+  entree:     { label: 'Entrée de gamme', ar: 'اقتصادي', en: 'Budget',  cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25' },
+  medium:     { label: 'Médium',          ar: 'متوسط',          en: 'Mid-range',     cls: 'bg-gold-500/15 text-gold-400 border-gold-500/25' },
+  premium:    { label: 'Premium',         ar: 'فاخر',         en: 'Premium',      cls: 'bg-purple-500/15 text-purple-300 border-purple-500/25' },
+  entreprise: { label: 'Entreprise / Groupe', ar: 'شركات / مجموعات', en: 'Company / Group', cls: 'bg-blue-500/15 text-blue-400 border-blue-500/25' },
 };
 
 const INCLUSIONS = [
-  { key: 'inc_car',       icon: Car,       label: 'Voiture',     ar: 'سيارة' },
-  { key: 'inc_apartment', icon: Building2, label: 'Appartement', ar: 'شقة' },
-  { key: 'inc_villa',     icon: Home,      label: 'Villa',       ar: 'فيلا' },
-  { key: 'inc_jetski',    icon: Waves,     label: 'Jet ski',     ar: 'جت سكي' },
-  { key: 'inc_driver',    icon: UserCheck, label: 'Chauffeur',   ar: 'سائق' },
+  { key: 'inc_car',       icon: Car,       label: 'Voiture',     ar: 'سيارة', en: 'Car' },
+  { key: 'inc_apartment', icon: Building2, label: 'Appartement', ar: 'شقة', en: 'Apartment' },
+  { key: 'inc_villa',     icon: Home,      label: 'Villa',       ar: 'فيلا', en: 'Villa' },
+  { key: 'inc_jetski',    icon: Waves,     label: 'Jet ski',     ar: 'جت سكي', en: 'Jet ski' },
+  { key: 'inc_driver',    icon: UserCheck, label: 'Chauffeur',   ar: 'سائق', en: 'Driver' },
 ];
 
 const packAvailable = (p) => {
@@ -134,7 +134,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
                     ? <video src={src} controls playsInline className="w-full h-full object-cover bg-black" />
                     : <img src={src} alt={pack.title} onClick={() => setLb(true)} className="w-full h-full object-cover cursor-zoom-in" loading="eager" />
                 ) : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] to-[#0e0e0e]"><Package size={56} className="text-white/[0.07]" /></div>}
-                <span className={`absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-lg border ${tier.cls}`}>{lang === 'ar' ? tier.ar : tier.label}</span>
+                <span className={`absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-lg border ${tier.cls}`}>{tier[lang] || tier.label}</span>
                 {pack.featured && <span className="absolute top-4 right-4 text-xs font-bold px-3 py-1.5 rounded-lg bg-gold-500 text-noir-950">{lang === 'ar' ? 'مميز' : lang === 'en' ? 'Popular' : 'Populaire'}</span>}
               </div>
               {allPhotos.length > 1 && (
@@ -167,10 +167,10 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
               <div>
                 <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{lang === 'ar' ? 'يشمل' : lang === 'en' ? 'This pack includes' : 'Ce pack comprend'}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {incs.map(({ key, icon: Icon, label, ar }) => (
+                  {incs.map(({ key, icon: Icon, label, ar, en }) => (
                     <div key={key} className="bg-[#141414] border border-white/[0.06] rounded-xl p-4 flex flex-col items-start gap-2">
                       <Icon size={18} className="text-gold-500" />
-                      <p className="text-white font-semibold text-sm">{lang === 'ar' ? ar : label}</p>
+                      <p className="text-white font-semibold text-sm">{({ ar, en })[lang] || label}</p>
                     </div>
                   ))}
                 </div>
@@ -189,7 +189,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
                         <div className="p-3">
                           <div className="flex items-center gap-1.5 text-gold-500/80 text-[10px] uppercase tracking-wide mb-1"><Car size={11} /> {lang === 'ar' ? 'السيارة' : lang === 'en' ? 'Vehicle' : 'Véhicule'}</div>
                           <p className="text-white font-semibold text-sm leading-tight">{pack.car.name}</p>
-                          <p className="text-white/35 text-xs mt-0.5">{[pack.car.category, pack.car.seats ? `${pack.car.seats} places` : null, pack.car.available === false ? (lang === 'ar' ? 'محجوزة' : 'Indisponible') : null].filter(Boolean).join(' · ')}</p>
+                          <p className="text-white/35 text-xs mt-0.5">{[pack.car.category, pack.car.seats ? (lang === 'en' ? `${pack.car.seats} seats` : lang === 'ar' ? `${pack.car.seats} مقاعد` : `${pack.car.seats} places`) : null, pack.car.available === false ? (lang === 'ar' ? 'محجوزة' : lang === 'en' ? 'Unavailable' : 'Indisponible') : null].filter(Boolean).join(' · ')}</p>
                         </div>
                       </Link>
                     )}
@@ -201,7 +201,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
                         <div className="p-3">
                           <div className="flex items-center gap-1.5 text-gold-500/80 text-[10px] uppercase tracking-wide mb-1"><Home size={11} /> {lang === 'ar' ? 'العقار' : lang === 'en' ? 'Property' : 'Bien immo'}</div>
                           <p className="text-white font-semibold text-sm leading-tight">{pack.property.title}</p>
-                          <p className="text-white/35 text-xs mt-0.5">{[pack.property.district, pack.property.city, (pack.property.status && pack.property.status !== 'disponible') ? (lang === 'ar' ? 'محجوز' : 'Indisponible') : null].filter(Boolean).join(' · ')}</p>
+                          <p className="text-white/35 text-xs mt-0.5">{[pack.property.district, pack.property.city, (pack.property.status && pack.property.status !== 'disponible') ? (lang === 'ar' ? 'محجوز' : lang === 'en' ? 'Unavailable' : 'Indisponible') : null].filter(Boolean).join(' · ')}</p>
                         </div>
                       </Link>
                     )}

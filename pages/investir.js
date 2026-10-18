@@ -24,6 +24,12 @@ const OFFERS = [
 export default function InvestirPage() {
   const settings = useSettings();
   const { lang } = useLang();
+  // Texte modifiable dans Admin › Contenu : version de la langue si saisie, sinon FR (saisi ou d'origine) auto-traduit.
+  const ed = (key, def) => {
+    const o = settings?.content?.[key];
+    const v = typeof o?.[lang] === 'string' ? o[lang].trim() : '';
+    return v || <T>{(typeof o?.fr === 'string' && o.fr.trim()) || def}</T>;
+  };
   const wa = (msg) => waLink(settings, msg);
 
   return (
@@ -43,13 +49,13 @@ export default function InvestirPage() {
           <div className="absolute top-20 right-1/3 w-72 h-72 bg-gold-500/[0.05] rounded-full blur-[100px] pointer-events-none" />
           <div className="relative max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
-              <Plane size={11} /> <T>Pour les Algériens du monde</T>
+              <Plane size={11} /> {ed('inv_badge', 'Pour les Algériens du monde')}
             </div>
             <h1 className="font-display text-4xl md:text-6xl font-bold text-white leading-tight mb-5">
-              <T>Investir à Oran,</T> <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic"><T>depuis n'importe où</T></span>
+              {ed('inv_title_a', 'Investir à Oran,')} <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{ed('inv_title_b', "depuis n'importe où")}</span>
             </h1>
             <p className="text-white/40 max-w-xl mx-auto text-base leading-relaxed mb-8">
-              <T>Tu vis à l'étranger et tu veux investir, acheter, louer ou passer des vacances au pays ? On est tes yeux et tes mains à Oran. Confiance, transparence, clé en main.</T>
+              {ed('inv_sub', "Tu vis à l'étranger et tu veux investir, acheter, louer ou passer des vacances au pays ? On est tes yeux et tes mains à Oran. Confiance, transparence, clé en main.")}
             </p>
             <a href={wa('Bonjour Fik Conciergerie, je vis à l\'étranger et je souhaite investir / acheter / louer à Oran. Pouvez-vous m\'accompagner ?')}
               target="_blank" rel="noopener noreferrer"
