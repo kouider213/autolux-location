@@ -31,13 +31,14 @@ export default function Footer() {
   const WHATSAPP = waNumber(settings);
 
   return (
-    <footer className="relative border-t border-white/[0.07] bg-[#040404]">
+    <footer className="relative border-t border-white/[0.07] bg-[#040404] overflow-hidden">
+      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle,rgba(226,182,20,0.06) 0%,transparent 70%)' }} />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/20 to-transparent" />
-      <div className="max-w-7xl mx-auto px-5 pt-14 pb-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 md:gap-10 mb-12">
+      <div className="relative max-w-7xl mx-auto px-5 pt-14 md:pt-20 pb-10">
+        <div className="grid grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1.3fr] gap-x-6 gap-y-10 md:gap-x-10 mb-12">
 
           {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <img src={settings.logo_url || '/logo.png'} alt="Fik Conciergerie" className="w-10 h-10 object-contain" />
               <div>
@@ -45,7 +46,7 @@ export default function Footer() {
                 <span className="text-white/25 text-[10px] tracking-widest uppercase font-body">{t('foot.premium')}</span>
               </div>
             </div>
-            <p className="text-white/30 text-sm font-body leading-relaxed mb-5">{t('foot.tagline')}</p>
+            <p className="text-white/45 text-sm font-body leading-relaxed mb-5 max-w-sm">{t('foot.tagline')}</p>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#25D366]/20 transition-colors">
               <MessageCircle size={14} />WhatsApp
@@ -55,7 +56,7 @@ export default function Footer() {
 
           {/* Navigation */}
           <div>
-            <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">{t('foot.nav')}</h3>
+            <h3 className="text-gold-500/80 text-[10px] font-black uppercase tracking-[0.2em] mb-5">{t('foot.nav')}</h3>
             <ul className="space-y-3">
               {[
                 { h: '/', l: t('foot.f_home') },
@@ -68,7 +69,7 @@ export default function Footer() {
                 { h: '/contact', l: t('foot.f_contact') },
               ].map(x => (
                 <li key={x.h}>
-                  <Link href={x.h} className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors flex items-center gap-2 group">
+                  <Link href={x.h} className="text-white/50 text-sm font-body hover:text-gold-300 transition-colors flex items-center gap-2 group">
                     <span className="w-1 h-1 bg-gold-500/0 group-hover:bg-gold-500 rounded-full transition-colors" />
                     {x.l}
                   </Link>
@@ -79,7 +80,7 @@ export default function Footer() {
 
           {/* Informations */}
           <div>
-            <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">{t('foot.info')}</h3>
+            <h3 className="text-gold-500/80 text-[10px] font-black uppercase tracking-[0.2em] mb-5">{t('foot.info')}</h3>
             <ul className="space-y-3">
               {[
                 { h: '/commande-vehicule', l: t('foot.f_order') },
@@ -89,7 +90,7 @@ export default function Footer() {
                 { h: '/immo', l: t('foot.f_immo') },
               ].map(x => (
                 <li key={x.h}>
-                  <Link href={x.h} className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors flex items-center gap-2 group">
+                  <Link href={x.h} className="text-white/50 text-sm font-body hover:text-gold-300 transition-colors flex items-center gap-2 group">
                     <span className="w-1 h-1 bg-gold-500/0 group-hover:bg-gold-500 rounded-full transition-colors" />
                     {x.l}
                   </Link>
@@ -99,28 +100,28 @@ export default function Footer() {
           </div>
 
           {/* Contact */}
-          <div className="col-span-2 md:col-span-1">
-            <h3 className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-5">{t('foot.contact')}</h3>
+          <div className="col-span-2 lg:col-span-1">
+            <h3 className="text-gold-500/80 text-[10px] font-black uppercase tracking-[0.2em] mb-5">{t('foot.contact')}</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin size={13} className="text-gold-500 mt-0.5 flex-shrink-0" />
-                <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="text-white/35 text-sm font-body leading-relaxed hover:text-gold-400 transition-colors">
+                <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="text-white/55 text-sm font-body leading-relaxed hover:text-gold-400 transition-colors">
                   {settings.address || t('foot.addr')}<br /><span className="text-gold-500/60 text-xs">{lang === 'ar' ? 'عرض على خرائط Google ←' : lang === 'en' ? 'View on Google Maps →' : 'Voir sur Google Maps →'}</span>
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <MessageCircle size={13} className="text-gold-500 flex-shrink-0" />
-                <a href={`https://wa.me/${WHATSAPP}`} dir="ltr" className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors">{formatIntl(WHATSAPP)}</a>
+                <a href={`https://wa.me/${WHATSAPP}`} dir="ltr" className="text-white/55 text-sm font-body hover:text-gold-400 transition-colors">{formatIntl(WHATSAPP)}</a>
               </li>
               {siteEmails(settings).map(em => (
                 <li key={em} className="flex items-center gap-3">
                   <Mail size={13} className="text-gold-500 flex-shrink-0" />
-                  <a href={`mailto:${em}`} dir="ltr" className="text-white/35 text-sm font-body hover:text-gold-400 transition-colors break-all">{em}</a>
+                  <a href={`mailto:${em}`} dir="ltr" className="text-white/55 text-sm font-body hover:text-gold-400 transition-colors break-all">{em}</a>
                 </li>
               ))}
               <li className="flex items-center gap-3">
                 <Star size={13} className="text-gold-500 flex-shrink-0" />
-                <span className="text-white/35 text-sm font-body">{t('foot.hours')}</span>
+                <span className="text-white/55 text-sm font-body">{t('foot.hours')}</span>
               </li>
             </ul>
           </div>
@@ -162,6 +163,12 @@ export default function Footer() {
           <p className="text-white/15 text-xs font-body">© {new Date().getFullYear()} Fik Conciergerie — {t('foot.rights')}</p>
           <span className="text-white/15 text-xs font-body">{t('foot.perks')}</span>
         </div>
+
+        {/* Signature géante en contour or */}
+        <p aria-hidden="true" className="num-outline font-display font-black text-center leading-none mt-10 select-none whitespace-nowrap opacity-60"
+          style={{ fontSize: 'clamp(40px, 11.5vw, 170px)' }}>
+          Fik Conciergerie
+        </p>
       </div>
     </footer>
   );

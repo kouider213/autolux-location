@@ -66,7 +66,7 @@ export default function CarsPage({ cars: initialCars }) {
         <Navbar />
 
         {/* Hero */}
-        <div className="relative pt-32 pb-20 px-5 overflow-hidden">
+        <div className="relative pt-28 md:pt-36 pb-10 md:pb-16 px-5 overflow-hidden">
           {/* BG layers */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#0f0f0f] via-[#0a0a0a] to-[#0a0a0a]" />
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/25 to-transparent" />
@@ -78,13 +78,15 @@ export default function CarsPage({ cars: initialCars }) {
               <Car size={11} />
               {t('cars.badge')} · {cars.length}
             </div>
-            <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-none mb-5">
+            <h1 className="font-display text-[44px] md:text-7xl lg:text-8xl font-bold text-white leading-none mb-6">
               {t('cars.title1')}<br />
               <span className="bg-gradient-to-r from-gold-300 via-gold-400 to-gold-600 bg-clip-text text-transparent italic">{t('cars.title2')}</span>
             </h1>
-            <p className="text-white/35 max-w-lg mx-auto text-base leading-relaxed">
-              {t('cars.tags')}
-            </p>
+            <div className="flex flex-wrap justify-center gap-2 mt-2">
+              {String(t('cars.tags')).split('·').map(x => x.trim()).filter(Boolean).map(x => (
+                <span key={x} className="glass rounded-full px-3.5 py-1.5 text-white/70 text-xs md:text-sm">{x}</span>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -92,8 +94,8 @@ export default function CarsPage({ cars: initialCars }) {
           <div className="max-w-7xl mx-auto">
 
             {/* Filters */}
-            <div className="bg-[#111]/80 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-5 mb-8 space-y-4">
-              <div className="flex flex-col sm:flex-row gap-3">
+            <div className="sticky top-[68px] md:top-[84px] z-30 bg-[#0d0d0d]/85 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-3 md:p-4 mb-6 md:mb-8 shadow-[0_20px_40px_-20px_rgba(0,0,0,0.9)] md:flex md:items-center md:gap-4 space-y-3 md:space-y-0">
+              <div className="flex flex-col sm:flex-row gap-3 md:w-72 lg:w-80 md:flex-shrink-0">
                 <div className="relative flex-1">
                   <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" />
                   <input
@@ -112,14 +114,19 @@ export default function CarsPage({ cars: initialCars }) {
               </div>
 
               {/* Mobile : une seule ligne qui défile ; PC : retour à la ligne */}
-              <div className="flex gap-2 overflow-x-auto md:flex-wrap md:overflow-visible -mx-1 px-1 pb-1 no-scrollbar">
-                {CATEGORIES.map(cat => (
+              <div className="flex gap-2 overflow-x-auto lg:flex-wrap lg:overflow-visible -mx-1 px-1 no-scrollbar">
+                {CATEGORIES.filter(cat => cat === 'Tous' || cars.some(c => c.category === cat)).map(cat => (
                   <button key={cat} onClick={() => setFilter(cat)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 capitalize ${
+                    className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 capitalize ${
                       filter === cat
                         ? 'bg-gold-500 text-noir-950 shadow-[0_4px_14px_rgba(226,182,20,0.35)]'
-                        : 'bg-white/[0.04] border border-white/[0.07] text-white/40 hover:text-white/70 hover:border-white/15'
-                    }`}>{cat}</button>
+                        : 'bg-white/[0.04] border border-white/[0.07] text-white/55 hover:text-white hover:border-gold-500/30'
+                    }`}>
+                    {cat === 'Tous' ? (lang === 'ar' ? 'الكل' : lang === 'en' ? 'All' : 'Tous') : localizeValue(cat, lang)}
+                    <span className={`text-[10px] tabular-nums ${filter === cat ? 'text-noir-950/60' : 'text-white/30'}`}>
+                      {cat === 'Tous' ? cars.length : cars.filter(c => c.category === cat).length}
+                    </span>
+                  </button>
                 ))}
                 {hasFilters && (
                   <button onClick={() => { setFilter('Tous'); setSearch(''); }}
@@ -148,7 +155,7 @@ export default function CarsPage({ cars: initialCars }) {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
                 {filtered.map(car => <CarCard key={car.id} car={car} bookedUntil={bookedCarIds[car.id] || null} t={t} lang={lang} availMode={availMode} wa={WHATSAPP} isFav={isFav(car.id)} onFav={() => toggle(car.id)} />)}
               </div>
             )}
@@ -183,125 +190,111 @@ export default function CarsPage({ cars: initialCars }) {
 function CarCard({ car, bookedUntil, t, lang, availMode, wa, isFav, onFav }) {
   const isBookedNow = !!bookedUntil;
   const available   = car.available && !isBookedNow;
+  const cur = car.currency === 'EUR' ? '€' : 'DA';
+
+  const status = availMode ? (
+    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-black/70 text-gold-300 border border-gold-500/40 backdrop-blur-md">{t('d.on_demand')}</span>
+  ) : available ? (
+    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 backdrop-blur-md">● {t('b.available')}</span>
+  ) : isBookedNow ? (
+    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20 backdrop-blur-md">{t('b.rented')} · {bookedUntil}</span>
+  ) : (
+    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 backdrop-blur-md">{t('b.unavailable')}</span>
+  );
+
+  const cta = availMode ? (
+    <Link href={`/reservation?car=${car.id}`}
+      className="btn-gold !px-3.5 !py-2.5 !text-xs !rounded-xl whitespace-nowrap">{t('b.check')}</Link>
+  ) : (
+    <Link href={available ? `/reservation?car=${car.id}` : '#'}
+      className={available ? 'btn-gold !px-4 !py-2.5 !text-sm !rounded-xl' : 'px-4 py-2.5 rounded-xl text-sm font-bold bg-white/[0.04] text-white/20 cursor-not-allowed'}>
+      {available ? t('common.book') : t('cars.indispo')}
+    </Link>
+  );
+
+  const specs = (
+    <div className="flex items-center gap-1.5 flex-wrap">
+      {[[Fuel, localizeValue(car.fuel, lang)], [Users, `${car.seats} ${t('b.places')}`], [null, car.transmission && localizeValue(car.transmission, lang)]]
+        .filter(([, v]) => v).map(([Icon, v]) => (
+          <span key={v} className="inline-flex items-center gap-1 text-white/55 text-[11px] bg-white/[0.05] border border-white/[0.06] rounded-full px-2 py-0.5 capitalize">
+            {Icon && <Icon size={10} className="text-gold-500/70" />}{v}
+          </span>
+        ))}
+    </div>
+  );
+
+  const fav = (
+    <button
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFav && onFav(); }}
+      aria-label="Favori"
+      className={`absolute z-20 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md border transition-all ${
+        isFav ? 'bg-red-500/90 border-red-400 text-white' : 'bg-black/50 border-white/15 text-white/80 hover:text-white'
+      }`}>
+      <Heart size={15} className={isFav ? 'fill-current' : ''} />
+    </button>
+  );
 
   return (
-    <div className="group relative bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-gold-500/25 hover:-translate-y-2 hover:shadow-[0_28px_60px_rgba(0,0,0,0.7)] transition-all duration-500">
+    <div className="group relative flex sm:block rounded-2xl sm:rounded-3xl overflow-hidden border border-white/[0.07] bg-gradient-to-b from-[#141414] to-[#0d0d0d] hover:border-gold-500/40 sm:hover:-translate-y-2 hover:shadow-[0_30px_60px_-20px_rgba(0,0,0,0.9),0_0_0_1px_rgba(226,182,20,0.1)] transition-all duration-500">
 
-      {/* Image */}
-      <Link href={`/cars/${car.id}`} className="block relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
+      {/* Photo — carré à gauche sur téléphone, 4/3 en haut sur tablette/PC */}
+      <Link href={`/cars/${car.id}`} className="relative block w-[40%] min-h-[150px] sm:min-h-0 sm:w-auto flex-shrink-0 overflow-hidden sm:aspect-[4/3]">
         {car.image_url ? (
           <img src={car.image_url} alt={car.name}
-            className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
+            className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
             loading="lazy" />
         ) : (
-          <div className="w-full h-full bg-[#111] flex items-center justify-center">
-            <Car size={36} className="text-white/[0.06]" />
-          </div>
+          <div className="absolute inset-0 bg-[#111] flex items-center justify-center"><Car size={36} className="text-white/[0.06]" /></div>
         )}
+        <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/30 to-transparent" />
+        {!availMode && !available && <div className="absolute inset-0 bg-[#0a0a0a]/60 backdrop-blur-[2px]" />}
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/50 to-transparent" />
-
-        {/* Top badges */}
-        <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md border border-white/[0.1] text-white/75 capitalize">
-            {localizeValue(car.category, lang)}
-          </span>
-          {availMode ? (
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-black/70 text-gold-300 border border-gold-500/40 backdrop-blur-md">
-              {t('d.on_demand')}
-            </span>
-          ) : available ? (
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 backdrop-blur-md">
-              ● {t('b.available')}
-            </span>
-          ) : isBookedNow ? (
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/20 backdrop-blur-md">
-              {t('b.rented')} · {bookedUntil}
-            </span>
-          ) : (
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 backdrop-blur-md">
-              {t('b.unavailable')}
-            </span>
-          )}
+        <div className="hidden sm:flex absolute top-3 left-3 right-3 items-start justify-between">
+          <span className="tag-category">{localizeValue(car.category, lang)}</span>
+          {status}
         </div>
-
-        {/* Overlay dimming if unavailable (jamais en mode "sur demande") */}
-        {!availMode && !available && (
-          <div className="absolute inset-0 bg-[#0a0a0a]/60 backdrop-blur-[2px]" />
-        )}
-
-        {/* Bottom overlay on image — name + specs */}
-        <div className="absolute inset-x-0 bottom-0 p-4">
-          <h3 className="text-white font-bold text-lg leading-tight mb-1.5">{car.name}</h3>
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="flex items-center gap-1 text-white/35 text-xs">
-              <Fuel size={10} /> {localizeValue(car.fuel, lang)}
-            </span>
-            <span className="flex items-center gap-1 text-white/35 text-xs">
-              <Users size={10} /> {car.seats} {t('b.places')}
-            </span>
-            {car.transmission && (
-              <span className="text-white/35 text-xs capitalize">{localizeValue(car.transmission, lang)}</span>
-            )}
-          </div>
+        <div className="hidden sm:block absolute inset-x-0 bottom-0 p-4 pr-14">
+          <h3 className="font-body text-white font-semibold text-xl tracking-tight leading-tight mb-2">{car.name}</h3>
+          {specs}
         </div>
-
-        {/* Bouton favori (sans login) */}
-        <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFav && onFav(); }}
-          aria-label="Favori"
-          className={`absolute bottom-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md border transition-all ${
-            isFav ? 'bg-red-500/90 border-red-400 text-white' : 'bg-black/40 border-white/15 text-white/70 hover:text-white'
-          }`}>
-          <Heart size={15} className={isFav ? 'fill-current' : ''} />
-        </button>
+        <div className="hidden sm:block [&>button]:bottom-4 [&>button]:right-4">{fav}</div>
       </Link>
 
-      {/* Bottom — price + CTA */}
-      <div className="p-4 flex items-center justify-between">
-        <div>
-          <div className="flex items-baseline gap-1">
-            <span className="font-display font-black text-2xl text-gold-400 leading-none tabular-nums">
-              {Number(car.resale_price).toLocaleString('fr-FR')}
-            </span>
-            <span className="text-gold-500/50 text-sm">{car.currency === 'EUR' ? '€' : 'DA'}</span>
-            <span className="text-white/25 text-xs">{t('b.per_day')}</span>
+      {/* Infos — à droite sur téléphone */}
+      <div className="sm:hidden flex-1 min-w-0 p-3.5 flex flex-col">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-gold-500/80 text-[10px] font-bold uppercase tracking-wider capitalize">{localizeValue(car.category, lang)}</p>
+            <Link href={`/cars/${car.id}`}><h3 className="font-body text-white font-semibold text-lg tracking-tight leading-tight truncate">{car.name}</h3></Link>
           </div>
+          <div className="relative w-9 h-9 flex-shrink-0 [&>button]:inset-0">{fav}</div>
         </div>
+        <div className="mt-2 mb-3">{specs}</div>
+        <div className="mt-auto flex items-end justify-between gap-2">
+          <div className="leading-none">
+            <span className="font-display font-black text-2xl text-gold-gradient tabular-nums">{Number(car.resale_price).toLocaleString('fr-FR')}</span>
+            <span className="text-gold-500/60 text-xs ml-0.5">{cur}</span>
+            <span className="block text-white/30 text-[10px] mt-1">{t('b.per_day')}</span>
+          </div>
+          {cta}
+        </div>
+      </div>
 
+      {/* Prix + action — tablette/PC */}
+      <div className="hidden sm:flex p-4 items-center justify-between gap-2 border-t border-white/[0.05]">
+        <div className="flex items-baseline gap-1">
+          <span className="font-display font-black text-3xl text-gold-gradient leading-none tabular-nums">{Number(car.resale_price).toLocaleString('fr-FR')}</span>
+          <span className="text-gold-500/60 text-sm">{cur}</span>
+          <span className="text-white/30 text-xs">{t('b.per_day')}</span>
+        </div>
         <div className="flex items-center gap-2">
-          <Link href={`/cars/${car.id}`}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.05] hover:bg-white/10 text-white/30 hover:text-white transition-all">
+          <Link href={`/cars/${car.id}`} aria-label={car.name}
+            className="hidden xl:flex w-9 h-9 items-center justify-center rounded-xl bg-white/[0.05] hover:bg-white/10 text-white/40 hover:text-white transition-all">
             <ArrowRight size={14} />
           </Link>
-          {availMode ? (
-            <Link href={`/reservation?car=${car.id}`}
-              className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-gold-500 text-noir-950 hover:bg-gold-400 shadow-[0_4px_16px_rgba(226,182,20,0.3)] transition-all whitespace-nowrap">
-              {t('b.check')}
-            </Link>
-          ) : (
-            <Link href={available ? `/reservation?car=${car.id}` : '#'}
-              className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
-                available
-                  ? 'bg-gold-500 text-noir-950 hover:bg-gold-400 shadow-[0_4px_16px_rgba(226,182,20,0.3)] hover:shadow-[0_6px_20px_rgba(226,182,20,0.4)]'
-                  : 'bg-white/[0.04] text-white/20 cursor-not-allowed'
-              }`}>
-              {available ? t('common.book') : t('cars.indispo')}
-            </Link>
-          )}
+          {cta}
         </div>
       </div>
     </div>
   );
-}
-
-export async function getStaticProps() {
-  try {
-    if (!supabase) return { props: { cars: [] }, revalidate: 30 };
-    const { data: cars } = await supabase.from('cars').select('*').order('resale_price');
-    return { props: { cars: cars || [] }, revalidate: 30 };
-  } catch {
-    return { props: { cars: [] }, revalidate: 30 };
-  }
 }

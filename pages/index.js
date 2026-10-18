@@ -276,7 +276,7 @@ function CarMiniCard({ car }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         <span className="absolute top-3 left-3 tag-category">{localizeValue(car.category, lang)}</span>
         <div className="absolute bottom-0 inset-x-0 p-5">
-          <h3 className="font-display font-black text-white text-2xl leading-tight">{car.name}</h3>
+          <h3 className="font-body font-semibold tracking-tight text-white text-2xl leading-tight">{car.name}</h3>
           <p className="text-white/50 text-xs mt-1">{localizeValue(car.fuel, lang)} · {car.seats} {t('b.places')}{car.transmission ? ` · ${localizeValue(car.transmission, lang)}` : ''}</p>
           <div className="flex items-end justify-between mt-3">
             <span className="font-display font-black text-gold-gradient text-3xl leading-none">{Number(car.resale_price).toLocaleString('fr-FR')} {car.currency === 'EUR' ? '€' : 'DA'}<span className="text-white/40 text-xs font-body font-normal ml-1">{t('cc.perday')}</span></span>
