@@ -23,7 +23,7 @@ export default function Document() {
             { '@type': 'City', name: 'Oran' },
             { '@type': 'Country', name: 'Algérie' },
           ],
-          address: { '@type': 'PostalAddress', streetAddress: 'Rue Derbouz Draoua, Houari', addressLocality: 'Oran', postalCode: '31300', addressRegion: 'Oran', addressCountry: 'DZ' },
+          address: { '@type': 'PostalAddress', streetAddress: 'Rue Derbouz Draoua Houari, Hay Badr', addressLocality: 'Oran', postalCode: '31300', addressRegion: 'Oran', addressCountry: 'DZ' },
           geo: { '@type': 'GeoCoordinates', latitude: 35.6976, longitude: -0.6369 },
           knowsLanguage: ['fr', 'ar', 'en'],
           priceRange: '€€',

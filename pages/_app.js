@@ -114,7 +114,7 @@ export default function App({ Component, pageProps }) {
                 image: 'https://fikconciergerie.com/logo.png',
                 telephone: '+32466311469',
                 priceRange: '€€',
-                address: { '@type': 'PostalAddress', streetAddress: 'Rue Derbouz Draoua, Houari', addressLocality: 'Oran', postalCode: '31300', addressRegion: 'Oran', addressCountry: 'DZ' },
+                address: { '@type': 'PostalAddress', streetAddress: 'Rue Derbouz Draoua Houari, Hay Badr', addressLocality: 'Oran', postalCode: '31300', addressRegion: 'Oran', addressCountry: 'DZ' },
                 geo: { '@type': 'GeoCoordinates', latitude: 35.6976, longitude: -0.6369 },
                 areaServed: { '@type': 'City', name: 'Oran' },
                 openingHours: 'Mo-Su 00:00-23:59',
