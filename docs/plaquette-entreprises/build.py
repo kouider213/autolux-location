@@ -2,18 +2,30 @@
 """Plaquette entreprises FIK (2 pages A4, FR + EN) → public/plaquette-fik-entreprises-{fr,en}.pdf
 
 Usage : python3 docs/plaquette-entreprises/build.py   (depuis la racine du repo, Google Chrome requis)
-Pas de prix ni de numéros légaux (RC/NIF) pour l'instant : à ajouter dans TEXT quand Kouider les aura.
+Coordonnées : variable d'environnement FIK_SETTINGS (JSON de site_settings : whatsapp, phone, email, address,
+rc, nif) → ce que Kouider saisit dans Admin › Paramètres. Refaite automatiquement par le VPS
+(dzaryx/scripts/plaquette_sync.py, toutes les 10 min) dès qu'une de ces valeurs change.
 """
-import base64, pathlib, subprocess, tempfile
+import base64, json, os, pathlib, re, subprocess, tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PUB = ROOT / 'public'
 CONTACT = {
     'email': 'contact@fikconciergerie.com',
     'wa': '+32 466 31 14 69',
-    'addr': 'Rue Derbouz Draoua, Houari, Oran 31300, Algérie',
+    'addr': 'Rue Derbouz Draoua Houari, Hay Badr, Oran 31300, Algérie',
     'site': 'fikconciergerie.com/entreprises',
+    'phone': '',   # numéro algérien (Admin › Paramètres) — vide = ligne masquée
+    'legal': '',   # « RC … · NIF … »
 }
+_S = json.loads(os.environ.get('FIK_SETTINGS') or '{}')
+if _S.get('email'): CONTACT['email'] = _S['email'].strip()
+if _S.get('whatsapp'):
+    d = re.sub(r'\D', '', _S['whatsapp'])
+    CONTACT['wa'] = '+' + (f'{d[:2]} {d[2:5]} {d[5:7]} {d[7:9]} {d[9:]}' if d.startswith('32') and len(d) == 11 else d)
+if _S.get('address'): CONTACT['addr'] = re.sub(r'Draoua\s*,\s*Houari', 'Draoua Houari', _S['address'].strip())
+CONTACT['phone'] = (_S.get('phone') or '').strip()
+CONTACT['legal'] = ' · '.join(x for x in [_S.get('rc') and f"RC {_S['rc'].strip()}", _S.get('nif') and f"NIF {_S['nif'].strip()}"] if x)
 
 TEXT = {
     'fr': {
@@ -58,7 +70,7 @@ TEXT = {
         ],
         'contact_h': 'Demander un devis',
         'contact_sub': 'Réponse par email, en français, anglais ou arabe.',
-        'l_email': 'Email', 'l_wa': 'WhatsApp', 'l_addr': 'Adresse', 'l_site': 'Formulaire',
+        'l_email': 'Email', 'l_wa': 'WhatsApp', 'l_addr': 'Adresse', 'l_site': 'Formulaire', 'l_tel': 'Tél. Algérie',
         'founder': 'Kouider, fondateur de FIK Conciergerie',
     },
     'en': {
@@ -102,7 +114,7 @@ TEXT = {
         ],
         'contact_h': 'Request a quote',
         'contact_sub': 'We reply by email, in English, French or Arabic.',
-        'l_email': 'Email', 'l_wa': 'WhatsApp', 'l_addr': 'Address', 'l_site': 'Online form',
+        'l_email': 'Email', 'l_wa': 'WhatsApp', 'l_addr': 'Address', 'l_site': 'Online form', 'l_tel': 'Phone (Algeria)',
         'founder': 'Kouider, founder of FIK Conciergerie',
     },
 }
@@ -171,7 +183,9 @@ def html(lang):
         f'<div class="n">Pack {i + 1}</div><h3>{n}</h3><div class="tl">{tl}</div><ul>{"".join(f"<li>{x}</li>" for x in li)}</ul></div>'
         for i, (n, tl, li) in enumerate(t['packs']))
     steps = ''.join(f'<div class="step"><div class="num">{i + 1}</div><b>{h}</b><p>{p}</p></div>' for i, (h, p) in enumerate(t['how']))
-    foot = f'<div class="foot"><span><b>FIK Conciergerie</b> · Oran</span><span>{CONTACT["email"]} · {CONTACT["site"]}</span></div>'
+    legal = f' · {CONTACT["legal"]}' if CONTACT['legal'] else ''
+    foot = f'<div class="foot"><span><b>FIK Conciergerie</b> · Oran{legal}</span><span>{CONTACT["email"]} · {CONTACT["site"]}</span></div>'
+    tel = f"<dt>{t['l_tel']}</dt><dd>{CONTACT['phone']}</dd>" if CONTACT['phone'] else ''
     return f"""<!doctype html><html lang="{lang}"><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700;800&display=block" rel="stylesheet">
 <style>{CSS}</style></head><body>
@@ -190,7 +204,7 @@ def html(lang):
     <h2>{t['who_h']}</h2><div class="who">{''.join(f'<span>{w}</span>' for w in t['who'])}</div>
     <h2>{t['how_h']}</h2><div class="steps">{steps}</div>
     <div class="contact"><div><h2>{t['contact_h']}</h2><p class="sub">{t['contact_sub']}</p><p class="sign">{t['founder']}</p></div>
-      <dl><dt>{t['l_email']}</dt><dd>{CONTACT['email']}</dd><dt>{t['l_wa']}</dt><dd>{CONTACT['wa']}</dd>
+      <dl><dt>{t['l_email']}</dt><dd>{CONTACT['email']}</dd><dt>{t['l_wa']}</dt><dd>{CONTACT['wa']}</dd>{tel}
       <dt>{t['l_site']}</dt><dd>{CONTACT['site']}</dd><dt>{t['l_addr']}</dt><dd>{CONTACT['addr'].replace('Algérie', 'Algeria') if lang == 'en' else CONTACT['addr']}</dd></dl></div>
   </div>{foot}
 </section></body></html>"""
