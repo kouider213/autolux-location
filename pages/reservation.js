@@ -18,6 +18,28 @@ const DatePicker = dynamic(() => import('react-datepicker'), { ssr: false });
 
 const WHATSAPP_FALLBACK = '32466311469';
 
+// ── Siège bébé : âge de l'enfant (en mois) → siège adapté
+const CHILD_AGES = [0, 6, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120];
+const L3 = (lang, frT, enT, arT) => (lang === 'ar' ? arT : lang === 'en' ? enT : frT);
+function childAgeLabel(m, lang) {
+  if (m === 0)  return L3(lang, 'Moins de 6 mois', 'Under 6 months', 'أقل من 6 أشهر');
+  if (m === 6)  return L3(lang, '6 à 12 mois', '6–12 months', '6 إلى 12 شهرًا');
+  const y = m / 12;
+  return L3(lang, `${y} an${y > 1 ? 's' : ''}`, `${y} year${y > 1 ? 's' : ''}`, `${y} ${y > 2 && y < 11 ? 'سنوات' : 'سنة'}`);
+}
+function seatForAge(m, lang) {
+  if (m < 12) return L3(lang, 'coque bébé (groupe 0+)', 'infant carrier (group 0+)', 'مقعد رضيع (فئة 0+)');
+  if (m < 48) return L3(lang, 'siège auto (groupe 1)', 'child car seat (group 1)', 'مقعد أطفال (فئة 1)');
+  return L3(lang, 'rehausseur (groupe 2/3)', 'booster seat (group 2/3)', 'مقعد رافع (فئة 2/3)');
+}
+// Résumé lisible, ex. « 2 — 8 mois → coque bébé ; 3 ans → siège auto ». null si pas demandé.
+function babySeatSummary(form, lang = 'fr') {
+  if (!form.babySeat) return null;
+  const ages = form.babyAges.filter(a => a !== '').map(Number);
+  if (!ages.length) return null;
+  return `${ages.length} — ` + ages.map(m => `${childAgeLabel(m, lang)} → ${seatForAge(m, lang)}`).join(' ; ');
+}
+
 const sym = (c) => (c === 'EUR' ? '€' : 'DA');
 const fmt = (n) => Number(n).toLocaleString('fr-FR');
 
@@ -41,6 +63,7 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = W
     `*Return:* ${form.endDate}`,
     `*Duration:* ${days} day${days > 1 ? 's' : ''}`,
     `*Estimated total:* ${fmt(total)} ${sym(car.currency)}`,
+    babySeatSummary(form, 'en') ? `👶 *Baby seat:* ${babySeatSummary(form, 'en')}` : null,
     form.notes ? `*Notes:* ${form.notes}` : null,
     ``,
     bookingId ? `🔗 Tracking: https://fikconciergerie.com/suivi/${bookingId}` : null,
@@ -62,6 +85,7 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = W
     `*العودة :* ${form.endDate}`,
     `*المدة :* ${days} يوم`,
     `*المجموع التقديري :* ${fmt(total)} ${sym(car.currency)}`,
+    babySeatSummary(form, 'ar') ? `👶 *مقعد طفل :* ${babySeatSummary(form, 'ar')}` : null,
     form.notes ? `*ملاحظات :* ${form.notes}` : null,
     ``,
     bookingId ? `🔗 المتابعة: https://fikconciergerie.com/suivi/${bookingId}` : null,
@@ -83,6 +107,7 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = W
     `*Retour :* ${form.endDate}`,
     `*Durée :* ${days} jour${days > 1 ? 's' : ''}`,
     `*Total estimé :* ${fmt(total)} ${sym(car.currency)}`,
+    babySeatSummary(form, 'fr') ? `👶 *Siège bébé :* ${babySeatSummary(form, 'fr')}` : null,
     form.notes ? `*Notes :* ${form.notes}` : null,
     ``,
     bookingId ? `🔗 Suivi: https://fikconciergerie.com/suivi/${bookingId}` : null,
@@ -120,6 +145,7 @@ export default function ReservationPage({ cars: initialCars }) {
   const [form, setForm] = useState({
     carId: '', startDate: '', endDate: '',
     name: '', phone: '', age: '', email: '', passport: '', notes: '', referral: '',
+    babySeat: false, babyAges: [''],
   });
 
   // Refresh cars
@@ -241,6 +267,10 @@ export default function ReservationPage({ cars: initialCars }) {
     if (!form.age)         { setErr2(E.age); return false; }
     if (isNaN(ageNum) || ageNum <= 0) { setErr2(E.ageInv); return false; }
     if (ageNum < 35)       { setErr2(E.ageMin); return false; }
+    if (form.babySeat && form.babyAges.some(a => a === '')) {
+      setErr2(L3(lang, 'Indiquez l\'âge de chaque enfant pour le siège bébé.', 'Select the age of each child for the baby seat.', 'حدّد عمر كل طفل لمقعد الطفل.'));
+      return false;
+    }
     setErr2(''); return true;
   };
 
@@ -248,6 +278,8 @@ export default function ReservationPage({ cars: initialCars }) {
 
   const handleSubmit = async () => {
     if (!validateStep2()) return;
+    const babyFr = babySeatSummary(form, 'fr');
+    const fullNotes = [babyFr ? `👶 Siège bébé : ${babyFr}` : null, form.notes || null].filter(Boolean).join('\n') || null;
     setLoading(true);
     let newBookingId = null;
     try {
@@ -264,7 +296,7 @@ export default function ReservationPage({ cars: initialCars }) {
           end_date:             form.endDate,
           final_price:          total,
           status:               'PENDING',
-          notes:                form.notes    || null,
+          notes:                fullNotes,
           client_price_per_day: selectedCar.resale_price || null,
           owner_price_per_day:  selectedCar.base_price   || null,
           rented_by:            'Kouider',
@@ -284,7 +316,7 @@ export default function ReservationPage({ cars: initialCars }) {
         body: JSON.stringify({
           client_email: form.email, client_name: form.name, client_phone: form.phone, car_name: selectedCar?.name,
           start_date: form.startDate, end_date: form.endDate, total,
-          currency: selectedCar?.currency, booking_id: newBookingId, lang,
+          currency: selectedCar?.currency, booking_id: newBookingId, lang, baby_seat: babyFr,
         }),
       }).catch(() => {});
       // Code parrainage (si saisi) → incrémente le compteur — non bloquant
@@ -304,7 +336,7 @@ export default function ReservationPage({ cars: initialCars }) {
             car_name: selectedCar?.name, client_name: form.name,
             client_phone: form.phone, client_age: form.age,
             start_date: form.startDate, end_date: form.endDate,
-            total, notes: form.notes,
+            total, notes: fullNotes,
           },
         }),
       }).catch(() => {});
@@ -711,6 +743,48 @@ export default function ReservationPage({ cars: initialCars }) {
                          '📸 ستُطلب منك صور جواز السفر والرخصة في خطوة العقد — احرص على أن تكون الوثائق سارية (غير منتهية).')}
                     </p>
 
+                    <div className={`rounded-2xl border p-4 transition-colors ${form.babySeat ? 'border-gold-500/35 bg-gold-500/[0.05]' : 'border-white/[0.08] bg-white/[0.02]'}`}>
+                      <label className="flex items-center gap-3 cursor-pointer select-none">
+                        <input type="checkbox" checked={form.babySeat}
+                          onChange={e => setForm(f => ({ ...f, babySeat: e.target.checked }))}
+                          className="w-5 h-5 accent-[#e2b614] flex-shrink-0" />
+                        <span className="text-2xl leading-none">👶</span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-white/90 text-sm font-semibold">{L('Ajouter un siège bébé / enfant', 'Add a baby / child seat', 'إضافة مقعد رضيع / طفل')}</span>
+                          <span className="block text-white/40 text-xs mt-0.5">{L('Indiquez l\'âge de l\'enfant, nous vous apportons le siège adapté avec le véhicule.', 'Tell us the child\'s age and we bring the right seat with the car.', 'حدّد عمر الطفل وسنحضر لك المقعد المناسب مع السيارة.')}</span>
+                        </span>
+                      </label>
+                      {form.babySeat && (
+                        <div className="mt-4 space-y-3">
+                          {form.babyAges.map((a, i) => (
+                            <div key={i} className="grid grid-cols-[1fr_auto] sm:grid-cols-[200px_1fr_auto] gap-x-3 gap-y-1.5 items-center">
+                              <select value={a} className="input-dark"
+                                aria-label={L(`Âge de l'enfant ${i + 1}`, `Child ${i + 1} age`, `عمر الطفل ${i + 1}`)}
+                                onChange={e => setForm(f => ({ ...f, babyAges: f.babyAges.map((x, j) => (j === i ? e.target.value : x)) }))}>
+                                <option value="">{L(`Âge de l'enfant${form.babyAges.length > 1 ? ' ' + (i + 1) : ''}`, `Child${form.babyAges.length > 1 ? ' ' + (i + 1) : ''} age`, `عمر الطفل${form.babyAges.length > 1 ? ' ' + (i + 1) : ''}`)}</option>
+                                {CHILD_AGES.map(m => <option key={m} value={m}>{childAgeLabel(m, lang)}</option>)}
+                              </select>
+                              <span className="order-3 sm:order-none col-span-2 sm:col-span-1 text-xs text-gold-400/80">
+                                {a !== '' && <>→ {seatForAge(Number(a), lang)}</>}
+                              </span>
+                              {form.babyAges.length > 1 ? (
+                                <button type="button" className="text-white/35 hover:text-red-400 text-xs px-2 py-2"
+                                  onClick={() => setForm(f => ({ ...f, babyAges: f.babyAges.filter((_, j) => j !== i) }))}>
+                                  {L('Retirer', 'Remove', 'حذف')}
+                                </button>
+                              ) : <span />}
+                            </div>
+                          ))}
+                          {form.babyAges.length < 3 && (
+                            <button type="button" className="text-gold-400 hover:text-gold-300 text-xs font-medium"
+                              onClick={() => setForm(f => ({ ...f, babyAges: [...f.babyAges, ''] }))}>
+                              + {L('Un autre enfant', 'Another child', 'طفل آخر')}
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
                     <div className="grid md:grid-cols-[1fr_220px] gap-4">
                       <div>
                         <label className="label-dark">{t('res.notes')}</label>
@@ -761,6 +835,7 @@ export default function ReservationPage({ cars: initialCars }) {
                       [t('res.retour'), form.endDate ? nice(form.endDate) : '—'],
                       [t('res.duree'),  days > 0 ? `${days} ${t('res.days')}` : '—'],
                       [L('Prix / jour', 'Price / day', 'السعر / يوم'), selectedCar ? `${fmt(selectedCar.resale_price)} ${sym(selectedCar.currency)}` : '—'],
+                      ...(form.babySeat ? [[L('Siège bébé', 'Baby seat', 'مقعد طفل'), `👶 × ${form.babyAges.length}`]] : []),
                     ].map(([l, v]) => (
                       <div key={l} className="flex justify-between text-sm">
                         <span className="text-white/40">{l}</span>

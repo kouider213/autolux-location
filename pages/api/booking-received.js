@@ -5,13 +5,13 @@ import { notifyTelegram, buildNotif } from '../../lib/telegramNotify';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
-  const { client_email, client_name, client_phone, car_name, start_date, end_date, total, currency, booking_id, lang } = req.body || {};
+  const { client_email, client_name, client_phone, car_name, start_date, end_date, total, currency, booking_id, lang, baby_seat } = req.body || {};
 
   // Notif Telegram à Kouider (toujours, même sans email client)
   await notifyTelegram(buildNotif({
     icon: '🚗', type: 'Nouvelle RÉSERVATION',
     name: client_name, phone: client_phone, email: client_email, lang,
-    lines: [car_name ? `🚘 ${car_name}` : '', (start_date || end_date) ? `📅 ${start_date || '?'} → ${end_date || '?'}` : '', total ? `💰 ${total} ${currency === 'DZD' ? 'DA' : '€'}` : ''],
+    lines: [car_name ? `🚘 ${car_name}` : '', (start_date || end_date) ? `📅 ${start_date || '?'} → ${end_date || '?'}` : '', total ? `💰 ${total} ${currency === 'DZD' ? 'DA' : '€'}` : '', baby_seat ? `👶 Siège bébé : ${baby_seat}` : ''],
     adminPath: '/admin/bookings',
   })).catch(() => {});
 
