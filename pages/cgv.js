@@ -1,7 +1,7 @@
 import LegalPage from '../components/LegalPage';
 import LegalBody from '../components/LegalBody';
 import { useState, useEffect } from 'react';
-import { useSettings, waNumber } from '../lib/settings';
+import { useSettings, waNumber, phoneInfo, legalIds } from '../lib/settings';
 import { useLang } from '../lib/i18n';
 import { useTranslated } from '../lib/autoTranslate';
 import { getLegal } from '../lib/legal';
@@ -64,7 +64,7 @@ Les paiements (acompte, solde) sont précisés pour chaque prestation. Un reçu 
 En cas de différend, les parties privilégient une résolution amiable. À défaut, le litige relève des juridictions compétentes d'Oran, Algérie.
 
 ## 8. Contact
-WhatsApp +${wa} — ${s.address || 'Oran, Algérie'}.`;
+WhatsApp +${wa}${phoneInfo(s) ? ` — téléphone ${phoneInfo(s).display}` : ''} — ${s.address || 'Oran, Algérie'}.${legalIds(s) ? `\nFik Conciergerie — ${legalIds(s)}.` : ''}`;
 
   return (
     <LegalPage title={title} subtitle={subtitle} updated="Juin 2026">

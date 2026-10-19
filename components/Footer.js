@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { MapPin, MessageCircle, Star, Instagram, Music2, Facebook, Mail } from 'lucide-react';
+import { MapPin, MessageCircle, Star, Instagram, Music2, Facebook, Mail, Phone } from 'lucide-react';
 import { useLang } from '../lib/i18n';
-import { useSettings, waNumber, siteEmails } from '../lib/settings';
+import { useSettings, waNumber, siteEmails, phoneInfo, legalIds } from '../lib/settings';
 import NewsletterSignup from './NewsletterSignup';
 import { GOOGLE_MAPS_URL } from '../lib/google';
 import { formatIntl } from '../lib/format';
@@ -113,6 +113,12 @@ export default function Footer() {
                 <MessageCircle size={13} className="text-gold-500 flex-shrink-0" />
                 <a href={`https://wa.me/${WHATSAPP}`} dir="ltr" className="text-white/55 text-sm font-body hover:text-gold-400 transition-colors">{formatIntl(WHATSAPP)}</a>
               </li>
+              {phoneInfo(settings) && (
+                <li className="flex items-center gap-3">
+                  <Phone size={13} className="text-gold-500 flex-shrink-0" />
+                  <a href={`tel:${phoneInfo(settings).tel}`} dir="ltr" className="text-white/55 text-sm font-body hover:text-gold-400 transition-colors">{phoneInfo(settings).display} <span className="text-white/30 text-xs">🇩🇿</span></a>
+                </li>
+              )}
               {siteEmails(settings).map(em => (
                 <li key={em} className="flex items-center gap-3">
                   <Mail size={13} className="text-gold-500 flex-shrink-0" />
@@ -160,7 +166,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/[0.05] pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-white/15 text-xs font-body">© {new Date().getFullYear()} Fik Conciergerie — {t('foot.rights')}</p>
+          <p className="text-white/15 text-xs font-body">© {new Date().getFullYear()} Fik Conciergerie — {t('foot.rights')}{legalIds(settings) && <span dir="ltr"> · {legalIds(settings)}</span>}</p>
           <span className="text-white/15 text-xs font-body">{t('foot.perks')}</span>
         </div>
 

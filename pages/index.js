@@ -36,7 +36,7 @@ const packAvailHome = (p) => {
 };
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { getSettings, useSettings, waNumber, DEFAULT_SETTINGS } from '../lib/settings';
+import { getSettings, useSettings, waNumber, DEFAULT_SETTINGS, phoneInfo } from '../lib/settings';
 import { useLang, localizeValue } from '../lib/i18n';
 import { cText } from '../lib/content';
 import { useTranslated } from '../lib/autoTranslate';
@@ -448,7 +448,8 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
             name: 'Fik Conciergerie',
             image: 'https://fikconciergerie.com/logo.png',
             url: 'https://fikconciergerie.com',
-            telephone: '+32466311469',
+            telephone: phoneInfo(settings) ? [phoneInfo(settings).tel, '+' + WHATSAPP] : '+' + WHATSAPP,
+            ...(settings.nif ? { taxID: settings.nif } : {}),
             address: { '@type': 'PostalAddress', streetAddress: 'Rue Derbouz Draoua Houari, Hay Badr', addressLocality: 'Oran', postalCode: '31300', addressCountry: 'DZ' },
             geo: { '@type': 'GeoCoordinates', latitude: 35.6976, longitude: -0.6369 },
             aggregateRating: { '@type': 'AggregateRating', ratingValue: String(reviewStats.avg), reviewCount: String(reviewStats.count), bestRating: '5', worstRating: '1' },

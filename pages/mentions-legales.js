@@ -1,7 +1,7 @@
 import LegalPage from '../components/LegalPage';
 import LegalBody from '../components/LegalBody';
 import { useState, useEffect } from 'react';
-import { useSettings, waNumber, siteEmails, DEFAULT_SETTINGS } from '../lib/settings';
+import { useSettings, waNumber, siteEmails, DEFAULT_SETTINGS, phoneInfo } from '../lib/settings';
 import { useLang } from '../lib/i18n';
 import { useTranslated } from '../lib/autoTranslate';
 import { getLegal } from '../lib/legal';
@@ -23,8 +23,8 @@ export default function MentionsLegales() {
   const bodyFr = `## Éditeur du site
 Fik Conciergerie — conciergerie (location de véhicules, vente, immobilier, packs séjour).
 Siège : ${s.address || DEFAULT_SETTINGS.address}.
-Contact : WhatsApp +${wa}${siteEmails(s).map(e => ` — ${e}`).join('')}.
-Numéro de registre de commerce (RC) et identifiant fiscal (NIF) communiqués sur demande dans le cadre de toute relation contractuelle.
+Contact : WhatsApp +${wa}${phoneInfo(s) ? ` — téléphone en Algérie ${phoneInfo(s).display}` : ''}${siteEmails(s).map(e => ` — ${e}`).join('')}.
+${s.rc || s.nif ? [s.rc && `Registre de commerce (RC) : ${s.rc}.`, s.nif && `Identifiant fiscal (NIF) : ${s.nif}.`].filter(Boolean).join('\n') : 'Numéro de registre de commerce (RC) et identifiant fiscal (NIF) communiqués sur demande dans le cadre de toute relation contractuelle.'}
 
 ## Hébergement
 Le site est hébergé par Vercel Inc. (340 S Lemon Ave #4133, Walnut, CA 91789, USA). Les données applicatives sont gérées via Supabase.

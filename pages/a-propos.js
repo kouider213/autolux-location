@@ -3,10 +3,10 @@ import LegalBody from '../components/LegalBody';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { Heart, ShieldCheck, BadgeCheck, Gauge, Clock, Car, Tag, Building2, Ship, Package, Sparkles, ArrowRight, MessageCircle, MapPin, Mail } from 'lucide-react';
+import { Heart, ShieldCheck, BadgeCheck, Gauge, Clock, Car, Tag, Building2, Ship, Package, Sparkles, ArrowRight, MessageCircle, MapPin, Mail, Phone } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { useSettings, waNumber, siteEmails, DEFAULT_SETTINGS } from '../lib/settings';
+import { useSettings, waNumber, siteEmails, DEFAULT_SETTINGS, phoneInfo } from '../lib/settings';
 import { useLang } from '../lib/i18n';
 import { useTranslated } from '../lib/autoTranslate';
 import { getLegal } from '../lib/legal';
@@ -145,6 +145,11 @@ export default function AProposPage() {
               <a href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer" className="glass rounded-2xl p-4 flex items-center gap-3 hover:border-gold-500/40 transition-colors">
                 <MessageCircle size={18} className="text-gold-400 flex-shrink-0" /><span className="text-sm text-white/80" dir="ltr">+{wa}</span>
               </a>
+              {phoneInfo(s) && (
+                <a href={`tel:${phoneInfo(s).tel}`} className="glass rounded-2xl p-4 flex items-center gap-3 hover:border-gold-500/40 transition-colors">
+                  <Phone size={18} className="text-gold-400 flex-shrink-0" /><span className="text-sm text-white/80" dir="ltr">{phoneInfo(s).display} 🇩🇿</span>
+                </a>
+              )}
               {emails.map((e) => (
                 <a key={e} href={`mailto:${e}`} className="glass rounded-2xl p-4 flex items-center gap-3 hover:border-gold-500/40 transition-colors min-w-0">
                   <Mail size={18} className="text-gold-400 flex-shrink-0" /><span className="text-sm text-white/80 truncate">{e}</span>

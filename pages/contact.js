@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { MessageCircle, MapPin, Clock, Shield, Star, Zap, Heart, Car, CheckCircle, ArrowRight, Phone, Instagram, Music2, Facebook, Mail } from 'lucide-react';
-import { getSettings, useSettings, waNumber, siteEmails } from '../lib/settings';
+import { getSettings, useSettings, waNumber, siteEmails, phoneInfo } from '../lib/settings';
 import { useLang } from '../lib/i18n';
 import { formatIntl } from '../lib/format';
 
@@ -62,7 +62,7 @@ const STATS = [
 ];
 
 export default function ContactPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const settings = useSettings();
   const WHATSAPP = waNumber(settings);
   return (
@@ -126,13 +126,30 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-display text-white font-bold text-xl mb-1">WhatsApp</h3>
-                  <p dir="ltr" className="text-[#25D366] font-semibold text-sm mb-2">{settings.phone || formatIntl(WHATSAPP)}</p>
+                  <p dir="ltr" className="text-[#25D366] font-semibold text-sm mb-2">{formatIntl(WHATSAPP)}</p>
                   <p className="text-white/35 text-sm">{t('ct.wa_d')}</p>
                 </div>
                 <div className="flex items-center gap-1.5 text-[#25D366]/70 text-xs font-medium mt-auto">
                   {t('ct.open_wa')} <ArrowRight size={12} />
                 </div>
               </a>
+
+              {/* Téléphone en Algérie (admin › Paramètres › Numéro algérien) */}
+              {phoneInfo(settings) && (
+                <a href={`tel:${phoneInfo(settings).tel}`} className="lux-card group p-6 flex flex-col gap-4">
+                  <div className="w-14 h-14 bg-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center">
+                    <Phone size={24} className="text-gold-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-white font-bold text-xl mb-1">{lang === 'ar' ? 'الهاتف في الجزائر' : lang === 'en' ? 'Phone in Algeria' : 'Téléphone en Algérie'}</h3>
+                    <p dir="ltr" className="text-gold-400 font-semibold text-sm mb-2">{phoneInfo(settings).display}</p>
+                    <p className="text-white/35 text-sm">{lang === 'ar' ? 'اتصل بنا مباشرة من الجزائر.' : lang === 'en' ? 'Call us directly from Algeria.' : 'Appelez-nous directement depuis l\'Algérie.'}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-gold-400/70 text-xs font-medium mt-auto">
+                    {lang === 'ar' ? 'اتصل' : lang === 'en' ? 'Call' : 'Appeler'} <ArrowRight size={12} />
+                  </div>
+                </a>
+              )}
 
               {/* Email (devis écrits, entreprises) */}
               {siteEmails(settings).length > 0 && (

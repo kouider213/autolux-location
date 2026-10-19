@@ -126,7 +126,7 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     supabase.from('site_settings').select('*').eq('id', 1).single()
       .then(({ data }) => {
-        if (data) setForm({ ...DEFAULT_SETTINGS, ...data, email2: typeof data.content?.email2 === 'string' ? data.content.email2 : DEFAULT_SETTINGS.email2, extras: getExtras(data) });
+        if (data) setForm({ ...DEFAULT_SETTINGS, ...data, email2: typeof data.content?.email2 === 'string' ? data.content.email2 : DEFAULT_SETTINGS.email2, rc: data.content?.rc || '', nif: data.content?.nif || '', extras: getExtras(data) });
         setLoad(false);
       })
       .catch(() => setLoad(false));
@@ -152,7 +152,7 @@ export default function AdminSettingsPage() {
     const { data: cur } = await supabase.from('site_settings').select('content').eq('id', 1).single();
     const payload = {
       id: 1,
-      content: { ...(cur?.content || {}), email2: (form.email2 || '').trim(), extras: { ...getExtras(cur), ...(form.extras || {}) } },
+      content: { ...(cur?.content || {}), email2: (form.email2 || '').trim(), rc: (form.rc || '').trim(), nif: (form.nif || '').trim(), extras: { ...getExtras(cur), ...(form.extras || {}) } },
       // Numéros WhatsApp : modifiables uniquement par l'admin suprême (sinon non inclus → valeurs gardées)
       ...(isSuper ? { whatsapp: cleanWa(form.whatsapp), whatsapp2: cleanWa(form.whatsapp2), whatsapp3: cleanWa(form.whatsapp3) } : {}),
       logo_url: form.logo_url || '',
@@ -204,12 +204,14 @@ export default function AdminSettingsPage() {
               )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="WhatsApp principal (sans +, sans espaces)" icon={MessageCircle} hint="Numéro utilisé PARTOUT sur le site (boutons, emails). Le changer ici le remplace partout. Ex: 213699112233"><input value={form.whatsapp} onChange={up('whatsapp')} disabled={!isSuper} inputMode="numeric" className={`${inputCls} disabled:opacity-50`} /></Field>
-                <Field label="Téléphone affiché" icon={Phone}><input value={form.phone || ''} onChange={up('phone')} placeholder="+213 ..." className={inputCls} /></Field>
+                <Field label="Numéro algérien (+213)" icon={Phone} hint="Affiché partout : pied de page, Contact, À propos, mentions légales, e-mails, Google, assistant du site. Vide = masqué."><input value={form.phone || ''} onChange={up('phone')} placeholder="+213 5XX XX XX XX" inputMode="tel" className={inputCls} /></Field>
                 <Field label="WhatsApp associé 1 (optionnel)" icon={MessageCircle} hint="2e numéro — affiché sur Contact. Vide = masqué."><input value={form.whatsapp2 || ''} onChange={up('whatsapp2')} disabled={!isSuper} inputMode="numeric" placeholder="213..." className={`${inputCls} disabled:opacity-50`} /></Field>
                 <Field label="WhatsApp associé 2 (optionnel)" icon={MessageCircle} hint="3e numéro — affiché sur Contact. Vide = masqué."><input value={form.whatsapp3 || ''} onChange={up('whatsapp3')} disabled={!isSuper} inputMode="numeric" placeholder="213..." className={`${inputCls} disabled:opacity-50`} /></Field>
                 <Field label="Email principal" icon={Mail}><input value={form.email || ''} onChange={up('email')} placeholder="contact@..." className={inputCls} /></Field>
                 <Field label="Email 2 (optionnel)" icon={Mail} hint="Affiché à côté de l'email principal (pied de page, Contact, À propos). Vide = masqué."><input value={form.email2 || ''} onChange={up('email2')} placeholder="...@gmail.com" className={inputCls} /></Field>
                 <Field label="Adresse de l'agence" icon={MapPin} hint="Lieu de remise des clés — repris sur l'accueil, À propos et mentions légales"><input value={form.address || ''} onChange={up('address')} className={inputCls} /></Field>
+                <Field label="RC — registre de commerce" icon={SettingsIcon} hint="Affiché dans le pied de page, les mentions légales, les CGV et les e-mails. Vide = « communiqué sur demande »."><input value={form.rc || ''} onChange={up('rc')} placeholder="ex. 31/00-1234567 B 24" className={inputCls} /></Field>
+                <Field label="NIF — identifiant fiscal" icon={SettingsIcon} hint="Affiché avec le RC. Vide = masqué."><input value={form.nif || ''} onChange={up('nif')} placeholder="ex. 0012 3456 7890 123" className={inputCls} /></Field>
                 <div className="sm:col-span-2"><Field label="Lien Google Maps" icon={MapPin} hint="Colle le lien de partage Google Maps de ton agence"><input value={form.maps_url || ''} onChange={up('maps_url')} className={inputCls} /></Field></div>
               </div>
             </section>
@@ -271,14 +273,12 @@ export default function AdminSettingsPage() {
             {/* Options de réservation */}
             <section className="bg-[#141414] border border-white/[0.07] rounded-2xl p-6">
               <h2 className="text-white font-bold text-sm mb-1 flex items-center gap-2"><CarFront size={15} className="text-gold-400" /> Options de réservation</h2>
-              <p className="text-white/30 text-[11px] mb-5">Prix en € affichés sur la page Réserver et ajoutés au total. Vide = « prix à confirmer » (pas ajouté), 0 = offert. Le siège bébé est toujours offert.</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <Field label="2e conducteur (€ / jour)"><input inputMode="decimal" value={ex.driver2_day} onChange={upEx('driver2_day')} placeholder="à confirmer" className={inputCls} /></Field>
-                <Field label="Wi-Fi 4G (€ / jour)"><input inputMode="decimal" value={ex.wifi_day} onChange={upEx('wifi_day')} placeholder="à confirmer" className={inputCls} /></Field>
-                <Field label="Carte SIM (€)"><input inputMode="decimal" value={ex.sim} onChange={upEx('sim')} placeholder="à confirmer" className={inputCls} /></Field>
-                <Field label="Plein au retour — frais (€)" hint="+ carburant au prix pompe"><input inputMode="decimal" value={ex.fuel_fee} onChange={upEx('fuel_fee')} placeholder="à confirmer" className={inputCls} /></Field>
-                <Field label="Aéroport (€ / trajet)" hint="prise OU retour à l'aéroport"><input inputMode="decimal" value={ex.delivery_airport} onChange={upEx('delivery_airport')} placeholder="à confirmer" className={inputCls} /></Field>
-                <Field label="Livraison adresse (€ / trajet)"><input inputMode="decimal" value={ex.delivery_address} onChange={upEx('delivery_address')} placeholder="à confirmer" className={inputCls} /></Field>
+              <p className="text-white/30 text-[11px] mb-5">Prix en € affichés sur la page Réserver et ajoutés au total. Vide = « sur demande » (pas ajouté au total), 0 = offert. Le siège bébé est toujours offert. La carte SIM est toujours sur demande : le client choisit illimité ou non et donne son budget.</p>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="2e conducteur (€ / jour)"><input inputMode="decimal" value={ex.driver2_day} onChange={upEx('driver2_day')} placeholder="sur demande" className={inputCls} /></Field>
+                <Field label="Wi-Fi 4G (€ / jour)"><input inputMode="decimal" value={ex.wifi_day} onChange={upEx('wifi_day')} placeholder="sur demande" className={inputCls} /></Field>
+                <Field label="Plein au retour — frais (€)" hint="+ carburant au prix pompe"><input inputMode="decimal" value={ex.fuel_fee} onChange={upEx('fuel_fee')} placeholder="sur demande" className={inputCls} /></Field>
+                <Field label="Aéroport (€ / trajet)" hint="prise OU retour à l'aéroport"><input inputMode="decimal" value={ex.delivery_airport} onChange={upEx('delivery_airport')} placeholder="sur demande" className={inputCls} /></Field>
               </div>
               <p className="text-white/40 text-xs font-semibold mt-6 mb-3">👶 Stock de sièges bébé (vide = illimité)</p>
               <div className="grid grid-cols-3 gap-4">
