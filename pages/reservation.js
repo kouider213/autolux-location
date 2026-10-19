@@ -11,6 +11,7 @@ import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 import { trackEvent } from '../lib/tracker';
 import { rentalDays } from '../lib/date';
+import { getExtras, extrasCost, extrasLines, CHILD_AGES, childAgeLabel, seatForAge, seatKind, seatsWanted, PLACES, placeLabel } from '../lib/extras';
 import { format, isWithinInterval, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
 import { fr, arDZ, enUS } from 'date-fns/locale';
 
@@ -18,32 +19,31 @@ const DatePicker = dynamic(() => import('react-datepicker'), { ssr: false });
 
 const WHATSAPP_FALLBACK = '32466311469';
 
-// ── Siège bébé : âge de l'enfant (en mois) → siège adapté
-const CHILD_AGES = [0, 6, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120];
 const L3 = (lang, frT, enT, arT) => (lang === 'ar' ? arT : lang === 'en' ? enT : frT);
-function childAgeLabel(m, lang) {
-  if (m === 0)  return L3(lang, 'Moins de 6 mois', 'Under 6 months', 'أقل من 6 أشهر');
-  if (m === 6)  return L3(lang, '6 à 12 mois', '6–12 months', '6 إلى 12 شهرًا');
-  const y = m / 12;
-  return L3(lang, `${y} an${y > 1 ? 's' : ''}`, `${y} year${y > 1 ? 's' : ''}`, `${y} ${y > 2 && y < 11 ? 'سنوات' : 'سنة'}`);
-}
-function seatForAge(m, lang) {
-  if (m < 12) return L3(lang, 'coque bébé (groupe 0+)', 'infant carrier (group 0+)', 'مقعد رضيع (فئة 0+)');
-  if (m < 48) return L3(lang, 'siège auto (groupe 1)', 'child car seat (group 1)', 'مقعد أطفال (فئة 1)');
-  return L3(lang, 'rehausseur (groupe 2/3)', 'booster seat (group 2/3)', 'مقعد رافع (فئة 2/3)');
-}
-// Résumé lisible, ex. « 2 — 8 mois → coque bébé ; 3 ans → siège auto ». null si pas demandé.
-function babySeatSummary(form, lang = 'fr') {
-  if (!form.babySeat) return null;
-  const ages = form.babyAges.filter(a => a !== '').map(Number);
-  if (!ages.length) return null;
-  return `${ages.length} — ` + ages.map(m => `${childAgeLabel(m, lang)} → ${seatForAge(m, lang)}`).join(' ; ');
+
+// Ligne d'option à cocher (défini hors de la page : sinon les champs enfants perdent le focus à chaque frappe)
+function OptRow({ checked, onChange, icon, title, desc, price, children }) {
+  return (
+    <div className={`rounded-2xl border p-4 transition-colors ${checked ? 'border-gold-500/35 bg-gold-500/[0.05]' : 'border-white/[0.08] bg-white/[0.02]'}`}>
+      <label className="flex items-center gap-3 cursor-pointer select-none">
+        <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} className="w-5 h-5 accent-[#e2b614] flex-shrink-0" />
+        <span className="text-2xl leading-none">{icon}</span>
+        <span className="flex-1 min-w-0">
+          <span className="block text-white/90 text-sm font-semibold">{title}</span>
+          {desc && <span className="block text-white/40 text-xs mt-0.5">{desc}</span>}
+          {price && <span className="sm:hidden block text-gold-400/90 text-xs font-semibold mt-1">{price}</span>}
+        </span>
+        {price && <span className="hidden sm:inline text-gold-400/90 text-xs font-semibold whitespace-nowrap">{price}</span>}
+      </label>
+      {checked && children}
+    </div>
+  );
 }
 
 const sym = (c) => (c === 'EUR' ? '€' : 'DA');
 const fmt = (n) => Number(n).toLocaleString('fr-FR');
 
-function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = WHATSAPP_FALLBACK) {
+function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = WHATSAPP_FALLBACK, pending = false) {
   const ar = lang === 'ar';
   const en = lang === 'en';
   const lines = en ? [
@@ -62,8 +62,9 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = W
     `*Pick-up:* ${form.startDate}`,
     `*Return:* ${form.endDate}`,
     `*Duration:* ${days} day${days > 1 ? 's' : ''}`,
-    `*Estimated total:* ${fmt(total)} ${sym(car.currency)}`,
-    babySeatSummary(form, 'en') ? `👶 *Baby seat:* ${babySeatSummary(form, 'en')}` : null,
+    `*Estimated total:* ${fmt(total)} ${sym(car.currency)}${pending ? ' (+ options to confirm)' : ''}`,
+    ``,
+    ...extrasLines(form, 'en'),
     form.notes ? `*Notes:* ${form.notes}` : null,
     ``,
     bookingId ? `🔗 Tracking: https://fikconciergerie.com/suivi/${bookingId}` : null,
@@ -84,8 +85,9 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = W
     `*الانطلاق :* ${form.startDate}`,
     `*العودة :* ${form.endDate}`,
     `*المدة :* ${days} يوم`,
-    `*المجموع التقديري :* ${fmt(total)} ${sym(car.currency)}`,
-    babySeatSummary(form, 'ar') ? `👶 *مقعد طفل :* ${babySeatSummary(form, 'ar')}` : null,
+    `*المجموع التقديري :* ${fmt(total)} ${sym(car.currency)}${pending ? ' (+ خيارات للتأكيد)' : ''}`,
+    ``,
+    ...extrasLines(form, 'ar'),
     form.notes ? `*ملاحظات :* ${form.notes}` : null,
     ``,
     bookingId ? `🔗 المتابعة: https://fikconciergerie.com/suivi/${bookingId}` : null,
@@ -106,8 +108,9 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = W
     `*Départ :* ${form.startDate}`,
     `*Retour :* ${form.endDate}`,
     `*Durée :* ${days} jour${days > 1 ? 's' : ''}`,
-    `*Total estimé :* ${fmt(total)} ${sym(car.currency)}`,
-    babySeatSummary(form, 'fr') ? `👶 *Siège bébé :* ${babySeatSummary(form, 'fr')}` : null,
+    `*Total estimé :* ${fmt(total)} ${sym(car.currency)}${pending ? ' (+ options à confirmer)' : ''}`,
+    ``,
+    ...extrasLines(form, 'fr'),
     form.notes ? `*Notes :* ${form.notes}` : null,
     ``,
     bookingId ? `🔗 Suivi: https://fikconciergerie.com/suivi/${bookingId}` : null,
@@ -146,6 +149,8 @@ export default function ReservationPage({ cars: initialCars }) {
     carId: '', startDate: '', endDate: '',
     name: '', phone: '', age: '', email: '', passport: '', notes: '', referral: '',
     babySeat: false, babyAges: [''],
+    pickup: 'agence', pickupAddress: '', dropoff: 'agence', dropoffAddress: '', flight: '', arrival: '',
+    driver2: false, driver2Name: '', driver2Age: '', wifi: false, sim: false, fuel: false,
   });
 
   // Refresh cars
@@ -197,7 +202,20 @@ export default function ReservationPage({ cars: initialCars }) {
     // Blocs de 24 h : 3→7 nov = 4 jours (même règle que Dzaryx).
     return rentalDays(form.startDate, form.endDate);
   })();
-  const total = selectedCar && days > 0 ? selectedCar.resale_price * days : 0;
+  const carTotal = selectedCar && days > 0 ? selectedCar.resale_price * days : 0;
+  const extras = getExtras(settings);
+  const cost = extrasCost(form, extras, days, lang);
+  const total = carTotal > 0 ? carTotal + cost.sum : 0;
+
+  // Sièges bébé encore libres sur les dates choisies (null = illimité)
+  const [seatLeft, setSeatLeft] = useState({});
+  useEffect(() => {
+    if (!form.babySeat || !form.startDate || !form.endDate) return;
+    fetch(`/api/seat-stock?start=${form.startDate}&end=${form.endDate}`)
+      .then(r => r.json()).then(d => setSeatLeft(d || {})).catch(() => {});
+  }, [form.babySeat, form.startDate, form.endDate]);
+  const wanted = seatsWanted(form);
+  const seatShort = (kind) => seatLeft[kind] !== null && seatLeft[kind] !== undefined && wanted[kind] > seatLeft[kind];
   const today = new Date(); today.setHours(0, 0, 0, 0);
 
   // Check if a date is in a booked range
@@ -271,6 +289,20 @@ export default function ReservationPage({ cars: initialCars }) {
       setErr2(L3(lang, 'Indiquez l\'âge de chaque enfant pour le siège bébé.', 'Select the age of each child for the baby seat.', 'حدّد عمر كل طفل لمقعد الطفل.'));
       return false;
     }
+    if (form.pickup === 'aeroport' && !form.flight.trim()) {
+      setErr2(L3(lang, 'Indiquez votre numéro de vol pour la prise à l\'aéroport.', 'Enter your flight number for the airport pick-up.', 'أدخل رقم رحلتك للاستلام من المطار.')); return false;
+    }
+    if ((form.pickup === 'adresse' && !form.pickupAddress.trim()) || (form.dropoff === 'adresse' && !form.dropoffAddress.trim())) {
+      setErr2(L3(lang, 'Indiquez l\'adresse de livraison / récupération.', 'Enter the delivery / collection address.', 'أدخل عنوان التوصيل / الاستلام.')); return false;
+    }
+    if (form.driver2) {
+      if (!form.driver2Name.trim() || !form.driver2Age) {
+        setErr2(L3(lang, 'Indiquez le nom et l\'âge du 2e conducteur.', 'Enter the 2nd driver\'s name and age.', 'أدخل اسم وعمر السائق الثاني.')); return false;
+      }
+      if (Number(form.driver2Age) < 35) {
+        setErr2(L3(lang, 'Le 2e conducteur doit aussi avoir 35 ans minimum (assurance).', 'The 2nd driver must also be at least 35 (insurance).', 'يجب أن يكون السائق الثاني أيضًا 35 سنة على الأقل (التأمين).')); return false;
+      }
+    }
     setErr2(''); return true;
   };
 
@@ -278,8 +310,10 @@ export default function ReservationPage({ cars: initialCars }) {
 
   const handleSubmit = async () => {
     if (!validateStep2()) return;
-    const babyFr = babySeatSummary(form, 'fr');
-    const fullNotes = [babyFr ? `👶 Siège bébé : ${babyFr}` : null, form.notes || null].filter(Boolean).join('\n') || null;
+    const extrasFr = extrasLines(form, 'fr');
+    const costFr = extrasCost(form, extras, days, 'fr');
+    if (costFr.items.some(i => i.amount)) extrasFr.push(`💶 Options : ${costFr.items.filter(i => i.amount !== 0).map(i => `${i.label} ${i.amount === null ? 'à confirmer' : fmt(i.amount) + ' €'}`).join(' ; ')}`);
+    const fullNotes = [...extrasFr, form.notes || null].filter(Boolean).join('\n') || null;
     setLoading(true);
     let newBookingId = null;
     try {
@@ -316,7 +350,7 @@ export default function ReservationPage({ cars: initialCars }) {
         body: JSON.stringify({
           client_email: form.email, client_name: form.name, client_phone: form.phone, car_name: selectedCar?.name,
           start_date: form.startDate, end_date: form.endDate, total,
-          currency: selectedCar?.currency, booking_id: newBookingId, lang, baby_seat: babyFr,
+          currency: selectedCar?.currency, booking_id: newBookingId, lang, extras: extrasFr,
         }),
       }).catch(() => {});
       // Code parrainage (si saisi) → incrémente le compteur — non bloquant
@@ -343,11 +377,11 @@ export default function ReservationPage({ cars: initialCars }) {
     } catch { /* non-blocking */ }
     setLoading(false);
     setDone(true);
-    const url = buildWhatsAppUrl(form, selectedCar, days, total, newBookingId, lang, wa);
+    const url = buildWhatsAppUrl(form, selectedCar, days, total, newBookingId, lang, wa, cost.pending);
     if (typeof window !== 'undefined') setTimeout(() => window.open(url, '_blank'), 300);
   };
 
-  const whatsappUrl = selectedCar ? buildWhatsAppUrl(form, selectedCar, days, total, null, lang, wa) : '#';
+  const whatsappUrl = selectedCar ? buildWhatsAppUrl(form, selectedCar, days, total, null, lang, wa, cost.pending) : '#';
 
   // ── DONE screen
   if (done && selectedCar) {
@@ -429,6 +463,10 @@ export default function ReservationPage({ cars: initialCars }) {
   }
 
   const L = (frT, enT, arT) => (lang === 'ar' ? arT : lang === 'en' ? enT : frT);
+  const priceTag = (v, unit) => {
+    if (v === '' || v === null || v === undefined || isNaN(Number(v))) return L('Prix à confirmer', 'Price to confirm', 'السعر للتأكيد');
+    return Number(v) === 0 ? L('Offert', 'Free', 'مجاني') : `+${fmt(v)} €${unit}`;
+  };
   const dloc = lang === 'ar' ? arDZ : lang === 'en' ? enUS : fr;
   const nice = (d) => { try { const x = format(parseISO(d), 'EEE d MMM', { locale: dloc }); return x.charAt(0).toUpperCase() + x.slice(1); } catch { return d; } };
   const scrollErr = () => setTimeout(() => document.getElementById('res-err')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
@@ -743,18 +781,68 @@ export default function ReservationPage({ cars: initialCars }) {
                          '📸 ستُطلب منك صور جواز السفر والرخصة في خطوة العقد — احرص على أن تكون الوثائق سارية (غير منتهية).')}
                     </p>
 
-                    <div className={`rounded-2xl border p-4 transition-colors ${form.babySeat ? 'border-gold-500/35 bg-gold-500/[0.05]' : 'border-white/[0.08] bg-white/[0.02]'}`}>
-                      <label className="flex items-center gap-3 cursor-pointer select-none">
-                        <input type="checkbox" checked={form.babySeat}
-                          onChange={e => setForm(f => ({ ...f, babySeat: e.target.checked }))}
-                          className="w-5 h-5 accent-[#e2b614] flex-shrink-0" />
-                        <span className="text-2xl leading-none">👶</span>
-                        <span className="flex-1 min-w-0">
-                          <span className="block text-white/90 text-sm font-semibold">{L('Ajouter un siège bébé / enfant', 'Add a baby / child seat', 'إضافة مقعد رضيع / طفل')}</span>
-                          <span className="block text-white/40 text-xs mt-0.5">{L('Indiquez l\'âge de l\'enfant, nous vous apportons le siège adapté avec le véhicule.', 'Tell us the child\'s age and we bring the right seat with the car.', 'حدّد عمر الطفل وسنحضر لك المقعد المناسب مع السيارة.')}</span>
-                        </span>
-                      </label>
-                      {form.babySeat && (
+                    {/* ── Prise & retour du véhicule */}
+                    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 space-y-4">
+                      <p className="text-white/90 text-sm font-semibold">📍 {L('Prise & retour du véhicule', 'Vehicle pick-up & return', 'استلام وإرجاع السيارة')}</p>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {[['pickup', L('Prise du véhicule', 'Pick-up', 'الاستلام')], ['dropoff', L('Retour du véhicule', 'Return', 'الإرجاع')]].map(([k, lbl]) => (
+                          <div key={k}>
+                            <label className="label-dark">{lbl}</label>
+                            <select value={form[k]} onChange={set(k)} className="input-dark">
+                              {PLACES.map(p => <option key={p} value={p}>{placeLabel(p, lang)}</option>)}
+                            </select>
+                            {form[k] !== 'agence' && <p className="text-gold-400/70 text-[11px] mt-1.5">{priceTag(form[k] === 'aeroport' ? extras.delivery_airport : extras.delivery_address, L(' / trajet', ' / trip', ' / رحلة'))}</p>}
+                            {form[k] === 'adresse' && (
+                              <input value={form[k + 'Address']} onChange={set(k + 'Address')} className="input-dark mt-2"
+                                placeholder={L('Adresse (hôtel, domicile…) à Oran', 'Address (hotel, home…) in Oran', 'العنوان (فندق، منزل…) في وهران')} />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      {form.pickup === 'aeroport' && (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="label-dark">{L('N° de vol', 'Flight number', 'رقم الرحلة')}</label>
+                            <input value={form.flight} onChange={e => setForm(f => ({ ...f, flight: e.target.value.toUpperCase() }))} placeholder="AH 1234" className="input-dark" />
+                          </div>
+                          <div>
+                            <label className="label-dark">{L('Heure d\'arrivée', 'Arrival time', 'وقت الوصول')}</label>
+                            <input type="time" value={form.arrival} onChange={set('arrival')} className="input-dark" />
+                          </div>
+                          <p className="col-span-2 text-white/35 text-[11px] -mt-2">{L('Nous suivons votre vol : en cas de retard, on vous attend.', 'We track your flight: if it is late, we wait for you.', 'نتابع رحلتك: في حال التأخير ننتظرك.')}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ── Options */}
+                    <OptRow checked={form.driver2} onChange={v => setForm(f => ({ ...f, driver2: v }))} icon="👤"
+                      title={L('Conducteur supplémentaire', 'Additional driver', 'سائق إضافي')}
+                      desc={L('35 ans minimum, permis valide.', 'At least 35, valid licence.', '35 سنة على الأقل، رخصة سارية.')}
+                      price={priceTag(extras.driver2_day, L(' / jour', ' / day', ' / يوم'))}>
+                      <div className="mt-4 grid grid-cols-[1fr_110px] gap-3">
+                        <input value={form.driver2Name} onChange={set('driver2Name')} placeholder={L('Nom complet', 'Full name', 'الاسم الكامل')} className="input-dark" />
+                        <input type="number" value={form.driver2Age} onChange={set('driver2Age')} placeholder={L('Âge', 'Age', 'العمر')} min="18" max="99" className="input-dark" />
+                      </div>
+                    </OptRow>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <OptRow checked={form.wifi} onChange={v => setForm(f => ({ ...f, wifi: v }))} icon="📶"
+                        title={L('Wi-Fi 4G dans la voiture', '4G Wi-Fi in the car', 'واي فاي 4G في السيارة')}
+                        desc={L('Internet pour toute la famille.', 'Internet for the whole family.', 'إنترنت لكل العائلة.')}
+                        price={priceTag(extras.wifi_day, L(' / jour', ' / day', ' / يوم'))} />
+                      <OptRow checked={form.sim} onChange={v => setForm(f => ({ ...f, sim: v }))} icon="📱"
+                        title={L('Carte SIM algérienne', 'Algerian SIM card', 'شريحة SIM جزائرية')}
+                        desc={L('Prête à votre arrivée.', 'Ready when you land.', 'جاهزة عند وصولك.')}
+                        price={priceTag(extras.sim, '')} />
+                    </div>
+                    <OptRow checked={form.fuel} onChange={v => setForm(f => ({ ...f, fuel: v }))} icon="⛽"
+                      title={L('Rendre sans faire le plein', 'Return without refuelling', 'الإرجاع دون تعبئة الوقود')}
+                      desc={L('On s\'en occupe : le carburant manquant est facturé au prix de la pompe.', 'We refuel for you: missing fuel is charged at pump price.', 'نتكفّل بالتعبئة: يُحتسب الوقود الناقص بسعر المحطة.')}
+                      price={priceTag(extras.fuel_fee, L(' + carburant', ' + fuel', ' + وقود'))} />
+
+                    <OptRow checked={form.babySeat} onChange={v => setForm(f => ({ ...f, babySeat: v }))} icon="👶"
+                      title={L('Siège bébé / enfant', 'Baby / child seat', 'مقعد رضيع / طفل')}
+                      desc={L('Indiquez l\'âge de l\'enfant, nous vous apportons le siège adapté avec le véhicule.', 'Tell us the child\'s age and we bring the right seat with the car.', 'حدّد عمر الطفل وسنحضر لك المقعد المناسب مع السيارة.')}
+                      price={L('Offert', 'Free', 'مجاني')}>
                         <div className="mt-4 space-y-3">
                           {form.babyAges.map((a, i) => (
                             <div key={i} className="grid grid-cols-[1fr_auto] sm:grid-cols-[200px_1fr_auto] gap-x-3 gap-y-1.5 items-center">
@@ -766,6 +854,9 @@ export default function ReservationPage({ cars: initialCars }) {
                               </select>
                               <span className="order-3 sm:order-none col-span-2 sm:col-span-1 text-xs text-gold-400/80">
                                 {a !== '' && <>→ {seatForAge(Number(a), lang)}</>}
+                                {a !== '' && seatShort(seatKind(Number(a))) && (
+                                  <span className="block text-amber-400/90 mt-0.5">{L('Plus assez de ce siège en stock sur ces dates — nous vous recontactons pour une solution.', 'Not enough of this seat in stock on these dates — we will contact you with a solution.', 'لا يتوفر عدد كافٍ من هذا المقعد في هذه التواريخ — سنتصل بك لإيجاد حل.')}</span>
+                                )}
                               </span>
                               {form.babyAges.length > 1 ? (
                                 <button type="button" className="text-white/35 hover:text-red-400 text-xs px-2 py-2"
@@ -782,8 +873,7 @@ export default function ReservationPage({ cars: initialCars }) {
                             </button>
                           )}
                         </div>
-                      )}
-                    </div>
+                    </OptRow>
 
                     <div className="grid md:grid-cols-[1fr_220px] gap-4">
                       <div>
@@ -835,7 +925,7 @@ export default function ReservationPage({ cars: initialCars }) {
                       [t('res.retour'), form.endDate ? nice(form.endDate) : '—'],
                       [t('res.duree'),  days > 0 ? `${days} ${t('res.days')}` : '—'],
                       [L('Prix / jour', 'Price / day', 'السعر / يوم'), selectedCar ? `${fmt(selectedCar.resale_price)} ${sym(selectedCar.currency)}` : '—'],
-                      ...(form.babySeat ? [[L('Siège bébé', 'Baby seat', 'مقعد طفل'), `👶 × ${form.babyAges.length}`]] : []),
+                      ...cost.items.map(i => [i.label, i.amount === null ? L('à confirmer', 'to confirm', 'للتأكيد') : i.amount === 0 ? L('Offert', 'Free', 'مجاني') : `${fmt(i.amount)} €`]),
                     ].map(([l, v]) => (
                       <div key={l} className="flex justify-between text-sm">
                         <span className="text-white/40">{l}</span>
@@ -849,6 +939,7 @@ export default function ReservationPage({ cars: initialCars }) {
                         ? <span className="font-display text-4xl font-bold text-gold-gradient leading-none">{fmt(total)}<span className="text-lg ml-1">{sym(selectedCar?.currency)}</span></span>
                         : <span className="text-white/30 text-sm">{L('Choisissez vos dates', 'Pick your dates', 'اختر تواريخك')}</span>}
                     </div>
+                    {total > 0 && cost.pending && <p className="text-right text-white/35 text-[11px] -mt-1">{L('+ options au prix à confirmer', '+ options, price to confirm', '+ خيارات بسعر للتأكيد')}</p>}
                     <ul className="pt-3 space-y-2">
                       {[L('Sans caution', 'No deposit', 'بدون كفالة'), L('Kilométrage illimité', 'Unlimited mileage', 'كيلومترات غير محدودة'), L('Assurance incluse', 'Insurance included', 'التأمين مشمول'), L('Livraison possible à l\'aéroport', 'Airport delivery available', 'توصيل ممكن إلى المطار')].map(x => (
                         <li key={x} className="flex items-center gap-2 text-white/55 text-xs"><Check size={13} className="text-gold-400" />{x}</li>

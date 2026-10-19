@@ -1,10 +1,11 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Settings as SettingsIcon, MessageCircle, Mail, Phone, MapPin, Instagram, Music2, Facebook, Percent, Save, Megaphone, ImageIcon, Loader2 } from 'lucide-react';
+import { Settings as SettingsIcon, MessageCircle, Mail, Phone, MapPin, Instagram, Music2, Facebook, Percent, Save, Megaphone, ImageIcon, Loader2, CarFront } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import { DEFAULT_SETTINGS } from '../../lib/settings';
+import { getExtras } from '../../lib/extras';
 
 const inputCls = "w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 outline-none transition-colors";
 
@@ -125,13 +126,15 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     supabase.from('site_settings').select('*').eq('id', 1).single()
       .then(({ data }) => {
-        if (data) setForm({ ...DEFAULT_SETTINGS, ...data, email2: typeof data.content?.email2 === 'string' ? data.content.email2 : DEFAULT_SETTINGS.email2 });
+        if (data) setForm({ ...DEFAULT_SETTINGS, ...data, email2: typeof data.content?.email2 === 'string' ? data.content.email2 : DEFAULT_SETTINGS.email2, extras: getExtras(data) });
         setLoad(false);
       })
       .catch(() => setLoad(false));
   }, []);
 
   const up = (f) => (e) => setForm(s => ({ ...s, [f]: e.target.value }));
+  const upEx = (f) => (e) => setForm(s => ({ ...s, extras: { ...getExtras(s), ...(s.extras || {}), [f]: e.target.value.replace(/[^\d.]/g, '') } }));
+  const ex = form.extras || getExtras(form);
 
   // Nettoie un lien collé : enlève < >, espaces, et force https:// si absent
   const cleanUrl = (v) => {
@@ -149,7 +152,7 @@ export default function AdminSettingsPage() {
     const { data: cur } = await supabase.from('site_settings').select('content').eq('id', 1).single();
     const payload = {
       id: 1,
-      content: { ...(cur?.content || {}), email2: (form.email2 || '').trim() },
+      content: { ...(cur?.content || {}), email2: (form.email2 || '').trim(), extras: { ...getExtras(cur), ...(form.extras || {}) } },
       // Numéros WhatsApp : modifiables uniquement par l'admin suprême (sinon non inclus → valeurs gardées)
       ...(isSuper ? { whatsapp: cleanWa(form.whatsapp), whatsapp2: cleanWa(form.whatsapp2), whatsapp3: cleanWa(form.whatsapp3) } : {}),
       logo_url: form.logo_url || '',
@@ -263,6 +266,27 @@ export default function AdminSettingsPage() {
                   <Field label="Satisfaction % (accueil)" icon={Percent} hint="Ex: 98. Vide = 98."><input type="number" inputMode="numeric" value={form.stat_satisfaction || ''} onChange={up('stat_satisfaction')} placeholder="98" className={inputCls} /></Field>
                 </div>
               </div>
+            </section>
+
+            {/* Options de réservation */}
+            <section className="bg-[#141414] border border-white/[0.07] rounded-2xl p-6">
+              <h2 className="text-white font-bold text-sm mb-1 flex items-center gap-2"><CarFront size={15} className="text-gold-400" /> Options de réservation</h2>
+              <p className="text-white/30 text-[11px] mb-5">Prix en € affichés sur la page Réserver et ajoutés au total. Vide = « prix à confirmer » (pas ajouté), 0 = offert. Le siège bébé est toujours offert.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <Field label="2e conducteur (€ / jour)"><input inputMode="decimal" value={ex.driver2_day} onChange={upEx('driver2_day')} placeholder="à confirmer" className={inputCls} /></Field>
+                <Field label="Wi-Fi 4G (€ / jour)"><input inputMode="decimal" value={ex.wifi_day} onChange={upEx('wifi_day')} placeholder="à confirmer" className={inputCls} /></Field>
+                <Field label="Carte SIM (€)"><input inputMode="decimal" value={ex.sim} onChange={upEx('sim')} placeholder="à confirmer" className={inputCls} /></Field>
+                <Field label="Plein au retour — frais (€)" hint="+ carburant au prix pompe"><input inputMode="decimal" value={ex.fuel_fee} onChange={upEx('fuel_fee')} placeholder="à confirmer" className={inputCls} /></Field>
+                <Field label="Aéroport (€ / trajet)" hint="prise OU retour à l'aéroport"><input inputMode="decimal" value={ex.delivery_airport} onChange={upEx('delivery_airport')} placeholder="à confirmer" className={inputCls} /></Field>
+                <Field label="Livraison adresse (€ / trajet)"><input inputMode="decimal" value={ex.delivery_address} onChange={upEx('delivery_address')} placeholder="à confirmer" className={inputCls} /></Field>
+              </div>
+              <p className="text-white/40 text-xs font-semibold mt-6 mb-3">👶 Stock de sièges bébé (vide = illimité)</p>
+              <div className="grid grid-cols-3 gap-4">
+                <Field label="Coques (0–1 an)"><input inputMode="numeric" value={ex.stock_coque} onChange={upEx('stock_coque')} placeholder="∞" className={inputCls} /></Field>
+                <Field label="Sièges (1–3 ans)"><input inputMode="numeric" value={ex.stock_siege} onChange={upEx('stock_siege')} placeholder="∞" className={inputCls} /></Field>
+                <Field label="Rehausseurs (4 ans +)"><input inputMode="numeric" value={ex.stock_rehausseur} onChange={upEx('stock_rehausseur')} placeholder="∞" className={inputCls} /></Field>
+              </div>
+              <p className="text-white/20 text-[11px] mt-2">Si un type est épuisé sur les dates choisies, le client voit « nous vous recontactons » (la résa n'est pas bloquée).</p>
             </section>
 
             <button onClick={save} disabled={saving} className="btn-gold w-full py-3.5 text-sm font-bold disabled:opacity-40 flex items-center justify-center gap-2">
