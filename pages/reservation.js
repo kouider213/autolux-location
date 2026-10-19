@@ -839,7 +839,7 @@ export default function ReservationPage({ cars: initialCars }) {
                             ))}
                           </div>
                           <input value={form.simBudget} onChange={set('simBudget')} className="input-dark"
-                            placeholder={L('Votre budget pour la carte (ex. 15 €, 3 000 DA)', 'Your budget for the card (e.g. €15)', 'ميزانيتك للشريحة (مثال: 3000 دج)')} />
+                            placeholder={L('Votre budget (ex. 3 000 DA)', 'Your budget (e.g. €15)', 'ميزانيتك (مثال: 3000 دج)')} />
                           <p className="text-white/40 text-[11px]">🛂 {L('La carte SIM est enregistrée à votre nom grâce à la photo de votre passeport (obligatoire en Algérie).', 'The SIM card is registered in your name using your passport photo (required in Algeria).', 'تُسجَّل الشريحة باسمك بواسطة صورة جواز سفرك (إلزامي في الجزائر).')}</p>
                         </div>
                       </OptRow>
