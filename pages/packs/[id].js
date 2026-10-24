@@ -13,6 +13,7 @@ import { trackPageView } from '../../lib/tracker';
 import { useLang } from '../../lib/i18n';
 import { useTranslated } from '../../lib/autoTranslate';
 import { useSettings, waNumber } from '../../lib/settings';
+import { carHref } from '../../lib/carUrl';
 
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
@@ -182,7 +183,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
                   <h2 className="text-gold-500 font-semibold text-sm mb-3 tracking-wide uppercase">{lang === 'ar' ? 'السيارة والعقار المعنيان' : lang === 'en' ? 'The vehicle & property of this pack' : 'Le véhicule & le bien de ce pack'}</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {pack.car && (
-                      <Link href={`/cars/${pack.car.id}`} className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/25 rounded-xl overflow-hidden transition-all">
+                      <Link href={carHref(pack.car)} className="group bg-[#141414] border border-white/[0.06] hover:border-gold-500/25 rounded-xl overflow-hidden transition-all">
                         <div className="h-28 bg-[#0e0e0e] overflow-hidden">
                           {pack.car.image_url ? <img src={pack.car.image_url} alt={pack.car.name} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <div className="w-full h-full flex items-center justify-center"><Car size={26} className="text-white/10" /></div>}
                         </div>

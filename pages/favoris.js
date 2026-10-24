@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useLang, localizeValue } from '../lib/i18n';
 import { useFavorites } from '../lib/favorites';
+import { carHref } from '../lib/carUrl';
 
 const cur = (c) => (c === 'EUR' ? '€' : 'DA');
 
@@ -105,7 +106,7 @@ export default function FavorisPage() {
                     <FavCard key={c.id} img={c.image_url} name={c.name}
                       sub={`${localizeValue(c.category, lang)} · ${c.seats} ${L('places', 'مقاعد', 'seats')}`}
                       price={`${Number(c.resale_price).toLocaleString('fr-FR')} ${cur(c.currency)}${L('/jour', '/يوم', '/day')}`}
-                      href={`/cars/${c.id}`} bookHref={`/reservation?car=${c.id}`}
+                      href={carHref(c)} bookHref={`/reservation?car=${c.id}`}
                       onRemove={() => toggle(c.id, 'car')} />
                   ))}
                 </Section>

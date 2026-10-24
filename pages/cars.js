@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import { useLang, localizeValue } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 import { useFavorites } from '../lib/favorites';
+import { carHref } from '../lib/carUrl';
 
 const CATEGORIES = ['Tous', 'citadine', 'berline', 'SUV', 'familiale', 'utilitaire', 'premium'];
 
@@ -238,7 +239,7 @@ function CarCard({ car, bookedUntil, t, lang, availMode, wa, isFav, onFav }) {
     <div className="group relative flex sm:block rounded-2xl sm:rounded-3xl overflow-hidden border border-white/[0.07] bg-gradient-to-b from-[#141414] to-[#0d0d0d] hover:border-gold-500/40 sm:hover:-translate-y-2 hover:shadow-[0_30px_60px_-20px_rgba(0,0,0,0.9),0_0_0_1px_rgba(226,182,20,0.1)] transition-all duration-500">
 
       {/* Photo — carré à gauche sur téléphone, 4/3 en haut sur tablette/PC */}
-      <Link href={`/cars/${car.id}`} className="relative block w-[40%] min-h-[150px] sm:min-h-0 sm:w-auto flex-shrink-0 overflow-hidden sm:aspect-[4/3]">
+      <Link href={carHref(car)} className="relative block w-[40%] min-h-[150px] sm:min-h-0 sm:w-auto flex-shrink-0 overflow-hidden sm:aspect-[4/3]">
         {car.image_url ? (
           <img src={car.image_url} alt={car.name}
             className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
@@ -265,7 +266,7 @@ function CarCard({ car, bookedUntil, t, lang, availMode, wa, isFav, onFav }) {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="text-gold-500/80 text-[10px] font-bold uppercase tracking-wider capitalize">{localizeValue(car.category, lang)}</p>
-            <Link href={`/cars/${car.id}`}><h3 className="font-body text-white font-semibold text-lg tracking-tight leading-tight truncate">{car.name}</h3></Link>
+            <Link href={carHref(car)}><h3 className="font-body text-white font-semibold text-lg tracking-tight leading-tight truncate">{car.name}</h3></Link>
           </div>
           <div className="relative w-9 h-9 flex-shrink-0 [&>button]:inset-0">{fav}</div>
         </div>
@@ -288,7 +289,7 @@ function CarCard({ car, bookedUntil, t, lang, availMode, wa, isFav, onFav }) {
           <span className="text-white/30 text-xs">{t('b.per_day')}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Link href={`/cars/${car.id}`} aria-label={car.name}
+          <Link href={carHref(car)} aria-label={car.name}
             className="hidden xl:flex w-9 h-9 items-center justify-center rounded-xl bg-white/[0.05] hover:bg-white/10 text-white/40 hover:text-white transition-all">
             <ArrowRight size={14} />
           </Link>

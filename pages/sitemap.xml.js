@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { carHref } from '../lib/carUrl';
 
 const BASE = 'https://fikconciergerie.com';
 
@@ -9,13 +10,13 @@ export async function getServerSideProps({ res }) {
   try {
     if (supabase) {
       const [cars, sale, immo, blog, packs] = await Promise.all([
-        supabase.from('cars').select('id').eq('available', true),
+        supabase.from('cars').select('id, name').eq('available', true),
         supabase.from('vehicles_for_sale').select('id').neq('status', 'vendu'),
         supabase.from('properties').select('id').neq('status', 'vendu').neq('status', 'loue'),
         supabase.from('blog_posts').select('slug').eq('published', true),
         supabase.from('packs').select('id'),
       ]);
-      carIds    = (cars.data  || []).map(c => c.id);
+      carIds    = (cars.data  || []).filter(c => c.id);
       saleIds   = (sale.data  || []).map(v => v.id);
       immoIds   = (immo.data  || []).map(p => p.id);
       blogSlugs = (blog.data  || []).map(b => b.slug);
@@ -24,7 +25,7 @@ export async function getServerSideProps({ res }) {
   } catch { /* non-blocking */ }
 
   const staticPages = ['', '/cars', '/vente-voitures', '/immo', '/packs', '/entreprises', '/investir', '/commande-vehicule', '/reservation', '/mes-reservations', '/reviews', '/conditions', '/faq', '/blog', '/contact', '/a-propos', '/cgv', '/mentions-legales', '/confidentialite', '/conciergerie-oran', '/location-voiture-oran', '/vente-voiture-oran', '/immobilier-oran', '/location-voiture-aeroport-oran', '/importation-voiture-algerie', '/vente-voiture-occasion-oran'];
-  const carPages    = carIds.map(id => `/cars/${id}`);
+  const carPages    = carIds.map(c => carHref(c));
   const salePages   = saleIds.map(id => `/vente-voitures/${id}`);
   const immoPages   = immoIds.map(id => `/immo/${id}`);
   const blogPages   = blogSlugs.map(s => `/blog/${s}`);

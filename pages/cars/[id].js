@@ -11,6 +11,7 @@ import { trackPageView } from '../../lib/tracker';
 import { useLang, localizeValue } from '../../lib/i18n';
 import { useTranslated } from '../../lib/autoTranslate';
 import { useSettings, waNumber } from '../../lib/settings';
+import { carHref, carIdFromParam } from '../../lib/carUrl';
 
 export default function CarDetail({ car, photos: initialPhotos }) {
   const { t, lang } = useLang();
@@ -94,7 +95,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
             price: Number(car.resale_price),
             priceCurrency: car.currency === 'EUR' ? 'EUR' : 'DZD',
             availability: car.available === false ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
-            url: `https://fikconciergerie.com/cars/${car.id}`,
+            url: `https://fikconciergerie.com${carHref(car)}`,
             description: 'Prix par jour',
           } } : {}),
         }) }} />
@@ -286,13 +287,19 @@ export default function CarDetail({ car, photos: initialPhotos }) {
   );
 }
 
-export async function getServerSideProps({ params }) {
+export async function getServerSideProps({ params, resolvedUrl }) {
   try {
     const supabaseClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     );
-    const { data: car } = await supabaseClient.from('cars').select('*').eq('id', params.id).single();
+    const { data: car } = await supabaseClient.from('cars').select('*').eq('id', carIdFromParam(params.id)).single();
+    // Ancienne adresse /cars/<id> (ou nom changé) → adresse lisible, en gardant ?lang= etc.
+    const want = car ? carHref(car) : null;
+    if (want && `/cars/${params.id}` !== want) {
+      const qs = (resolvedUrl || '').split('?')[1];
+      return { redirect: { destination: qs ? `${want}?${qs}` : want, permanent: true } };
+    }
     return { props: { car: car || null } };
   } catch {
     return { props: { car: null } };

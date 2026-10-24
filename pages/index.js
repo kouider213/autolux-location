@@ -64,6 +64,7 @@ function SocialIcons() {
   );
 }
 import { supabase } from '../lib/supabase';
+import { carHref } from '../lib/carUrl';
 
 const BENEFITS = [
   { icon: Sparkles,      num:'01', tk:'ben1t', dk:'ben1d' },
@@ -160,7 +161,7 @@ function CarCarousel({ cars }) {
             className="absolute inset-0"
           >
             {/* Background image — clickable to detail page */}
-            <Link href={`/cars/${car.id}`} className="absolute inset-0 z-0">
+            <Link href={carHref(car)} className="absolute inset-0 z-0">
               {car.image_url ? (
                 <motion.img
                   src={car.image_url}
@@ -269,7 +270,7 @@ function CarCarousel({ cars }) {
 function CarMiniCard({ car }) {
   const { t, lang } = useLang();
   return (
-    <Link href={`/cars/${car.id}`} className="relative w-[78%] sm:w-[46%] h-[340px] rounded-3xl overflow-hidden gold-frame p-px">
+    <Link href={carHref(car)} className="relative w-[78%] sm:w-[46%] h-[340px] rounded-3xl overflow-hidden gold-frame p-px">
       <div className="relative w-full h-full rounded-[23px] overflow-hidden">
         {car.image_url ? <img src={car.image_url} alt={car.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
           : <div className="absolute inset-0 bg-[#141414] flex items-center justify-center"><Car size={60} className="text-white/10" /></div>}

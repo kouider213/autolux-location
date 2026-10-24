@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { trackPageView } from '../lib/tracker';
+import { trackPageView, trackEvent } from '../lib/tracker';
 import { LangProvider } from '../lib/i18n';
 import AnnouncementBanner from '../components/AnnouncementBanner';
 import CookieBanner from '../components/CookieBanner';
@@ -28,7 +28,18 @@ export default function App({ Component, pageProps }) {
     // Track on route change
     const handleRouteChange = (url) => trackPageView(url);
     router.events.on('routeChangeComplete', handleRouteChange);
-    return () => router.events.off('routeChangeComplete', handleRouteChange);
+    // Clic vers WhatsApp / téléphone = un client qui nous contacte : compté dans le parcours (rapport de 21h)
+    const onClick = (e) => {
+      const a = e.target && e.target.closest && e.target.closest('a[href]');
+      const href = a ? a.getAttribute('href') || '' : '';
+      if (/wa\.me|whatsapp\.com/i.test(href)) trackEvent('whatsapp_click', { page: window.location.pathname });
+      else if (/^tel:/i.test(href)) trackEvent('phone_click', { page: window.location.pathname });
+    };
+    document.addEventListener('click', onClick, true);
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+      document.removeEventListener('click', onClick, true);
+    };
   }, []);
 
   // Chatbot retiré : le site présente déjà toutes les infos (location, vente,
