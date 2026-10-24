@@ -36,7 +36,17 @@ export default function App({ Component, pageProps }) {
       else if (/^tel:/i.test(href)) trackEvent('phone_click', { page: window.location.pathname });
     };
     document.addEventListener('click', onClick, true);
+    // Vrai humain : a fait défiler, touché ou tapé (les robots qui chargent la page ne le font pas) → 1 signal par visite
+    let engaged = false;
+    const onEngage = () => {
+      if (engaged) return;
+      engaged = true;
+      trackEvent('engaged');
+      ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(ev => window.removeEventListener(ev, onEngage, true));
+    };
+    ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(ev => window.addEventListener(ev, onEngage, { capture: true, passive: true }));
     return () => {
+      ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(ev => window.removeEventListener(ev, onEngage, true));
       router.events.off('routeChangeComplete', handleRouteChange);
       document.removeEventListener('click', onClick, true);
     };

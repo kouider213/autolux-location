@@ -594,6 +594,47 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
             </div>
         </div>
 
+        {/* ══ VÉHICULES INTERACTIFS ══ — juste sous l'accueil (24/10 : sur 16 visiteurs, aucun n'ouvrait une voiture quand elles venaient en 4e) */}
+        <section className="py-16 md:py-24 px-5 relative overflow-hidden bg-[#080808]">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
+          <div className="relative z-10 max-w-6xl mx-auto">
+            <motion.div className="mb-10"
+              initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
+              viewport={{ once:true }} transition={{ duration:0.7, ease }}>
+              <span className="section-badge mb-5 inline-block">{t('home.fleet_badge')}</span>
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-3">
+                <h2 className="font-display text-4xl md:text-5xl font-bold text-white">
+                  {t('home.fleet_t1')} <span className="text-gold-gradient italic">{t('home.fleet_t2')}</span>
+                </h2>
+                <Link href="/cars" className="btn-outline text-sm py-2.5 self-start">
+                  {t('home.fleet_all')} <ArrowRight size={13} />
+                </Link>
+              </div>
+            </motion.div>
+
+            {cars && cars.length > 0 && (
+              <motion.div
+                initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
+                viewport={{ once:true }} transition={{ duration:0.7, delay:0.15, ease }}>
+                <div className="md:hidden snap-row">
+                  {fleet.map(c => <CarMiniCard key={c.id} car={c} />)}
+                </div>
+                <div className="hidden md:block">
+                  <CarCarousel cars={fleet} />
+                </div>
+              </motion.div>
+            )}
+            {/* Une question avant de réserver → WhatsApp direct (compté dans le parcours du rapport de 21h) */}
+            <div className="mt-8 flex justify-center">
+              <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Bonjour FIK, je voudrais louer une voiture à Oran. Mes dates : ')}`}
+                target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#25D366] text-black font-semibold text-sm">
+                <MessageCircle size={16} /> {lang === 'ar' ? 'احجز عبر واتساب' : lang === 'en' ? 'Book on WhatsApp' : 'Réserver sur WhatsApp'}
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* ══ BENEFITS CAROUSEL — simple, stable ══ */}
         <section className="relative py-16 md:py-24 px-5 overflow-hidden bg-[#050505]">
           <div className="absolute inset-0 opacity-[0.018] pointer-events-none"
@@ -709,39 +750,6 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* ══ VÉHICULES INTERACTIFS ══ */}
-        <section className="py-16 md:py-24 px-5 relative overflow-hidden bg-[#080808]">
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/15 to-transparent" />
-          <div className="relative z-10 max-w-6xl mx-auto">
-            <motion.div className="mb-10"
-              initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
-              viewport={{ once:true }} transition={{ duration:0.7, ease }}>
-              <span className="section-badge mb-5 inline-block">{t('home.fleet_badge')}</span>
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-3">
-                <h2 className="font-display text-4xl md:text-5xl font-bold text-white">
-                  {t('home.fleet_t1')} <span className="text-gold-gradient italic">{t('home.fleet_t2')}</span>
-                </h2>
-                <Link href="/cars" className="btn-outline text-sm py-2.5 self-start">
-                  {t('home.fleet_all')} <ArrowRight size={13} />
-                </Link>
-              </div>
-            </motion.div>
-
-            {cars && cars.length > 0 && (
-              <motion.div
-                initial={{ opacity:1, y:0 }} whileInView={{ opacity:1, y:0 }}
-                viewport={{ once:true }} transition={{ duration:0.7, delay:0.15, ease }}>
-                <div className="md:hidden snap-row">
-                  {fleet.map(c => <CarMiniCard key={c.id} car={c} />)}
-                </div>
-                <div className="hidden md:block">
-                  <CarCarousel cars={fleet} />
-                </div>
-              </motion.div>
-            )}
           </div>
         </section>
 
