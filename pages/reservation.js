@@ -314,6 +314,18 @@ export default function ReservationPage({ cars: initialCars }) {
     const costFr = extrasCost(form, extras, days, 'fr');
     if (costFr.items.some(i => i.amount)) extrasFr.push(`💶 Options : ${costFr.items.filter(i => i.amount !== 0).map(i => `${i.label} ${i.amount === null ? 'sur demande' : fmt(i.amount) + ' €'}`).join(' ; ')}`);
     const fullNotes = [...extrasFr, form.notes || null].filter(Boolean).join('\n') || null;
+    // Re-vérifie juste avant l'envoi : quelqu'un a pu réserver ces dates entre-temps (anti double réservation)
+    if (supabase && form.carId) {
+      const { data: clash } = await supabase.from('bookings').select('id')
+        .eq('car_id', form.carId)
+        .in('status', ['PENDING', 'CONFIRMED', 'ACTIVE', 'ACCEPTED'])
+        .lte('start_date', form.endDate).gte('end_date', form.startDate)
+        .limit(1);
+      if (clash?.length) {
+        setErr2(L3(lang, 'Ce véhicule vient d\'être réservé sur ces dates. Revenez à l\'étape 1 et choisissez d\'autres dates.', 'This vehicle was just booked on these dates. Go back to step 1 and pick other dates.', 'تم حجز هذه السيارة للتو في هذه التواريخ. ارجع للخطوة 1 واختر تواريخ أخرى.'));
+        return;
+      }
+    }
     setLoading(true);
     let newBookingId = null;
     try {
