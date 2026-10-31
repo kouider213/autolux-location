@@ -191,6 +191,8 @@ export default function CarsPage({ cars: initialCars }) {
 function CarCard({ car, bookedUntil, t, lang, availMode, wa, isFav, onFav }) {
   const isBookedNow = !!bookedUntil;
   const available   = car.available && !isBookedNow;
+  // Louée en ce moment ≠ retirée : on peut quand même réserver d'autres dates
+  const bookable    = car.available !== false;
   const cur = car.currency === 'EUR' ? '€' : 'DA';
 
   const status = availMode ? (
@@ -207,9 +209,9 @@ function CarCard({ car, bookedUntil, t, lang, availMode, wa, isFav, onFav }) {
     <Link href={`/reservation?car=${car.id}`}
       className="btn-gold !px-3.5 !py-2.5 !text-xs !rounded-xl whitespace-nowrap">{t('b.check')}</Link>
   ) : (
-    <Link href={available ? `/reservation?car=${car.id}` : '#'}
-      className={available ? 'btn-gold !px-4 !py-2.5 !text-sm !rounded-xl' : 'px-4 py-2.5 rounded-xl text-sm font-bold bg-white/[0.04] text-white/20 cursor-not-allowed'}>
-      {available ? t('common.book') : t('cars.indispo')}
+    <Link href={bookable ? `/reservation?car=${car.id}` : '#'}
+      className={bookable ? 'btn-gold !px-4 !py-2.5 !text-sm !rounded-xl' : 'px-4 py-2.5 rounded-xl text-sm font-bold bg-white/[0.04] text-white/20 cursor-not-allowed'}>
+      {bookable ? t('common.book') : t('cars.indispo')}
     </Link>
   );
 

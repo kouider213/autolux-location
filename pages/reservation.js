@@ -821,10 +821,6 @@ export default function ReservationPage({ cars: initialCars }) {
                       </div>
                     </OptRow>
                     <div className="grid sm:grid-cols-2 gap-4">
-                      <OptRow checked={form.wifi} onChange={v => setForm(f => ({ ...f, wifi: v }))} icon="📶"
-                        title={L('Wi-Fi 4G dans la voiture', '4G Wi-Fi in the car', 'واي فاي 4G في السيارة')}
-                        desc={L('Internet pour toute la famille.', 'Internet for the whole family.', 'إنترنت لكل العائلة.')}
-                        price={priceTag(extras.wifi_day, L(' / jour', ' / day', ' / يوم'))} />
                       <OptRow checked={form.sim} onChange={v => setForm(f => ({ ...f, sim: v }))} icon="📱"
                         title={L('Carte SIM algérienne', 'Algerian SIM card', 'شريحة SIM جزائرية')}
                         desc={L('Prête à votre arrivée, selon votre besoin et votre budget.', 'Ready when you land, to suit your needs and budget.', 'جاهزة عند وصولك، حسب حاجتك وميزانيتك.')}

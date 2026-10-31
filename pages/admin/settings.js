@@ -276,7 +276,6 @@ export default function AdminSettingsPage() {
               <p className="text-white/30 text-[11px] mb-5">Prix en € affichés sur la page Réserver et ajoutés au total. Vide = « sur demande » (pas ajouté au total), 0 = offert. Le siège bébé est toujours offert. La carte SIM est toujours sur demande : le client choisit illimité ou non et donne son budget.</p>
               <div className="grid grid-cols-2 gap-4">
                 <Field label="2e conducteur (€ / jour)"><input inputMode="decimal" value={ex.driver2_day} onChange={upEx('driver2_day')} placeholder="sur demande" className={inputCls} /></Field>
-                <Field label="Wi-Fi 4G (€ / jour)"><input inputMode="decimal" value={ex.wifi_day} onChange={upEx('wifi_day')} placeholder="sur demande" className={inputCls} /></Field>
                 <Field label="Plein au retour — frais (€)" hint="+ carburant au prix pompe"><input inputMode="decimal" value={ex.fuel_fee} onChange={upEx('fuel_fee')} placeholder="sur demande" className={inputCls} /></Field>
                 <Field label="Aéroport (€ / trajet)" hint="prise OU retour à l'aéroport"><input inputMode="decimal" value={ex.delivery_airport} onChange={upEx('delivery_airport')} placeholder="sur demande" className={inputCls} /></Field>
               </div>
