@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     icon: '🚗', type: 'Nouvelle RÉSERVATION',
     name: client_name, phone: client_phone, email: client_email, lang,
     lines: [car_name ? `🚘 ${car_name}` : '', (start_date || end_date) ? `📅 ${start_date || '?'} → ${end_date || '?'}` : '', total ? `💰 ${total} ${currency === 'DZD' ? 'DA' : '€'}` : '', ...(Array.isArray(extras) ? extras.map(String).slice(0, 10) : [])],
-    adminPath: '/admin/bookings',
+    adminPath: booking_id ? `/admin/bookings?id=${encodeURIComponent(booking_id)}` : '/admin/bookings',
   })).catch(() => {});
 
   // Email "demande reçue" au client (si email fourni)

@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import AdminLayout from '../../components/AdminLayout';
 import InspectionTool from '../../components/InspectionTool';
@@ -52,6 +53,15 @@ export default function BookingsPage() {
   const [filter, setFilter]           = useState('Tous');
   const [search, setSearch]           = useState('');
   const [selected, setSelected]       = useState(null);
+  // 13/11 : /admin/bookings?id=… (lien de la notif Telegram) ouvre directement la réservation
+  const router = useRouter();
+  const [openedId, setOpenedId] = useState(null);
+  useEffect(() => {
+    const id = router.query.id;
+    if (!id || openedId === id || !bookings.length) return;
+    const b = bookings.find(x => x.id === id);
+    if (b) { setSelected(b); setEditPrice(b.final_price ? String(b.final_price) : ''); setOpenedId(id); }
+  }, [router.query.id, bookings]); // eslint-disable-line react-hooks/exhaustive-deps
   const [editPrice, setEditPrice]     = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [profile, setProfile]         = useState(null);

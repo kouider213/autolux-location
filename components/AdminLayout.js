@@ -122,9 +122,11 @@ export default function AdminLayout({ children, title }) {
   useEffect(() => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.push('/login'); return; }
+      // 13/11 : lien Telegram « nouvelle réservation » → après connexion, retour sur la bonne page (plus sur l'accueil admin)
+      const toLogin = () => router.replace(`/login?next=${encodeURIComponent(router.asPath)}`);
+      if (!session) { toLogin(); return; }
       const { data: prof } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-      if (!prof) { router.push('/login'); return; }
+      if (!prof) { toLogin(); return; }
       setProfile(prof);
       setLoading(false);
     };

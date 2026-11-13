@@ -1,5 +1,5 @@
 ﻿import Head from 'next/head';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, Lock, User, LogIn } from 'lucide-react';
@@ -12,6 +12,9 @@ export default function LoginPage() {
   const [showPwd, setShowPwd]       = useState(false);
   const [loading, setLoading]       = useState(false);
   const [forgot, setForgot]         = useState(false);
+  const nextPath = () => { const n = String(router.query.next || ''); return n.startsWith('/admin') ? n : '/admin'; };
+  // Déjà connecté (session gardée) → directement à la page demandée
+  useEffect(() => { if (!router.isReady) return; supabase?.auth.getSession().then(({ data }) => { if (data?.session) router.replace(nextPath()); }); }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,7 +31,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { toast.error('Identifiant ou mot de passe incorrect'); setLoading(false); return; }
       toast.success('Connexion réussie');
-      router.push('/admin');
+      router.replace(nextPath());
     } catch { toast.error('Erreur, réessayez'); setLoading(false); }
   };
 
