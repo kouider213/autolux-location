@@ -73,7 +73,7 @@ export default async function handler(req, res) {
   L.push('- Assurance incluse, climatisation et chauffage inclus.');
   L.push('- Âge minimum : 35 ans (exigence assurance, non négociable).');
   L.push('- Prise et retour : agence de Hay Badr, rue Derbouz Draoua Houari (Oran), ou aéroport d\'Oran (le client donne son n° de vol : on suit le vol, en cas de retard on l\'attend). PAS de livraison à une adresse (hôtel, domicile) : le client vient à l\'agence ou choisit l\'aéroport.');
-  L.push('- Options à cocher à l\'étape 2 de la réservation : siège bébé / enfant GRATUIT (âge de l\'enfant → coque, siège ou rehausseur, jusqu\'à 3), conducteur supplémentaire (35 ans minimum aussi), Wi-Fi 4G, rendre sans faire le plein, carte SIM algérienne (internet illimité ou forfait limité selon son besoin, il indique son budget ; la carte est enregistrée avec la photo de son passeport, obligatoire en Algérie). Prix non affichés = sur demande (confirmés sur WhatsApp).');
+  L.push('- Option à cocher à l\'étape 2 de la réservation : siège bébé / enfant GRATUIT (âge de l\'enfant → coque, siège ou rehausseur, jusqu\'à 3). Prise/retour à l\'agence ou à l\'aéroport. On ne propose PAS de 2e conducteur, de Wi-Fi, de carte SIM ni de « rendre sans faire le plein » : si le client demande, réponds que ce n\'est pas proposé.');
   L.push('');
 
   if (cars.length) {

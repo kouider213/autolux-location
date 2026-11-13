@@ -274,10 +274,8 @@ export default function AdminSettingsPage() {
             {/* Options de réservation */}
             <section className="bg-[#141414] border border-white/[0.07] rounded-2xl p-6">
               <h2 className="text-white font-bold text-sm mb-1 flex items-center gap-2"><CarFront size={15} className="text-gold-400" /> Options de réservation</h2>
-              <p className="text-white/30 text-[11px] mb-5">Prix en € affichés sur la page Réserver et ajoutés au total. Vide = « sur demande » (pas ajouté au total), 0 = offert. Le siège bébé est toujours offert. La carte SIM est toujours sur demande : le client choisit illimité ou non et donne son budget.</p>
+              <p className="text-white/30 text-[11px] mb-5">Prix en € affichés sur la page Réserver et ajoutés au total. Vide = « sur demande » (pas ajouté au total), 0 = offert. Le siège bébé est toujours offert. (2e conducteur, Wi-Fi, carte SIM et plein au retour ne sont plus proposés depuis le 13/11.)</p>
               <div className="grid grid-cols-2 gap-4">
-                <Field label="2e conducteur (€ / jour)"><input inputMode="decimal" value={ex.driver2_day} onChange={upEx('driver2_day')} placeholder="sur demande" className={inputCls} /></Field>
-                <Field label="Plein au retour — frais (€)" hint="+ carburant au prix pompe"><input inputMode="decimal" value={ex.fuel_fee} onChange={upEx('fuel_fee')} placeholder="sur demande" className={inputCls} /></Field>
                 <Field label="Aéroport (€ / trajet)" hint="prise OU retour à l'aéroport"><input inputMode="decimal" value={ex.delivery_airport} onChange={upEx('delivery_airport')} placeholder="sur demande" className={inputCls} /></Field>
               </div>
               <p className="text-white/40 text-xs font-semibold mt-6 mb-3">👶 Stock de sièges bébé (vide = illimité)</p>

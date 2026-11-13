@@ -292,17 +292,6 @@ export default function ReservationPage({ cars: initialCars }) {
     if (form.pickup === 'aeroport' && !form.flight.trim()) {
       setErr2(L3(lang, 'Indiquez votre numéro de vol pour la prise à l\'aéroport.', 'Enter your flight number for the airport pick-up.', 'أدخل رقم رحلتك للاستلام من المطار.')); return false;
     }
-    if (form.sim && !form.simPlan) {
-      setErr2(L3(lang, 'Carte SIM : choisissez internet illimité ou forfait limité.', 'SIM card: choose unlimited or limited data.', 'شريحة SIM: اختر إنترنت غير محدود أو باقة محدودة.')); return false;
-    }
-    if (form.driver2) {
-      if (!form.driver2Name.trim() || !form.driver2Age) {
-        setErr2(L3(lang, 'Indiquez le nom et l\'âge du 2e conducteur.', 'Enter the 2nd driver\'s name and age.', 'أدخل اسم وعمر السائق الثاني.')); return false;
-      }
-      if (Number(form.driver2Age) < 35) {
-        setErr2(L3(lang, 'Le 2e conducteur doit aussi avoir 35 ans minimum (assurance).', 'The 2nd driver must also be at least 35 (insurance).', 'يجب أن يكون السائق الثاني أيضًا 35 سنة على الأقل (التأمين).')); return false;
-      }
-    }
     setErr2(''); return true;
   };
 
@@ -822,41 +811,7 @@ export default function ReservationPage({ cars: initialCars }) {
                       )}
                     </div>
 
-                    {/* ── Options */}
-                    <OptRow checked={form.driver2} onChange={v => setForm(f => ({ ...f, driver2: v }))} icon="👤"
-                      title={L('Conducteur supplémentaire', 'Additional driver', 'سائق إضافي')}
-                      desc={L('35 ans minimum, permis valide.', 'At least 35, valid licence.', '35 سنة على الأقل، رخصة سارية.')}
-                      price={priceTag(extras.driver2_day, L(' / jour', ' / day', ' / يوم'))}>
-                      <div className="mt-4 grid grid-cols-[1fr_110px] gap-3">
-                        <input value={form.driver2Name} onChange={set('driver2Name')} placeholder={L('Nom complet', 'Full name', 'الاسم الكامل')} className="input-dark" />
-                        <input type="number" value={form.driver2Age} onChange={set('driver2Age')} placeholder={L('Âge', 'Age', 'العمر')} min="18" max="99" className="input-dark" />
-                      </div>
-                    </OptRow>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <OptRow checked={form.sim} onChange={v => setForm(f => ({ ...f, sim: v }))} icon="📱"
-                        title={L('Carte SIM algérienne', 'Algerian SIM card', 'شريحة SIM جزائرية')}
-                        desc={L('Prête à votre arrivée, selon votre besoin et votre budget.', 'Ready when you land, to suit your needs and budget.', 'جاهزة عند وصولك، حسب حاجتك وميزانيتك.')}
-                        price={L('Sur demande', 'On request', 'حسب الطلب')}>
-                        <div className="mt-4 space-y-3">
-                          <div className="grid grid-cols-2 gap-2">
-                            {[['illimite', L('Internet illimité', 'Unlimited data', 'إنترنت غير محدود')], ['limite', L('Forfait limité', 'Limited plan', 'باقة محدودة')]].map(([v, lbl]) => (
-                              <button key={v} type="button" onClick={() => setForm(f => ({ ...f, simPlan: v }))}
-                                className={`rounded-xl border px-3 py-2.5 text-xs font-semibold transition-colors ${form.simPlan === v ? 'border-gold-500/60 bg-gold-500/10 text-gold-300' : 'border-white/[0.1] text-white/60 hover:border-white/25'}`}>
-                                {lbl}
-                              </button>
-                            ))}
-                          </div>
-                          <input value={form.simBudget} onChange={set('simBudget')} className="input-dark"
-                            placeholder={L('Votre budget (ex. 3 000 DA)', 'Your budget (e.g. €15)', 'ميزانيتك (مثال: 3000 دج)')} />
-                          <p className="text-white/40 text-[11px]">🛂 {L('La carte SIM est enregistrée à votre nom grâce à la photo de votre passeport (obligatoire en Algérie).', 'The SIM card is registered in your name using your passport photo (required in Algeria).', 'تُسجَّل الشريحة باسمك بواسطة صورة جواز سفرك (إلزامي في الجزائر).')}</p>
-                        </div>
-                      </OptRow>
-                    </div>
-                    <OptRow checked={form.fuel} onChange={v => setForm(f => ({ ...f, fuel: v }))} icon="⛽"
-                      title={L('Rendre sans faire le plein', 'Return without refuelling', 'الإرجاع دون تعبئة الوقود')}
-                      desc={L('On s\'en occupe : le carburant manquant est facturé au prix de la pompe.', 'We refuel for you: missing fuel is charged at pump price.', 'نتكفّل بالتعبئة: يُحتسب الوقود الناقص بسعر المحطة.')}
-                      price={priceTag(extras.fuel_fee, L(' + carburant', ' + fuel', ' + وقود'))} />
-
+                    {/* ── Options : 2e conducteur, Wi-Fi, carte SIM et plein au retour retirés le 13/11 (Kouider) — reste le siège bébé */}
                     <OptRow checked={form.babySeat} onChange={v => setForm(f => ({ ...f, babySeat: v }))} icon="👶"
                       title={L('Siège bébé / enfant', 'Baby / child seat', 'مقعد رضيع / طفل')}
                       desc={L('Indiquez l\'âge de l\'enfant, nous vous apportons le siège adapté avec le véhicule.', 'Tell us the child\'s age and we bring the right seat with the car.', 'حدّد عمر الطفل وسنحضر لك المقعد المناسب مع السيارة.')}
