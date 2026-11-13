@@ -8,10 +8,11 @@ const JOURS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 
 const STATUS_COLOR = {
   ACCEPTED: 'bg-emerald-500',
+  CONFIRMED: 'bg-emerald-500',
   PENDING:  'bg-amber-400',
   REJECTED: 'bg-red-500',
 };
-const STATUS_LABEL = { ACCEPTED: 'Acceptée', PENDING: 'En attente', REJECTED: 'Refusée' };
+const STATUS_LABEL = { ACCEPTED: 'Acceptée', CONFIRMED: 'Acceptée', PENDING: 'En attente', REJECTED: 'Refusée' };
 
 function toLocalDateStr(date) {
   const y = date.getFullYear();
@@ -172,7 +173,7 @@ export default function CalendarPage() {
                         </div>
                       </div>
                       <div className="flex sm:flex-col items-center sm:items-end gap-2">
-                        <span className={'text-xs font-medium px-2 py-0.5 rounded-full ' + (b.status === 'ACCEPTED' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-400/20 text-amber-400')}>
+                        <span className={'text-xs font-medium px-2 py-0.5 rounded-full ' + (['ACCEPTED','CONFIRMED'].includes(b.status) ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-400/20 text-amber-400')}>
                           {STATUS_LABEL[b.status]}
                         </span>
                         {b.final_price > 0 && b.nb_days && (

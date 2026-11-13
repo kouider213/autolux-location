@@ -6,13 +6,15 @@ export default async function handler(req, res) {
           return res.status(405).json({ error: 'Method not allowed' });
     }
 
-  const { bookingId, status, finalPrice } = req.body;
+  const { bookingId, finalPrice } = req.body;
+  // La base refuse 'ACCEPTED' (bookings_status_check) : une demande acceptée = 'CONFIRMED'
+  const status = req.body.status === 'ACCEPTED' ? 'CONFIRMED' : req.body.status;
 
   if (!bookingId || !status) {
         return res.status(400).json({ error: 'bookingId et status sont requis' });
   }
 
-  const validStatuses = ['PENDING', 'ACCEPTED', 'REJECTED'];
+  const validStatuses = ['PENDING', 'CONFIRMED', 'REJECTED'];
     if (!validStatuses.includes(status)) {
           return res.status(400).json({ error: 'Statut invalide' });
     }
@@ -35,7 +37,7 @@ export default async function handler(req, res) {
 
   const updatePayload = { status };
 
-  if (status === 'ACCEPTED' && finalPrice !== undefined && finalPrice !== null && finalPrice !== '') {
+  if (status === 'CONFIRMED' && finalPrice !== undefined && finalPrice !== null && finalPrice !== '') {
         const price = Number(finalPrice);
         if (!isNaN(price) && price > 0) {
                 updatePayload.final_price = price;
@@ -68,7 +70,7 @@ export default async function handler(req, res) {
   }
 
   // Email auto au client si email présent (confirmée OU refusée) — non bloquant
-  if (status === 'ACCEPTED' || status === 'REJECTED') {
+  if (status === 'CONFIRMED' || status === 'REJECTED') {
     try {
       const { data: b } = await supabase
         .from('bookings')
@@ -80,7 +82,7 @@ export default async function handler(req, res) {
           start_date: b.start_date, end_date: b.end_date,
           total: b.final_price, currency: b.currency, booking_id: bookingId, status, lang: b.client_lang,
         };
-        const { subject, html } = status === 'ACCEPTED' ? bookingConfirmedEmail(payload) : bookingStatusEmail(payload);
+        const { subject, html } = status === 'CONFIRMED' ? bookingConfirmedEmail(payload) : bookingStatusEmail(payload);
         sendEmail(b.client_email, subject, html).catch(() => {});
       }
     } catch { /* non bloquant */ }

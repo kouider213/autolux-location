@@ -9,8 +9,9 @@ import { generateContract } from '../../lib/pdf';
 import { rentalDays } from '../../lib/date';
 import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck, Wallet, FileSignature, Save, Plus, Minus, Copy, Loader2, Camera, Star } from 'lucide-react';
 
-const STATUS_FLOW = ['PENDING', 'ACCEPTED', 'ACTIVE', 'COMPLETED', 'REJECTED'];
-const STATUS_FR = { PENDING: 'En attente', ACCEPTED: 'Confirmée', ACTIVE: 'En cours', COMPLETED: 'Terminée', REJECTED: 'Refusée' };
+// La base n'accepte que PENDING/CONFIRMED/ACTIVE/COMPLETED/REJECTED (bookings_status_check)
+const STATUS_FLOW = ['PENDING', 'CONFIRMED', 'ACTIVE', 'COMPLETED', 'REJECTED'];
+const STATUS_FR = { PENDING: 'En attente', ACCEPTED: 'Confirmée', CONFIRMED: 'Confirmée', ACTIVE: 'En cours', COMPLETED: 'Terminée', REJECTED: 'Refusée' };
 // Libellés statut dans la langue du client (pour les messages WhatsApp)
 const WA_STATUS_L = {
   PENDING:  { fr: 'En attente de confirmation', ar: 'في انتظار التأكيد', en: 'Awaiting confirmation' },
@@ -81,12 +82,12 @@ export default function BookingsPage() {
   const updateStatus = async (bookingId, status, price) => {
     setActionLoading(true);
     setBookings(prev => prev.map(b =>
-      b.id === bookingId ? { ...b, status, ...(status === 'ACCEPTED' && price ? { final_price: Number(price) } : {}) } : b
+      b.id === bookingId ? { ...b, status, ...(status === 'CONFIRMED' && price ? { final_price: Number(price) } : {}) } : b
     ));
     if (selected?.id === bookingId) setSelected(prev => ({ ...prev, status }));
 
     const body = { bookingId, status };
-    if (status === 'ACCEPTED' && price !== undefined) body.finalPrice = price;
+    if (status === 'CONFIRMED' && price !== undefined) body.finalPrice = price;
 
     const res = await fetch('/api/update-booking-status', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -94,10 +95,10 @@ export default function BookingsPage() {
     });
     const data = await res.json();
     if (!res.ok) { toast.error('Erreur : ' + (data.error || 'impossible')); await loadBookings(); setActionLoading(false); return; }
-    toast.success(status === 'ACCEPTED' ? 'Réservation acceptée' : 'Réservation refusée');
+    toast.success(status === 'CONFIRMED' ? 'Réservation acceptée' : 'Réservation refusée');
 
     // Auto WhatsApp quand acceptée
-    if (status === 'ACCEPTED') {
+    if (status === 'CONFIRMED') {
       const bk = bookings.find(b => b.id === bookingId) || selected;
       if (bk) {
         const phone = bk.client_phone?.replace(/\D/g, '');
@@ -112,7 +113,7 @@ export default function BookingsPage() {
       body: JSON.stringify({ type: 'booking_status', data: { id: bookingId, status, car_name: selected?.cars?.name, client_name: selected?.client_name } }),
     }).catch(() => {});
 
-    if (status === 'ACCEPTED') {
+    if (status === 'CONFIRMED') {
       const bk = bookings.find(b => b.id === bookingId) || selected;
       if (bk) fetch('/api/calendar-event', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -313,7 +314,7 @@ export default function BookingsPage() {
   ];
 
   const filtered = bookings.filter(b => {
-    const statusMatch = filter === 'Tous' || b.status === filter;
+    const statusMatch = filter === 'Tous' || (filter === 'ACCEPTED' ? ['ACCEPTED','CONFIRMED','ACTIVE','COMPLETED'].includes(b.status) : b.status === filter);
     const q = search.toLowerCase();
     const searchMatch = !search || b.client_name?.toLowerCase().includes(q) || b.client_phone?.includes(q) || b.cars?.name?.toLowerCase().includes(q);
     return statusMatch && searchMatch;
@@ -442,7 +443,7 @@ export default function BookingsPage() {
                     {/* Quick actions for PENDING */}
                     {b.status === 'PENDING' && (
                       <div className="flex gap-2 mt-3 pt-3 border-t border-white/[0.05]" onClick={e => e.stopPropagation()}>
-                        <button onClick={() => updateStatus(b.id, 'ACCEPTED', b.final_price)} disabled={actionLoading}
+                        <button onClick={() => updateStatus(b.id, 'CONFIRMED', b.final_price)} disabled={actionLoading}
                           className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-sm font-semibold py-2 rounded-xl transition-all disabled:opacity-50 border border-emerald-500/20">
                           <Check size={14} />Accepter
                         </button>
@@ -772,7 +773,7 @@ export default function BookingsPage() {
                 <div className="space-y-2 pt-1">
                   {selected.status === 'PENDING' && (
                     <div className="grid grid-cols-2 gap-2">
-                      <button onClick={() => updateStatus(selected.id, 'ACCEPTED', editPrice || selected.final_price)}
+                      <button onClick={() => updateStatus(selected.id, 'CONFIRMED', editPrice || selected.final_price)}
                         disabled={actionLoading}
                         className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50">
                         <Check size={15} />{actionLoading ? '...' : 'Accepter'}
