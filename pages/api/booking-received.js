@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   await notifyTelegram(buildNotif({
     icon: '🚗', type: 'Nouvelle RÉSERVATION',
     name: client_name, phone: client_phone, email: client_email, lang,
-    lines: [car_name ? `🚘 ${car_name}` : '', (start_date || end_date) ? `📅 ${start_date || '?'} → ${end_date || '?'}` : '', total ? `💰 ${total} ${currency === 'DZD' ? 'DA' : '€'}` : '', ...(Array.isArray(extras) ? extras.map(String).slice(0, 10) : [])],
+    lines: [car_name ? `🚘 ${car_name}` : '', (start_date || end_date) ? `📅 ${start_date || '?'} → ${end_date || '?'}` : '', total ? `💰 ${total} ${currency === 'DZD' ? 'DA' : '€'}` : '', ...(Array.isArray(extras) ? extras.map(String).slice(0, 10) : []), client_name ? `👉 Dis à Dzaryx : « accepte ${String(client_name).trim()} » (prix total possible) ou « refuse ${String(client_name).trim()} »` : ''],
     adminPath: booking_id ? `/admin/bookings?id=${encodeURIComponent(booking_id)}` : '/admin/bookings',
   })).catch(() => {});
 
