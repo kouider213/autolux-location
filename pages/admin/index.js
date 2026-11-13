@@ -94,6 +94,8 @@ function FinanceCard({ title, rows, accent, accentColor }) {
 }
 
 const LIVE = ['PENDING', 'ACCEPTED', 'CONFIRMED', 'ACTIVE'];
+// 13/11 : tout ce qui commence avant Djillali (29/10) a déjà été récupéré par Kouider cet été
+const PROFIT_CUTOFF = '2026-10-29';
 const telHref = (p) => `tel:${String(p || '').replace(/[^\d+]/g, '')}`;
 
 // Ce qui se passe aujourd'hui/demain : départs, retours, voitures dehors, retards
@@ -170,6 +172,8 @@ export default function AdminDashboard() {
   const [recentBookings, setRecent] = useState([]);
   const [allBookings, setAll]       = useState([]);
   const [loading, setLoading]       = useState(true);
+  // 13/11 Kouider : bénéfice réel par location (en DA ou €) + « déjà récupéré » — gardé dans site_settings.content.profit
+  const [pcfg, setPcfg]             = useState({ rate: 275, cutoff: PROFIT_CUTOFF, items: {} });
 
   useEffect(() => {
     loadData();
@@ -191,6 +195,9 @@ export default function AdminDashboard() {
     if (!bookings) { setLoading(false); return; }
     setAll(bookings);
     setRecent(bookings.slice(0, 8));
+    const { data: st } = await supabase.from('site_settings').select('content').eq('id', 1).single();
+    const pr = st?.content?.profit;
+    if (pr) setPcfg({ rate: Number(pr.rate) || 275, cutoff: pr.cutoff || PROFIT_CUTOFF, items: pr.items || {} });
     setLoading(false);
   };
 
@@ -213,9 +220,43 @@ export default function AdminDashboard() {
     return brute > fp ? fp : brute;
   };
 
+  // Bénéfice réel : celui noté à la main (DA → € au taux noté, ou €) sinon prix client − part Houari
+  const profitOf = (b) => {
+    const o = pcfg.items[b.id];
+    if (o && o.da != null && o.da !== '') return Number(o.da) / (Number(pcfg.rate) || 275);
+    if (o && o.eur != null && o.eur !== '') return Number(o.eur);
+    return Number(b.final_price || 0) - getPartHouari(b);
+  };
+  const isCollected = (b) => { const o = pcfg.items[b.id]; return o && typeof o.collected === 'boolean' ? o.collected : String(b.start_date || '') < pcfg.cutoff; };
   const totalRevenue  = accepted.reduce((s, b) => s + Number(b.final_price || 0), 0);
   const houariRevenue = accepted.reduce((s, b) => s + getPartHouari(b), 0);
-  const kouiderProfit = totalRevenue - houariRevenue;
+  const kouiderProfit = accepted.reduce((s, b) => s + profitOf(b), 0);
+  const toCollect     = accepted.filter(b => !isCollected(b)).sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)));
+  const toCollectSum  = toCollect.reduce((s, b) => s + profitOf(b), 0);
+  const collectedSum  = kouiderProfit - toCollectSum;
+
+  const saveProfit = async (patch) => {
+    const next = { ...pcfg, ...patch, items: { ...pcfg.items, ...(patch.items || {}) } };
+    setPcfg(next);
+    const { data: cur } = await supabase.from('site_settings').select('content').eq('id', 1).single();
+    const { error } = await supabase.from('site_settings').update({ content: { ...(cur?.content || {}), profit: next } }).eq('id', 1);
+    if (error) alert('Erreur : ' + error.message);
+  };
+  const editProfit = (b) => {
+    const o = pcfg.items[b.id] || {};
+    const cur = o.da ? `${o.da} DA` : `${Math.round(profitOf(b))} €`;
+    const v = window.prompt(`Bénéfice réel — ${b.client_name} (${b.cars?.name || ''})\nEn dinars : 15000 DA (ou 1500000 en centimes)\nEn euros : 54 €\nVide = calcul automatique`, cur);
+    if (v === null) return;
+    const t = v.trim().toLowerCase().replace(/\s/g, '');
+    if (!t) { saveProfit({ items: { [b.id]: { collected: o.collected } } }); return; }
+    const n = Number(t.replace(/[^\d.,]/g, '').replace(',', '.'));
+    if (!(n >= 0)) return;
+    const isEur = /€|eur/.test(t) || (!/da|dinar|cts|centime/.test(t) && n < 1000);
+    const da = /cts|centime/.test(t) || (!isEur && n >= 200000) ? n / 100 : n;   // « 1 500 000 » = centimes → 15 000 DA
+    saveProfit({ items: { [b.id]: isEur ? { ...o, eur: n, da: undefined } : { ...o, da, eur: undefined } } });
+  };
+  const editRate = () => { const v = window.prompt('Taux du marché (DA pour 1 €) :', String(pcfg.rate)); const n = Number(String(v || '').replace(',', '.')); if (n > 50) saveProfit({ rate: n }); };
+  const fmtDA = (n) => `${Math.round(n).toLocaleString('fr-FR')} DA`;
 
   const now            = new Date();
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -225,8 +266,8 @@ export default function AdminDashboard() {
   const lastMonth = accepted.filter(b => b.created_at >= lastMonthStart && b.created_at < lastMonthEnd);
   const thisCA    = thisMonth.reduce((s, b) => s + Number(b.final_price || 0), 0);
   const lastCA    = lastMonth.reduce((s, b) => s + Number(b.final_price || 0), 0);
-  const thisBen   = thisMonth.reduce((s, b) => s + (Number(b.final_price || 0) - getPartHouari(b)), 0);
-  const lastBen   = lastMonth.reduce((s, b) => s + (Number(b.final_price || 0) - getPartHouari(b)), 0);
+  const thisBen   = thisMonth.reduce((s, b) => s + profitOf(b), 0);
+  const lastBen   = lastMonth.reduce((s, b) => s + profitOf(b), 0);
   const caDelta   = lastCA  > 0 ? Math.round(((thisCA  - lastCA)  / lastCA)  * 100) : null;
   const benDelta  = lastBen > 0 ? Math.round(((thisBen - lastBen) / lastBen) * 100) : null;
 
@@ -291,10 +332,12 @@ export default function AdminDashboard() {
                   rows={[
                     { label: 'CA total clients',    value: fmt(totalRevenue) },
                     { label: 'Payé à Houari',       value: `−${fmt(houariRevenue)}` },
-                    { label: 'Bénéfice net',        value: `+${fmt(kouiderProfit)}`, highlight: true },
+                    { label: 'Bénéfice net (réel)', value: `+${fmt(kouiderProfit)}` },
+                    { label: 'Déjà récupéré',       value: fmt(collectedSum) },
+                    { label: 'À récupérer',         value: fmt(toCollectSum), highlight: true },
                     { label: 'Locations gérées',    value: accepted.length },
                   ]}
-                  accent={{ label: 'Bénéfice total Kouider', value: fmt(kouiderProfit) }}
+                  accent={{ label: 'À récupérer (Kouider)', value: `${fmt(toCollectSum)} · ${fmtDA(toCollectSum * pcfg.rate)}` }}
                 />
                 <FinanceCard
                   title="Houari — Propriétaire" accentColor="blue"
@@ -317,6 +360,30 @@ export default function AdminDashboard() {
                   accent={{ label: "Chiffre d'affaires", value: fmt(totalRevenue) }}
                 />
               </div>
+            </div>
+
+            {/* 13/11 : bénéfice à récupérer, location par location */}
+            <div className="bg-[#141414] border border-gold-500/25 rounded-2xl p-5">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.15em] text-gold-400">Bénéfice à récupérer</h3>
+                <button onClick={editRate} className="text-white/40 text-[11px] underline decoration-dotted">1 € = {pcfg.rate} DA</button>
+              </div>
+              {toCollect.length === 0 ? <p className="text-white/40 text-sm">Tout est récupéré ✅</p> : toCollect.map(b => { const o = pcfg.items[b.id] || {}; const manual = (o.da != null && o.da !== '') || (o.eur != null && o.eur !== ''); return (
+                <div key={b.id} className="flex items-center gap-2 py-2.5 border-b border-white/[0.06] last:border-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-semibold truncate">{b.client_name} · {b.cars?.name || '—'}</p>
+                    <p className="text-white/35 text-[11px]">{b.start_date} → {b.end_date} · {manual ? 'noté à la main' : 'calculé'}</p>
+                  </div>
+                  <button onClick={() => editProfit(b)} className="text-right">
+                    <p className="text-gold-300 text-sm font-bold tabular-nums">{fmt(profitOf(b))}</p>
+                    <p className="text-white/40 text-[11px] tabular-nums">{o.da ? fmtDA(o.da) : fmtDA(profitOf(b) * pcfg.rate)} ✏️</p>
+                  </button>
+                  <button onClick={() => saveProfit({ items: { [b.id]: { ...o, collected: true } } })} className="ml-1 px-2.5 py-2 rounded-lg bg-emerald-500/15 text-emerald-400 text-xs font-bold">✓ Récupéré</button>
+                </div>); })}
+              {toCollect.length > 1 && <button onClick={() => saveProfit({ items: Object.fromEntries(toCollect.map(b => [b.id, { ...(pcfg.items[b.id] || {}), collected: true }])) })} className="mt-3 w-full py-2 rounded-lg bg-white/[0.05] text-white/60 text-xs font-semibold">Tout marquer récupéré</button>}
+              {accepted.some(isCollected) && <details className="mt-3"><summary className="text-white/35 text-[11px] cursor-pointer">Déjà récupéré ({accepted.filter(isCollected).length}) — toucher pour annuler</summary>
+                {accepted.filter(isCollected).map(b => <div key={b.id} className="flex items-center justify-between py-1.5 text-xs text-white/50"><span className="truncate">{b.client_name} · {b.start_date}</span><span className="flex items-center gap-2"><span className="tabular-nums">{fmt(profitOf(b))}</span><button onClick={() => saveProfit({ items: { [b.id]: { ...(pcfg.items[b.id] || {}), collected: false } } })} className="text-amber-400">↺</button></span></div>)}
+              </details>}
             </div>
 
             {/* Réservations récentes */}
