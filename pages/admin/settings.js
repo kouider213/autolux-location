@@ -292,6 +292,14 @@ export default function AdminSettingsPage() {
             <button onClick={save} disabled={saving} className="btn-gold w-full py-3.5 text-sm font-bold disabled:opacity-40 flex items-center justify-center gap-2">
               <Save size={16} /> {saving ? 'Enregistrement...' : 'Enregistrer les paramètres'}
             </button>
+
+            {/* 13/11 : boutons ✅ Accepter / ❌ Refuser sous les notifs du bot Telegram « Fik Conciergerie Notifs » */}
+            <section className="bg-[#141414] border border-white/[0.08] rounded-2xl p-5">
+              <h3 className="text-white font-semibold text-sm mb-1">🤖 Bot Telegram des notifications</h3>
+              <p className="text-white/40 text-xs mb-3">Active les boutons sous chaque notification : ✅ Accepter / ❌ Refuser une réservation (email + agenda + Dzaryx prévenu), ✅ Publier / 🗑️ Supprimer un avis, 💬 WhatsApp du client.</p>
+              <button onClick={async () => { try { const r = await adminFetch('/api/telegram-notif-setup', { method: 'POST' }); const d = await r.json(); if (r.ok && d.set) toast.success('Boutons du bot activés ✅'); else toast.error('Pas activé : ' + (d.description || d.error || r.status)); } catch (e) { toast.error('Erreur : ' + e.message); } }}
+                className="w-full py-3 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-300 text-sm font-bold">Activer les boutons du bot</button>
+            </section>
           </div>
         )}
       </AdminLayout>
