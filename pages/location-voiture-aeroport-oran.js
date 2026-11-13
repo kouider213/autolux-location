@@ -64,9 +64,9 @@ export async function getStaticProps() {
     if (!supabase) return { props: { cars: [], fromPrice: '' }, revalidate: 300 };
     const { data } = await supabase.from('cars').select('id, name, resale_price, currency, image_url, available').order('resale_price');
     const cars = (data || []).filter((c) => c.available !== false).slice(0, 9);
-    const dz = cars.filter((c) => c.resale_price && c.currency !== 'EUR');
-    const min = dz.length ? Math.min(...dz.map((c) => Number(c.resale_price))) : 0;
-    return { props: { cars, fromPrice: min ? `${min.toLocaleString('fr-FR')} DA` : '' }, revalidate: 300 };
+    const cheapest = cars.filter((c) => Number(c.resale_price) > 0).sort((x, y) => Number(x.resale_price) - Number(y.resale_price))[0];
+    const fromPrice = cheapest ? `${Number(cheapest.resale_price).toLocaleString('fr-FR')} ${cheapest.currency === 'EUR' ? '€' : 'DA'}` : '';
+    return { props: { cars, fromPrice }, revalidate: 300 };
   } catch {
     return { props: { cars: [], fromPrice: '' }, revalidate: 300 };
   }
