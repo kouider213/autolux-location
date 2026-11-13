@@ -129,6 +129,7 @@ export default function App({ Component, pageProps }) {
                 '@context': 'https://schema.org',
                 '@type': ['LocalBusiness', 'AutoRental', 'RealEstateAgent'],
                 name: 'Fik Conciergerie',
+                alternateName: ['FK Location', 'Fik', 'FK Location Oran'],
                 description: 'Conciergerie premium à Oran : location et vente de voitures, immobilier, importation de véhicules, packs séjour et services sur-mesure.',
                 url: 'https://fikconciergerie.com',
                 logo: 'https://fikconciergerie.com/logo.png',

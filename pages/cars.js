@@ -59,8 +59,9 @@ export default function CarsPage({ cars: initialCars }) {
   return (
     <>
       <Head>
-        <title>Nos Véhicules — Fik Conciergerie</title>
-        <meta name="description" content="Découvrez notre flotte complète. Citadines, SUV, utilitaires et véhicules premium à louer à Oran." />
+        <title>Location voiture Oran — toutes nos voitures et prix | FK Location</title>
+        <meta name="description" content="Toutes nos voitures à louer à Oran avec le prix par jour : citadines, SUV, 9 places et premium. Sans caution, kilométrage illimité, livraison à l'aéroport." />
+        <link rel="canonical" href="https://fikconciergerie.com/cars" key="canonical" />
       </Head>
 
       <div className="grain min-h-screen bg-[#0a0a0a]">

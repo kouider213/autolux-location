@@ -1,5 +1,5 @@
 import SeoLanding from '../components/SeoLanding';
-import { supabase } from '../lib/supabase';
+import { seoCarsProps } from '../lib/seoCars';
 
 export default function LocationVoitureAeroportOran({ cars = [], fromPrice = '' }) {
   return (
@@ -60,14 +60,5 @@ export default function LocationVoitureAeroportOran({ cars = [], fromPrice = '' 
 }
 
 export async function getStaticProps() {
-  try {
-    if (!supabase) return { props: { cars: [], fromPrice: '' }, revalidate: 300 };
-    const { data } = await supabase.from('cars').select('id, name, resale_price, currency, image_url, available').order('resale_price');
-    const cars = (data || []).filter((c) => c.available !== false).slice(0, 9);
-    const cheapest = cars.filter((c) => Number(c.resale_price) > 0).sort((x, y) => Number(x.resale_price) - Number(y.resale_price))[0];
-    const fromPrice = cheapest ? `${Number(cheapest.resale_price).toLocaleString('fr-FR')} ${cheapest.currency === 'EUR' ? '€' : 'DA'}` : '';
-    return { props: { cars, fromPrice }, revalidate: 300 };
-  } catch {
-    return { props: { cars: [], fromPrice: '' }, revalidate: 300 };
-  }
+  return { props: await seoCarsProps(9), revalidate: 300 };
 }

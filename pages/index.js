@@ -439,7 +439,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
   return (
     <>
       <Head>
-        <title>Fik Conciergerie Oran — Voiture, Immobilier, Import & Séjour clé en main</title>
+        <title>Fik Conciergerie (FK Location) Oran — Location voiture sans caution, Immobilier, Import</title>
         <meta name="description" content="Votre conciergerie premium à Oran : location & vente de voitures, immobilier, importation de véhicules, packs séjour et services sur-mesure. Tout Oran sous une clé. Sans caution, 7j/7, FR/AR/EN." />
         {reviewStats?.count > 0 && (
           <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
@@ -610,6 +610,9 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                   {t('home.fleet_all')} <ArrowRight size={13} />
                 </Link>
               </div>
+              <Link href="/location-voiture-oran" className="inline-block mt-4 text-sm text-white/50 hover:text-gold-300 underline underline-offset-4">
+                {lang === 'ar' ? 'كراء السيارات في وهران بدون ضمان: الأسعار والشروط' : lang === 'en' ? 'Car rental in Oran with no deposit: prices & conditions' : 'Location de voiture à Oran sans caution : prix et conditions'}
+              </Link>
             </motion.div>
 
             {cars && cars.length > 0 && (
