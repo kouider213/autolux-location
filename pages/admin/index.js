@@ -365,10 +365,24 @@ export default function AdminDashboard() {
             {/* 13/11 : bénéfice à récupérer, location par location */}
             <div className="bg-[#141414] border border-gold-500/25 rounded-2xl p-5">
               <div className="flex items-center justify-between gap-2 mb-3">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.15em] text-gold-400">Bénéfice à récupérer</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.15em] text-gold-400">Mon bénéfice</h3>
                 <button onClick={editRate} className="text-white/40 text-[11px] underline decoration-dotted">1 € = {pcfg.rate} DA</button>
               </div>
-              {toCollect.length === 0 ? <p className="text-white/40 text-sm">Tout est récupéré ✅</p> : toCollect.map(b => { const o = pcfg.items[b.id] || {}; const manual = (o.da != null && o.da !== '') || (o.eur != null && o.eur !== ''); return (
+              {/* 13/11 Kouider : une case « tout depuis le début » + une case qui repart à zéro à chaque récupération */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-center">
+                  <p className="text-white/40 text-[10px] uppercase tracking-widest">Gagné depuis le début</p>
+                  <p className="font-display font-black text-xl text-white tabular-nums mt-1">{fmt(kouiderProfit)}</p>
+                  <p className="text-white/35 text-[11px] tabular-nums">{fmtDA(kouiderProfit * pcfg.rate)} · {accepted.length} loc.</p>
+                </div>
+                <div className="rounded-xl border border-gold-500/30 bg-gold-500/10 p-3 text-center">
+                  <p className="text-gold-400/80 text-[10px] uppercase tracking-widest">À récupérer</p>
+                  <p className="font-display font-black text-xl text-gold-300 tabular-nums mt-1">{fmt(toCollectSum)}</p>
+                  <p className="text-gold-400/60 text-[11px] tabular-nums">{fmtDA(toCollectSum * pcfg.rate)} · {toCollect.length} loc.</p>
+                </div>
+              </div>
+              {toCollect.length > 0 && <button onClick={() => { if (window.confirm(`Tu as récupéré ${fmt(toCollectSum)} (${fmtDA(toCollectSum * pcfg.rate)}) ?\nLa case « À récupérer » repart à zéro.`)) saveProfit({ items: Object.fromEntries(toCollect.map(b => [b.id, { ...(pcfg.items[b.id] || {}), collected: true }])) }); }} className="mb-3 w-full py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm font-bold">💰 J'ai récupéré cet argent → remettre à zéro</button>}
+              {toCollect.length === 0 ? <p className="text-white/40 text-sm text-center">Tout est récupéré ✅ — la case repart de zéro avec la prochaine location.</p> : toCollect.map(b => { const o = pcfg.items[b.id] || {}; const manual = (o.da != null && o.da !== '') || (o.eur != null && o.eur !== ''); return (
                 <div key={b.id} className="flex items-center gap-2 py-2.5 border-b border-white/[0.06] last:border-0">
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-sm font-semibold truncate">{b.client_name} · {b.cars?.name || '—'}</p>
@@ -380,7 +394,6 @@ export default function AdminDashboard() {
                   </button>
                   <button onClick={() => saveProfit({ items: { [b.id]: { ...o, collected: true } } })} className="ml-1 px-2.5 py-2 rounded-lg bg-emerald-500/15 text-emerald-400 text-xs font-bold">✓ Récupéré</button>
                 </div>); })}
-              {toCollect.length > 1 && <button onClick={() => saveProfit({ items: Object.fromEntries(toCollect.map(b => [b.id, { ...(pcfg.items[b.id] || {}), collected: true }])) })} className="mt-3 w-full py-2 rounded-lg bg-white/[0.05] text-white/60 text-xs font-semibold">Tout marquer récupéré</button>}
               {accepted.some(isCollected) && <details className="mt-3"><summary className="text-white/35 text-[11px] cursor-pointer">Déjà récupéré ({accepted.filter(isCollected).length}) — toucher pour annuler</summary>
                 {accepted.filter(isCollected).map(b => <div key={b.id} className="flex items-center justify-between py-1.5 text-xs text-white/50"><span className="truncate">{b.client_name} · {b.start_date}</span><span className="flex items-center gap-2"><span className="tabular-nums">{fmt(profitOf(b))}</span><button onClick={() => saveProfit({ items: { [b.id]: { ...(pcfg.items[b.id] || {}), collected: false } } })} className="text-amber-400">↺</button></span></div>)}
               </details>}
