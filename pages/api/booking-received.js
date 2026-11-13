@@ -1,7 +1,7 @@
 // Envoie l'email "demande de réservation reçue" (le formulaire insère la résa côté client,
 // donc l'email n'était pas envoyé). Best-effort, non bloquant.
 import { sendEmail, bookingReceivedEmail } from '../../lib/email';
-import { notifyTelegram, buildNotif } from '../../lib/telegramNotify';
+import { notifyTelegram, buildNotif, waLink } from '../../lib/telegramNotify';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
@@ -13,7 +13,10 @@ export default async function handler(req, res) {
     name: client_name, phone: client_phone, email: client_email, lang,
     lines: [car_name ? `🚘 ${car_name}` : '', (start_date || end_date) ? `📅 ${start_date || '?'} → ${end_date || '?'}` : '', total ? `💰 ${total} ${currency === 'DZD' ? 'DA' : '€'}` : '', ...(Array.isArray(extras) ? extras.map(String).slice(0, 10) : []), client_name ? `👉 Dis à Dzaryx : « accepte ${String(client_name).trim()} » (prix total possible) ou « refuse ${String(client_name).trim()} »` : ''],
     adminPath: booking_id ? `/admin/bookings?id=${encodeURIComponent(booking_id)}` : '/admin/bookings',
-  })).catch(() => {});
+  }), booking_id ? [
+    [{ text: '✅ Accepter', data: `bk:acc:${booking_id}` }, { text: '❌ Refuser', data: `bk:rej:${booking_id}` }],
+    [waLink(client_phone) ? { text: '💬 WhatsApp client', url: waLink(client_phone) } : null, { text: '📋 Ouvrir', url: `https://fikconciergerie.com/admin/bookings?id=${encodeURIComponent(booking_id)}` }],
+  ] : undefined).catch(() => {});
 
   // Email "demande reçue" au client (si email fourni)
   if (client_email && /@/.test(client_email)) {

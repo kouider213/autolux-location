@@ -1,7 +1,7 @@
 // Enregistre un lead (client intéressé par immo / vente voiture / pack) AVANT WhatsApp.
 // Insert public via clé service (RLS écriture = authenticated). Best-effort, jamais bloquant.
 import { supabaseAdmin } from '../../lib/supabase';
-import { notifyTelegram, buildNotif } from '../../lib/telegramNotify';
+import { notifyTelegram, buildNotif, waLink } from '../../lib/telegramNotify';
 
 const VALID_CAT = new Set(['immo_location', 'immo_vente', 'voiture_vente', 'voiture_location', 'pack', 'entreprise']);
 const CAT_FR = { immo_location: 'Immo location', immo_vente: 'Immo vente', voiture_vente: 'Voiture vente', voiture_location: 'Voiture location', pack: 'Pack séjour', entreprise: 'Entreprise / B2B' };
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
       name: b.client_name, phone: b.client_phone, email: b.client_email, lang: b.lang,
       lines: [b.criteria ? `📌 ${b.criteria}` : '', b.notes ? `📝 ${b.notes}` : '', b.budget_max ? `💰 ${b.budget_max} ${b.currency || 'DZD'}` : '', b.city ? `📍 ${b.city}` : ''],
       adminPath: '/admin/leads',
-    }));
+    }), waLink(b.client_phone) ? [[{ text: '💬 WhatsApp', url: waLink(b.client_phone) }, { text: '📋 Ouvrir', url: 'https://fikconciergerie.com/admin/leads' }]] : undefined);
   } catch { /* non-bloquant */ }
 
   // Push aussi sur l'app Dzaryx (en plus de Telegram) — notif fiable même si Telegram KO.

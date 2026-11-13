@@ -26,9 +26,9 @@ export default async function handler(req, res) {
 
   const row = { client_name: name, rating: r, comment: comment.trim(), approved: false };
   // Champs avis vérifiés (présents après migration 0019) — fallback si absents
-  let { error } = await admin.from('reviews').insert({ ...row, verified, booking_id: bookingId || null });
+  let { data: ins, error } = await admin.from('reviews').insert({ ...row, verified, booking_id: bookingId || null }).select('id').single();
   if (error && /column .* (verified|booking_id)/i.test(error.message)) {
-    ({ error } = await admin.from('reviews').insert(row));
+    ({ data: ins, error } = await admin.from('reviews').insert(row).select('id').single());
     verified = false;
   }
   if (error) return res.status(500).json({ error: error.message });
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
   await notifyTelegram(buildNotif({
     icon: '⭐', type: `Nouvel AVIS ${'★'.repeat(r)} ${verified ? '(vérifié)' : '(à modérer)'}`,
     name, lines: [comment ? `💬 ${String(comment).slice(0, 200)}` : ''], adminPath: '/admin/reviews',
-  })).catch(() => {});
+  }), ins?.id ? [[{ text: '✅ Publier', data: `rv:ok:${ins.id}` }, { text: '🗑️ Supprimer', data: `rv:del:${ins.id}` }]] : undefined).catch(() => {});
 
   // Notifie Dzaryx (non bloquant)
   fetch(`${req.headers['x-forwarded-proto'] || 'https'}://${req.headers['host']}/api/notify-dzaryx`, {
