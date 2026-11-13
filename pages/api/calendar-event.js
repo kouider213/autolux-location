@@ -25,7 +25,9 @@ export default async function handler(req, res) {
 
   try {
     const accessToken = await getGoogleAccessToken(GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY);
-    const total = (Number(finalPrice) * Number(nbDays)).toFixed(0);
+    // 13/11 : final_price = prix TOTAL de la location (pas par jour) → prix/jour = total ÷ jours
+    const total = Math.round(Number(finalPrice) || 0);
+    const perDay = Number(nbDays) > 0 ? Math.round((total / Number(nbDays)) * 100) / 100 : total;
     const eventEndDate = addOneDay(endDate);
 
     const event = {
@@ -35,7 +37,7 @@ export default async function handler(req, res) {
         `📞 Téléphone : ${clientPhone}`,
         `🚗 Véhicule : ${carName}`,
         `⏱ Durée : ${nbDays} jour(s)`,
-        `💰 Prix/jour : ${finalPrice} €`,
+        `💰 Prix/jour : ${perDay} €`,
         `💵 Total : ${total} €`,
         notes ? `📝 Notes : ${notes}` : '',
       ].filter(Boolean).join('\n'),
