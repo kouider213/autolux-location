@@ -7,6 +7,7 @@ import Footer from './Footer';
 import { useLang } from '../lib/i18n';
 import { T } from '../lib/autoTranslate';
 import { useSettings, waLink } from '../lib/settings';
+import { carHref } from '../lib/carUrl';
 
 const BASE = 'https://fikconciergerie.com';
 
@@ -14,6 +15,7 @@ const BASE = 'https://fikconciergerie.com';
 export default function SeoLanding({
   slug, metaTitle, metaDesc, h1a, h1b, intro, bullets = [], why = [], faq = [],
   ctaPrimary, ctaSecondary, breadcrumbName, serviceType = 'Service',
+  guide = [], cars = [], carsTitle, related = [],
 }) {
   const { lang } = useLang();
   const settings = useSettings();
@@ -104,6 +106,41 @@ export default function SeoLanding({
               </div>
             )}
 
+            {/* Voitures (vraies, depuis la base) : liens directs vers chaque fiche */}
+            {cars.length > 0 && (
+              <div className="mb-16">
+                <h2 className="font-display text-2xl font-bold text-white mb-6"><T>{carsTitle || 'Nos voitures'}</T></h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {cars.map((c) => (
+                    <Link key={c.id} href={carHref(c)} className="block bg-[#111]/80 border border-white/[0.07] rounded-2xl overflow-hidden hover:border-gold-500/30 transition-colors">
+                      {c.image_url && <img src={c.image_url} alt={`Location ${c.name} Oran`} loading="lazy" className="w-full h-28 object-cover" />}
+                      <div className="p-3">
+                        <p className="text-white text-sm font-semibold">{c.name}</p>
+                        {c.resale_price ? <p className="text-gold-400 text-xs mt-1">{Number(c.resale_price).toLocaleString('fr-FR')} {c.currency === 'EUR' ? '€' : 'DA'} / <T>jour</T></p> : null}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Guide : vrai contenu texte (ce que Google lit pour classer la page) */}
+            {guide.length > 0 && (
+              <div className="space-y-8 mb-16">
+                {guide.map((g, i) => (
+                  <section key={i}>
+                    <h2 className="font-display text-xl md:text-2xl font-bold text-white mb-3"><T>{g.h}</T></h2>
+                    {g.p && <p className="text-white/50 text-sm leading-relaxed mb-3"><T>{g.p}</T></p>}
+                    {g.list && (
+                      <ol className="space-y-2 list-decimal ps-5 text-white/50 text-sm leading-relaxed">
+                        {g.list.map((li, j) => <li key={j}><T>{li}</T></li>)}
+                      </ol>
+                    )}
+                  </section>
+                ))}
+              </div>
+            )}
+
             {/* FAQ */}
             {faq.length > 0 && (
               <div className="mb-16">
@@ -131,6 +168,15 @@ export default function SeoLanding({
                 {ctaSecondary && <a href={wa(ctaSecondary.wa)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#25D366] text-white font-bold py-3 px-6 rounded-xl"><MessageCircle size={15} /> WhatsApp</a>}
               </div>
             </div>
+
+            {/* Liens vers les pages proches (maillage interne) */}
+            {related.length > 0 && (
+              <div className="mt-10 flex flex-wrap justify-center gap-2">
+                {related.map((r) => (
+                  <Link key={r.href} href={r.href} className="text-xs text-white/50 hover:text-gold-400 border border-white/[0.08] rounded-full px-4 py-2"><T>{r.label}</T></Link>
+                ))}
+              </div>
+            )}
 
           </div>
         </div>

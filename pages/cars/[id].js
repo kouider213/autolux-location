@@ -279,6 +279,11 @@ export default function CarDetail({ car, photos: initialPhotos }) {
               <p className="text-white/20 text-xs font-body text-center">
                 {t("d.perks_note")}
               </p>
+              <p className="text-xs font-body text-center">
+                <Link href="/location-voiture-aeroport-oran" className="text-gold-400/80 hover:text-gold-300 underline underline-offset-2">
+                  {lang === 'ar' ? 'التسليم في مطار وهران ممكن' : lang === 'en' ? 'Delivery at Oran airport available' : `Livraison possible à l'aéroport d'Oran`}
+                </Link>
+              </p>
             </div>
           </div>
         </div>
