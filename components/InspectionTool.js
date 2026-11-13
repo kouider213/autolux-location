@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { X, Camera, ImagePlus, Loader2, Trash2, AlertTriangle, Check, MapPin } from 'lucide-react';
 import { uploadImageFile } from '../lib/photoUpload';
+import { adminFetch } from '../lib/adminFetch';
 
 const SEV = {
   leger: { label: 'Légère', color: '#eab308' },
@@ -25,7 +26,7 @@ export default function InspectionTool({ booking, onClose }) {
 
   // Charge les états des lieux déjà enregistrés
   const loadExisting = () => {
-    fetch(`/api/inspection?bookingId=${booking.id}`)
+    adminFetch(`/api/inspection?bookingId=${booking.id}`)
       .then(r => r.json()).then(d => { if (d.ok) setExisting(d.inspections); }).catch(() => {});
   };
   useEffect(loadExisting, [booking.id]);
@@ -67,7 +68,7 @@ export default function InspectionTool({ booking, onClose }) {
     if (markers.some(m => !m.label.trim())) { toast.error('Décris chaque défaut marqué (ex: rayure jante avant droite)'); return; }
     setSaving(true);
     try {
-      const r = await fetch('/api/inspection', {
+      const r = await adminFetch('/api/inspection', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bookingId: booking.id,

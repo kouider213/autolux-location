@@ -1,9 +1,11 @@
+import { requireAdmin } from '../../lib/adminAuth';
 // Enregistre/upsert le contenu d'une page légale (clé service, contourne RLS).
 import { supabaseAdmin } from '../../lib/supabase';
 
 const SLUGS = new Set(['a-propos', 'cgv', 'mentions-legales', 'confidentialite']);
 
 export default async function handler(req, res) {
+  if (!(await requireAdmin(req, res))) return;
   if (req.method === 'GET') {
     const slug = req.query.slug;
     const admin = supabaseAdmin();

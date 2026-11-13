@@ -1,3 +1,4 @@
+import { requireAdmin } from '../../lib/adminAuth';
 // Mise à jour admin d'un dossier (clé service). Whitelist + email auto au client si le statut change.
 import { supabaseAdmin } from '../../lib/supabase';
 import { sendEmail, dossierStatusEmail } from '../../lib/email';
@@ -8,6 +9,7 @@ const ALLOWED = new Set([
 ]);
 
 export default async function handler(req, res) {
+  if (!(await requireAdmin(req, res))) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
   const { id, patch } = req.body || {};
   if (!id || !patch || typeof patch !== 'object') return res.status(400).json({ error: 'id + patch requis' });

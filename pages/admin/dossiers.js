@@ -6,6 +6,7 @@ import AdminLayout from '../../components/AdminLayout';
 import TranslateToFr from '../../components/TranslateToFr';
 import { supabase } from '../../lib/supabase';
 import { allStatusesFor, dossierStatusLabel, KIND_LABEL } from '../../lib/dossierStatus';
+import { adminFetch } from '../../lib/adminFetch';
 
 const inputCls = "w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none transition-colors";
 const LANG_F = { fr: '🇫🇷 FR', ar: '🇩🇿 ع', en: '🇬🇧 EN' };
@@ -120,7 +121,7 @@ function DossierCard({ dossier, open, onToggle, onSaved, onDeleted }) {
   const save = async (patch) => {
     setSaving(true);
     try {
-      const r = await fetch('/api/update-dossier', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: dossier.id, patch }) });
+      const r = await adminFetch('/api/update-dossier', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: dossier.id, patch }) });
       const d = await r.json();
       if (!d.ok) throw new Error(d.error || 'erreur');
       setForm(d.dossier); onSaved(d.dossier); toast.success('Enregistré');
@@ -142,7 +143,7 @@ function DossierCard({ dossier, open, onToggle, onSaved, onDeleted }) {
     for (const file of Array.from(files)) {
       try {
         const base64 = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.onerror = rej; fr.readAsDataURL(file); });
-        const r = await fetch('/api/upload-car-image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type }) });
+        const r = await adminFetch('/api/upload-car-image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type }) });
         const d = await r.json(); if (d.url) urls.push(d.url);
       } catch { toast.error('Échec upload ' + file.name); }
     }

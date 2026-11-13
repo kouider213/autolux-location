@@ -9,6 +9,7 @@ import { supabase } from '../../lib/supabase';
 import { generateContract } from '../../lib/pdf';
 import { rentalDays } from '../../lib/date';
 import { Search, MessageCircle, FileText, Check, X, ChevronRight, User, Car, Calendar, Phone, CreditCard, Tag, CalendarCheck, Wallet, FileSignature, Save, Plus, Minus, Copy, Loader2, Camera, Star } from 'lucide-react';
+import { adminFetch } from '../../lib/adminFetch';
 
 // La base n'accepte que PENDING/CONFIRMED/ACTIVE/COMPLETED/REJECTED (bookings_status_check)
 const STATUS_FLOW = ['PENDING', 'CONFIRMED', 'ACTIVE', 'COMPLETED', 'REJECTED'];
@@ -99,7 +100,7 @@ export default function BookingsPage() {
     const body = { bookingId, status };
     if (status === 'CONFIRMED' && price !== undefined) body.finalPrice = price;
 
-    const res = await fetch('/api/update-booking-status', {
+    const res = await adminFetch('/api/update-booking-status', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
@@ -125,7 +126,7 @@ export default function BookingsPage() {
 
     if (status === 'CONFIRMED') {
       const bk = bookings.find(b => b.id === bookingId) || selected;
-      if (bk) fetch('/api/calendar-event', {
+      if (bk) adminFetch('/api/calendar-event', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clientName: bk.client_name, clientPhone: bk.client_phone, carName: bk.cars?.name || '—', startDate: bk.start_date, endDate: bk.end_date, nbDays: bk.nb_days || 1, finalPrice: price || bk.final_price, notes: bk.notes || '' }),
       }).then(r => r.json()).then(d => { if (d.success) toast.success('Google Calendar mis à jour'); }).catch(() => {});
@@ -194,7 +195,7 @@ export default function BookingsPage() {
     if (!selected) return;
     setBusy('save');
     try {
-      const r = await fetch('/api/update-booking', {
+      const r = await adminFetch('/api/update-booking', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bookingId: selected.id, patch }),
       });
@@ -269,7 +270,7 @@ export default function BookingsPage() {
     if (!selected) return;
     setBusy('contract');
     try {
-      const r = await fetch('/api/generate-contract-link', {
+      const r = await adminFetch('/api/generate-contract-link', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bookingId: selected.id, pickup, dropoff }),
       });

@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { Save, Loader2, FileText, Globe } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { LEGAL_SLUGS } from '../../lib/legal';
+import { adminFetch } from '../../lib/adminFetch';
 
 const EMPTY = { title_fr: '', title_ar: '', title_en: '', body_fr: '', body_ar: '', body_en: '' };
 
@@ -16,7 +17,7 @@ export default function AdminPages() {
 
   const load = (s) => {
     setLoad(true);
-    fetch(`/api/save-legal?slug=${s}`).then(r => r.json()).then(d => {
+    adminFetch(`/api/save-legal?slug=${s}`).then(r => r.json()).then(d => {
       setForm(d.page ? { ...EMPTY, ...Object.fromEntries(Object.entries(d.page).filter(([k]) => k in EMPTY)) } : EMPTY);
       setLoad(false);
     }).catch(() => setLoad(false));
@@ -27,7 +28,7 @@ export default function AdminPages() {
   const save = async () => {
     setSave(true);
     try {
-      const r = await fetch('/api/save-legal', {
+      const r = await adminFetch('/api/save-legal', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ slug, ...form }),
       });

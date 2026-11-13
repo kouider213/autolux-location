@@ -1,3 +1,4 @@
+import { requireAdmin } from '../../lib/adminAuth';
 // Mise à jour d'une réservation par l'admin, via la clé service (contourne la RLS).
 // Whitelist stricte des champs modifiables.
 import { supabaseAdmin } from '../../lib/supabase';
@@ -9,6 +10,7 @@ const ALLOWED = new Set([
 ]);
 
 export default async function handler(req, res) {
+  if (!(await requireAdmin(req, res))) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
   const { bookingId, patch } = req.body || {};
   if (!bookingId || !patch || typeof patch !== 'object') {

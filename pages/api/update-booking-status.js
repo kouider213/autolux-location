@@ -1,7 +1,9 @@
+import { requireAdmin } from '../../lib/adminAuth';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail, bookingConfirmedEmail, bookingStatusEmail } from '../../lib/email';
 
 export default async function handler(req, res) {
+  if (!(await requireAdmin(req, res))) return;
     if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
     }

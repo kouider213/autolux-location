@@ -6,6 +6,7 @@ import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import { DEFAULT_SETTINGS } from '../../lib/settings';
 import { getExtras } from '../../lib/extras';
+import { adminFetch } from '../../lib/adminFetch';
 
 const inputCls = "w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 outline-none transition-colors";
 
@@ -48,7 +49,7 @@ export default function AdminSettingsPage() {
         r.onerror = rej;
         r.readAsDataURL(file);
       });
-      const resp = await fetch('/api/upload-car-image', {
+      const resp = await adminFetch('/api/upload-car-image', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type }),
       });
@@ -82,7 +83,7 @@ export default function AdminSettingsPage() {
           r.onload = () => res(String(r.result).split(',')[1]);
           r.onerror = rej; r.readAsDataURL(file);
         });
-        const resp = await fetch('/api/upload-car-image', {
+        const resp = await adminFetch('/api/upload-car-image', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type }),
         });

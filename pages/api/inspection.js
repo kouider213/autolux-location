@@ -1,3 +1,4 @@
+import { requireAdmin } from '../../lib/adminAuth';
 // État des lieux (entrée/sortie) d'un véhicule, lié à la réservation du client.
 // GET  ?bookingId=...  → liste les états des lieux (avant/après) de la réservation
 // POST { bookingId, stateType, photos[], markers[], notes, accident } → enregistre
@@ -7,6 +8,7 @@ import { supabaseAdmin } from '../../lib/supabase';
 const SEV_RANK = { aucun: 0, leger: 1, moyen: 2, grave: 3 };
 
 export default async function handler(req, res) {
+  if (!(await requireAdmin(req, res))) return;
   const admin = supabaseAdmin();
   if (!admin) return res.status(500).json({ error: 'config serveur manquante' });
 

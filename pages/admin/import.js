@@ -6,6 +6,7 @@ import AdminLayout from '../../components/AdminLayout';
 import TranslateToFr from '../../components/TranslateToFr';
 import { supabase } from '../../lib/supabase';
 import { ALL_IMPORT_STATUSES, statusLabel } from '../../lib/importStatus';
+import { adminFetch } from '../../lib/adminFetch';
 
 const inputCls = "w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none transition-colors";
 const sym = (c) => (c === 'DZD' || c === 'DA' ? 'DA' : '€');
@@ -88,7 +89,7 @@ function OrderCard({ order, open, onToggle, onSaved, onDeleted }) {
   const save = async (patch) => {
     setSaving(true);
     try {
-      const r = await fetch('/api/update-import-order', {
+      const r = await adminFetch('/api/update-import-order', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: order.id, patch }),
       });
@@ -122,7 +123,7 @@ function OrderCard({ order, open, onToggle, onSaved, onDeleted }) {
           fr.onload = () => res(String(fr.result).split(',')[1]);
           fr.onerror = rej; fr.readAsDataURL(file);
         });
-        const r = await fetch('/api/upload-car-image', {
+        const r = await adminFetch('/api/upload-car-image', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type }),
         });

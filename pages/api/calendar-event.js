@@ -1,3 +1,4 @@
+import { requireAdmin } from '../../lib/adminAuth';
 /**
  * API Route: /api/calendar-event
  * Crée un événement dans Google Calendar lors de l'acceptation d'une réservation.
@@ -9,6 +10,7 @@
  */
 
 export default async function handler(req, res) {
+  if (!(await requireAdmin(req, res))) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

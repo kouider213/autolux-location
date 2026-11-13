@@ -1,3 +1,4 @@
+import { requireAdmin } from '../../lib/adminAuth';
 // Génère (ou réutilise) le lien de contrat à signer pour une réservation.
 // Crée une ligne contract_signatures (token unique) liée au booking → renvoie l'URL
 // de la page de signature servie par le backend Dzaryx (/sign/:token).
@@ -7,6 +8,7 @@ import { randomBytes } from 'crypto';
 const BACKEND = (process.env.IBRAHIM_BACKEND_URL || 'https://ibrahim-backend-production.up.railway.app').replace(/\/$/, '');
 
 export default async function handler(req, res) {
+  if (!(await requireAdmin(req, res))) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
   const { bookingId } = req.body || {};
   if (!bookingId) return res.status(400).json({ error: 'bookingId manquant' });

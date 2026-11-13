@@ -1,8 +1,10 @@
+import { requireAdmin } from '../../lib/adminAuth';
 import { supabaseAdmin } from '../../lib/supabase';
 
 export const config = { api: { bodyParser: { sizeLimit: '12mb' } } };
 
 export default async function handler(req, res) {
+  if (!(await requireAdmin(req, res))) return;
   if (req.method !== 'POST') return res.status(405).end();
 
   const { base64, fileName, mimeType } = req.body;

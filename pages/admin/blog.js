@@ -6,6 +6,7 @@ import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import { slugify } from '../../lib/blog';
 import { translateMany } from '../../lib/autoTranslate';
+import { adminFetch } from '../../lib/adminFetch';
 
 const BACKEND = process.env.NEXT_PUBLIC_IBRAHIM_BACKEND || 'https://ibrahim-backend-production.up.railway.app';
 
@@ -65,7 +66,7 @@ export default function AdminBlogPage() {
         r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej;
         r.readAsDataURL(file);
       });
-      const resp = await fetch('/api/upload-car-image', {
+      const resp = await adminFetch('/api/upload-car-image', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type }),
       });

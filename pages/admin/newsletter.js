@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { Mail, Send, Users, Loader2, TestTube2, Trash2, Image as ImageIcon, Video, MousePointerClick, Eye, X } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import { adminFetch } from '../../lib/adminFetch';
 
 const inputCls = "w-full bg-white/[0.04] border border-white/[0.07] focus:border-gold-500/40 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/25 outline-none transition-colors";
 
@@ -32,7 +33,7 @@ export default function AdminNewsletterPage() {
       fr.onload = () => res(String(fr.result).split(',')[1]);
       fr.onerror = rej; fr.readAsDataURL(file);
     });
-    const r = await fetch('/api/upload-car-image', {
+    const r = await adminFetch('/api/upload-car-image', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type }),
     });

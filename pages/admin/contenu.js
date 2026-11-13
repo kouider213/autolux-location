@@ -5,6 +5,7 @@ import AdminLayout from '../../components/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import { CONTENT_FIELDS } from '../../lib/content';
 import toast from 'react-hot-toast';
+import { adminFetch } from '../../lib/adminFetch';
 
 // Éditeur de contenu du site (textes + images par page) → site_settings.content (JSONB).
 export default function AdminContenu() {
@@ -29,7 +30,7 @@ export default function AdminContenu() {
     setUploading(key);
     try {
       const b64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split('base64,')[1]); r.onerror = rej; r.readAsDataURL(file); });
-      const resp = await fetch('/api/upload-car-image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ base64: b64, fileName: file.name || 'content.jpg', mimeType: file.type || 'image/jpeg' }) });
+      const resp = await adminFetch('/api/upload-car-image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ base64: b64, fileName: file.name || 'content.jpg', mimeType: file.type || 'image/jpeg' }) });
       const json = await resp.json();
       if (!json.url) throw new Error(json.error || 'upload échoué');
       setImg(key, json.url);
