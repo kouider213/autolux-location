@@ -76,7 +76,8 @@ export default function CarDetail({ car, photos: initialPhotos }) {
   return (
     <>
       <Head>
-        <title>{car.name} — Fik Conciergerie</title>
+        {/* 13/11 : titre en UN seul texte (avant « {car.name} — … » = 2 morceaux → React ne rendait AUCUN titre) + mots que les gens tapent */}
+        <title>{`Location ${car.name} à Oran${car.resale_price ? ` — ${Number(car.resale_price).toLocaleString('fr-FR')} ${car.currency === 'EUR' ? '€' : 'DA'}/jour` : ''}, sans caution | Fik`}</title>
         <meta name="description" content={`Louez le ${car.name} à Oran. ${car.resale_price ? Number(car.resale_price).toLocaleString('fr-FR') + ' ' + (car.currency === 'EUR' ? '€' : 'DA') + '/jour' : 'Prix sur demande'}. Sans caution.`} />
         {((photos && photos[0]) || car.image_url) && <meta property="og:image" key="og-image" content={(photos && photos[0]) || car.image_url} />}
         {((photos && photos[0]) || car.image_url) && <meta name="twitter:image" key="tw-image" content={(photos && photos[0]) || car.image_url} />}

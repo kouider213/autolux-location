@@ -55,7 +55,7 @@ export default function MesReservations() {
   return (
     <>
       <Head>
-        <title>{L('Mes réservations', 'حجوزاتي', 'My bookings')} — Fik Conciergerie</title>
+        <title>{`${L('Mes réservations', 'حجوزاتي', 'My bookings')} — Fik Conciergerie`}</title>
         <meta name="description" content={L('Retrouvez vos réservations Fik Conciergerie.', 'تتبّع حجوزاتك لدى Fik Conciergerie.', 'Track your Fik Conciergerie bookings.')} />
       </Head>
       <div className="grain min-h-screen bg-[#0e0e0e]" dir={ar ? 'rtl' : 'ltr'}>

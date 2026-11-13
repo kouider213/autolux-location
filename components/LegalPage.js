@@ -10,7 +10,7 @@ export default function LegalPage({ title, subtitle, updated, children }) {
   return (
     <>
       <Head>
-        <title>{title} — Fik Conciergerie</title>
+        <title>{`${title} — Fik Conciergerie`}</title>
         <meta name="description" content={subtitle || title} />
       </Head>
       <div className="grain min-h-screen bg-[#0e0e0e]">

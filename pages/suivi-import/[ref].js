@@ -87,7 +87,7 @@ export default function SuiviImportPage() {
 
   return (
     <>
-      <Head><title>{L('Suivi importation', 'تتبّع الاستيراد', 'Import tracking')} {order.ref} — Fik Conciergerie</title><meta name="robots" content="noindex" /></Head>
+      <Head><title>{`${L('Suivi importation', 'تتبّع الاستيراد', 'Import tracking')} ${order.ref} — Fik Conciergerie`}</title><meta name="robots" content="noindex" /></Head>
       <div className="grain min-h-screen bg-[#0e0e0e]" dir={ar ? 'rtl' : 'ltr'}>
         <Navbar />
         <div className="pt-24 pb-16 px-5 max-w-lg mx-auto">

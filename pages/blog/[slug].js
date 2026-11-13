@@ -37,7 +37,7 @@ export default function BlogPost({ post }) {
   return (
     <>
       <Head>
-        <title>{title} — Fik Conciergerie</title>
+        <title>{`${title} — Fik Conciergerie`}</title>
         <meta name="description" content={excerpt || title} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={title} />

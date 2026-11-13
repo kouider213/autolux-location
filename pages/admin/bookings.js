@@ -121,7 +121,7 @@ export default function BookingsPage() {
     // Notify Dzaryx
     fetch('/api/notify-dzaryx', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'booking_status', data: { id: bookingId, status, car_name: selected?.cars?.name, client_name: selected?.client_name } }),
+      body: JSON.stringify({ type: 'booking_status', data: { id: bookingId, status, car_name: selected?.cars?.name, client_name: selected?.client_name, via: 'admin' } }),
     }).catch(() => {});
 
     if (status === 'CONFIRMED') {

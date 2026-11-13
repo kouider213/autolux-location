@@ -85,7 +85,7 @@ export default function VehicleSaleDetail({ vehicle, photos: initialPhotos }) {
   return (
     <>
       <Head>
-        <title>{vehicle.brand} {vehicle.model} — À vendre — Fik Conciergerie</title>
+        <title>{`${vehicle.brand} ${vehicle.model} — À vendre — Fik Conciergerie`}</title>
         <meta name="description" content={`${vehicle.brand} ${vehicle.model} à vendre à Oran${vehicle.price ? ` — ${Number(vehicle.price).toLocaleString()} ${cur(vehicle.currency)}` : ''}.`} />
         {(allPhotos[0] || vehicle.image_url) && <meta property="og:image" key="og-image" content={allPhotos[0] || vehicle.image_url} />}
         {(allPhotos[0] || vehicle.image_url) && <meta name="twitter:image" key="tw-image" content={allPhotos[0] || vehicle.image_url} />}

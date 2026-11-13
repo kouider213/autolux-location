@@ -99,7 +99,7 @@ export default function PackDetail({ pack, photos: initialPhotos }) {
   return (
     <>
       <Head>
-        <title>{pack.title} — Pack séjour — Fik Conciergerie Oran</title>
+        <title>{`${pack.title} — Pack séjour — Fik Conciergerie Oran`}</title>
         <meta name="description" content={`${pack.title} — ${pack.tagline || 'Pack séjour tout-en-un à Oran'}. ${priceLabel(pack, 'fr')}.`} />
         {(allPhotos[0] || pack.image_url) && <meta property="og:image" key="og-image" content={allPhotos[0] || pack.image_url} />}
         <meta property="og:title" content={`${pack.title} — Pack séjour`} />

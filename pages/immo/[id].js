@@ -79,7 +79,7 @@ export default function PropertyDetail({ property, photos }) {
   return (
     <>
       <Head>
-        <title>{property.title} — Fik Conciergerie Immobilier</title>
+        <title>{`${property.title} — Fik Conciergerie Immobilier`}</title>
         <meta name="description" content={`${property.title} à ${property.city}. ${property.price ? Number(property.price).toLocaleString() + ' ' + cur(property.currency) : 'Prix sur demande'}. Fik Conciergerie.`} />
         {(allPhotos[0] || property.image_url) && <meta property="og:image" key="og-image" content={allPhotos[0] || property.image_url} />}
         {(allPhotos[0] || property.image_url) && <meta name="twitter:image" key="tw-image" content={allPhotos[0] || property.image_url} />}

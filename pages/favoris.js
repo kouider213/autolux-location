@@ -78,7 +78,7 @@ export default function FavorisPage() {
 
   return (
     <>
-      <Head><title>{title} — Fik Conciergerie</title></Head>
+      <Head><title>{`${title} — Fik Conciergerie`}</title></Head>
       <div className="grain min-h-screen bg-[#0e0e0e]" dir={ar ? 'rtl' : 'ltr'}>
         <Navbar />
         <div className="pt-28 pb-20 px-5 max-w-6xl mx-auto">

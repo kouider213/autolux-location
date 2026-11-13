@@ -101,7 +101,7 @@ export default function SuiviPage() {
 
   return (
     <>
-      <Head><title>{L('Suivi réservation', 'تتبّع الحجز', 'Booking tracking')} — Fik Conciergerie</title></Head>
+      <Head><title>{`${L('Suivi réservation', 'تتبّع الحجز', 'Booking tracking')} — Fik Conciergerie`}</title></Head>
       <div className="grain min-h-screen bg-[#0e0e0e]" dir={ar ? 'rtl' : 'ltr'}>
         <Navbar />
         <div className="pt-24 pb-16 px-5 max-w-lg mx-auto">

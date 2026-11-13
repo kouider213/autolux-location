@@ -1,10 +1,11 @@
 // Webhook → Ibrahim backend (Railway) — notifie Dzaryx en temps réel
 // Appelé sur: nouvelle réservation, nouvel avis, changement statut
 
-const IBRAHIM_BACKEND = process.env.IBRAHIM_BACKEND_URL || 'https://ibrahim-backend-production.up.railway.app';
+// 13/11 : la variable Vercel finit par « / » → « //api/fik-site/notify » = 404, Dzaryx n'était jamais prévenu
+const IBRAHIM_BACKEND = (process.env.IBRAHIM_BACKEND_URL || 'https://ibrahim-backend-production.up.railway.app').replace(/\/+$/, '');
 // Failover : si Railway est mort, on notifie le backend backup (Render)
 // IBRAHIM_BACKEND_BACKUPS="https://xxx.onrender.com" (séparés par virgule)
-const BACKENDS = [IBRAHIM_BACKEND, ...(process.env.IBRAHIM_BACKEND_BACKUPS || 'https://dzaryx-backend-backup.onrender.com').split(',').map(s => s.trim()).filter(Boolean)];
+const BACKENDS = [IBRAHIM_BACKEND, ...(process.env.IBRAHIM_BACKEND_BACKUPS || 'https://dzaryx-backend-backup.onrender.com').split(',').map(s => s.trim().replace(/\/+$/, '')).filter(Boolean)];
 const WEBHOOK_SECRET  = process.env.IBRAHIM_WEBHOOK_SECRET;
 
 export default async function handler(req, res) {

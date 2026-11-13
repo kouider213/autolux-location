@@ -46,7 +46,7 @@ export default function AvisBooking() {
 
   return (
     <>
-      <Head><title>{L('Votre avis', 'تقييمك', 'Your review')} — Fik Conciergerie</title></Head>
+      <Head><title>{`${L('Votre avis', 'تقييمك', 'Your review')} — Fik Conciergerie`}</title></Head>
       <div className="grain min-h-screen bg-[#0e0e0e]" dir={ar ? 'rtl' : 'ltr'}>
         <Navbar />
         <div className="pt-28 pb-20 px-5 max-w-lg mx-auto">
