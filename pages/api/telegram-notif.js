@@ -52,6 +52,12 @@ export default async function handler(req, res) {
       else { const { error } = await admin.from('reviews').delete().eq('id', id); if (error) throw error; }
       await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: act === 'ok' ? '✅ Avis publié' : '🗑️ Avis supprimé' });
       await done(cq, act === 'ok' ? `✅ Avis PUBLIÉ sur le site à ${hhmm()}` : `🗑️ Avis SUPPRIMÉ à ${hhmm()}`, false);
+    } else if (kind === 'dz') {
+      // 15/11 : choix d'une décision Dzaryx → Railway l'exécute, le résultat arrive dans la conversation Dzaryx
+      const r = await fetch('https://ibrahim-backend-production.up.railway.app/api/jarvis/decisions-button', { method: 'POST', headers: internal(), body: JSON.stringify({ id: act, n: Number(id) }), signal: AbortSignal.timeout(8000) }).then(x => x.json()).catch(() => ({ error: 'Dzaryx injoignable, réponds le chiffre à Dzaryx' }));
+      if (r.error) { await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: r.error, show_alert: true }); if (/Déjà choisi/.test(r.error)) await done(cq, `ℹ️ ${r.error}`, false); return res.status(200).json({ ok: true }); }
+      await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: `✅ ${r.label}` });
+      await done(cq, `👉 Choisi : ${r.label} (${hhmm()}) — Dzaryx s'en occupe, le résultat arrive dans sa conversation.`, false);
     } else {
       await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: 'Bouton inconnu' });
     }
