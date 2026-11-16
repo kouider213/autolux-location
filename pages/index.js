@@ -514,20 +514,20 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
               <div className="px-5 md:px-12 max-w-7xl w-full mx-auto [@media(max-height:560px)]:mt-auto lg:grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_390px] lg:gap-10 lg:items-end">
                 <div>
                 {/* Headline — CSS animated */}
-                <div className="pointer-events-none">
-                  <div className="overflow-hidden">
-                    <h1 className="hero-css-line1 font-display font-black text-hero-gradient leading-[0.88] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)]"
+                <h1 className="pointer-events-none">
+                  <span className="block overflow-hidden">
+                    <span className="block hero-css-line1 font-display font-black text-hero-gradient leading-[0.88] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)]"
                       style={{ fontSize: 'clamp(46px, 8.4vw, 112px)' }}>
                       {heroTitleTr || t('hero.line1')}
-                    </h1>
-                  </div>
-                  <div className="overflow-hidden -mt-[0.1em]">
-                    <h1 className="hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88] drop-shadow-[0_2px_3px_rgba(0,0,0,0.9)] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)] py-[0.1em] pr-[0.1em]"
+                    </span>
+                  </span>
+                  <span className="block overflow-hidden -mt-[0.1em]">
+                    <span className="block hero-css-line2 font-display font-black text-gold-gradient italic leading-[0.88] drop-shadow-[0_2px_3px_rgba(0,0,0,0.9)] drop-shadow-[0_3px_16px_rgba(0,0,0,0.7)] py-[0.1em] pr-[0.1em]"
                       style={{ fontSize: 'clamp(46px, 8.4vw, 112px)', background: 'linear-gradient(135deg,#f0d35a 0%,#d9a916 45%,#b8860b 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', WebkitTextStroke: '0.6px #d9a916' }}>
                       {t('hero.line2')}
-                    </h1>
-                  </div>
-                </div>
+                    </span>
+                  </span>
+                </h1>
 
                 {/* Subtitle */}
                 <div className="hero-css-sub mt-3 md:mt-5 pointer-events-none">
