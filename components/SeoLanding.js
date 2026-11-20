@@ -8,6 +8,7 @@ import { useLang } from '../lib/i18n';
 import { T } from '../lib/autoTranslate';
 import { useSettings, waLink } from '../lib/settings';
 import { carHref } from '../lib/carUrl';
+import { thumb } from '../lib/img';
 
 const BASE = 'https://fikconciergerie.com';
 
@@ -113,7 +114,7 @@ export default function SeoLanding({
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {cars.map((c) => (
                     <Link key={c.id} href={carHref(c)} className="block bg-[#111]/80 border border-white/[0.07] rounded-2xl overflow-hidden hover:border-gold-500/30 transition-colors">
-                      {c.image_url && <img src={c.image_url} alt={`Location ${c.name} Oran`} loading="lazy" className="w-full h-28 object-cover" />}
+                      {c.image_url && <img src={thumb(c.image_url, 600)} alt={`Location ${c.name} Oran`} loading="lazy" className="w-full h-28 object-cover" />}
                       <div className="p-3">
                         <p className="text-white text-sm font-semibold">{c.name}</p>
                         {c.resale_price ? <p className="text-gold-400 text-xs mt-1">{Number(c.resale_price).toLocaleString('fr-FR')} {c.currency === 'EUR' ? '€' : 'DA'} / <T>jour</T></p> : null}

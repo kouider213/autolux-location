@@ -12,6 +12,7 @@ import { useLang } from '../lib/i18n';
 import { useTranslated } from '../lib/autoTranslate';
 import { useSettings, waNumber } from '../lib/settings';
 import { useFavorites } from '../lib/favorites';
+import { thumb } from '../lib/img';
 
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
@@ -103,7 +104,7 @@ function PropertyCard({ property: p }) {
     <div className="group relative bg-[#141414] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-gold-500/25 hover:-translate-y-2 hover:shadow-[0_28px_60px_rgba(0,0,0,0.7)] transition-all duration-500">
       <Link href={`/immo/${p.id}`} className="block relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
         {photo ? (
-          <img src={photo} alt={p.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
+          <img src={thumb(photo, 700)} alt={p.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
         ) : (
           <div className="w-full h-full bg-[#111] flex items-center justify-center"><Building2 size={36} className="text-white/[0.06]" /></div>
         )}

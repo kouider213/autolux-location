@@ -10,6 +10,7 @@ import { useTranslated } from '../lib/autoTranslate';
 import { useSettings, waNumber } from '../lib/settings';
 import { cText } from '../lib/content';
 import { useFavorites } from '../lib/favorites';
+import { thumb } from '../lib/img';
 
 const cur = (c) => c === 'DZD' ? 'DA' : '€';
 
@@ -144,7 +145,7 @@ function PackCard({ p, lang }) {
     <div className="group lux-card flex flex-col">
       <Link href={`/packs/${p.id}`} className="block relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
         {photo ? (
-          <img src={photo} alt={p.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
+          <img src={thumb(photo, 700)} alt={p.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#0e0e0e] flex items-center justify-center"><Package size={40} className="text-white/[0.08]" /></div>
         )}

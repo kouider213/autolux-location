@@ -9,6 +9,7 @@ import { useLang, localizeValue } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 import { useFavorites } from '../lib/favorites';
 import { carHref } from '../lib/carUrl';
+import { thumb } from '../lib/img';
 
 const CATEGORIES = ['Tous', 'citadine', 'berline', 'SUV', 'familiale', 'utilitaire', 'premium'];
 
@@ -244,7 +245,7 @@ function CarCard({ car, bookedUntil, t, lang, availMode, wa, isFav, onFav }) {
       {/* Photo — carré à gauche sur téléphone, 4/3 en haut sur tablette/PC */}
       <Link href={carHref(car)} className="relative block w-[40%] min-h-[150px] sm:min-h-0 sm:w-auto flex-shrink-0 overflow-hidden sm:aspect-[4/3]">
         {car.image_url ? (
-          <img src={car.image_url} alt={car.name}
+          <img src={thumb(car.image_url, 700)} alt={car.name}
             className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
             loading="lazy" />
         ) : (

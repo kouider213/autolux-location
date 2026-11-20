@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import { useLang } from '../lib/i18n';
 import { useSettings, waNumber } from '../lib/settings';
 import { useFavorites } from '../lib/favorites';
+import { thumb } from '../lib/img';
 
 const STATUS_BADGE = {
   disponible:  { label: '● Disponible', cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/25' },
@@ -93,7 +94,7 @@ function VehicleCard({ v }) {
     <div className="group lux-card">
       <Link href={`/vente-voitures/${v.id}`} className="block relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
         {photo ? (
-          <img src={photo} alt={`${v.brand} ${v.model}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
+          <img src={thumb(photo, 700)} alt={`${v.brand} ${v.model}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
         ) : (
           <div className="w-full h-full bg-[#111] flex items-center justify-center"><Tag size={36} className="text-white/[0.06]" /></div>
         )}

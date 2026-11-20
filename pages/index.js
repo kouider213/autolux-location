@@ -65,6 +65,7 @@ function SocialIcons() {
 }
 import { supabase } from '../lib/supabase';
 import { carHref } from '../lib/carUrl';
+import { thumb } from '../lib/img';
 
 const BENEFITS = [
   { icon: Sparkles,      num:'01', tk:'ben1t', dk:'ben1d' },
@@ -164,7 +165,7 @@ function CarCarousel({ cars }) {
             <Link href={carHref(car)} className="absolute inset-0 z-0">
               {car.image_url ? (
                 <motion.img
-                  src={car.image_url}
+                  src={thumb(car.image_url, 1000)}
                   alt={car.name}
                   className="w-full h-full object-cover"
                   initial={{ scale: 1.06 }}
@@ -256,7 +257,7 @@ function CarCarousel({ cars }) {
         {cars.map((c, i) => (
           <button key={c.id} onClick={() => goTo(i)} aria-label={c.name}
             className={`group relative flex-shrink-0 w-36 lg:w-40 h-24 rounded-xl overflow-hidden border transition-all ${i === idx ? 'border-gold-400 ring-2 ring-gold-500/30' : 'border-white/10 opacity-60 hover:opacity-100'}`}>
-            {c.image_url ? <img src={c.image_url} alt="" loading="lazy" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[#141414]" />}
+            {c.image_url ? <img src={thumb(c.image_url, 500)} alt="" loading="lazy" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[#141414]" />}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
             <span className="absolute bottom-1.5 left-2 right-2 text-left text-white text-[11px] font-semibold truncate">{c.name}</span>
           </button>
@@ -272,7 +273,7 @@ function CarMiniCard({ car }) {
   return (
     <Link href={carHref(car)} className="relative w-[78%] sm:w-[46%] h-[340px] rounded-3xl overflow-hidden gold-frame p-px">
       <div className="relative w-full h-full rounded-[23px] overflow-hidden">
-        {car.image_url ? <img src={car.image_url} alt={car.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+        {car.image_url ? <img src={thumb(car.image_url, 700)} alt={car.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
           : <div className="absolute inset-0 bg-[#141414] flex items-center justify-center"><Car size={60} className="text-white/10" /></div>}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         <span className="absolute top-3 left-3 tag-category">{localizeValue(car.category, lang)}</span>
@@ -682,7 +683,7 @@ export default function Home({ cars: initialCars, reviews: initialReviews, vehic
                 /* Carte vedette : photo plein cadre (2×2 sur PC, pleine largeur sur tablette) */
                 <Link key={i} href={p.href} onMouseMove={glow}
                   className="lux-card group md:col-span-2 lg:row-span-2 min-h-[260px] md:min-h-[320px] lg:min-h-0 flex flex-col justify-end p-6 md:p-8 lg:p-10">
-                  <img src={cars?.find(c => c.featured && c.image_url)?.image_url || '/hero-home.jpg'} alt="" loading="lazy"
+                  <img src={thumb(cars?.find(c => c.featured && c.image_url)?.image_url, 1200) || '/hero-home.jpg'} alt="" loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/10" />
                   <div className="relative">

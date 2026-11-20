@@ -12,6 +12,7 @@ import { useLang, localizeValue } from '../../lib/i18n';
 import { useTranslated } from '../../lib/autoTranslate';
 import { useSettings, waNumber } from '../../lib/settings';
 import { carHref, carIdFromParam } from '../../lib/carUrl';
+import { thumb } from '../../lib/img';
 
 export default function CarDetail({ car, photos: initialPhotos }) {
   const { t, lang } = useLang();
@@ -151,7 +152,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                       {src ? (
                         /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src)
                           ? <video src={src} controls playsInline className="w-full h-full object-cover object-center bg-black" />
-                          : <img src={src} alt={car.name} onClick={() => setLb(true)} className="w-full h-full object-cover object-center cursor-zoom-in" loading="eager" />
+                          : <img src={thumb(src, 1200)} alt={car.name} onClick={() => setLb(true)} className="w-full h-full object-cover object-center cursor-zoom-in" loading="eager" />
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center gap-3">
                           <Car size={56} className="text-white/[0.07]" />
@@ -173,7 +174,7 @@ export default function CarDetail({ car, photos: initialPhotos }) {
                             className={`relative flex-shrink-0 w-20 h-14 md:w-24 md:h-16 rounded-xl overflow-hidden border-2 transition-all ${i === activePhoto ? 'border-gold-500' : 'border-white/[0.06] opacity-60 hover:opacity-100'}`}>
                             {/\.(mp4|webm|mov|m4v)(\?|$)/i.test(s)
                               ? <><video src={s} muted className="w-full h-full object-cover" /><span className="absolute inset-0 flex items-center justify-center text-white text-lg">▶</span></>
-                              : <img src={s} alt={`${car.name} ${i+1}`} className="w-full h-full object-cover" />}
+                              : <img src={thumb(s, 200)} alt={`${car.name} ${i+1}`} className="w-full h-full object-cover" />}
                           </button>
                         ))}
                       </div>

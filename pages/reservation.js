@@ -14,6 +14,7 @@ import { rentalDays } from '../lib/date';
 import { getExtras, extrasCost, extrasLines, CHILD_AGES, childAgeLabel, seatForAge, seatKind, seatsWanted, PLACES, placeLabel } from '../lib/extras';
 import { format, isWithinInterval, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
 import { fr, arDZ, enUS } from 'date-fns/locale';
+import { thumb } from '../lib/img';
 
 const DatePicker = dynamic(() => import('react-datepicker'), { ssr: false });
 
@@ -578,7 +579,7 @@ export default function ReservationPage({ cars: initialCars }) {
                                     on ? 'border-gold-500/70 shadow-[0_0_0_1px_rgba(226,182,20,0.45),0_24px_48px_-24px_rgba(226,182,20,0.45)]' : 'border-white/[0.07] hover:border-gold-500/40 hover:-translate-y-1'}`}>
                                   <div className="relative aspect-[16/10] bg-[#1a1a1a] overflow-hidden">
                                     {car.image_url
-                                      ? <img src={car.image_url} alt={car.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                      ? <img src={thumb(car.image_url, 500)} alt={car.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                                       : <div className="w-full h-full grid place-items-center"><Car size={28} className="text-gold-500/30" /></div>}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
                                     {car.category && <span className="absolute bottom-2.5 left-3 text-[10px] uppercase tracking-[0.2em] text-gold-300/90">{car.category}</span>}
@@ -606,7 +607,7 @@ export default function ReservationPage({ cars: initialCars }) {
                         <div className="gold-frame rounded-3xl overflow-hidden flex flex-col sm:flex-row">
                           <div className="relative sm:w-64 md:w-72 aspect-[16/9] sm:aspect-auto sm:min-h-[150px] bg-[#1a1a1a] flex-shrink-0">
                             {selectedCar.image_url
-                              ? <img src={selectedCar.image_url} alt={selectedCar.name} className="absolute inset-0 w-full h-full object-cover" />
+                              ? <img src={thumb(selectedCar.image_url, 700)} alt={selectedCar.name} className="absolute inset-0 w-full h-full object-cover" />
                               : <div className="absolute inset-0 grid place-items-center"><Car size={32} className="text-gold-500/30" /></div>}
                             <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-transparent via-transparent to-black/40" />
                           </div>
@@ -884,7 +885,7 @@ export default function ReservationPage({ cars: initialCars }) {
                 <div className="gold-frame rounded-3xl overflow-hidden">
                   <div className="relative h-44 bg-[#151515]">
                     {selectedCar?.image_url
-                      ? <img src={selectedCar.image_url} alt={selectedCar.name} className="absolute inset-0 w-full h-full object-cover" />
+                      ? <img src={thumb(selectedCar.image_url, 700)} alt={selectedCar.name} className="absolute inset-0 w-full h-full object-cover" />
                       : <div className="absolute inset-0 grid place-items-center"><Car size={40} className="text-gold-500/20" /></div>}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-black/30 to-transparent" />
                     <div className="absolute bottom-4 left-5 right-5">

@@ -12,6 +12,7 @@ import StartDossier from '../../components/StartDossier';
 import { useLang } from '../../lib/i18n';
 import { useTranslated } from '../../lib/autoTranslate';
 import { useSettings, waNumber } from '../../lib/settings';
+import { thumb } from '../../lib/img';
 
 const supabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -131,7 +132,7 @@ export default function PropertyDetail({ property, photos }) {
                     {isVideo(allPhotos[active]) ? (
                       <video src={allPhotos[active]} controls playsInline className="w-full h-full object-cover bg-black" />
                     ) : (
-                      <img src={allPhotos[active]} alt={`${property.title} ${active+1}`} onClick={() => setLb(true)} className="w-full h-full object-cover cursor-zoom-in" />
+                      <img src={thumb(allPhotos[active], 1200)} alt={`${property.title} ${active+1}`} onClick={() => setLb(true)} className="w-full h-full object-cover cursor-zoom-in" />
                     )}
                     {allPhotos.length > 1 && (
                       <>
@@ -175,7 +176,7 @@ export default function PropertyDetail({ property, photos }) {
                           <span className="absolute inset-0 flex items-center justify-center text-white text-lg">▶</span>
                         </>
                       ) : (
-                        <img src={src} alt={`${i+1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                        <img src={thumb(src, 200)} alt={`${i+1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                       )}
                     </button>
                   ))}
