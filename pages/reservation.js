@@ -296,6 +296,18 @@ export default function ReservationPage({ cars: initialCars }) {
     setErr2(''); return true;
   };
 
+  // 21/11 panier abandonné : nom + téléphone remplis à l'étape 2 → demande gardée (Dzaryx propose une relance à Kouider)
+  useEffect(() => {
+    if (step !== 2 || done || form.name.trim().length < 2 || form.phone.replace(/\D/g, '').length < 8) return;
+    if (form.age && Number(form.age) < 35) return;
+    const t = setTimeout(() => {
+      fetch('/api/cart-draft', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: form.name, phone: form.phone, age: form.age, car_id: form.carId, car: selectedCar?.name || '',
+          start: form.startDate, end: form.endDate, lang }) }).catch(() => {});
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [step, done, form.name, form.phone, form.age, form.carId, form.startDate, form.endDate]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [bookingId, setBookingId] = useState(null);
 
   const handleSubmit = async () => {
@@ -362,6 +374,7 @@ export default function ReservationPage({ cars: initialCars }) {
           body: JSON.stringify({ code: form.referral.trim() }),
         }).catch(() => {});
       }
+      fetch('/api/cart-draft', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: form.phone, done: true }) }).catch(() => {});
       // Notify Dzaryx
       fetch('/api/notify-dzaryx', {
         method: 'POST',
