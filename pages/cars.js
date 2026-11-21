@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Car, Fuel, Users, Search, ArrowRight, X, Gauge, Heart } from 'lucide-react';
+import { Car, Fuel, Users, Search, ArrowRight, X, Heart } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
@@ -163,25 +163,6 @@ export default function CarsPage({ cars: initialCars }) {
               </div>
             )}
 
-            {/* Bottom CTA */}
-            {filtered.length > 0 && (
-              <div className="mt-20 text-center">
-                <div className="inline-flex flex-col items-center gap-5 bg-gradient-to-b from-[#141414] to-[#111] border border-white/[0.07] rounded-3xl px-10 py-8 max-w-md w-full">
-                  <div className="w-12 h-12 bg-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center">
-                    <Gauge size={20} className="text-gold-400" />
-                  </div>
-                  <div>
-                    <p className="text-white font-bold text-lg mb-1">{t('cars.help_title')}</p>
-                    <p className="text-white/35 text-sm">{t('cars.help_desc')}</p>
-                  </div>
-                  <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Bonjour, je cherche un véhicule spécifique.')}`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="btn-gold px-8 py-3 text-sm w-full justify-center">
-                    {t('common.contact_wa')}
-                  </a>
-                </div>
-              </div>
-            )}
           </div>
         </div>
         <Footer />
