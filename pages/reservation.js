@@ -28,6 +28,7 @@ const ageFrom = (birth) => {
   let a = n.getFullYear() - y; if (n.getMonth() + 1 < m || (n.getMonth() + 1 === m && n.getDate() < d)) a--;
   return a > 0 && a < 110 ? String(a) : '';
 };
+const MIN_DAYS = 4;   // 22/11 Kouider : 1-3 jours = pas rentable (aucune n'a abouti en 2026) → minimum 4 jours
 const birthFr = (birth) => birth ? `${birth.slice(8, 10)}/${birth.slice(5, 7)}/${birth.slice(0, 4)}` : '';
 /** Photo → JPEG ≤ 1600 px (envoi rapide, < 1 Mo) */
 const shrinkImage = (file) => new Promise((resolve, reject) => {
@@ -189,12 +190,13 @@ export default function ReservationPage({ cars: initialCars }) {
   // Pré-remplit les infos client depuis l'URL (re-réservation : pas besoin de tout retaper)
   useEffect(() => {
     if (!router.isReady) return;
-    const { name, phone, email, age, passport } = router.query;
-    if (name || phone || email || age || passport) {
+    const { name, phone, email, age, passport, birth } = router.query;
+    if (name || phone || email || age || passport || birth) {
       setForm(f => ({
         ...f,
         name: f.name || (name || ''), phone: f.phone || (phone || ''),
         email: f.email || (email || ''),
+        ...(!f.birth && /^\d{4}-\d{2}-\d{2}$/.test(String(birth || '')) ? { birth: String(birth), age: ageFrom(String(birth)) } : {}),
         passport: f.passport || (passport || ''),
       }));
     }
@@ -293,6 +295,7 @@ export default function ReservationPage({ cars: initialCars }) {
     if (!form.startDate){ setErr1(E.sd); return false; }
     if (!form.endDate)  { setErr1(E.ed); return false; }
     if (days <= 0)      { setErr1(E.neg); return false; }
+    if (days < MIN_DAYS) { setErr1(L3(lang, `Durée minimum de location : ${MIN_DAYS} jours. Choisissez une date de retour plus tard.`, `Minimum rental: ${MIN_DAYS} days. Please choose a later return date.`, `أقل مدة للكراء: ${MIN_DAYS} أيام. اختر تاريخ عودة لاحقاً.`)); return false; }
     if (rangeHasConflict()) { setErr1(E.conf); return false; }
     setErr1(''); return true;
   };
@@ -371,7 +374,7 @@ export default function ReservationPage({ cars: initialCars }) {
       setErr2(L3(lang, 'La photo de la pièce d\'identité n\'a pas pu être envoyée. Vérifiez votre connexion et réessayez.', 'The ID photo could not be sent. Check your connection and try again.', 'تعذّر إرسال صورة الوثيقة. تحقق من الاتصال وأعد المحاولة.'));
       return;
     }
-    const proofLine = `🎂 Né(e) le ${birthFr(form.birth)} (${form.age} ans) · 🪪 pièce d'identité reçue (photo envoyée sur Telegram)`;
+    const proofLine = `🎂 Né(e) le ${birthFr(form.birth)} (${form.age} ans) · 🪪 pièce d'identité reçue (photo envoyée sur Telegram, réf. ${idPath})`;
     const notesWithProof = [proofLine, fullNotes].filter(Boolean).join('\n');
     let newBookingId = null;
     try {
@@ -728,6 +731,14 @@ export default function ReservationPage({ cars: initialCars }) {
                             ))}
                           </div>
                         )}
+
+                        {form.startDate && form.endDate && days > 0 && days < MIN_DAYS && (
+                          <div className="mt-3 flex items-start gap-2 bg-amber-500/[0.07] border border-amber-500/25 rounded-xl p-3">
+                            <AlertCircle size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                            <p className="text-amber-300/90 text-sm">{L3(lang, `Location de ${MIN_DAYS} jours minimum : choisissez une date de retour plus tard.`, `${MIN_DAYS}-day minimum rental: please choose a later return date.`, `الكراء ${MIN_DAYS} أيام على الأقل: اختر تاريخ عودة لاحقاً.`)}</p>
+                          </div>
+                        )}
+                        {!form.startDate && <p className="mt-3 text-white/35 text-xs">{L3(lang, `Location à partir de ${MIN_DAYS} jours.`, `Rentals from ${MIN_DAYS} days.`, `الكراء ابتداءً من ${MIN_DAYS} أيام.`)}</p>}
 
                         {rangeHasConflict() && (
                           <div className="mt-3 flex items-start gap-2 bg-red-500/[0.07] border border-red-500/20 rounded-xl p-3">

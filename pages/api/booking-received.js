@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         const cur = (b.currency || b.cars?.currency || currency) === 'DZD' ? 'DA' : '€';
         const f = n => Math.round(n).toLocaleString('fr-FR');
         profitLine = op == null || !cp ? '📈 Ton bénéfice : inconnu (prix propriétaire pas renseigné sur la voiture)'
-          : `📈 Ton bénéfice : ${f((cp - op) * days)} ${cur} (${f(cp)} − ${f(op)} ${cur}/j × ${days} j${Array.isArray(extras) && extras.length ? ', hors options' : ''})`;
+          : `📈 Ton bénéfice : ${f((cp - op) * days)} ${cur} (${f(cp)} − ${f(op)} ${cur}/j × ${days} j${Array.isArray(extras) && extras.length ? ', hors options' : ''})${cur === '€' && (cp - op) * days < 40 ? '\n⚠️ PEU RENTABLE (moins de 40 €)' : ''}`;
       }
     } catch { /* non bloquant */ }
   }

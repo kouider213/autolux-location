@@ -26,13 +26,26 @@ function sorryText(b, kind) {
   if (ar) return `السلام عليكم ${first}، شكراً جزيلاً على طلب الحجز عند FIK Conciergerie${when}. للأسف هذه السيارة غير متوفرة في هذه التواريخ، ونعتذر منك. نقدر نقترحو عليك سيارة أخرى في نفس التواريخ: تحب نبعثولك السيارات المتوفرة؟ يومك سعيد!`;
   return `Bonjour ${first}, merci beaucoup pour votre demande de réservation chez FIK Conciergerie${when}. Malheureusement, ce véhicule n'est pas disponible à ces dates, nous en sommes vraiment désolés. Nous pouvons vous proposer un autre véhicule pour les mêmes dates : souhaitez-vous que je vous envoie les modèles disponibles ? Belle journée à vous !`;
 }
+/** 22/11 : WhatsApp de confirmation prêt après ✅ Accepter (acompte = 3 jours de location, déduit du total). */
+function confirmText(b, price) {
+  const first = String(b.client_name || '').trim().split(/\s+/)[0] || '';
+  const car = b.cars?.name || 'votre véhicule';
+  const days = Math.max(1, Math.round((Date.parse(b.end_date) - Date.parse(b.start_date)) / 86_400_000));
+  const cur = b.currency === 'DZD' ? 'DA' : '€';
+  const acompte = b.client_price_per_day ? Math.round(Number(b.client_price_per_day) * 3) : null;
+  const pickup = (/📍 Prise[^\n]*/.exec(b.notes || '') || [''])[0].replace(/^📍\s*/, '');
+  if (b.client_lang === 'en') return `Hello ${first}, good news: your booking is confirmed ✅\n🚗 ${car}\n📅 ${dm(b.start_date)} → ${dm(b.end_date)} (${days} days)\n💰 Total: ${price} ${cur}${pickup ? `\n📍 ${pickup.replace(/^Prise\s*:\s*/, 'Pick-up: ')}` : ''}\nTo secure the vehicle, a deposit of 3 rental days${acompte ? ` (${acompte} ${cur})` : ''} is requested, deducted from the total. We will get back to you for the contract. See you soon in Oran!`;
+  if (b.client_lang === 'ar') return `السلام عليكم ${first}، خبر زين: الحجز تاعك مؤكد ✅\n🚗 ${car}\n📅 ${dm(b.start_date)} ← ${dm(b.end_date)} (${days} أيام)\n💰 المجموع: ${price} ${cur}${pickup ? `\n📍 ${pickup}` : ''}\nباش نحجزو لك السيارة نهائياً، نطلبو عربون تاع 3 أيام كراء${acompte ? ` (${acompte} ${cur})` : ''} يتنقص من المجموع. نرجعو لك من أجل العقد. نشوفوك قريب في وهران!`;
+  return `Bonjour ${first}, bonne nouvelle : votre réservation est confirmée ✅\n🚗 ${car}\n📅 Du ${dm(b.start_date)} au ${dm(b.end_date)} (${days} jours)\n💰 Total : ${price} ${cur}${pickup ? `\n📍 ${pickup}` : ''}\nPour bloquer le véhicule, un acompte de 3 jours de location${acompte ? ` (${acompte} ${cur})` : ''} est demandé, déduit du total. Nous revenons vers vous pour le contrat. À très vite à Oran !`;
+}
 const hhmm = () => new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' });
 
 async function done(cq, line, keepUrls = true, waUrls = null) {
   const msg = cq.message;
   let urls = keepUrls ? (msg.reply_markup?.inline_keyboard || []).map(r => r.filter(b => b.url)).filter(r => r.length) : [];
   // 22/11 : après un refus, « 💬 WhatsApp client » ouvre WhatsApp avec le message poli « véhicule indisponible » déjà écrit
-  if (waUrls) urls = [[{ text: '🚗 « Autre véhicule »', url: waUrls.autre }, { text: '📅 « Complet, autres dates »', url: waUrls.complet }], ...urls.map(r => r.filter(b => !/wa\.me\//.test(b.url))).filter(r => r.length)];
+  if (waUrls?.confirm) urls = urls.map(r => r.map(b => /wa\.me\//.test(b.url) ? { text: '💬 WhatsApp : confirmation prête', url: waUrls.confirm } : b));
+  else if (waUrls) urls = [[{ text: '🚗 « Autre véhicule »', url: waUrls.autre }, { text: '📅 « Complet, autres dates »', url: waUrls.complet }], ...urls.map(r => r.filter(b => !/wa\.me\//.test(b.url))).filter(r => r.length)];
   await tgCall('editMessageText', { chat_id: msg.chat.id, message_id: msg.message_id, text: `${msg.text}\n\n${line}`, disable_web_page_preview: true, ...(urls.length ? { reply_markup: { inline_keyboard: urls } } : {}) });
 }
 
@@ -51,7 +64,7 @@ export default async function handler(req, res) {
   const admin = supabaseAdmin();
   try {
     if (kind === 'bk') {
-      const { data: b } = await admin.from('bookings').select('id, status, client_name, client_phone, client_lang, start_date, end_date, nb_days, final_price, notes, cars(name)').eq('id', id).single();
+      const { data: b } = await admin.from('bookings').select('id, status, client_name, client_phone, client_lang, start_date, end_date, nb_days, final_price, client_price_per_day, currency, notes, cars(name)').eq('id', id).single();
       if (!b) { await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: 'Réservation introuvable' }); return res.status(200).json({ ok: true }); }
       if (b.status !== 'PENDING') { await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: `Déjà traitée (${b.status})` }); await done(cq, `ℹ️ Déjà traitée : ${b.status}`); return res.status(200).json({ ok: true }); }
       const accept = act === 'acc';
@@ -66,8 +79,8 @@ export default async function handler(req, res) {
       // Dzaryx est prévenu (il connaît le nouveau statut pour la suite : WhatsApp de confirmation, bouclier…)
       fetch(`${SITE}/api/notify-dzaryx`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'booking_status', data: { id, status: accept ? 'CONFIRMED' : 'REJECTED', car_name: b.cars?.name, client_name: b.client_name, via: 'bouton Telegram' } }) }).catch(() => {});
       await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: accept ? '✅ Acceptée' : '❌ Refusée' });
-      const wa = !accept && waLink(b.client_phone) ? { autre: `${waLink(b.client_phone)}?text=${encodeURIComponent(sorryText(b, 'autre'))}`, complet: `${waLink(b.client_phone)}?text=${encodeURIComponent(sorryText(b, 'complet'))}` } : null;
-      await done(cq, accept ? `✅ ACCEPTÉE à ${hhmm()} — email au client${cal}. Pense au WhatsApp de confirmation 👇` : `❌ REFUSÉE à ${hhmm()} — email « indisponible » au client.${wa ? ' Choisis le message WhatsApp 👇 : 🚗 autre véhicule ou 📅 complet à ces dates' : ''}`, true, wa);
+      const wa = accept ? (waLink(b.client_phone) ? { confirm: `${waLink(b.client_phone)}?text=${encodeURIComponent(confirmText(b, Math.round(Number(d.finalPrice ?? b.final_price ?? 0))))}` } : null) : waLink(b.client_phone) ? { autre: `${waLink(b.client_phone)}?text=${encodeURIComponent(sorryText(b, 'autre'))}`, complet: `${waLink(b.client_phone)}?text=${encodeURIComponent(sorryText(b, 'complet'))}` } : null;
+      await done(cq, accept ? `✅ ACCEPTÉE à ${hhmm()} — email au client${cal}.${wa ? ' WhatsApp de confirmation prêt : appuie 👇' : ' Pense au WhatsApp de confirmation.'}` : `❌ REFUSÉE à ${hhmm()} — email « indisponible » au client.${wa ? ' Choisis le message WhatsApp 👇 : 🚗 autre véhicule ou 📅 complet à ces dates' : ''}`, true, wa);
     } else if (kind === 'rv') {
       if (act === 'ok') { const { error } = await admin.from('reviews').update({ approved: true }).eq('id', id); if (error) throw error; }
       else { const { error } = await admin.from('reviews').delete().eq('id', id); if (error) throw error; }

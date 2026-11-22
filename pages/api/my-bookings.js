@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   const { data, error } = await admin
     .from('bookings')
-    .select('id, car_id, client_name, client_phone, client_email, client_age, client_passport, start_date, end_date, status, final_price, paid_amount, currency, cars(name, image_url)')
+    .select('id, car_id, client_name, client_phone, client_email, client_age, client_passport, notes, start_date, end_date, status, final_price, paid_amount, currency, cars(name, image_url)')
     .order('start_date', { ascending: false })
     .limit(800);
   if (error) return res.status(500).json({ error: error.message });
@@ -40,6 +40,7 @@ export default async function handler(req, res) {
       // pour le re-book pré-rempli
       client_phone: b.client_phone || '', client_email: b.client_email || '',
       client_age: b.client_age || '', client_passport: b.client_passport || '',
+      client_birth: (() => { const m = /Né\(e\) le (\d{2})\/(\d{2})\/(\d{4})/.exec(b.notes || ''); return m ? `${m[3]}-${m[2]}-${m[1]}` : ''; })(),
     })),
   });
 }
