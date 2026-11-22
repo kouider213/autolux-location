@@ -9,21 +9,30 @@ const SITE = 'https://fikconciergerie.com';
 export const hookSecret = () => crypto.createHash('sha256').update(`tg-notif|${process.env.INTERNAL_API_TOKEN || ''}`).digest('hex').slice(0, 48);
 const internal = () => ({ 'Content-Type': 'application/json', 'x-internal-token': process.env.INTERNAL_API_TOKEN || '' });
 const dm = d => d ? `${String(d).slice(8, 10)}/${String(d).slice(5, 7)}` : '?';
-/** Message WhatsApp poli au client après un refus (langue du formulaire). Jamais la Belgique ni d'autre date proposée par nous. */
-function sorryText(b) {
+/** Messages WhatsApp polis après un refus (langue du formulaire). 22/11 Kouider : 2 choix —
+ *  « autre » = ce véhicule n'est pas dispo, on propose un autre véhicule ; « complet » = complets à ces dates, ravis pour d'autres dates.
+ *  Jamais la vraie raison (durée trop courte), jamais la Belgique. */
+function sorryText(b, kind) {
   const first = String(b.client_name || '').trim().split(/\s+/)[0] || '';
   const car = b.cars?.name || '';
-  if (b.client_lang === 'en') return `Hello ${first}, thank you very much for your booking request with FIK Conciergerie${car ? ` (${car}, ${dm(b.start_date)} → ${dm(b.end_date)})` : ''}. Unfortunately, this vehicle is not available on these dates, and we are truly sorry. If you wish, we can suggest another vehicle or other dates: just tell us what suits you. Have a nice day!`;
-  if (b.client_lang === 'ar') return `السلام عليكم ${first}، شكراً جزيلاً على طلب الحجز عند FIK Conciergerie${car ? ` (${car}، ${dm(b.start_date)} ← ${dm(b.end_date)})` : ''}. للأسف هذه السيارة غير متوفرة في هذه التواريخ، ونعتذر منك. إذا أردت، نقترح عليك سيارة أخرى أو تواريخ أخرى: قل لنا فقط ما يناسبك. يومك سعيد!`;
-  return `Bonjour ${first}, merci beaucoup pour votre demande de réservation chez FIK Conciergerie${car ? ` (${car}, du ${dm(b.start_date)} au ${dm(b.end_date)})` : ''}. Malheureusement, ce véhicule n'est pas disponible à ces dates, nous en sommes vraiment désolés. Si vous le souhaitez, nous pouvons vous proposer un autre véhicule ou d'autres dates : dites-nous simplement ce qui vous arrange. Belle journée à vous !`;
+  const en = b.client_lang === 'en', ar = b.client_lang === 'ar';
+  const when = en ? ` (${car ? `${car}, ` : ''}${dm(b.start_date)} → ${dm(b.end_date)})` : ar ? ` (${car ? `${car}، ` : ''}${dm(b.start_date)} ← ${dm(b.end_date)})` : ` (${car ? `${car}, ` : ''}du ${dm(b.start_date)} au ${dm(b.end_date)})`;
+  if (kind === 'complet') {
+    if (en) return `Hello ${first}, thank you very much for your booking request with FIK Conciergerie${when}. Unfortunately, we are fully booked on these dates and we are truly sorry. We would be delighted to welcome you on other dates if you wish: just tell us which dates suit you. Have a nice day!`;
+    if (ar) return `السلام عليكم ${first}، شكراً جزيلاً على طلب الحجز عند FIK Conciergerie${when}. للأسف كل سياراتنا محجوزة في هذه التواريخ، ونعتذر منك. يسعدنا أن نستقبلك في تواريخ أخرى إذا أردت: قل لنا فقط التواريخ التي تناسبك. يومك سعيد!`;
+    return `Bonjour ${first}, merci beaucoup pour votre demande de réservation chez FIK Conciergerie${when}. Malheureusement, nous sommes complets à ces dates, nous en sommes vraiment désolés. Nous serions ravis de vous accueillir à d'autres dates si vous le souhaitez : dites-nous simplement lesquelles vous arrangent. Belle journée à vous !`;
+  }
+  if (en) return `Hello ${first}, thank you very much for your booking request with FIK Conciergerie${when}. Unfortunately, this vehicle is not available on these dates and we are truly sorry. We can offer you another vehicle for the same dates: would you like us to send you the available models? Have a nice day!`;
+  if (ar) return `السلام عليكم ${first}، شكراً جزيلاً على طلب الحجز عند FIK Conciergerie${when}. للأسف هذه السيارة غير متوفرة في هذه التواريخ، ونعتذر منك. نقدر نقترحو عليك سيارة أخرى في نفس التواريخ: تحب نبعثولك السيارات المتوفرة؟ يومك سعيد!`;
+  return `Bonjour ${first}, merci beaucoup pour votre demande de réservation chez FIK Conciergerie${when}. Malheureusement, ce véhicule n'est pas disponible à ces dates, nous en sommes vraiment désolés. Nous pouvons vous proposer un autre véhicule pour les mêmes dates : souhaitez-vous que je vous envoie les modèles disponibles ? Belle journée à vous !`;
 }
 const hhmm = () => new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' });
 
-async function done(cq, line, keepUrls = true, waUrl = null) {
+async function done(cq, line, keepUrls = true, waUrls = null) {
   const msg = cq.message;
   let urls = keepUrls ? (msg.reply_markup?.inline_keyboard || []).map(r => r.filter(b => b.url)).filter(r => r.length) : [];
   // 22/11 : après un refus, « 💬 WhatsApp client » ouvre WhatsApp avec le message poli « véhicule indisponible » déjà écrit
-  if (waUrl) urls = urls.map(r => r.map(b => /wa\.me\//.test(b.url) ? { text: '💬 WhatsApp : « pas disponible »', url: waUrl } : b));
+  if (waUrls) urls = [[{ text: '🚗 « Autre véhicule »', url: waUrls.autre }, { text: '📅 « Complet, autres dates »', url: waUrls.complet }], ...urls.map(r => r.filter(b => !/wa\.me\//.test(b.url))).filter(r => r.length)];
   await tgCall('editMessageText', { chat_id: msg.chat.id, message_id: msg.message_id, text: `${msg.text}\n\n${line}`, disable_web_page_preview: true, ...(urls.length ? { reply_markup: { inline_keyboard: urls } } : {}) });
 }
 
@@ -57,8 +66,8 @@ export default async function handler(req, res) {
       // Dzaryx est prévenu (il connaît le nouveau statut pour la suite : WhatsApp de confirmation, bouclier…)
       fetch(`${SITE}/api/notify-dzaryx`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'booking_status', data: { id, status: accept ? 'CONFIRMED' : 'REJECTED', car_name: b.cars?.name, client_name: b.client_name, via: 'bouton Telegram' } }) }).catch(() => {});
       await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: accept ? '✅ Acceptée' : '❌ Refusée' });
-      const wa = !accept && waLink(b.client_phone) ? `${waLink(b.client_phone)}?text=${encodeURIComponent(sorryText(b))}` : null;
-      await done(cq, accept ? `✅ ACCEPTÉE à ${hhmm()} — email au client${cal}. Pense au WhatsApp de confirmation 👇` : `❌ REFUSÉE à ${hhmm()} — email « indisponible » au client.${wa ? ' Message WhatsApp poli prêt : appuie 👇' : ''}`, true, wa);
+      const wa = !accept && waLink(b.client_phone) ? { autre: `${waLink(b.client_phone)}?text=${encodeURIComponent(sorryText(b, 'autre'))}`, complet: `${waLink(b.client_phone)}?text=${encodeURIComponent(sorryText(b, 'complet'))}` } : null;
+      await done(cq, accept ? `✅ ACCEPTÉE à ${hhmm()} — email au client${cal}. Pense au WhatsApp de confirmation 👇` : `❌ REFUSÉE à ${hhmm()} — email « indisponible » au client.${wa ? ' Choisis le message WhatsApp 👇 : 🚗 autre véhicule ou 📅 complet à ces dates' : ''}`, true, wa);
     } else if (kind === 'rv') {
       if (act === 'ok') { const { error } = await admin.from('reviews').update({ approved: true }).eq('id', id); if (error) throw error; }
       else { const { error } = await admin.from('reviews').delete().eq('id', id); if (error) throw error; }
