@@ -3,16 +3,27 @@
 // Sécurité : en-tête secret posé au setWebhook (dérivé de INTERNAL_API_TOKEN) + seul SON chat Telegram est obéi.
 import crypto from 'crypto';
 import { supabaseAdmin } from '../../lib/supabase';
-import { tgCall, TG_CHAT } from '../../lib/telegramNotify';
+import { tgCall, TG_CHAT, waLink } from '../../lib/telegramNotify';
 
 const SITE = 'https://fikconciergerie.com';
 export const hookSecret = () => crypto.createHash('sha256').update(`tg-notif|${process.env.INTERNAL_API_TOKEN || ''}`).digest('hex').slice(0, 48);
 const internal = () => ({ 'Content-Type': 'application/json', 'x-internal-token': process.env.INTERNAL_API_TOKEN || '' });
+const dm = d => d ? `${String(d).slice(8, 10)}/${String(d).slice(5, 7)}` : '?';
+/** Message WhatsApp poli au client après un refus (langue du formulaire). Jamais la Belgique ni d'autre date proposée par nous. */
+function sorryText(b) {
+  const first = String(b.client_name || '').trim().split(/\s+/)[0] || '';
+  const car = b.cars?.name || '';
+  if (b.client_lang === 'en') return `Hello ${first}, thank you very much for your booking request with FIK Conciergerie${car ? ` (${car}, ${dm(b.start_date)} → ${dm(b.end_date)})` : ''}. Unfortunately, this vehicle is not available on these dates, and we are truly sorry. If you wish, we can suggest another vehicle or other dates: just tell us what suits you. Have a nice day!`;
+  if (b.client_lang === 'ar') return `السلام عليكم ${first}، شكراً جزيلاً على طلب الحجز عند FIK Conciergerie${car ? ` (${car}، ${dm(b.start_date)} ← ${dm(b.end_date)})` : ''}. للأسف هذه السيارة غير متوفرة في هذه التواريخ، ونعتذر منك. إذا أردت، نقترح عليك سيارة أخرى أو تواريخ أخرى: قل لنا فقط ما يناسبك. يومك سعيد!`;
+  return `Bonjour ${first}, merci beaucoup pour votre demande de réservation chez FIK Conciergerie${car ? ` (${car}, du ${dm(b.start_date)} au ${dm(b.end_date)})` : ''}. Malheureusement, ce véhicule n'est pas disponible à ces dates, nous en sommes vraiment désolés. Si vous le souhaitez, nous pouvons vous proposer un autre véhicule ou d'autres dates : dites-nous simplement ce qui vous arrange. Belle journée à vous !`;
+}
 const hhmm = () => new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' });
 
-async function done(cq, line, keepUrls = true) {
+async function done(cq, line, keepUrls = true, waUrl = null) {
   const msg = cq.message;
-  const urls = keepUrls ? (msg.reply_markup?.inline_keyboard || []).map(r => r.filter(b => b.url)).filter(r => r.length) : [];
+  let urls = keepUrls ? (msg.reply_markup?.inline_keyboard || []).map(r => r.filter(b => b.url)).filter(r => r.length) : [];
+  // 22/11 : après un refus, « 💬 WhatsApp client » ouvre WhatsApp avec le message poli « véhicule indisponible » déjà écrit
+  if (waUrl) urls = urls.map(r => r.map(b => /wa\.me\//.test(b.url) ? { text: '💬 WhatsApp : « pas disponible »', url: waUrl } : b));
   await tgCall('editMessageText', { chat_id: msg.chat.id, message_id: msg.message_id, text: `${msg.text}\n\n${line}`, disable_web_page_preview: true, ...(urls.length ? { reply_markup: { inline_keyboard: urls } } : {}) });
 }
 
@@ -31,7 +42,7 @@ export default async function handler(req, res) {
   const admin = supabaseAdmin();
   try {
     if (kind === 'bk') {
-      const { data: b } = await admin.from('bookings').select('id, status, client_name, client_phone, start_date, end_date, nb_days, final_price, notes, cars(name)').eq('id', id).single();
+      const { data: b } = await admin.from('bookings').select('id, status, client_name, client_phone, client_lang, start_date, end_date, nb_days, final_price, notes, cars(name)').eq('id', id).single();
       if (!b) { await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: 'Réservation introuvable' }); return res.status(200).json({ ok: true }); }
       if (b.status !== 'PENDING') { await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: `Déjà traitée (${b.status})` }); await done(cq, `ℹ️ Déjà traitée : ${b.status}`); return res.status(200).json({ ok: true }); }
       const accept = act === 'acc';
@@ -46,7 +57,8 @@ export default async function handler(req, res) {
       // Dzaryx est prévenu (il connaît le nouveau statut pour la suite : WhatsApp de confirmation, bouclier…)
       fetch(`${SITE}/api/notify-dzaryx`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'booking_status', data: { id, status: accept ? 'CONFIRMED' : 'REJECTED', car_name: b.cars?.name, client_name: b.client_name, via: 'bouton Telegram' } }) }).catch(() => {});
       await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: accept ? '✅ Acceptée' : '❌ Refusée' });
-      await done(cq, accept ? `✅ ACCEPTÉE à ${hhmm()} — email au client${cal}. Pense au WhatsApp de confirmation 👇` : `❌ REFUSÉE à ${hhmm()} — email « indisponible » au client.`);
+      const wa = !accept && waLink(b.client_phone) ? `${waLink(b.client_phone)}?text=${encodeURIComponent(sorryText(b))}` : null;
+      await done(cq, accept ? `✅ ACCEPTÉE à ${hhmm()} — email au client${cal}. Pense au WhatsApp de confirmation 👇` : `❌ REFUSÉE à ${hhmm()} — email « indisponible » au client.${wa ? ' Message WhatsApp poli prêt : appuie 👇' : ''}`, true, wa);
     } else if (kind === 'rv') {
       if (act === 'ok') { const { error } = await admin.from('reviews').update({ approved: true }).eq('id', id); if (error) throw error; }
       else { const { error } = await admin.from('reviews').delete().eq('id', id); if (error) throw error; }

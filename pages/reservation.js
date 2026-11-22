@@ -21,6 +21,23 @@ const DatePicker = dynamic(() => import('react-datepicker'), { ssr: false });
 const WHATSAPP_FALLBACK = '32466311469';
 
 const L3 = (lang, frT, enT, arT) => (lang === 'ar' ? arT : lang === 'en' ? enT : frT);
+// 22/11 : âge prouvé → date de naissance (âge calculé) + photo de la pièce d'identité
+const ageFrom = (birth) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(birth || '')) return '';
+  const [y, m, d] = birth.split('-').map(Number), n = new Date();
+  let a = n.getFullYear() - y; if (n.getMonth() + 1 < m || (n.getMonth() + 1 === m && n.getDate() < d)) a--;
+  return a > 0 && a < 110 ? String(a) : '';
+};
+const birthFr = (birth) => birth ? `${birth.slice(8, 10)}/${birth.slice(5, 7)}/${birth.slice(0, 4)}` : '';
+/** Photo → JPEG ≤ 1600 px (envoi rapide, < 1 Mo) */
+const shrinkImage = (file) => new Promise((resolve, reject) => {
+  const url = URL.createObjectURL(file); const img = new window.Image();
+  img.onload = () => { const k = Math.min(1, 1600 / Math.max(img.width, img.height)); const c = document.createElement('canvas');
+    c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url); resolve(c.toDataURL('image/jpeg', 0.82)); };
+  img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image')); };
+  img.src = url;
+});
 
 // Ligne d'option à cocher (défini hors de la page : sinon les champs enfants perdent le focus à chaque frappe)
 function OptRow({ checked, onChange, icon, title, desc, price, children }) {
@@ -56,7 +73,7 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = W
     ``,
     `*Client:* ${form.name}`,
     `*Phone:* ${form.phone}`,
-    `*Age:* ${form.age}`,
+    `*Age:* ${form.age}${form.birth ? ` (born ${birthFr(form.birth)})` : ''}`,
     form.email    ? `*Email:* ${form.email}`         : null,
     form.passport ? `*Passport/ID:* ${form.passport}` : null,
     ``,
@@ -79,7 +96,7 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = W
     ``,
     `*الزبون :* ${form.name}`,
     `*الهاتف :* ${form.phone}`,
-    `*العمر :* ${form.age} سنة`,
+    `*العمر :* ${form.age} سنة${form.birth ? ` (${birthFr(form.birth)})` : ''}`,
     form.email    ? `*البريد :* ${form.email}`            : null,
     form.passport ? `*جواز/بطاقة :* ${form.passport}`    : null,
     ``,
@@ -102,7 +119,7 @@ function buildWhatsAppUrl(form, car, days, total, bookingId, lang = 'fr', wa = W
     ``,
     `*Client :* ${form.name}`,
     `*Téléphone :* ${form.phone}`,
-    `*Âge :* ${form.age} ans`,
+    `*Âge :* ${form.age} ans${form.birth ? ` (né(e) le ${birthFr(form.birth)})` : ''}`,
     form.email    ? `*Email :* ${form.email}`         : null,
     form.passport ? `*Passeport/CIN :* ${form.passport}` : null,
     ``,
@@ -148,7 +165,7 @@ export default function ReservationPage({ cars: initialCars }) {
 
   const [form, setForm] = useState({
     carId: '', startDate: '', endDate: '',
-    name: '', phone: '', age: '', email: '', passport: '', notes: '', referral: '',
+    name: '', phone: '', age: '', birth: '', email: '', passport: '', notes: '', referral: '',
     babySeat: false, babyAges: [''],
     pickup: 'agence', dropoff: 'agence', flight: '', arrival: '',
     driver2: false, driver2Name: '', driver2Age: '', wifi: false, sim: false, simPlan: '', simBudget: '', fuel: false,
@@ -177,7 +194,7 @@ export default function ReservationPage({ cars: initialCars }) {
       setForm(f => ({
         ...f,
         name: f.name || (name || ''), phone: f.phone || (phone || ''),
-        email: f.email || (email || ''), age: f.age || (age || ''),
+        email: f.email || (email || ''),
         passport: f.passport || (passport || ''),
       }));
     }
@@ -196,6 +213,16 @@ export default function ReservationPage({ cars: initialCars }) {
   }, [form.carId]);
 
   const set = field => e => setForm(f => ({ ...f, [field]: e.target.value }));
+  const setBirth = e => { const birth = e.target.value; setForm(f => ({ ...f, birth, age: ageFrom(birth) })); };
+  const [idPhoto, setIdPhoto] = useState(null);   // dataURL JPEG de la pièce d'identité
+  const [idBusy, setIdBusy] = useState(false);
+  const pickId = async (e) => {
+    const file = e.target.files && e.target.files[0]; e.target.value = '';
+    if (!file) return;
+    setIdBusy(true);
+    try { setIdPhoto(await shrinkImage(file)); } catch { setIdPhoto(null); }
+    setIdBusy(false);
+  };
 
   const selectedCar = cars.find(c => c.id === form.carId) || null;
   const days = (() => {
@@ -277,15 +304,19 @@ export default function ReservationPage({ cars: initialCars }) {
 
   const validateStep2 = () => {
     const E = lang === 'en'
-      ? { name: 'Enter your full name.', phone: 'Enter your phone number.', age: 'Enter your age.', ageInv: 'Invalid age.', ageMin: 'Minimum age 35 required (insurance requirement).' }
+      ? { name: 'Enter your full name.', phone: 'Enter your phone number.', age: 'Enter your date of birth.', ageInv: 'Invalid age.', ageMin: 'Minimum age 35 required (insurance requirement).' }
       : ar
-      ? { name: 'أدخل اسمك الكامل.', phone: 'أدخل رقم هاتفك.', age: 'أدخل عمرك.', ageInv: 'عمر غير صحيح.', ageMin: 'السن الأدنى المطلوب 35 سنة (شرط التأمين).' }
-      : { name: 'Entrez votre nom complet.', phone: 'Entrez votre numéro de téléphone.', age: 'Entrez votre âge.', ageInv: 'Âge invalide.', ageMin: 'Âge minimum 35 ans requis (exigence assurance).' };
+      ? { name: 'أدخل اسمك الكامل.', phone: 'أدخل رقم هاتفك.', age: 'أدخل تاريخ ميلادك.', ageInv: 'عمر غير صحيح.', ageMin: 'السن الأدنى المطلوب 35 سنة (شرط التأمين).' }
+      : { name: 'Entrez votre nom complet.', phone: 'Entrez votre numéro de téléphone.', age: 'Entrez votre date de naissance.', ageInv: 'Âge invalide.', ageMin: 'Âge minimum 35 ans requis (exigence assurance).' };
     if (!form.name.trim()) { setErr2(E.name); return false; }
     if (!form.phone.trim()){ setErr2(E.phone); return false; }
     if (!form.age)         { setErr2(E.age); return false; }
     if (isNaN(ageNum) || ageNum <= 0) { setErr2(E.ageInv); return false; }
     if (ageNum < 35)       { setErr2(E.ageMin); return false; }
+    if (!idPhoto) {
+      setErr2(L3(lang, 'Ajoutez la photo de votre passeport ou carte d\'identité (la date de naissance doit être lisible).', 'Add a photo of your passport or ID card (the date of birth must be readable).', 'أضف صورة جواز السفر أو بطاقة التعريف (يجب أن يكون تاريخ الميلاد واضحاً).'));
+      return false;
+    }
     if (form.babySeat && form.babyAges.some(a => a === '')) {
       setErr2(L3(lang, 'Indiquez l\'âge de chaque enfant pour le siège bébé.', 'Select the age of each child for the baby seat.', 'حدّد عمر كل طفل لمقعد الطفل.'));
       return false;
@@ -329,6 +360,19 @@ export default function ReservationPage({ cars: initialCars }) {
       }
     }
     setLoading(true);
+    let idPath = null;
+    try {
+      const up = await fetch('/api/upload-id', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: idPhoto }) });
+      const uj = await up.json().catch(() => ({}));
+      if (!up.ok || !uj.path) throw new Error(uj.error || 'upload');
+      idPath = uj.path;
+    } catch {
+      setLoading(false);
+      setErr2(L3(lang, 'La photo de la pièce d\'identité n\'a pas pu être envoyée. Vérifiez votre connexion et réessayez.', 'The ID photo could not be sent. Check your connection and try again.', 'تعذّر إرسال صورة الوثيقة. تحقق من الاتصال وأعد المحاولة.'));
+      return;
+    }
+    const proofLine = `🎂 Né(e) le ${birthFr(form.birth)} (${form.age} ans) · 🪪 pièce d'identité reçue (photo envoyée sur Telegram)`;
+    const notesWithProof = [proofLine, fullNotes].filter(Boolean).join('\n');
     let newBookingId = null;
     try {
       if (supabase && selectedCar) {
@@ -344,7 +388,7 @@ export default function ReservationPage({ cars: initialCars }) {
           end_date:             form.endDate,
           final_price:          total,
           status:               'PENDING',
-          notes:                fullNotes,
+          notes:                notesWithProof,
           client_price_per_day: selectedCar.resale_price || null,
           owner_price_per_day:  selectedCar.base_price   || null,
           rented_by:            'Kouider',
@@ -364,7 +408,8 @@ export default function ReservationPage({ cars: initialCars }) {
         body: JSON.stringify({
           client_email: form.email, client_name: form.name, client_phone: form.phone, car_name: selectedCar?.name,
           start_date: form.startDate, end_date: form.endDate, total,
-          currency: selectedCar?.currency, booking_id: newBookingId, lang, extras: extrasFr,
+          currency: selectedCar?.currency, booking_id: newBookingId, lang, extras: [proofLine, ...extrasFr],
+          id_path: idPath, birth: birthFr(form.birth),
         }),
       }).catch(() => {});
       // Code parrainage (si saisi) → incrémente le compteur — non bloquant
@@ -383,7 +428,7 @@ export default function ReservationPage({ cars: initialCars }) {
           type: 'new_booking',
           data: {
             car_name: selectedCar?.name, client_name: form.name,
-            client_phone: form.phone, client_age: form.age,
+            client_phone: form.phone, client_age: form.age, client_birth: birthFr(form.birth),
             start_date: form.startDate, end_date: form.endDate,
             total, notes: fullNotes,
           },
@@ -744,7 +789,7 @@ export default function ReservationPage({ cars: initialCars }) {
                             placeholder={t('res.ph_name')} className="input-dark" style={{ paddingLeft: '2.75rem' }} autoComplete="name" />
                         </div>
                       </div>
-                      <div className="grid grid-cols-[1fr_96px] gap-3">
+                      <div className="grid md:grid-cols-2 gap-3">
                         <div>
                           <label className="label-dark">{t('res.phone')}</label>
                           <div className="relative">
@@ -754,9 +799,10 @@ export default function ReservationPage({ cars: initialCars }) {
                           </div>
                         </div>
                         <div>
-                          <label className="label-dark">{t('res.age')}</label>
-                          <input type="number" value={form.age} onChange={set('age')}
-                            placeholder={t('res.ph_age')} min="18" max="99" className="input-dark" />
+                          <label className="label-dark">{L('Date de naissance *', 'Date of birth *', 'تاريخ الميلاد *')}</label>
+                          <input type="date" value={form.birth} onChange={setBirth} max={new Date().toISOString().slice(0, 10)} min="1920-01-01"
+                            className="input-dark" autoComplete="bday" />
+                          {form.age && <p className="text-white/40 text-[11px] mt-1.5">{L(`${form.age} ans`, `${form.age} years old`, `${form.age} سنة`)}</p>}
                         </div>
                       </div>
                     </div>
@@ -790,10 +836,30 @@ export default function ReservationPage({ cars: initialCars }) {
                         </div>
                       </div>
                     </div>
+                    {/* 22/11 : preuve de l'âge (35 ans minimum, assurance) */}
+                    <div className="rounded-2xl border border-gold-500/25 bg-gold-500/[0.04] p-4">
+                      <label className="label-dark">{L('Photo du passeport ou de la carte d\'identité *', 'Photo of your passport or ID card *', 'صورة جواز السفر أو بطاقة التعريف *')}</label>
+                      <p className="text-white/45 text-xs leading-relaxed mb-3">
+                        {L('La page avec votre photo et votre date de naissance, bien lisible. Elle sert uniquement à vérifier l\'âge minimum de 35 ans (assurance) et reste privée.',
+                           'The page with your photo and date of birth, clearly readable. It is only used to check the 35-year minimum age (insurance) and stays private.',
+                           'الصفحة التي فيها صورتك وتاريخ ميلادك، واضحة. تُستعمل فقط للتحقق من السن الأدنى 35 سنة (التأمين) وتبقى سرية.')}
+                      </p>
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        {idPhoto
+                          ? <img src={idPhoto} alt="" className="w-20 h-14 object-cover rounded-lg border border-white/15" />
+                          : <span className="w-20 h-14 rounded-lg border border-dashed border-white/25 flex items-center justify-center text-white/40"><FileText size={18} /></span>}
+                        <span className="btn-gold px-4 py-2.5 text-sm">
+                          {idBusy ? <Loader2 size={14} className="animate-spin" /> : null}
+                          {idPhoto ? L('Changer la photo', 'Change photo', 'تغيير الصورة') : L('Prendre / choisir une photo', 'Take / choose a photo', 'التقاط / اختيار صورة')}
+                        </span>
+                        <input type="file" accept="image/*" className="hidden" onChange={pickId} />
+                      </label>
+                      {idPhoto && <p className="text-green-400/80 text-xs mt-2">✓ {L('Photo ajoutée', 'Photo added', 'تمت إضافة الصورة')}</p>}
+                    </div>
                     <p className="text-white/35 text-xs leading-relaxed -mt-1">
-                      {L('📸 Les photos du passeport et du permis vous seront demandées à l\'étape du contrat — assurez-vous que vos documents sont valides (non périmés).',
-                         '📸 Passport & licence photos will be requested at the contract step — make sure your documents are valid (not expired).',
-                         '📸 ستُطلب منك صور جواز السفر والرخصة في خطوة العقد — احرص على أن تكون الوثائق سارية (غير منتهية).')}
+                      {L('📸 La photo du permis vous sera demandée à l\'étape du contrat — assurez-vous que vos documents sont valides (non périmés).',
+                         '📸 A licence photo will be requested at the contract step — make sure your documents are valid (not expired).',
+                         '📸 ستُطلب منك صورة الرخصة في خطوة العقد — احرص على أن تكون الوثائق سارية (غير منتهية).')}
                     </p>
 
                     {/* ── Prise & retour du véhicule */}
