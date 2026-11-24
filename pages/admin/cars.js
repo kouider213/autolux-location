@@ -11,7 +11,7 @@ const FUELS        = ['essence', 'diesel', 'hybride', 'électrique'];
 const TRANSMISSIONS = ['manuelle', 'automatique'];
 
 const emptyForm = {
-  name: '', base_price: '', resale_price: '', currency: 'DZD',
+  name: '', base_price: '', resale_price: '', currency: 'EUR',
   category: 'berline', seats: 5, fuel: 'essence',
   transmission: 'manuelle', description: '', featured: false,
   insurance_expiry: '', technical_expiry: '', vignette_expiry: '', service_due_date: '', maintenance_note: '',
@@ -47,7 +47,7 @@ export default function AdminCarsPage() {
 
   const openEdit = (car) => {
     setForm({
-      name: car.name, base_price: car.base_price, resale_price: car.resale_price, currency: car.currency || 'DZD', featured: !!car.featured,
+      name: car.name, base_price: car.base_price, resale_price: car.resale_price, currency: car.currency || 'EUR', featured: !!car.featured,
       category: car.category, seats: car.seats, fuel: car.fuel,
       transmission: car.transmission, description: car.description || '',
       insurance_expiry: car.insurance_expiry || '', technical_expiry: car.technical_expiry || '',
@@ -379,7 +379,7 @@ export default function AdminCarsPage() {
                 <div>
                   <label className="label-dark">Devise</label>
                   <div className="grid grid-cols-2 gap-2">
-                    {['DZD', 'EUR'].map(c => (
+                    {['EUR', 'DZD'].map(c => (
                       <button key={c} type="button" onClick={() => setForm(f => ({ ...f, currency: c }))}
                         className={`py-2.5 rounded-xl text-sm font-bold transition-all ${form.currency === c ? 'bg-gold-500 text-noir-950' : 'bg-white/[0.04] border border-white/[0.08] text-white/50'}`}>
                         {c === 'DZD' ? 'Dinar (DA)' : 'Euro (€)'}
