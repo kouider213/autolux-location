@@ -808,6 +808,12 @@ export default function ReservationPage({ cars: initialCars }) {
                             <input type="tel" value={form.phone} onChange={set('phone')}
                               placeholder={t('res.ph_phone')} className="input-dark" style={{ paddingLeft: '2.75rem' }} autoComplete="tel" />
                           </div>
+                          {/* 24/11 : un client a cru qu'il fallait un numéro algérien (exemple « +213 6XX ») → tous pays acceptés */}
+                          <p className="text-white/40 text-xs mt-1.5">
+                            {/^\s*0/.test(form.phone)
+                              ? L('Ajoutez l’indicatif du pays : +33 pour la France, +213 pour l’Algérie (ex. +33 6 12 34 56 78).', 'Add your country code: +33 France, +213 Algeria (e.g. +33 6 12 34 56 78).', 'أضف رمز البلد: ‎+33 فرنسا، ‎+213 الجزائر')
+                              : L('Numéro français, algérien ou autre : celui où on peut vous écrire sur WhatsApp.', 'French, Algerian or any number: the one we can reach on WhatsApp.', 'رقم فرنسي أو جزائري أو غيره: الرقم الذي نراسلك عليه في واتساب.')}
+                          </p>
                         </div>
                         <div>
                           <label className="label-dark">{L('Date de naissance *', 'Date of birth *', 'تاريخ الميلاد *')}</label>

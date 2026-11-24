@@ -263,7 +263,7 @@ export default function CommandeVehiculePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field label={t('f.nom')}><input value={form.nom} onChange={set('nom')} placeholder="Benali" className={inputCls} /></Field>
                   <Field label={t('f.prenom')}><input value={form.prenom} onChange={set('prenom')} placeholder="Karim" className={inputCls} /></Field>
-                  <Field label={t('f.wa')} icon={MessageCircle}><input value={form.whatsapp} onChange={set('whatsapp')} placeholder="+213 ..." className={inputCls} inputMode="tel" /></Field>
+                  <Field label={t('f.wa')} icon={MessageCircle}><input value={form.whatsapp} onChange={set('whatsapp')} placeholder="+33 6… ou +213 6…" className={inputCls} inputMode="tel" /></Field>
                   <Field label={t('f.ville')} icon={MapPin}><input value={form.ville} onChange={set('ville')} placeholder="Oran, Algérie" className={inputCls} /></Field>
                 </div>
               </div>
