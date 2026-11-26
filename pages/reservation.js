@@ -347,6 +347,8 @@ export default function ReservationPage({ cars: initialCars }) {
   const handleSubmit = async () => {
     if (!validateStep2()) return;
     const extrasFr = extrasLines(form, 'fr');
+    // 26/11 : « Recommandé par » (nom ou code) → visible dans la notif Telegram + notes ; la personne devient client prioritaire
+    if (form.referral && form.referral.trim()) extrasFr.push(`⭐ Recommandé par : ${form.referral.trim().slice(0, 60)}`);
     const costFr = extrasCost(form, extras, days, 'fr');
     if (costFr.items.some(i => i.amount)) extrasFr.push(`💶 Options : ${costFr.items.filter(i => i.amount !== 0).map(i => `${i.label} ${i.amount === null ? 'sur demande' : fmt(i.amount) + ' €'}`).join(' ; ')}`);
     const fullNotes = [...extrasFr, form.notes || null].filter(Boolean).join('\n') || null;
@@ -419,7 +421,7 @@ export default function ReservationPage({ cars: initialCars }) {
       if (form.referral && form.referral.trim()) {
         fetch('/api/referral-use', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: form.referral.trim() }),
+          body: JSON.stringify({ code: form.referral.trim(), booking_id: newBookingId, phone: form.phone, name: form.name }),
         }).catch(() => {});
       }
       fetch('/api/cart-draft', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: form.phone, done: true }) }).catch(() => {});
@@ -952,9 +954,9 @@ export default function ReservationPage({ cars: initialCars }) {
                           placeholder={t('res.ph_notes')} className="input-dark resize-none" />
                       </div>
                       <div>
-                        <label className="label-dark">{L('Code parrainage (optionnel)', 'Referral code (optional)', 'رمز الإحالة (اختياري)')}</label>
+                        <label className="label-dark">{L('Recommandé par (optionnel)', 'Referred by (optional)', 'من طرف من؟ (اختياري)')}</label>
                         <input value={form.referral} onChange={set('referral')}
-                          placeholder={L('Si vous avez un code', 'If you have a code', 'إن كان لديك رمز')} className="input-dark" />
+                          placeholder={L('Nom de la personne qui vous a conseillé (ou son code)', 'Name of the person who referred you (or their code)', 'اسم الشخص اللي نصحك بينا (ولا الرمز تاعو)')} className="input-dark" />
                       </div>
                     </div>
 
