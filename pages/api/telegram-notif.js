@@ -53,10 +53,17 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   if (!process.env.INTERNAL_API_TOKEN || req.headers['x-telegram-bot-api-secret-token'] !== hookSecret()) return res.status(401).end();
   const cq = req.body?.callback_query;
-  // Message texte écrit au bot : on rappelle que c'est Dzaryx qui gère (pas de réponse IA ici)
+  // 26/11 : Dzaryx de SECOURS — un message écrit au bot part au cerveau de Dzaryx (Railway), qui répond par ce même bot.
+  // Marche même quand le serveur Telegram de Dzaryx (VPS) est en panne. Texte seulement ; seul SON chat est obéi.
   if (!cq) {
     const m = req.body?.message;
-    if (m && String(m.chat?.id) === String(TG_CHAT)) await tgCall('sendMessage', { chat_id: m.chat.id, text: 'Ce bot sert aux alertes du site (boutons ✅ / ❌ sous chaque demande). Pour tout le reste, écris à Dzaryx : « demandes en attente ? », « accepte <nom> », « mets l\'annonce… ».' });
+    if (m && String(m.chat?.id) === String(TG_CHAT)) {
+      const text = String(m.text || m.caption || '').trim();
+      if (!text) { await tgCall('sendMessage', { chat_id: m.chat.id, text: 'Ici je lis seulement le texte (Dzaryx de secours). Écris ta demande.' }); return res.status(200).json({ ok: true }); }
+      const r = await fetch('https://ibrahim-backend-production.up.railway.app/api/jarvis/backup-chat', { method: 'POST', headers: internal(), body: JSON.stringify({ text }), signal: AbortSignal.timeout(8000) }).catch(() => null);
+      if (r && r.ok) await tgCall('sendChatAction', { chat_id: m.chat.id, action: 'typing' });
+      else await tgCall('sendMessage', { chat_id: m.chat.id, text: '❌ Dzaryx est injoignable pour le moment. Réessaie dans quelques minutes.' });
+    }
     return res.status(200).json({ ok: true });
   }
   if (String(cq.message?.chat?.id) !== String(TG_CHAT)) { await tgCall('answerCallbackQuery', { callback_query_id: cq.id, text: 'Non autorisé' }); return res.status(200).json({ ok: true }); }
